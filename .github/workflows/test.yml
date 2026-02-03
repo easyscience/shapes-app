@@ -1,0 +1,101 @@
+# This is the main workflow for testing the code before and after
+# packaging it.
+# The workflow is divided into three jobs:
+# 1. env-prepare:
+#    - Prepare the environment for testing
+# 2. source-test:
+#    - Test the code base against the latest code in the repository
+#    - Create the Python package
+#    - Upload the Python package for the next job
+# 3. package-test:
+#    - Download the Python package (including extra files) from the previous job
+#    - Install the downloaded Python package
+#    - Test the code base against the installed package
+# 4. dashboard-build-trigger:
+#    - Trigger the dashboard build workflow to update the code quality
+#      metrics on the dashboard
+
+name: Code and package tests
+
+on:
+  # Trigger the workflow on push
+  push:
+    # Every branch
+    branches: ['**']
+    # But do not run this workflow on creating a new tag starting with
+    # 'v', e.g. 'v1.0.3' (see publish-pypi.yml)
+    tags-ignore: ['v*']
+  # Trigger the workflow on pull request
+  pull_request:
+    branches: ['**']
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Need permissions to trigger the dashboard build workflow
+permissions:
+  actions: write
+  contents: read
+
+# Allow only one concurrent workflow, skipping runs queued between the run
+# in-progress and latest queued. And cancel in-progress runs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# Set the environment variables to be used in all jobs defined in this workflow
+env:
+  CI_BRANCH: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  # Job 1: Set up environment variables
+  env-prepare:
+    runs-on: [ubuntu-latest]
+
+    outputs:
+      pytest-marks: ${{ steps.set-mark.outputs.pytest_marks }}
+
+    steps:
+      # Determine if integration tests should be run fully or only the fast ones
+      # (to save time on branches other than master and develop)
+      - name: Set mark for integration tests
+        id: set-mark
+        run: |
+          if [[ "${{ env.CI_BRANCH }}" == "master" || "${{ env.CI_BRANCH }}" == "develop" ]]; then
+            echo "pytest_marks=" >> $GITHUB_OUTPUT
+          else
+            echo "pytest_marks=-m fast" >> $GITHUB_OUTPUT
+          fi
+
+  # Job 2: Test code
+  source-test:
+    needs: env-prepare # depend on previous job
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-14, windows-2022]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up pixi
+        uses: ./.github/actions/setup-pixi
+        with:
+          environments: ${{ env.PIXI_ENVS }}
+
+      - name: Run unit tests
+        shell: bash
+        run: pixi run unit-tests
+
+      - name: Run integration tests ${{ needs.env-prepare.outputs.pytest-marks }}
+        shell: bash
+        run: pixi run integration-tests ${{ needs.env-prepare.outputs.pytest-marks }}
+
+  # Job 4: Build and publish dashboard (reusable workflow)
+  run-reusable-workflows:
+    needs: source-test # depend on previous job
+    uses: ./.github/workflows/dashboard.yml
+    secrets: inherit
