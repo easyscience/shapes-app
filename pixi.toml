@@ -46,16 +46,13 @@ nodejs = '*' # Required for Prettier (non-Python formatting)
 gsl = '*'    # GNU Scientific Library; required for pdffit2.
 
 [pypi-dependencies] # == [feature.default.pypi-dependencies]
-pip = '*'                                                     # Native package installer
+pip = '*'                                                          # Native package installer
 easyshapes_app = { path = ".", editable = true, extras = ['dev'] }
 
 # Specific features: Set specific Python versions
 
-
 [feature.py-max.dependencies]
 python = '3.13.*'
-
-
 
 ##############
 # ENVIRONMENTS
