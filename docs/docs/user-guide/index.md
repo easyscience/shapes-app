@@ -4,8 +4,8 @@ icon: material/book-open-variant
 
 # :material-book-open-variant: User Guide
 
-This section provides an overview of the **core concepts**,
-**key parameters** and **workflow steps** required for using EasyShapes
+This section provides an overview of the **core concepts**, **key
+parameters** and **workflow steps** required for using EasyShapes
 effectively.
 
 Here is a brief overview of the User Guide sections:
@@ -18,7 +18,7 @@ Here is a brief overview of the User Guide sections:
   by EasyShapes.
 - [Parameters](#) – Describes how parameters are structured, named, and
   accessed within the EasyShapes.
-- [First Steps](#) – Shows how to begin using EasyShapes in Python
-  or Jupyter notebooks.
+- [First Steps](#) – Shows how to begin using EasyShapes in Python or
+  Jupyter notebooks.
 - [Analysis Workflow](#) – Breaks down the data analysis pipeline into
   practical, sequential steps.
