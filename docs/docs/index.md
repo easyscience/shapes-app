@@ -1,6 +1,6 @@
 ![](assets/images/logo_dark.svg#gh-dark-mode-only)![](assets/images/logo_light.svg#gh-light-mode-only)
 
-# EasyShapes is a scientific software for constructing and simulating molecular systems. application
+# Constructing and simulating molecular systems
 
 Here is a brief overview of the main documentation sections:
 
