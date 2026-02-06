@@ -1400,7 +1400,7 @@ packages:
   requires_python: '>=3.11'
 - pypi: ./
   name: easyshapes-app
-  version: 999.0.0+dev3
+  version: 999.0.0+devdirty6
   sha256: a68f8413d979d8db02a73c154870f28bb6375131c3b89a50910c8ab266bd5017
   requires_dist:
   - darkdetect

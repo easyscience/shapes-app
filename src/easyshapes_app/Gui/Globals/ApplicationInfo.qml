@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2024 EasyApp contributors
-// SPDX-License-Identifier: BSD-3-Clause
-// © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
-
 pragma Singleton
 
 import QtQuick
@@ -9,21 +5,21 @@ import QtQuick
 QtObject {
 
     readonly property var about: {
-        'name': 'EasyPeasy',
+        'name': 'EasyShapes',
         'namePrefix': 'Easy',
-        'nameSuffix': 'Peasy',
+        'nameSuffix': 'Shapes',
         'namePrefixForLogo': 'easy',
-        'nameSuffixForLogo': 'peasy',
-        'homePageUrl': 'https://github.com/easyscience/peasy-app',
-        'issuesUrl': 'https://github.com/easyscience/peasy-app/issues',
-        'licenseUrl': 'https://github.com/easyscience/peasy-app/LICENCE',
-        'dependenciesUrl': 'https://github.com/easyscience/peasy-app/DEPENDENCIES.md',
+        'nameSuffixForLogo': 'shapes',
+        'homePageUrl': 'https://github.com/easyscience/shapes',
+        'issuesUrl': 'https://github.com/easyscience/shapes/issues',
+        'licenseUrl': 'https://github.com/easyscience/shapes/LICENCE',
+        'dependenciesUrl': 'https://github.com/easyscience/shapes/DEPENDENCIES.md',
         'version': '0.1.0',
-        'icon': Qt.resolvedUrl('../Resources/Logos/App.svg'),
+        'icon': Qt.resolvedUrl('../Resources/Logos/App.png'),
         'date': new Date().toISOString().slice(0,10),
-        'developerYearsFrom': '2019',
-        'developerYearsTo': '2024',
-        'description': 'EasyPeasy is a scientific software for performing imaginary calculations based on a theoretical model and refining its parameters against experimental data',
+        'developerYearsFrom': '2025',
+        'developerYearsTo': '2026',
+        'description': '**EasyShapes** is a scientific software for generation of ordered molecular aggregates and pre-assembled composite structures to seed molecular dynamics (MD) simulations aimed at studying equilibration (relaxation) processes in soft matter and biomolecular systems.',
         'developerIcons': [
             {
                 'url': 'https://ess.eu',
