@@ -16,9 +16,6 @@ molecular dynamics (MD) simulations aimed at studying equilibration
 
 <!-- HOME REPOSITORY SECTION -->
 
-**EasyShapes** is available as a cross-platform Qt QML desktop
-application.
-
 **EasyShapes** is developed as a cross-platform Qt QML desktop
 application.
 
