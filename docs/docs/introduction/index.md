@@ -9,9 +9,9 @@ icon: material/information-slab-circle
 **EasyShapes** is a scientific software for generation of ordered
 molecular aggregates and pre-assembled composite structures to seed
 molecular dynamics (MD) simulations aimed at studying equilibration
-(relaxation) processes in soft matter and biomolecular systems..
+(relaxation) processes in soft matter and biomolecular systems.
 
-**EasyShapes** is available as a cross-platform Qt QML desktop
+**EasyShapes** is developed as a cross-platform Qt QML desktop
 application.
 
 **EasyShapes** is developed using the

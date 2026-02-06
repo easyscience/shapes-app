@@ -5,7 +5,7 @@
 [project]
 name = 'easyshapes_app'
 dynamic = ['version'] # Use versioningit to manage the version
-description = 'EasyShapes is a scientific software for constructing and simulating molecular systems. '
+description = 'Constructing and simulating molecular systems'
 authors = [{ name = 'EasyShapes contributors' }]
 readme = 'README.md'
 license = { file = 'LICENSE' }
