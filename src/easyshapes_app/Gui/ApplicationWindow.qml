@@ -76,8 +76,8 @@ EaComponents.ApplicationWindow {
             id: sampleModelButton
             enabled: false
             fontIcon: 'puzzle-piece'
-            text: qsTr('Sample model')
-            ToolTip.text: qsTr('Sample model definition page')
+            text: qsTr('Sample Model')
+            ToolTip.text: qsTr('Sample Model definition page')
             Component.onCompleted: {
                 Globals.References.applicationWindow.appBarCentralTabs.sampleModelButton = sampleModelButton
             }

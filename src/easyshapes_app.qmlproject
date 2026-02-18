@@ -1,5 +1,6 @@
 import QmlProject 1.1
 
+
 Project {
     mainFile: "easyshapes_app/main.qml"
 
@@ -14,7 +15,7 @@ Project {
         directory: "easyshapes_app"
     }
     QmlFiles {
-        directory: "../../src/EasyApp"
+        directory: "../../EasyApp/src/EasyApp"
     }
 
     // Include .js files from specified directory and its subdirectories
@@ -22,7 +23,7 @@ Project {
         directory: "easyshapes_app"
     }
     JavaScriptFiles {
-        directory: "../../src/EasyApp"
+        directory: "../../EasyApp/src/EasyApp"
     }
 
     // Include Module Definition Files (qmldir), as well as .ts and .qrc
@@ -33,9 +34,11 @@ Project {
         recursive: true
     }
     Files {
-        directory: "../../src/EasyApp"
+        directory: "../../EasyApp/src/EasyApp"
         filter: "qmldir;*.ts;*.qrc;*.html"
         recursive: true
     }
 
+
+    mainUiFile: "easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml"
 }

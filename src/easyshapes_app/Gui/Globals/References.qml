@@ -34,6 +34,16 @@ QtObject {
                 }
             }
         },
+        'samplemodel': {
+            'sidebar': {
+                'basic': {
+                    'popups': {
+                        'LoadExistingModel': null,
+                        'CreateNewModel': null
+                    }
+                }
+            }
+        },
         'analysis': {
             'sidebar': {
                 'basic': {
