@@ -16,9 +16,9 @@ import Gui.Globals as Globals
 
 EaElements.GroupColumn {
 
-    EaElements.TextArea {
-        placeholderText: 'Sample Model was not loaded.'
-        enabled: false
+    EaComponents.TableView {
+        defaultInfoText: qsTr("No models defined")
+        header: EaComponents.TableViewHeader {}
     }
 
     Grid {
