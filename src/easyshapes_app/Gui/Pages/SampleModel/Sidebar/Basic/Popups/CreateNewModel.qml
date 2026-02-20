@@ -14,8 +14,8 @@ import EasyApp.Gui.Elements as EaElements
 import Gui.Globals as Globals
 
 
-
 EaElements.Dialog{
+    id: sampleModelCreationDialog
 
     property alias sampleModelName: sampleModelNameField.text
 
@@ -26,7 +26,9 @@ EaElements.Dialog{
     standardButtons: Dialog.Ok
 
     Column {
+
         spacing: EaStyle.Sizes.fontPixelSize
+
         Column {
             EaElements.Label {
                 enabled: false
@@ -36,10 +38,10 @@ EaElements.Dialog{
             EaElements.TextField {
                 id: sampleModelNameField
 
-                implicitWidth: inputFieldWidth
+                implicitWidth: sampleModelCreationDialog.inputFieldWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
-                placeholderText: qsTr("Enter Sample Model name here")
+                placeholderText: qsTr("(optional) Enter Sample Model name here")
 
                 Keys.onReturnPressed: dialog.accept()
                 Keys.onEnterPressed: dialog.accept()
@@ -49,20 +51,20 @@ EaElements.Dialog{
         Column {
             EaElements.Label {
                 enabled: false
-                text: qsTr("Name3")
+                text: qsTr("Choose the underlying structure type")
             }
 
-            EaElements.Label {
-                text: qsTr("Name4")
+            EaElements.ComboBox {
+                implicitWidth: sampleModelCreationDialog.inputFieldWidth
+                model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
             }
         }
 
     }
 
-    Component.onCompleted: {
-        Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewModel = this
-    }
-
-
+    Component.onCompleted: {
+        Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewModel = this
+    }
 
 }
+

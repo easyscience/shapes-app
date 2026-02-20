@@ -162,5 +162,6 @@
         <file>easyshapes_app/Gui/qmldir</file>
         <file>easyshapes_app/Gui/StatusBar.qml</file>
         <file>easyshapes_app/main.qml</file>
+        <file>easyshapes_app/test.qml</file>
     </qresource>
 </RCC>
