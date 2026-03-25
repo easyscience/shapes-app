@@ -17,13 +17,28 @@ import Gui.Globals as Globals
 EaElements.Dialog{
     id: sampleModelCreationDialog
 
-    property alias sampleModelName: sampleModelNameField.text
+    property var targetModel
 
     title: qsTr("Create a new Sample Model")
 
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
-    standardButtons: Dialog.Ok
+    standardButtons: Dialog.Ok // | Dialog.Cancel
+
+    onAccepted: {
+        console.log("Ok Clicked")
+
+        targetModel.clear()
+        targetModel.append(
+            {
+                name: sampleModelNameField.text,
+                structure_type: sampleModelTypeField.currentText,
+                description: sampleModelDescrField.text
+            }
+        )
+    }
+    onRejected: console.log("Cancel Clicked")
+    onOpened: console.log("Opened CreateNewModel Clicked")
 
     Column {
 
@@ -42,9 +57,6 @@ EaElements.Dialog{
                 horizontalAlignment: TextInput.AlignLeft
                 validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
                 placeholderText: qsTr("(optional) Enter Sample Model name here")
-
-                Keys.onReturnPressed: dialog.accept()
-                Keys.onEnterPressed: dialog.accept()
             }
         }
 
@@ -55,8 +67,25 @@ EaElements.Dialog{
             }
 
             EaElements.ComboBox {
+                id: sampleModelTypeField
                 implicitWidth: sampleModelCreationDialog.inputFieldWidth
                 model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
+            }
+        }
+
+        Column {
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Description")
+            }
+
+            EaElements.TextField {
+                id: sampleModelDescrField
+
+                implicitWidth: sampleModelCreationDialog.inputFieldWidth
+                horizontalAlignment: TextInput.AlignLeft
+                validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
+                placeholderText: qsTr("(optional) Enter Sample Model description here")
             }
         }
 

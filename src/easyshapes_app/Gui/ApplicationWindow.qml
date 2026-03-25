@@ -75,7 +75,7 @@ EaComponents.ApplicationWindow {
         EaElements.AppBarTabButton {
             id: sampleModelButton
             enabled: false
-            fontIcon: 'puzzle-piece'
+            fontIcon: 'layer-group'
             text: qsTr('Sample Model')
             ToolTip.text: qsTr('Sample Model definition page')
             Component.onCompleted: {
