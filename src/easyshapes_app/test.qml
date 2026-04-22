@@ -76,7 +76,6 @@ ApplicationWindow{
                 header: EaComponents.ListViewHeader {
                     EaComponents.TableViewLabel {
                         id: modelNameColumnName
-                        //width: whatverTable.width * 0.25
                         text: qsTr("Name")
                         color: EaStyle.Colors.themeForegroundMinor
                         leftPadding: EaStyle.Sizes.fontPixelSize * 0.7
@@ -84,14 +83,12 @@ ApplicationWindow{
 
                     EaComponents.TableViewLabel {
                         id: modelTypeColumnName
-                        //width: whatverTable.width * 0.15
                         text: qsTr("Type")
                         color: EaStyle.Colors.themeForegroundMinor
                     }
 
                     EaComponents.TableViewLabel {
                         id: modelDescrColumnName
-                        //width: whatverTable.width * 0.6
                         text: qsTr("Description")
                         color: EaStyle.Colors.themeForegroundMinor
                     }
@@ -112,34 +109,6 @@ ApplicationWindow{
                     ListElement { name: "1"; structure_type: "2"; description: "3" }
                     ListElement { name: "1"; structure_type: "2"; description: "3" }
                     ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
-                    ListElement { name: "1"; structure_type: "2"; description: "3" }
                     ListElement { name: "end1"; structure_type: "end2"; description: "end3" }
                 }
 
@@ -151,20 +120,17 @@ ApplicationWindow{
 
                     EaComponents.ListViewTextInput {
                         id: modelNameColumn
-                        //width: whatverTable.width * 0.25
                         text: name
                     }
 
                     EaComponents.TableViewLabel {
                         id: typeColumn
-                        //width: whatverTable.width * 0.15
                         text: structure_type
                         color: "#666" // new disabled
                     }
 
                     EaComponents.TableViewLabel {
                         id: descrColumn
-                        //width: whatverTable.width * 0.58
                         text: description
                         color: "#555" // old disabled
                     }

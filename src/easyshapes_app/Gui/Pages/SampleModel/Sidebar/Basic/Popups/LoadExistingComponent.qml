@@ -154,13 +154,6 @@ EaElements.Dialog{
                     ) ? EaStyle.Colors.themeAccentMinor : EaStyle.Colors.themeBackgroundHovered1
                 }
 
-                // color: {
-                //     ListView.view.itemSelectionModel.selection    // create dependency
-                //     return ListView.view.itemSelectionModel.isSelected(
-                //         ListView.view.itemSelectionModel.model.index(index, 0)
-                //     ) ? EaStyle.Colors.themeAccentMinor : EaStyle.Colors.themeBackgroundHovered1
-                // }
-
                 EaComponents.TableViewLabel {
                     id: modelNameColumn
                     width: EaStyle.Sizes.fontPixelSize * 12

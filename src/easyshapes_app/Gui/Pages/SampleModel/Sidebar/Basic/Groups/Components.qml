@@ -153,7 +153,11 @@ EaElements.GroupColumn {
             text: qsTr('Save component(s)')
             width: buttonWidth
             enabled: loadedComponents.model ? loadedComponents.model.count > 0 : false
-            onClicked: loadExistingComponentLoader.item.availableComponentsModel.append(loadedComponentsModel.get(0))
+            onClicked: {
+                //loadExistingComponentLoader.item.availableComponentsModel.append(loadedComponentsModel.get(0))
+                for (let i = 0; i < loadedComponentsModel.length; ++i)
+                    loadExistingComponentLoader.item.availableComponentsModel.append(loadedComponentsModel.get(i))
+            }
         }
     }
 

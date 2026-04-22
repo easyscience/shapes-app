@@ -23,7 +23,7 @@ EaElements.Dialog{
 
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
-    standardButtons: Dialog.Ok // | Dialog.Cancel
+    standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
         console.log("Ok Clicked")

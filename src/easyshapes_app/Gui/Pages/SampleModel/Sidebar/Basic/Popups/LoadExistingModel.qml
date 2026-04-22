@@ -26,8 +26,7 @@ EaElements.Dialog{
 
     property alias availableModelsModel: availableSambleModelsModel
 
-    standardButtons: Dialog.Ok // | Dialog.Cancel
-    //leftPadding: 40
+    standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
         console.log("Ok Clicked")
@@ -50,13 +49,11 @@ EaElements.Dialog{
         selectionModel.clear()
     }
 
-    Column {
-
-
-        EaElements.Label {
-            enabled: false
-            text: qsTr("Available in the Asset Library")
-        }
+    Column {
+        EaElements.Label {
+            enabled: false
+            text: qsTr("Available in the Asset Library")
+        }
 
         EaComponents.TableView {
             clip: true
@@ -103,18 +100,10 @@ EaElements.Dialog{
 
             property var itemSelectionModel: ItemSelectionModel {
                 id: selectionModel
-                model: availableSambleModelsModel  // ListView.view.model
-                // model: ListView.view.model
+                model: availableSambleModelsModel
             }
 
             property bool activeSelection: true
-            // property var itemSelectionModel: activeSelection ? _selectionModel : null
-
-            // function isItemSelected(index) {
-            //     return itemSelectionModel && itemSelectionModel.isSelected(
-            //         itemSelectionModel.model.index(index, 0)
-            //     )
-            // }
 
             delegate: EaComponents.TableViewDelegate {
 
@@ -122,18 +111,6 @@ EaElements.Dialog{
                 required property string name
                 required property string structure_type
                 required property string description
-
-                // color: {
-                //     if (!ListView.view.highlightSelection) {
-                //         return "whatever I want"
-                //     }
-
-                //     const selected = ListView.view.isItemSelected(index)
-
-                //     return selected
-                //         ? EaStyle.Colors.themeAccentMinor
-                //         : EaStyle.Colors.themeBackgroundHovered1
-                // }
 
                 color: {
                     if (!ListView.view.activeSelection) {
@@ -148,13 +125,6 @@ EaElements.Dialog{
                         ListView.view.itemSelectionModel.model.index(index, 0)
                     ) ? EaStyle.Colors.themeAccentMinor : EaStyle.Colors.themeBackgroundHovered1
                 }
-
-                // color: {
-                //     ListView.view.itemSelectionModel.selection    // create dependency
-                //     return ListView.view.itemSelectionModel.isSelected(
-                //         ListView.view.itemSelectionModel.model.index(index, 0)
-                //     ) ? EaStyle.Colors.themeAccentMinor : EaStyle.Colors.themeBackgroundHovered1
-                // }
 
                 EaComponents.TableViewLabel {
                     id: modelNameColumn
@@ -184,5 +154,5 @@ EaElements.Dialog{
                 }
             }
         }
-    }
+    }
 }
