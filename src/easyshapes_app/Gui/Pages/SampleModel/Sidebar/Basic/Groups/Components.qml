@@ -154,9 +154,11 @@ EaElements.GroupColumn {
             width: buttonWidth
             enabled: loadedComponents.model ? loadedComponents.model.count > 0 : false
             onClicked: {
-                //loadExistingComponentLoader.item.availableComponentsModel.append(loadedComponentsModel.get(0))
-                for (let i = 0; i < loadedComponentsModel.length; ++i)
-                    loadExistingComponentLoader.item.availableComponentsModel.append(loadedComponentsModel.get(i))
+                const indexes = loadedComponents.selectedIndexes
+                for (let i = 0; i < indexes.length; ++i)
+                    loadExistingComponentLoader.item.availableComponentsModel.append(
+                        loadedComponentsModel.get(indexes[i].row)
+                    )
             }
         }
     }
