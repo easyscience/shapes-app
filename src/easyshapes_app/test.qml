@@ -74,6 +74,7 @@ ApplicationWindow{
                 scrollBarInteractive: true
 
                 header: EaComponents.ListViewHeader {
+
                     EaComponents.TableViewLabel {
                         id: modelNameColumnName
                         text: qsTr("Name")

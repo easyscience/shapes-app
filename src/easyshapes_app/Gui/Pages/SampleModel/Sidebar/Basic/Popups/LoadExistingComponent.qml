@@ -14,7 +14,6 @@ import EasyApp.Gui.Style as EaStyle
 import Gui.Globals as Globals
 
 
-
 EaElements.Dialog{
     id: sampleModelLoadDialog
 
@@ -26,20 +25,13 @@ EaElements.Dialog{
 
     property alias availableComponentsModel: availableComponentsModel
 
-    standardButtons: Dialog.Ok // | Dialog.Cancel
+    standardButtons: Dialog.Ok | Dialog.Cancel
 
-    // Fields expected by targetModel (loadedComponentsModel in Components.qml):
-    // name, component_type, mint, mext, atoms
     onAccepted: {
-        console.log("Ok Clicked")
-
-        var indexes = selectionModel.selectedIndexes
-
-        if (indexes.length > 0) {
-            var row = indexes[0].row
+        let selected = loadModelListView.selectedIndexes
+        for (let i = 0; i < selected.length; ++i) {
+            var row = selected[i].row
             var item = availableComponentsModel.get(row)
-
-            console.log("Selected Component: ", item.name)
 
             targetModel.append({
                 name: item.name,
@@ -48,62 +40,64 @@ EaElements.Dialog{
                 mext: item.mext,
                 atoms: item.atoms
             })
-            selectionModel.clear()
         }
+        loadModelListView.clearSelection()
     }
     onRejected: {
-        console.log("Cancel Clicked")
-        selectionModel.clear()
+        loadModelListView.clearSelection()
     }
 
     Column {
-
-
         EaElements.Label {
             enabled: false
             text: qsTr("Available in the Asset Library")
         }
 
-        EaComponents.TableView {
-            clip: true
-            id: loadModelTableView
+        EaComponents.ListView {
+            id: loadModelListView
             defaultInfoText: qsTr("No models found")
+            multiSelection: true
 
-            header: EaComponents.TableViewHeader {
+            columnWidths: [
+                EaStyle.Sizes.fontPixelSize * 2.5,
+                -1,
+                EaStyle.Sizes.fontPixelSize * 8,
+                EaStyle.Sizes.fontPixelSize * 6,
+                EaStyle.Sizes.fontPixelSize * 6,
+                EaStyle.Sizes.fontPixelSize * 6,
+                EaStyle.Sizes.tableRowHeight,
+            ]
+
+            header: EaComponents.ListViewHeader {
+                EaComponents.TableViewLabel {
+                    text: qsTr("№")
+                    color: EaStyle.Colors.themeForegroundMinor
+                    horizontalAlignment: Text.AlignHCenter
+                }
                 EaComponents.TableViewLabel {
                     id: modelNameColumnName
-                    width: EaStyle.Sizes.fontPixelSize * 12
                     text: qsTr("Name")
                     color: EaStyle.Colors.themeForegroundMinor
-                    leftPadding: EaStyle.Sizes.fontPixelSize * 0.7
                 }
-
                 EaComponents.TableViewLabel {
                     id: modelTypeColumnName
-                    width: EaStyle.Sizes.fontPixelSize * 8
                     text: qsTr("Type")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
-
                 EaComponents.TableViewLabel {
                     id: modelAtomsColumnName
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: qsTr("Atoms")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
                 }
-
                 EaComponents.TableViewLabel {
                     id: modelMintColumnName
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: qsTr("Mint")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
                 }
-
                 EaComponents.TableViewLabel {
                     id: modelMextColumnName
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: qsTr("Mext")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
@@ -124,15 +118,9 @@ EaElements.Dialog{
                 ListElement { name: "D2O-buffer"; component_type: "Other"; atoms: 3; mint: 0; mext: 3 }
             }
 
-            property var itemSelectionModel: ItemSelectionModel {
-                id: selectionModel
-                model: availableComponentsModel
-            }
+            delegateModelAccess: DelegateModel.ReadOnly
 
-            property bool activeSelection: true
-
-            delegate: EaComponents.TableViewDelegate {
-
+            delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
                 required property string component_type
@@ -140,58 +128,39 @@ EaElements.Dialog{
                 required property int mint
                 required property int mext
 
-                color: {
-                    if (!ListView.view.activeSelection) {
-                        return index % 2 ?
-                                    EaStyle.Colors.themeBackgroundHovered2 :
-                                    EaStyle.Colors.themeBackgroundHovered1
-                    }
-
-                    ListView.view.itemSelectionModel.selection    // create dependency
-
-                    return ListView.view.itemSelectionModel.isSelected(
-                        ListView.view.itemSelectionModel.model.index(index, 0)
-                    ) ? EaStyle.Colors.themeAccentMinor : EaStyle.Colors.themeBackgroundHovered1
+                EaComponents.TableViewLabel {
+                    text: index + 1
+                    horizontalAlignment: Text.AlignHCenter
+                    enabled: false
                 }
-
                 EaComponents.TableViewLabel {
                     id: modelNameColumn
-                    width: EaStyle.Sizes.fontPixelSize * 12
                     text: name
-                    leftPadding: EaStyle.Sizes.fontPixelSize * 0.7
                 }
-
                 EaComponents.TableViewLabel {
                     id: typeColumn
-                    width: EaStyle.Sizes.fontPixelSize * 8
                     text: component_type
                 }
-
                 EaComponents.TableViewLabel {
                     id: atomsColumn
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: atoms
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
                     id: mintColumn
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: mint
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
                     id: mextColumn
-                    width: EaStyle.Sizes.fontPixelSize * 6
                     text: mext
                     horizontalAlignment: Text.AlignHCenter
                 }
-
-                mouseArea.onPressed: (mouse) => {
-                    let idx = ListView.view.itemSelectionModel.model.index(index, 0)
-                    ListView.view.itemSelectionModel.select(
-                        idx,
-                        ItemSelectionModel.ClearAndSelect
-                    )
+                EaComponents.TableViewButton {
+                    id: deleteRowColumn
+                    fontIcon: "minus-circle"
+                    ToolTip.text: qsTr("Remove this component")
+                    onClicked: availableComponentsModel.remove(index)
                 }
             }
         }

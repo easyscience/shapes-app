@@ -14,14 +14,13 @@ import EasyApp.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
+
 EaElements.GroupColumn {
     property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
 
     EaComponents.ListView {
         id: loadedComponents
-
         defaultInfoText: qsTr("Load or create components")
-
         multiSelection: true
 
         columnWidths: [
