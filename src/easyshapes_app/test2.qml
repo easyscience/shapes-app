@@ -50,33 +50,15 @@ ApplicationWindow{
                 }
             }
 
-            // groubox to test the element
-            EaElements.GroupBox {
-                title: qsTr('Test a group widget')
-                icon: 'wrench'
-                collapsed: false
-
-                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml'}
-            }
-
-            EaComponents.ListView {
+            EaComponents.TableView {
                 id: whatverTable
                 defaultInfoText: qsTr("No models found")
                 enabled: true
 
-                columnWidths: [
-                    whatverTable.width * 0.25,
-                    whatverTable.width * 0.15,
-                    -1,
-                ]
-
-                scrollBarPolicy: ScrollBar.AlwaysOn // ScrollBar.AsNeeded // ScrollBar.AlwaysOn
-                scrollBarInteractive: true
-
-                header: EaComponents.ListViewHeader {
+                header: EaComponents.TableViewHeader {
                     EaComponents.TableViewLabel {
                         id: modelNameColumnName
-                        //width: whatverTable.width * 0.25
+                        width: whatverTable.width * 0.25
                         text: qsTr("Name")
                         color: EaStyle.Colors.themeForegroundMinor
                         leftPadding: EaStyle.Sizes.fontPixelSize * 0.7
@@ -84,14 +66,14 @@ ApplicationWindow{
 
                     EaComponents.TableViewLabel {
                         id: modelTypeColumnName
-                        //width: whatverTable.width * 0.15
+                        width: whatverTable.width * 0.15
                         text: qsTr("Type")
                         color: EaStyle.Colors.themeForegroundMinor
                     }
 
                     EaComponents.TableViewLabel {
                         id: modelDescrColumnName
-                        //width: whatverTable.width * 0.6
+                        width: whatverTable.width * 0.6
                         text: qsTr("Description")
                         color: EaStyle.Colors.themeForegroundMinor
                     }
@@ -143,13 +125,13 @@ ApplicationWindow{
                     ListElement { name: "end1"; structure_type: "end2"; description: "end3" }
                 }
 
-                delegate: EaComponents.ListViewDelegate {
+                delegate: EaComponents.TableViewDelegate {
                     required property int index
                     required property string name
                     required property string structure_type
                     required property string description
 
-                    EaComponents.ListViewTextInput {
+                    EaComponents.TableViewLabel {
                         id: modelNameColumn
                         //width: whatverTable.width * 0.25
                         text: name
@@ -159,16 +141,19 @@ ApplicationWindow{
                         id: typeColumn
                         //width: whatverTable.width * 0.15
                         text: structure_type
-                        color: "#666" // new disabled
                     }
 
-                    EaComponents.TableViewLabel {
+                    EaComponents.TableViewTextInput {
                         id: descrColumn
                         //width: whatverTable.width * 0.58
                         text: description
-                        color: "#555" // old disabled
                     }
                 }
+
+                // ScrollBar.vertical: EaElements.ScrollBar {
+                //     policy: ScrollBar.AlwaysOn //  ScrollBar.AsNeeded // AlwaysOn
+                // }
+
 
             }
         }

@@ -20,9 +20,8 @@ EaElements.GroupColumn {
     EaComponents.TableView {
         id: loadedSampleModelTableView
         clip: true
-        // anchors.fill: parent
 
-        defaultInfoText: qsTr("No models defined")
+        defaultInfoText: qsTr("Get started by loading or creating a model")
         header: EaComponents.TableViewHeader {
             EaComponents.TableViewLabel {
                 id: modelNameColumnName
@@ -58,7 +57,7 @@ EaElements.GroupColumn {
             required property string structure_type
             required property string description
 
-            EaComponents.TableViewTextInput {
+            EaComponents.ListViewTextInput {
                 id: modelNameColumn
                 width: EaStyle.Sizes.fontPixelSize * 12
                 text: name
@@ -80,7 +79,7 @@ EaElements.GroupColumn {
                 }
             }
 
-            EaComponents.TableViewTextInput {
+            EaComponents.ListViewTextInput {
                 id: descrColumn
                 width: EaStyle.Sizes.fontPixelSize * 20
                 text: description
@@ -99,64 +98,40 @@ EaElements.GroupColumn {
         columns: 3
         spacing: EaStyle.Sizes.fontPixelSize
 
-
-        // button 1
         EaElements.SideBarButton {
             fontIcon: 'upload'
-            text: qsTr('Load an existing model')
+            text: qsTr('Load model')
             width: buttonWidth
-
-            onClicked: {
-                console.debug(`Clicking '${text}' button ::: ${this}`)
-                Globals.References.pages.samplemodel.sidebar.basic.popups.LoadExistingModel.open()
-            }
-
-            Loader {
-                source: '../Popups/LoadExistingModel.qml'
-                onLoaded: {
-                    item.targetModel = loadedSambleModelsModel
-                    Globals.References.pages.samplemodel.sidebar.basic.popups.LoadExistingModel = item
-                }
-            }
+            onClicked: loadExistingModelLoader.item.open()
         }
-        // button 1
 
-
-        // button 2
         EaElements.SideBarButton {
             fontIcon: 'plus-circle'
-            text: qsTr('Create a new model')
+            text: qsTr('Create model')
             width: buttonWidth
-
-            onClicked: {
-                console.debug(`Clicking '${text}' button ::: ${this}`)
-                Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewModel.open()
-            }
-
-            Loader {
-                source: '../Popups/CreateNewModel.qml'
-                onLoaded: {
-                    item.targetModel = loadedSambleModelsModel
-                    Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewModel = item
-                }
-            }
+            onClicked: createNewModelLoader.item.open()
         }
-        // button 2
 
-        // button 3
         EaElements.SideBarButton {
             id: saveModelButton
             fontIcon: 'download'
-            text: qsTr('Save the model')
+            text: qsTr('Save model')
             width: buttonWidth
             enabled: loadedSampleModelTableView.model ? loadedSampleModelTableView.model.count > 0 : false
-
-            onClicked: {
-                console.debug(`Clicking '${text}' button ::: ${this}`)
-                Globals.References.pages.samplemodel.sidebar.basic.popups.LoadExistingModel.availableModelsModel.append(loadedSambleModelsModel.get(0))
-            }
+            onClicked: loadExistingModelLoader.item.availableModelsModel.append(loadedSambleModelsModel.get(0))
         }
-        // button 3
+    }
+
+    Loader {
+        id: loadExistingModelLoader
+        source: '../Popups/LoadExistingModel.qml'
+        onLoaded: item.targetModel = loadedSambleModelsModel
+    }
+
+    Loader {
+        id: createNewModelLoader
+        source: '../Popups/CreateNewModel.qml'
+        onLoaded: item.targetModel = loadedSambleModelsModel
     }
 
 }

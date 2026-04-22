@@ -22,31 +22,31 @@ EaComponents.SideBarColumn {
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 1')
-        icon: 'rocket'
+        title: qsTr('Components')
+        icon: 'puzzle-piece'
 
-        Loader { source: 'Groups/Group1.qml' }
+        Loader { source: 'Groups/Components.qml' }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 2')
-        icon: 'rocket'
+        title: qsTr('Solution')
+        icon: 'tint'
 
         Loader { source: 'Groups/Group2.qml' }
     }
 
     EaElements.GroupBox {
         title: qsTr('Group 3')
-        icon: 'rocket'
+        icon: 'grip-horizontal'
 
         Loader { source: 'Groups/Group3.qml' }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 4')
+        title: qsTr('Group 1')
         icon: 'rocket'
 
-        Loader { source: 'Groups/Group4.qml' }
+        Loader { source: 'Groups/Group1.qml' }
     }
 
 }

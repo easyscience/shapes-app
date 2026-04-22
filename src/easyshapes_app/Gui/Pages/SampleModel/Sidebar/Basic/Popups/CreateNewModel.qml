@@ -44,32 +44,37 @@ EaElements.Dialog{
 
         spacing: EaStyle.Sizes.fontPixelSize
 
-        Column {
-            EaElements.Label {
-                enabled: false
-                text: qsTr("Name")
+        Row {
+            id: nameTypeRow
+            spacing: EaStyle.Sizes.fontPixelSize
+
+            Column {
+                EaElements.Label {
+                    enabled: false
+                    text: qsTr("Name")
+                }
+
+                EaElements.TextField {
+                    id: sampleModelNameField
+
+                    implicitWidth: (sampleModelCreationDialog.inputFieldWidth - nameTypeRow.spacing) / 2
+                    horizontalAlignment: TextInput.AlignLeft
+                    validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
+                    placeholderText: qsTr("(optional) Enter Sample Model name here")
+                }
             }
 
-            EaElements.TextField {
-                id: sampleModelNameField
+            Column {
+                EaElements.Label {
+                    enabled: false
+                    text: qsTr("Structure type")
+                }
 
-                implicitWidth: sampleModelCreationDialog.inputFieldWidth
-                horizontalAlignment: TextInput.AlignLeft
-                validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
-                placeholderText: qsTr("(optional) Enter Sample Model name here")
-            }
-        }
-
-        Column {
-            EaElements.Label {
-                enabled: false
-                text: qsTr("Choose the underlying structure type")
-            }
-
-            EaElements.ComboBox {
-                id: sampleModelTypeField
-                implicitWidth: sampleModelCreationDialog.inputFieldWidth
-                model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
+                EaElements.ComboBox {
+                    id: sampleModelTypeField
+                    implicitWidth: (sampleModelCreationDialog.inputFieldWidth - nameTypeRow.spacing) / 2
+                    model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
+                }
             }
         }
 

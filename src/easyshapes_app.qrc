@@ -6,9 +6,11 @@
         <file>../../EasyApp/src/EasyApp/Gui/Animations/TranslationChange.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/ChartViewHeatmap2dPlotly.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/ChartViewSimple1dPlotly.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly1dBarPlot.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly1dLine.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly1dMeasVsCalc.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly2dHeatmap.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly2dPolarHeatmap.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly3dScatter.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/Plotly3dSurface.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Charts/qmldir</file>
@@ -27,6 +29,10 @@
         <file>../../EasyApp/src/EasyApp/Gui/Components/GuideWindow.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Components/GuideWindowContainer.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Components/JsonListModel.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Components/ListView.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Components/ListViewDelegate.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Components/ListViewHeader.qml</file>
+        <file>../../EasyApp/src/EasyApp/Gui/Components/ListViewTextInput.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Components/MainContent.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Components/PreferencesDialog.qml</file>
         <file>../../EasyApp/src/EasyApp/Gui/Components/ProjectDescriptionDialog.qml</file>
@@ -141,14 +147,17 @@
         <file>easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group1.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group3.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group4.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/GraphsView.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/Image.qml</file>
@@ -163,5 +172,6 @@
         <file>easyshapes_app/Gui/StatusBar.qml</file>
         <file>easyshapes_app/main.qml</file>
         <file>easyshapes_app/test.qml</file>
+        <file>easyshapes_app/test2.qml</file>
     </qresource>
 </RCC>
