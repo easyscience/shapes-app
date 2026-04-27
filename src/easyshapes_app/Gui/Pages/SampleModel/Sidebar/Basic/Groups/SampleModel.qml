@@ -17,29 +17,27 @@ import Gui.Globals as Globals
 EaElements.GroupColumn {
     property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
 
-    EaComponents.TableView {
-        id: loadedSampleModelTableView
-        clip: true
-
+    EaComponents.ListView {
+        id: loadedSampleModel
         defaultInfoText: qsTr("Get started by loading or creating a model")
-        header: EaComponents.TableViewHeader {
+        multiSelection: false
+
+        columnWidths: [
+            EaStyle.Sizes.fontPixelSize * 12,
+            EaStyle.Sizes.fontPixelSize * 6,
+            -1
+        ]
+
+        header: EaComponents.ListViewHeader {
             EaComponents.TableViewLabel {
-                id: modelNameColumnName
-                width: EaStyle.Sizes.fontPixelSize * 8
                 text: qsTr("Name")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-
             EaComponents.TableViewLabel {
-                id: modelTypeColumnName
-                width: EaStyle.Sizes.fontPixelSize * 6
                 text: qsTr("Type")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-
             EaComponents.TableViewLabel {
-                id: modelDescrColumnName
-                width: EaStyle.Sizes.fontPixelSize * 24
                 text: qsTr("Description")
                 color: EaStyle.Colors.themeForegroundMinor
             }
@@ -51,45 +49,28 @@ EaElements.GroupColumn {
 
         delegateModelAccess: DelegateModel.ReadWrite
 
-        delegate: EaComponents.TableViewDelegate {
+        delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string name
             required property string structure_type
             required property string description
 
             EaComponents.ListViewTextInput {
-                id: modelNameColumn
-                width: EaStyle.Sizes.fontPixelSize * 12
                 text: name
                 onEditingFinished: name = text
-                leftPadding: EaStyle.Sizes.fontPixelSize * 0.7
             }
-
             EaComponents.TableViewComboBox{
-                id: structureTypeColumn
-                width: EaStyle.Sizes.fontPixelSize * 6
-                model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
-
+                model: [qsTr("Ring"), qsTr("Ball"), qsTr("Vesicle"), qsTr("Rod"), qsTr("Bilayer"), qsTr("Monolayer"), qsTr("Lattice")]
                 Component.onCompleted: {
                     currentIndex = model.indexOf(structure_type)
                 }
-
                 onActivated: (index) => {
                     structure_type = model[index]
                 }
             }
-
             EaComponents.ListViewTextInput {
-                id: descrColumn
-                width: EaStyle.Sizes.fontPixelSize * 20
                 text: description
-                onEditingFinished: {
-                    description = text
-                    console.log("descrColumn onEditingFinished")
-                }
-                onAccepted: {
-                    console.log("descrColumn onAccepted")
-                }
+                onEditingFinished: description = text
             }
         }
     }
@@ -99,25 +80,24 @@ EaElements.GroupColumn {
         spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.SideBarButton {
-            fontIcon: 'upload'
-            text: qsTr('Load model')
+            fontIcon: "upload"
+            text: qsTr("Load model")
             width: buttonWidth
             onClicked: loadExistingModelLoader.item.open()
         }
 
         EaElements.SideBarButton {
-            fontIcon: 'plus-circle'
-            text: qsTr('Create model')
+            fontIcon: "plus-circle"
+            text: qsTr("Create model")
             width: buttonWidth
             onClicked: createNewModelLoader.item.open()
         }
 
         EaElements.SideBarButton {
-            id: saveModelButton
-            fontIcon: 'download'
-            text: qsTr('Save model')
+            fontIcon: "download"
+            text: qsTr("Save model")
             width: buttonWidth
-            enabled: loadedSampleModelTableView.model ? loadedSampleModelTableView.model.count > 0 : false
+            enabled: loadedSampleModel.model && loadedSampleModel.model.count > 0 && loadedSambleModelsModel.get(0).name !== ""
             onClicked: loadExistingModelLoader.item.availableModelsModel.append(loadedSambleModelsModel.get(0))
         }
     }

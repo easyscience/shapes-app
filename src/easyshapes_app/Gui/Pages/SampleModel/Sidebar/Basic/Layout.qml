@@ -14,8 +14,8 @@ import Gui.Globals as Globals
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr('Add a Model')
-        icon: 'vial'
+        title: qsTr('Model Definition')
+        icon: 'tag'
         collapsed: false
 
         Loader { source: 'Groups/SampleModel.qml' }

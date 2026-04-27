@@ -18,17 +18,14 @@ EaElements.Dialog{
     id: sampleModelLoadDialog
 
     property var targetModel
-
-    title: qsTr("Load Components from the Asset Library")
-
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
-
     property alias availableComponentsModel: availableComponentsModel
 
+    title: qsTr("Load Components from the Asset Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        let selected = loadModelListView.selectedIndexes
+        let selected = loadComponentListView.selectedIndexes
         for (let i = 0; i < selected.length; ++i) {
             var row = selected[i].row
             var item = availableComponentsModel.get(row)
@@ -41,10 +38,10 @@ EaElements.Dialog{
                 atoms: item.atoms
             })
         }
-        loadModelListView.clearSelection()
+        loadComponentListView.clearSelection()
     }
     onRejected: {
-        loadModelListView.clearSelection()
+        loadComponentListView.clearSelection()
     }
 
     Column {
@@ -54,7 +51,7 @@ EaElements.Dialog{
         }
 
         EaComponents.ListView {
-            id: loadModelListView
+            id: loadComponentListView
             defaultInfoText: qsTr("No models found")
             multiSelection: true
 
@@ -75,29 +72,24 @@ EaElements.Dialog{
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
-                    id: modelNameColumnName
                     text: qsTr("Name")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
                 EaComponents.TableViewLabel {
-                    id: modelTypeColumnName
                     text: qsTr("Type")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
                 EaComponents.TableViewLabel {
-                    id: modelAtomsColumnName
                     text: qsTr("Atoms")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
-                    id: modelMintColumnName
                     text: qsTr("Mint")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
-                    id: modelMextColumnName
                     text: qsTr("Mext")
                     color: EaStyle.Colors.themeForegroundMinor
                     horizontalAlignment: Text.AlignHCenter
@@ -134,30 +126,24 @@ EaElements.Dialog{
                     enabled: false
                 }
                 EaComponents.TableViewLabel {
-                    id: modelNameColumn
                     text: name
                 }
                 EaComponents.TableViewLabel {
-                    id: typeColumn
                     text: component_type
                 }
                 EaComponents.TableViewLabel {
-                    id: atomsColumn
                     text: atoms
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
-                    id: mintColumn
                     text: mint
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewLabel {
-                    id: mextColumn
                     text: mext
                     horizontalAlignment: Text.AlignHCenter
                 }
                 EaComponents.TableViewButton {
-                    id: deleteRowColumn
                     fontIcon: "minus-circle"
                     ToolTip.text: qsTr("Remove this component")
                     onClicked: availableComponentsModel.remove(index)

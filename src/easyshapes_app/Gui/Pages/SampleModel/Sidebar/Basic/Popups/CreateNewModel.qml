@@ -18,16 +18,12 @@ EaElements.Dialog{
     id: sampleModelCreationDialog
 
     property var targetModel
-
-    title: qsTr("Create a new Sample Model")
-
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
+    title: qsTr("Create a new Sample Model")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        console.log("Ok Clicked")
-
         targetModel.clear()
         targetModel.append(
             {
@@ -37,11 +33,8 @@ EaElements.Dialog{
             }
         )
     }
-    onRejected: console.log("Cancel Clicked")
-    onOpened: console.log("Opened CreateNewModel Clicked")
 
     Column {
-
         spacing: EaStyle.Sizes.fontPixelSize
 
         Row {
@@ -53,10 +46,8 @@ EaElements.Dialog{
                     enabled: false
                     text: qsTr("Name")
                 }
-
                 EaElements.TextField {
                     id: sampleModelNameField
-
                     implicitWidth: (sampleModelCreationDialog.inputFieldWidth - nameTypeRow.spacing) / 2
                     horizontalAlignment: TextInput.AlignLeft
                     validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
@@ -69,11 +60,10 @@ EaElements.Dialog{
                     enabled: false
                     text: qsTr("Structure type")
                 }
-
                 EaElements.ComboBox {
                     id: sampleModelTypeField
                     implicitWidth: (sampleModelCreationDialog.inputFieldWidth - nameTypeRow.spacing) / 2
-                    model: ["Ring", "Ball", "Vesicle", "Rod", "Bilayer", "Monolayer", "Lattice"]
+                    model: [qsTr("Ring"), qsTr("Ball"), qsTr("Vesicle"), qsTr("Rod"), qsTr("Bilayer"), qsTr("Monolayer"), qsTr("Lattice")]
                 }
             }
         }
@@ -83,22 +73,14 @@ EaElements.Dialog{
                 enabled: false
                 text: qsTr("Description")
             }
-
             EaElements.TextField {
                 id: sampleModelDescrField
-
                 implicitWidth: sampleModelCreationDialog.inputFieldWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
                 placeholderText: qsTr("(optional) Enter Sample Model description here")
             }
         }
-
     }
-
-    Component.onCompleted: {
-        Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewModel = this
-    }
-
 }
 

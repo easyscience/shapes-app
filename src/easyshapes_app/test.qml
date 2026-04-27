@@ -25,7 +25,6 @@ ApplicationWindow{
         spacing: EaStyle.Sizes.fontPixelSize * 4
         leftPadding: 12
 
-
         Column {
             width: 600
             spacing: EaStyle.Sizes.fontPixelSize

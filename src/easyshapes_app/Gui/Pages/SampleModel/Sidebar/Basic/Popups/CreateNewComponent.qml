@@ -18,16 +18,12 @@ EaElements.Dialog{
     id: componentCreationDialog
 
     property var targetModel
-
-    title: qsTr("Create a new Component")
-
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
+    title: qsTr("Create a new Component")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        console.log("Ok Clicked")
-
         targetModel.append({
             name: componentNameField.text,
             component_type: sampleModelTypeField.currentText,
@@ -36,31 +32,21 @@ EaElements.Dialog{
             mext: 0
         })
     }
-    onRejected: console.log("Cancel Clicked")
-    onOpened: console.log("Opened CreateNewComponent Clicked")
-
-    Component.onCompleted: {
-        Globals.References.pages.samplemodel.sidebar.basic.popups.CreateNewComponent = this
-    }
 
     Column {
-
         spacing: EaStyle.Sizes.fontPixelSize
 
         Row {
-            spacing: EaStyle.Sizes.fontPixelSize
-
             property int halfFieldWidth: (componentCreationDialog.inputFieldWidth - spacing) / 2
+            spacing: EaStyle.Sizes.fontPixelSize
 
             Column {
                 EaElements.Label {
                     enabled: false
                     text: qsTr("Name")
                 }
-
                 EaElements.TextField {
                     id: componentNameField
-
                     implicitWidth: parent.parent.halfFieldWidth
                     horizontalAlignment: TextInput.AlignLeft
                     validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
@@ -73,11 +59,10 @@ EaElements.Dialog{
                     enabled: false
                     text: qsTr("Component type")
                 }
-
                 EaElements.ComboBox {
                     id: sampleModelTypeField
                     implicitWidth: parent.parent.halfFieldWidth
-                    model: ["Other", "Lipid", "Surfactant"]
+                    model: [qsTr("Other"), qsTr("Lipid"), qsTr("Surfactant")]
                 }
             }
         }
@@ -107,13 +92,12 @@ EaElements.Dialog{
                 enabled: true
                 maxRowCountShow: 2
                 width: componentCreationDialog.inputFieldWidth
+                scrollBarInteractive: false
 
                 columnWidths: [
                     -1,
                     EaStyle.Sizes.tableRowHeight
                 ]
-
-                scrollBarInteractive: false
 
                 model: ListModel {
                     id: selectedFilePathsModel

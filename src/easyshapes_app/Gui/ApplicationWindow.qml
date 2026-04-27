@@ -75,8 +75,8 @@ EaComponents.ApplicationWindow {
         EaElements.AppBarTabButton {
             id: sampleModelButton
             enabled: false
-            fontIcon: 'layer-group'
-            text: qsTr('Sample Model')
+            fontIcon: 'layer-group' // 'layer-group'  'vials' 'vial'
+            text: qsTr('Sample Model') // qsTr('Model')
             ToolTip.text: qsTr('Sample Model definition page')
             Component.onCompleted: {
                 Globals.References.applicationWindow.appBarCentralTabs.sampleModelButton = sampleModelButton
