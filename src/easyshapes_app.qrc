@@ -147,6 +147,7 @@
         <file>easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group3.qml</file>

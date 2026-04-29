@@ -13,6 +13,8 @@ import EasyApp.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
+import "../Components" as Local
+
 EaElements.GroupColumn {
     property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
     EaComponents.ListView {
@@ -102,65 +104,8 @@ EaElements.GroupColumn {
             enabled: false
             text: qsTr("Layer %1 Fractions").arg(layers.selectedIndexes.length > 0 ? layers.selectedIndexes[0].row + 1 : 1)
         }
-        EaComponents.ListView {
+        Local.Fractions {
             id: fractions
-            defaultInfoText: qsTr("Missing components")
-            selectionActive: false
-
-            columnWidths: [
-                EaStyle.Sizes.fontPixelSize * 6,
-                -1,
-                EaStyle.Sizes.fontPixelSize * 8,
-                EaStyle.Sizes.fontPixelSize * 8,
-            ]
-
-            header: EaComponents.ListViewHeader {
-                EaComponents.TableViewLabel {
-                    text: qsTr("Present")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {} // filler
-                EaComponents.TableViewLabel {
-                    text: qsTr("Component name")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Molar ratio")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-            }
-
-            model: ListModel {
-                id: fractionsModel
-                ListElement { name: "POPC"; fracs: 100; present: true }
-                ListElement { name: "DOPC"; fracs: 100; present: true }
-                ListElement { name: "DPPC"; fracs: 100; present: true }
-            }
-
-            delegateModelAccess: DelegateModel.ReadWrite
-
-            delegate: EaComponents.ListViewDelegate {
-                required property int index
-                required property string name
-                required property double fracs
-                required property bool present
-
-                EaComponents.TableViewCheckBox {
-                    checked: present
-                    onToggled: present = checked
-                }
-                EaComponents.TableViewLabel{} // filler
-                EaComponents.TableViewLabel{
-                    text: name
-                    enabled: false
-                }
-                EaComponents.ListViewTextInput {
-                    text: present ? fracs : 0
-                    enabled: present
-                    onEditingFinished: fracs = parseFloat(text)
-                    validator: DoubleValidator  { bottom: 0 }
-                }
-            }
         }
     }
 }
