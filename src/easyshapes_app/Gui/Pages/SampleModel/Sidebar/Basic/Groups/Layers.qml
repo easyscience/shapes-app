@@ -18,7 +18,7 @@ EaElements.GroupColumn {
     EaComponents.ListView {
         id: layers
         defaultInfoText: qsTr("Add at least one layer")
-        selectable: false
+        multiSelection: false
 
         columnWidths: [
             EaStyle.Sizes.fontPixelSize * 2.5,
@@ -87,69 +87,79 @@ EaElements.GroupColumn {
             id: addLayerButton
             anchors.right: parent.right
             anchors.rightMargin: EaStyle.Sizes.tableColumnSpacing
-            fontIcon: 'plus-circle'
-            text: qsTr('Add layer')
+            fontIcon: "plus-circle"
+            text: qsTr("Add layer")
             width: buttonWidth
             onClicked: layersModel.append({ dmin: 0.25, rmin: 0.5 })
         }
     }
-    EaComponents.ListView {
-        id: fractions
-        defaultInfoText: qsTr("Missing components")
-        selectionActive: false
+    Column {
+        visible: layers.selectedIndexes.length > 0
+        width: parent.width
 
-        columnWidths: [
-            EaStyle.Sizes.fontPixelSize * 6,
-            -1,
-            EaStyle.Sizes.fontPixelSize * 8,
-            EaStyle.Sizes.fontPixelSize * 8,
-        ]
-
-        header: EaComponents.ListViewHeader {
-            EaComponents.TableViewLabel {
-                text: qsTr("Present")
-                color: EaStyle.Colors.themeForegroundMinor
-            }
-            EaComponents.TableViewLabel {} // filler
-            EaComponents.TableViewLabel {
-                text: qsTr("Component name")
-                color: EaStyle.Colors.themeForegroundMinor
-            }
-            EaComponents.TableViewLabel {
-                text: qsTr("Molar ratio")
-                color: EaStyle.Colors.themeForegroundMinor
-            }
+        EaElements.Label {
+            id: layerFractionsLabel
+            enabled: false
+            text: qsTr("Layer %1 Fractions").arg(layers.selectedIndexes.length > 0 ? layers.selectedIndexes[0].row + 1 : 1)
         }
+        EaComponents.ListView {
+            id: fractions
+            defaultInfoText: qsTr("Missing components")
+            selectionActive: false
 
-        model: ListModel {
-            id: fractionsModel
-            ListElement { name: "POPC"; fracs: 100; present: true }
-            ListElement { name: "DOPC"; fracs: 100; present: true }
-            ListElement { name: "DPPC"; fracs: 100; present: true }
-        }
+            columnWidths: [
+                EaStyle.Sizes.fontPixelSize * 6,
+                -1,
+                EaStyle.Sizes.fontPixelSize * 8,
+                EaStyle.Sizes.fontPixelSize * 8,
+            ]
 
-        delegateModelAccess: DelegateModel.ReadWrite
-
-        delegate: EaComponents.ListViewDelegate {
-            required property int index
-            required property string name
-            required property double fracs
-            required property bool present
-
-            EaComponents.TableViewCheckBox {
-                checked: present
-                onToggled: present = checked
+            header: EaComponents.ListViewHeader {
+                EaComponents.TableViewLabel {
+                    text: qsTr("Present")
+                    color: EaStyle.Colors.themeForegroundMinor
+                }
+                EaComponents.TableViewLabel {} // filler
+                EaComponents.TableViewLabel {
+                    text: qsTr("Component name")
+                    color: EaStyle.Colors.themeForegroundMinor
+                }
+                EaComponents.TableViewLabel {
+                    text: qsTr("Molar ratio")
+                    color: EaStyle.Colors.themeForegroundMinor
+                }
             }
-            EaComponents.TableViewLabel{} // filler
-            EaComponents.TableViewLabel{
-                text: name
-                enabled: false
+
+            model: ListModel {
+                id: fractionsModel
+                ListElement { name: "POPC"; fracs: 100; present: true }
+                ListElement { name: "DOPC"; fracs: 100; present: true }
+                ListElement { name: "DPPC"; fracs: 100; present: true }
             }
-            EaComponents.ListViewTextInput {
-                text: present ? fracs : 0
-                enabled: present
-                onEditingFinished: fracs = parseFloat(text)
-                validator: DoubleValidator  { bottom: 0 }
+
+            delegateModelAccess: DelegateModel.ReadWrite
+
+            delegate: EaComponents.ListViewDelegate {
+                required property int index
+                required property string name
+                required property double fracs
+                required property bool present
+
+                EaComponents.TableViewCheckBox {
+                    checked: present
+                    onToggled: present = checked
+                }
+                EaComponents.TableViewLabel{} // filler
+                EaComponents.TableViewLabel{
+                    text: name
+                    enabled: false
+                }
+                EaComponents.ListViewTextInput {
+                    text: present ? fracs : 0
+                    enabled: present
+                    onEditingFinished: fracs = parseFloat(text)
+                    validator: DoubleValidator  { bottom: 0 }
+                }
             }
         }
     }
