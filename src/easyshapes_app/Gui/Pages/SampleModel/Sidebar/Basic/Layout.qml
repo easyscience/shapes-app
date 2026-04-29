@@ -18,7 +18,7 @@ EaComponents.SideBarColumn {
         icon: 'tag'
         collapsed: false
 
-        Loader { source: 'Groups/SampleModel.qml' }
+        Loader { id: sampleModelLoader; source: 'Groups/SampleModel.qml' }
     }
 
     EaElements.GroupBox {
@@ -29,14 +29,15 @@ EaComponents.SideBarColumn {
     }
 
     EaElements.GroupBox {
-        title: qsTr('Solution')
-        icon: 'tint'
+        title: qsTr('Layers')
+        icon: 'layer-group' // 'grip-lines'
+        visible: sampleModelLoader.item ? sampleModelLoader.item.currentStructureType === 'Ball' : false
 
-        Loader { source: 'Groups/Group2.qml' }
+        Loader { source: 'Groups/Layers.qml' }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 3')
+        title: qsTr('Solvent')
         icon: 'grip-horizontal'
 
         Loader { source: 'Groups/Group3.qml' }
@@ -46,7 +47,7 @@ EaComponents.SideBarColumn {
         title: qsTr('Group 1')
         icon: 'rocket'
 
-        Loader { source: 'Groups/Group1.qml' }
+        Loader { source: 'Groups/Group2.qml' }
     }
 
 }

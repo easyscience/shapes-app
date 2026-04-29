@@ -37,7 +37,6 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: qsTr("№")
                 color: EaStyle.Colors.themeForegroundMinor
-                horizontalAlignment: Text.AlignHCenter
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Name")
@@ -50,17 +49,14 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: qsTr("Atoms")
                 color: EaStyle.Colors.themeForegroundMinor
-                horizontalAlignment: Text.AlignHCenter
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Mint")
                 color: EaStyle.Colors.themeForegroundMinor
-                horizontalAlignment: Text.AlignHCenter
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Mext")
                 color: EaStyle.Colors.themeForegroundMinor
-                horizontalAlignment: Text.AlignHCenter
             }
             EaComponents.TableViewLabel {
                 color: EaStyle.Colors.themeForegroundMinor
@@ -83,12 +79,10 @@ EaElements.GroupColumn {
 
             EaComponents.TableViewLabel {
                 text: index + 1
-                horizontalAlignment: Text.AlignHCenter
                 enabled: false
             }
 
             EaComponents.ListViewTextInput {
-                id: modelNameColumn
                 text: name
                 onEditingFinished: name = text
             }
@@ -100,27 +94,23 @@ EaElements.GroupColumn {
 
             EaComponents.ListViewTextInput {
                 text: atoms
-                horizontalAlignment: Text.AlignHCenter
                 onEditingFinished: atoms = parseInt(text)
                 validator: IntValidator { bottom: 0 }
             }
 
             EaComponents.ListViewTextInput {
                 text: mint
-                horizontalAlignment: Text.AlignHCenter
                 onEditingFinished: mint = parseInt(text)
                 validator: IntValidator { bottom: 0 }
             }
 
             EaComponents.ListViewTextInput {
                 text: mext
-                horizontalAlignment: Text.AlignHCenter
                 onEditingFinished: mext = parseInt(text)
                 validator: IntValidator { bottom: 0 }
             }
 
             EaComponents.TableViewButton {
-                id: deleteRowColumn
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this component")
                 onClicked: loadedComponentsModel.remove(index)

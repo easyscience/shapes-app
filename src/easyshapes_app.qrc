@@ -148,9 +148,9 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group1.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group3.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>

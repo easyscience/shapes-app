@@ -15,7 +15,11 @@ import EasyApp.Gui.Logic as EaLogic
 import Gui.Globals as Globals
 
 EaElements.GroupColumn {
+    id: root
     property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
+    property string currentStructureType: ""
+
+    Component.onCompleted: Globals.References.pages.samplemodel.sidebar.basic.groups.sampleModel = root
 
     EaComponents.ListView {
         id: loadedSampleModel
@@ -45,6 +49,7 @@ EaElements.GroupColumn {
 
         model: ListModel {
             id: loadedSambleModelsModel
+            onCountChanged: root.currentStructureType = count > 0 ? get(0).structure_type : ""
         }
 
         delegateModelAccess: DelegateModel.ReadWrite
@@ -66,6 +71,7 @@ EaElements.GroupColumn {
                 }
                 onActivated: (index) => {
                     structure_type = model[index]
+                    root.currentStructureType = model[index]
                 }
             }
             EaComponents.ListViewTextInput {

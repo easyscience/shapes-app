@@ -43,6 +43,9 @@ QtObject {
                         'LoadExistingComponent': null,
                         'CreateNewComponent': null,
                         'OpenAssetFile': null
+                    },
+                    'groups': {
+                        'sampleModel': null
                     }
                 }
             }
