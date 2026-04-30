@@ -37,6 +37,14 @@ EaComponents.SideBarColumn {
     }
 
     EaElements.GroupBox {
+        title: qsTr('Lamellae')
+        icon: 'layer-group'
+        visible: sampleModelLoader.item ? sampleModelLoader.item.currentStructureType === 'Vesicle' : false
+
+        Loader { source: 'Groups/Lamellae.qml' }
+    }
+
+    EaElements.GroupBox {
         title: qsTr('Solvent')
         icon: 'grip-horizontal'
 
