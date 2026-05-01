@@ -5,11 +5,11 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
-import EasyApp.Gui.Logic as EaLogic
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -23,11 +23,11 @@ EaElements.GroupColumn {
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.fontPixelSize * 2.5,
-            -1,
-            EaStyle.Sizes.fontPixelSize * 6,
-            EaStyle.Sizes.fontPixelSize * 6,
-            EaStyle.Sizes.tableRowHeight
+            EaStyle.Sizes.tableColumnAuto,    // №
+            EaStyle.Sizes.tableColumnFlex,    // filler
+            EaStyle.Sizes.tableColumnAuto,    // Dmin, nm
+            EaStyle.Sizes.tableColumnAuto,    // Rmin, nm
+            EaStyle.Sizes.tableRowHeight      // delete button
         ]
 
         header: EaComponents.ListViewHeader {
@@ -37,13 +37,14 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewLabel {} // filler
             EaComponents.TableViewLabel {
-                text: qsTr("Dmin")
+                text: qsTr("Dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Rmin")
+                text: qsTr("Rmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
+            EaComponents.TableViewLabel {}
         }
 
         model: ListModel {

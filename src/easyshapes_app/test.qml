@@ -6,10 +6,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Components as EaComponents
-import EasyApp.Gui.Elements as EaElements
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Elements as EaElements
 import Qt.labs.qmlmodels
 
 import Gui.Globals as Globals
@@ -55,7 +55,7 @@ ApplicationWindow{
                 icon: 'wrench'
                 collapsed: false
 
-                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml'}
+                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml'}
             }
 
             EaComponents.ListView {

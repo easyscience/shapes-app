@@ -5,11 +5,11 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
-import EasyApp.Gui.Logic as EaLogic
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -24,14 +24,13 @@ EaElements.GroupColumn {
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.fontPixelSize * 2.5,
-            -1,
-            EaStyle.Sizes.fontPixelSize * 5,
-            EaStyle.Sizes.fontPixelSize * 5,
-            EaStyle.Sizes.fontPixelSize * 5,
-            EaStyle.Sizes.fontPixelSize * 5,
-            EaStyle.Sizes.tableRowHeight,
-            EaStyle.Sizes.tableRowHeight
+            EaStyle.Sizes.tableColumnAuto,    // №
+            EaStyle.Sizes.tableColumnAuto,    // Rmin, nm
+            EaStyle.Sizes.tableColumnAuto,    // Inner Dmin, nm
+            EaStyle.Sizes.tableColumnAuto,    // Outer Dmin, nm
+            EaStyle.Sizes.tableColumnAuto,    // Shell thickness, nm
+            EaStyle.Sizes.tableColumnAuto,    // Symmetric (checkbox)
+            EaStyle.Sizes.tableRowHeight      // delete button
         ]
 
         header: EaComponents.ListViewHeader {
@@ -39,27 +38,27 @@ EaElements.GroupColumn {
                 text: qsTr("№")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-            EaComponents.TableViewLabel {} // filler
             EaComponents.TableViewLabel {
-                text: qsTr("Rmin")
+                text: qsTr("Rmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Inner Dmin")
+                text: qsTr("Inner Dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Outer Dmin")
+                text: qsTr("Outer Dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Shell")
+                text: qsTr("Shell thickness, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Sym")
+                text: qsTr("Symmetric")
                 color: EaStyle.Colors.themeForegroundMinor
             }
+            EaComponents.TableViewLabel {}
         }
 
         model: ListModel {
@@ -81,7 +80,6 @@ EaElements.GroupColumn {
                 text: index + 1
                 enabled: false
             }
-            EaComponents.TableViewLabel {} // filler
             EaComponents.ListViewTextInput {
                 text: rmin
                 onEditingFinished: rmin = parseFloat(text)

@@ -5,8 +5,8 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Components as EaComponents
 
 EaComponents.ListView {
     defaultInfoText: qsTr("Missing components")
