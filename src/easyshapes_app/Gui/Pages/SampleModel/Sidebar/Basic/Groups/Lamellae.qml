@@ -43,11 +43,11 @@ EaElements.GroupColumn {
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Inner Dmin, nm")
+                text: qsTr("Inner dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Outer Dmin, nm")
+                text: qsTr("Outer dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -63,7 +63,7 @@ EaElements.GroupColumn {
 
         model: ListModel {
             id: lamellaeModel
-            ListElement { rmin: 0.5; innerDmin: 0.25; outerDmin: 0.25; shell: 0.5; symmetric: true }
+            ListElement { rmin: 0.5; innerDmin: 0.25; outerDmin: 0.3; shell: 0.5; symmetric: true }
         }
 
         delegateModelAccess: DelegateModel.ReadWrite
@@ -91,8 +91,7 @@ EaElements.GroupColumn {
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: symmetric ? innerDmin : outerDmin
-                enabled: !symmetric
+                text: outerDmin
                 onEditingFinished: outerDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
@@ -125,7 +124,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
             width: buttonWidth
-            onClicked: lamellaeModel.append({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.25, shell: 0.5, symmetric: true })
+            onClicked: lamellaeModel.append({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 0.5, symmetric: true })
         }
     }
 
@@ -133,28 +132,36 @@ EaElements.GroupColumn {
         id: fractionsSection
         visible: lamellae.selectedIndexes.length > 0
         width: parent.width
+        spacing: EaStyle.Sizes.groupBoxSpacing
 
         readonly property int selectedRow: lamellae.selectedIndexes.length > 0 ? lamellae.selectedIndexes[0].row : -1
         readonly property bool selectedSymmetric: selectedRow >= 0 && lamellaeModel.get(selectedRow).symmetric
 
-        EaElements.Label {
-            enabled: false
-            text: fractionsSection.selectedSymmetric
-                ? qsTr("Lamella %1 Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
-                : qsTr("Lamella %1 Inner Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
-        }
-        Local.Fractions {
-            id: innerFractions
+        Column {
+            width: parent.width
+
+            EaElements.Label {
+                enabled: false
+                text: fractionsSection.selectedSymmetric
+                    ? qsTr("Lamella %1 Fractions").arg(fractionsSection.selectedRow + 1)
+                    : qsTr("Lamella %1 Inner Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
+            }
+            Local.Fractions {
+                id: innerFractions
+            }
         }
 
-        EaElements.Label {
+        Column {
+            width: parent.width
             visible: !fractionsSection.selectedSymmetric
-            enabled: false
-            text: qsTr("Lamella %1 Outer Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
-        }
-        Local.Fractions {
-            id: outerFractions
-            visible: !fractionsSection.selectedSymmetric
+
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Lamella %1 Outer Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
+            }
+            Local.Fractions {
+                id: outerFractions
+            }
         }
     }
 }

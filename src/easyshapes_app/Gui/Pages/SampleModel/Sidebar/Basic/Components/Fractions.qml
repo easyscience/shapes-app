@@ -30,7 +30,7 @@ EaComponents.ListView {
             color: EaStyle.Colors.themeForegroundMinor
         }
         EaComponents.TableViewLabel {
-            text: qsTr("Molar ratio")
+            text: qsTr("Mole ratio")
             color: EaStyle.Colors.themeForegroundMinor
         }
     }

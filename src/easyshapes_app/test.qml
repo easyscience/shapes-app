@@ -55,7 +55,7 @@ ApplicationWindow{
                 icon: 'wrench'
                 collapsed: false
 
-                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml'}
+                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml'}
             }
 
             EaComponents.ListView {
