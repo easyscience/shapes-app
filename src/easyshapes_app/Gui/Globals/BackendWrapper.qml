@@ -56,6 +56,24 @@ QtObject {
     function projectSave() { activeBackend.project.save() }
     function projectEditInfo(path, new_value) { activeBackend.project.editInfo(path, new_value) }
 
+    ////////////////////
+    // Sample Model page
+    ////////////////////
+
+    readonly property var sampleModelLoaded: activeBackend.sampleModel.loaded
+    readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
+    readonly property var sampleModelStructureTypes: activeBackend.sampleModel.structureTypes
+    readonly property string sampleModelCurrentStructureType: activeBackend.sampleModel.currentStructureType
+
+    property bool sampleModelCreated: activeBackend.sampleModel.created
+    onSampleModelCreatedChanged: activeBackend.sampleModel.created = sampleModelCreated
+
+    function sampleModelSetLoaded(model) { activeBackend.sampleModel.setLoaded(model) }
+    function sampleModelUpdateField(field, value) { activeBackend.sampleModel.updateField(field, value) }
+    function sampleModelClear() { activeBackend.sampleModel.clear() }
+    function sampleModelSaveToCatalog() { activeBackend.sampleModel.saveToCatalog() }
+    function sampleModelRemoveFromCatalog(index) { activeBackend.sampleModel.removeFromCatalog(index) }
+
     ////////////////
     // Analysis page
     ////////////////

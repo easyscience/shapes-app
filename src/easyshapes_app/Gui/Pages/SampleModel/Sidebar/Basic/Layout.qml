@@ -31,7 +31,7 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr('Layers')
         icon: 'layer-group' // 'grip-lines'
-        visible: sampleModelLoader.item ? sampleModelLoader.item.currentStructureType === 'Ball' : false
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ball'
 
         Loader { source: 'Groups/Layers.qml' }
     }
@@ -39,7 +39,7 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr('Lamellae')
         icon: 'layer-group'
-        visible: sampleModelLoader.item ? sampleModelLoader.item.currentStructureType === 'Vesicle' : false
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Vesicle'
 
         Loader { source: 'Groups/Lamellae.qml' }
     }

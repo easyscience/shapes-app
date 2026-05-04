@@ -12,6 +12,7 @@ import Backends.MockQml as MockLogic
 QtObject {
 
     property var project: MockLogic.Project
+    property var sampleModel: MockLogic.SampleModel
     property var analysis: MockLogic.Analysis
     property var status: MockLogic.Status
     property var report: MockLogic.Report

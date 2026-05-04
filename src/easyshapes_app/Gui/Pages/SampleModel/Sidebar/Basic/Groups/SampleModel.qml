@@ -4,7 +4,6 @@
 
 import QtQuick
 import QtQuick.Controls
-//import QtQuick.Dialogs
 
 import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
@@ -17,7 +16,6 @@ import Gui.Globals as Globals
 EaElements.GroupColumn {
     id: root
     property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
-    property string currentStructureType: ""
 
     Component.onCompleted: Globals.References.pages.samplemodel.sidebar.basic.groups.sampleModel = root
 
@@ -47,36 +45,28 @@ EaElements.GroupColumn {
             }
         }
 
-        model: ListModel {
-            id: loadedSambleModelsModel
-            onCountChanged: root.currentStructureType = count > 0 ? get(0).structure_type : ""
-        }
-
-        delegateModelAccess: DelegateModel.ReadWrite
+        model: Globals.BackendWrapper.sampleModelLoaded
 
         delegate: EaComponents.ListViewDelegate {
+            required property var modelData
             required property int index
-            required property string name
-            required property string structure_type
-            required property string description
 
             EaComponents.ListViewTextInput {
-                text: name
-                onEditingFinished: name = text
+                text: modelData ? modelData.name : ''
+                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField('name', text)
             }
-            EaComponents.TableViewComboBox{
-                model: [qsTr("Ring"), qsTr("Ball"), qsTr("Vesicle"), qsTr("Rod"), qsTr("Bilayer"), qsTr("Monolayer"), qsTr("Lattice")]
+            EaComponents.TableViewComboBox {
+                model: Globals.BackendWrapper.sampleModelStructureTypes
                 Component.onCompleted: {
-                    currentIndex = model.indexOf(structure_type)
+                    currentIndex = model.indexOf(modelData.structure_type)
                 }
-                onActivated: (index) => {
-                    structure_type = model[index]
-                    root.currentStructureType = model[index]
+                onActivated: (i) => {
+                    Globals.BackendWrapper.sampleModelUpdateField('structure_type', model[i])
                 }
             }
             EaComponents.ListViewTextInput {
-                text: description
-                onEditingFinished: description = text
+                text: modelData ? modelData.description : ''
+                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField('description', text)
             }
         }
     }
@@ -103,21 +93,20 @@ EaElements.GroupColumn {
             fontIcon: "download"
             text: qsTr("Save model")
             width: buttonWidth
-            enabled: loadedSampleModel.model && loadedSampleModel.model.count > 0 && loadedSambleModelsModel.get(0).name !== ""
-            onClicked: loadExistingModelLoader.item.availableModelsModel.append(loadedSambleModelsModel.get(0))
+            enabled: Globals.BackendWrapper.sampleModelLoaded.length > 0
+                  && Globals.BackendWrapper.sampleModelLoaded[0].name !== ""
+            onClicked: Globals.BackendWrapper.sampleModelSaveToCatalog()
         }
     }
 
     Loader {
         id: loadExistingModelLoader
         source: '../Popups/LoadExistingModel.qml'
-        onLoaded: item.targetModel = loadedSambleModelsModel
     }
 
     Loader {
         id: createNewModelLoader
         source: '../Popups/CreateNewModel.qml'
-        onLoaded: item.targetModel = loadedSambleModelsModel
     }
 
 }

@@ -17,21 +17,17 @@ import Gui.Globals as Globals
 EaElements.Dialog{
     id: sampleModelCreationDialog
 
-    property var targetModel
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
     title: qsTr("Create a new Sample Model")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        targetModel.clear()
-        targetModel.append(
-            {
-                name: sampleModelNameField.text,
-                structure_type: sampleModelTypeField.currentText,
-                description: sampleModelDescrField.text
-            }
-        )
+        Globals.BackendWrapper.sampleModelSetLoaded({
+            name: sampleModelNameField.text,
+            structure_type: sampleModelTypeField.currentText,
+            description: sampleModelDescrField.text
+        })
     }
 
     Column {
@@ -63,7 +59,7 @@ EaElements.Dialog{
                 EaElements.ComboBox {
                     id: sampleModelTypeField
                     implicitWidth: (sampleModelCreationDialog.inputFieldWidth - nameTypeRow.spacing) / 2
-                    model: [qsTr("Ring"), qsTr("Ball"), qsTr("Vesicle"), qsTr("Rod"), qsTr("Bilayer"), qsTr("Monolayer"), qsTr("Lattice")]
+                    model: Globals.BackendWrapper.sampleModelStructureTypes
                 }
             }
         }

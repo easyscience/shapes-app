@@ -6,6 +6,7 @@
         <file>easyshapes_app/Backends/MockQml/Project.qml</file>
         <file>easyshapes_app/Backends/MockQml/qmldir</file>
         <file>easyshapes_app/Backends/MockQml/Report.qml</file>
+        <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
         <file>easyshapes_app/Backends/MockQml/Status.qml</file>
         <file>easyshapes_app/Backends/qmldir</file>
         <file>easyshapes_app/Gui/ApplicationWindow.qml</file>
