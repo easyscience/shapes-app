@@ -29,6 +29,62 @@ EaComponents.SideBarColumn {
     }
 
     EaElements.GroupBox {
+        title: qsTr('Ring Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ring'
+
+        Loader { source: 'Groups/RingStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Ball Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ball'
+
+        Loader { source: 'Groups/BallStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Vesicle Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Vesicle'
+
+        Loader { source: 'Groups/VesicleStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Rod Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Rod'
+
+        Loader { source: 'Groups/RodStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Bilayer Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Bilayer'
+
+        Loader { source: 'Groups/BilayerStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Monolayer Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Monolayer'
+
+        Loader { source: 'Groups/MonolayerStructure.qml' }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr('Lattice Structure Definition')
+        icon: 'vector-square'
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Lattice'
+
+        Loader { source: 'Groups/LatticeStructure.qml' }
+    }
+
+    EaElements.GroupBox {
         title: qsTr('Layers')
         icon: 'layer-group' // 'grip-lines'
         visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ball'

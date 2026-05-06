@@ -21,7 +21,12 @@ QtObject {
         'Ring', 'Ball', 'Vesicle', 'Rod', 'Bilayer', 'Monolayer', 'Lattice'
     ]
 
-    readonly property string currentStructureType: loaded.length > 0 ? loaded[0].structure_type : ''
+    // Externally-observed structure type. Decoupled from `loaded` because
+    // updateField mutates `loaded[0]` in place (preserving the row delegate
+    // and any focused TextInput) and that mutation does NOT fire loadedChanged.
+    // The wrapper writes this property whenever structure_type is updated;
+    // setLoaded/clear keep it in sync with the active record.
+    property string currentStructureType: ''
 
     // Catalog of saveable/loadable models (asset library).
     // ListModel mirrors the Python QAbstractListModel with roles
@@ -47,6 +52,7 @@ QtObject {
             structure_type: model.structure_type,
             description: model.description
         }]
+        currentStructureType = model.structure_type
         created = true
     }
 
@@ -57,6 +63,7 @@ QtObject {
 
     function clear() {
         loaded = []
+        currentStructureType = ''
         created = false
     }
 

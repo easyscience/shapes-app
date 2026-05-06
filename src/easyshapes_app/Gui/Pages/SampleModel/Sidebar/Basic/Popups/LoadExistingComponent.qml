@@ -17,7 +17,6 @@ import Gui.Globals as Globals
 EaElements.Dialog{
     id: sampleModelLoadDialog
 
-    property var targetModel
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
     property alias availableComponentsModel: availableComponentsModel
 
@@ -30,7 +29,7 @@ EaElements.Dialog{
             var row = selected[i].row
             var item = availableComponentsModel.get(row)
 
-            targetModel.append({
+            Globals.BackendWrapper.componentsAppend({
                 name: item.name,
                 component_type: item.component_type,
                 mint: item.mint,

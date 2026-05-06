@@ -63,9 +63,7 @@ EaElements.GroupColumn {
             }
         }
 
-        model: ListModel {
-            id: loadedComponentsModel
-        }
+        model: Globals.BackendWrapper.componentsLoaded
 
         delegateModelAccess: DelegateModel.ReadWrite
 
@@ -113,7 +111,7 @@ EaElements.GroupColumn {
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this component")
-                onClicked: loadedComponentsModel.remove(index)
+                onClicked: Globals.BackendWrapper.componentsRemove(index)
             }
         }
     }
@@ -131,7 +129,7 @@ EaElements.GroupColumn {
 
         EaElements.SideBarButton {
             fontIcon: 'plus-circle'
-            text: qsTr('Create component')
+            text: qsTr('Import component')
             width: buttonWidth
             onClicked: createNewComponentLoader.item.open()
         }
@@ -141,12 +139,14 @@ EaElements.GroupColumn {
             fontIcon: 'download'
             text: qsTr('Save component(s)')
             width: buttonWidth
-            enabled: loadedComponents.model ? loadedComponents.model.count > 0 : false
+            enabled: Globals.BackendWrapper.componentsLoaded
+                     ? Globals.BackendWrapper.componentsLoaded.count > 0
+                     : false
             onClicked: {
                 const indexes = loadedComponents.selectedIndexes
                 for (let i = 0; i < indexes.length; ++i)
                     loadExistingComponentLoader.item.availableComponentsModel.append(
-                        loadedComponentsModel.get(indexes[i].row)
+                        Globals.BackendWrapper.componentsLoaded.get(indexes[i].row)
                     )
             }
         }
@@ -155,13 +155,11 @@ EaElements.GroupColumn {
     Loader {
         id: loadExistingComponentLoader
         source: '../Popups/LoadExistingComponent.qml'
-        onLoaded: item.targetModel = loadedComponentsModel
     }
 
     Loader {
         id: createNewComponentLoader
         source: '../Popups/CreateNewComponent.qml'
-        onLoaded: item.targetModel = loadedComponentsModel
     }
 
 }

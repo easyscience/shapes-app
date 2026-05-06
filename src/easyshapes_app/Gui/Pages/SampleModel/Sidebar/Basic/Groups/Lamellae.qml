@@ -61,10 +61,7 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {}
         }
 
-        model: ListModel {
-            id: lamellaeModel
-            ListElement { rmin: 0.5; innerDmin: 0.25; outerDmin: 0.3; shell: 0.5; symmetric: true }
-        }
+        model: Globals.BackendWrapper.lamellaeItems
 
         delegateModelAccess: DelegateModel.ReadWrite
 
@@ -82,33 +79,34 @@ EaElements.GroupColumn {
             }
             EaComponents.ListViewTextInput {
                 text: rmin
-                onEditingFinished: rmin = parseFloat(text)
+                onEditingFinished: Globals.BackendWrapper.lamellaeSetRmin(index, parseFloat(text))
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
                 text: innerDmin
-                onEditingFinished: innerDmin = parseFloat(text)
+                onEditingFinished: Globals.BackendWrapper.lamellaeSetInnerDmin(index, parseFloat(text))
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: outerDmin
-                onEditingFinished: outerDmin = parseFloat(text)
+                text: symmetric ? innerDmin : outerDmin
+                enabled: !symmetric
+                onEditingFinished: Globals.BackendWrapper.lamellaeSetOuterDmin(index, parseFloat(text))
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
                 text: shell
-                onEditingFinished: shell = parseFloat(text)
+                onEditingFinished: Globals.BackendWrapper.lamellaeSetShell(index, parseFloat(text))
                 validator: DoubleValidator { bottom: 0 }
             }
             EaComponents.TableViewCheckBox {
                 checked: symmetric
-                onToggled: symmetric = checked
+                onToggled: Globals.BackendWrapper.lamellaeSetSymmetric(index, checked)
             }
             EaComponents.TableViewButton {
                 id: deleteRowColumn
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this lamella")
-                onClicked: lamellaeModel.remove(index)
+                onClicked: Globals.BackendWrapper.lamellaeRemove(index)
             }
         }
     }
@@ -124,7 +122,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
             width: buttonWidth
-            onClicked: lamellaeModel.append({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 0.5, symmetric: true })
+            onClicked: Globals.BackendWrapper.lamellaeAppend({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 0.5, symmetric: true })
         }
     }
 
@@ -135,7 +133,24 @@ EaElements.GroupColumn {
         spacing: EaStyle.Sizes.groupBoxSpacing
 
         readonly property int selectedRow: lamellae.selectedIndexes.length > 0 ? lamellae.selectedIndexes[0].row : -1
-        readonly property bool selectedSymmetric: selectedRow >= 0 && lamellaeModel.get(selectedRow).symmetric
+        readonly property bool selectedSymmetric: {
+            // Touch the revision token so this binding re-evaluates when
+            // the selected row's symmetric flag changes.
+            void Globals.BackendWrapper.lamellaeItemsRevision
+            return selectedRow >= 0 && selectedRow < Globals.BackendWrapper.lamellaeItems.count
+                ? Globals.BackendWrapper.lamellaeItems.get(selectedRow).symmetric
+                : true
+        }
+        readonly property var selectedInnerFractionsModel: {
+            // Touch the revision token so this binding re-evaluates when
+            // the per-lamella Fractions arrays are rebuilt.
+            void Globals.BackendWrapper.lamellaeFractionsRevision
+            return selectedRow >= 0 ? Globals.BackendWrapper.lamellaeInnerFractionsModelAt(selectedRow) : null
+        }
+        readonly property var selectedOuterFractionsModel: {
+            void Globals.BackendWrapper.lamellaeFractionsRevision
+            return selectedRow >= 0 ? Globals.BackendWrapper.lamellaeOuterFractionsModelAt(selectedRow) : null
+        }
 
         Column {
             width: parent.width
@@ -148,6 +163,7 @@ EaElements.GroupColumn {
             }
             Local.Fractions {
                 id: innerFractions
+                fractionsModel: fractionsSection.selectedInnerFractionsModel
             }
         }
 
@@ -161,6 +177,7 @@ EaElements.GroupColumn {
             }
             Local.Fractions {
                 id: outerFractions
+                fractionsModel: fractionsSection.selectedOuterFractionsModel
             }
         }
     }

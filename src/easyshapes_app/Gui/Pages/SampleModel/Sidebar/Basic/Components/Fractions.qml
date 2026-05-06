@@ -8,7 +8,14 @@ import QtQuick.Controls
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Components as EaComponents
 
+import Gui.Globals as Globals
+
+
 EaComponents.ListView {
+    // Override to bind a per-row Fractions backend (e.g. layer/lamella).
+    // Defaults to the global Fractions set on the wrapper.
+    property var fractionsModel: Globals.BackendWrapper.fractionsModel
+
     defaultInfoText: qsTr("Missing components")
     selectionActive: false
 
@@ -35,11 +42,7 @@ EaComponents.ListView {
         }
     }
 
-    model: ListModel {
-        ListElement { name: "POPC"; fracs: 100; present: true }
-        ListElement { name: "DOPC"; fracs: 100; present: true }
-        ListElement { name: "DPPC"; fracs: 100; present: true }
-    }
+    model: fractionsModel
 
     delegateModelAccess: DelegateModel.ReadWrite
 

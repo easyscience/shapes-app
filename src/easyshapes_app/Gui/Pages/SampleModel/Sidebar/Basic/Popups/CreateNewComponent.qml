@@ -17,14 +17,13 @@ import Gui.Globals as Globals
 EaElements.Dialog{
     id: componentCreationDialog
 
-    property var targetModel
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
     title: qsTr("Create a new Component")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        targetModel.append({
+        Globals.BackendWrapper.componentsAppend({
             name: componentNameField.text,
             component_type: sampleModelTypeField.currentText,
             atoms: 42,
@@ -99,9 +98,7 @@ EaElements.Dialog{
                     EaStyle.Sizes.tableRowHeight
                 ]
 
-                model: ListModel {
-                    id: selectedFilePathsModel
-                }
+                model: Globals.BackendWrapper.componentsPendingFilePaths
 
                 delegate: EaComponents.ListViewDelegate {
                     required property int index
@@ -120,7 +117,7 @@ EaElements.Dialog{
                         id: deleteRowColumn
                         fontIcon: "minus-circle"
                         ToolTip.text: qsTr("Remove this file")
-                        onClicked: selectedFilePathsModel.remove(index)
+                        onClicked: Globals.BackendWrapper.componentsRemovePendingFilePath(index)
                     }
                 }
             }
@@ -138,9 +135,6 @@ EaElements.Dialog{
 
                 Loader {
                     source: '../Popups/OpenAssetFile.qml'
-                    onLoaded: {
-                        item.targetModel = selectedFilePathsModel
-                    }
                 }
             }
         }

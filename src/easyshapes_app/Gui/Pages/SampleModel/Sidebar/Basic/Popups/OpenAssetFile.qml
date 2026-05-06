@@ -16,11 +16,9 @@ FileDialog{
     fileMode: FileDialog.OpenFiles
     nameFilters: ['Any (*)', 'Structure files (*.gro *.pdb .*xyz)', 'Topology files (*.itp)', 'Smiles files (*.sml)']
 
-    property var targetModel
-
     onAccepted: {
         for (let i = 0; i < selectedFiles.length; ++i)
-            targetModel.append({ path: selectedFiles[i] })
+            Globals.BackendWrapper.componentsAppendPendingFilePath(selectedFiles[i])
     }
 
     Component.onCompleted: {

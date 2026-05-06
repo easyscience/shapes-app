@@ -3,11 +3,22 @@
         <file>easyshapes_app.qmlproject</file>
         <file>easyshapes_app/Backends/MockBackend.qml</file>
         <file>easyshapes_app/Backends/MockQml/Analysis.qml</file>
+        <file>easyshapes_app/Backends/MockQml/BallStructure.qml</file>
+        <file>easyshapes_app/Backends/MockQml/BilayerStructure.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Components.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Lamellae.qml</file>
+        <file>easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Layers.qml</file>
+        <file>easyshapes_app/Backends/MockQml/MonolayerStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Project.qml</file>
         <file>easyshapes_app/Backends/MockQml/qmldir</file>
         <file>easyshapes_app/Backends/MockQml/Report.qml</file>
+        <file>easyshapes_app/Backends/MockQml/RingStructure.qml</file>
+        <file>easyshapes_app/Backends/MockQml/RodStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
         <file>easyshapes_app/Backends/MockQml/Status.qml</file>
+        <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
         <file>easyshapes_app/Backends/qmldir</file>
         <file>easyshapes_app/Gui/ApplicationWindow.qml</file>
         <file>easyshapes_app/Gui/Globals/ApplicationInfo.qml</file>
@@ -40,17 +51,26 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BallStructure.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group3.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/MonolayerStructure.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RodStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/VesicleStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewSubstructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingSubstructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/GraphsView.qml</file>

@@ -2,6 +2,17 @@ module MockQml
 
 singleton Project Project.qml
 singleton SampleModel SampleModel.qml
+singleton Components Components.qml
+Fractions Fractions.qml
+singleton Layers Layers.qml
+singleton Lamellae Lamellae.qml
+singleton RingStructure RingStructure.qml
+singleton BallStructure BallStructure.qml
+singleton VesicleStructure VesicleStructure.qml
+singleton RodStructure RodStructure.qml
+singleton BilayerStructure BilayerStructure.qml
+singleton MonolayerStructure MonolayerStructure.qml
+singleton LatticeStructure LatticeStructure.qml
 singleton Analysis Analysis.qml
 singleton Report Report.qml
 singleton Status Status.qml
