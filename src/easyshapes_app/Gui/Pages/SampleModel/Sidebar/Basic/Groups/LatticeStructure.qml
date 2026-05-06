@@ -13,6 +13,7 @@ import Gui.Globals as Globals
 
 
 EaElements.GroupColumn {
+
     Row {
         property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.3
         spacing: (EaStyle.Sizes.sideBarContentWidth - (itemWidth * 3)) / 2
@@ -147,20 +148,21 @@ EaElements.GroupColumn {
     }
 
     Row {
-        property double buttonWidth: (sideBarContentWidth - fontPixelSize) / 2
+        id: buttonRow
+        property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
         spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.SideBarButton {
             fontIcon: 'upload'
             text: qsTr('Load structure')
-            width: buttonWidth
+            width: buttonRow.buttonWidth
             onClicked: loadExistingSubstructureLoader.item.open()
         }
 
         EaElements.SideBarButton {
             fontIcon: 'plus-circle'
             text: qsTr('Import structure')
-            width: buttonWidth
+            width: buttonRow.buttonWidth
             onClicked: createNewSubstructureLoader.item.open()
         }
     }
