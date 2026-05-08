@@ -55,15 +55,7 @@ ApplicationWindow{
                 icon: 'wrench'
                 collapsed: false
 
-                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml'}
-            }
-
-            EaElements.GroupBox {
-                title: qsTr('Test a group widget')
-                icon: 'wrench'
-                collapsed: false
-
-                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml'}
+                Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Solution.qml'}
             }
         }
     }

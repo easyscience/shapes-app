@@ -7,6 +7,7 @@
         <file>easyshapes_app/Backends/MockQml/BilayerStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Components.qml</file>
         <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Ions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Lamellae.qml</file>
         <file>easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Layers.qml</file>
@@ -17,6 +18,7 @@
         <file>easyshapes_app/Backends/MockQml/RingStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/RodStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Solution.qml</file>
         <file>easyshapes_app/Backends/MockQml/Status.qml</file>
         <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
         <file>easyshapes_app/Backends/qmldir</file>
@@ -55,7 +57,6 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group3.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
@@ -63,13 +64,17 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RodStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Solution.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/VesicleStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewSolvent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewSubstructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingIon.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingSolvent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingSubstructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
         <file>easyshapes_app/Gui/Pages/Toolbox/Layout.qml</file>

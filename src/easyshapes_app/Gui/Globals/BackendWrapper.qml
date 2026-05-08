@@ -172,6 +172,40 @@ QtObject {
     function latticeSubstructureSaveToCatalog() { activeBackend.latticeStructure.saveSubstructureToCatalog() }
     function latticeSubstructureRemoveFromCatalog(index) { activeBackend.latticeStructure.removeSubstructureFromCatalog(index) }
 
+    // Solution group (Sample Model sidebar). Two backend-owned slots:
+    //   * solution — single-record JS array (capacity 0 or 1), TIP3 by default.
+    //   * ions     — ListModel with at most 2 rows, name only.
+
+    readonly property var solutionLoaded: activeBackend.solution.loaded
+    readonly property var solutionAvailable: activeBackend.solution.available
+    readonly property var solutionTypes: activeBackend.solution.solutionTypes
+
+    function solutionSetLoaded(item) { activeBackend.solution.setLoaded(item) }
+    function solutionUpdateField(field, value) { activeBackend.solution.updateField(field, value) }
+    function solutionClear() { activeBackend.solution.clear() }
+    function solutionSaveToCatalog() { activeBackend.solution.saveToCatalog() }
+    function solutionRemoveFromCatalog(index) { activeBackend.solution.removeFromCatalog(index) }
+
+    // Solvent aliases — same backend object, used by the solvent table popup files.
+    readonly property var solventLoaded: activeBackend.solution.loaded
+    readonly property var solventAvailable: activeBackend.solution.available
+    readonly property var solventTypes: activeBackend.solution.solutionTypes
+
+    function solventSetLoaded(item) { activeBackend.solution.setLoaded(item) }
+    function solventUpdateField(field, value) { activeBackend.solution.updateField(field, value) }
+    function solventClear() { activeBackend.solution.clear() }
+    function solventSaveToCatalog() { activeBackend.solution.saveToCatalog() }
+    function solventRemoveFromCatalog(index) { activeBackend.solution.removeFromCatalog(index) }
+
+    readonly property var ionsLoaded: activeBackend.ions.loaded
+    readonly property var ionsAvailable: activeBackend.ions.available
+
+    function ionsAppend(item) { activeBackend.ions.appendItem(item) }
+    function ionsRemove(index) { activeBackend.ions.removeItem(index) }
+    function ionsClear() { activeBackend.ions.clear() }
+    function ionsSaveToCatalog() { activeBackend.ions.saveToCatalog() }
+    function ionsRemoveFromCatalog(index) { activeBackend.ions.removeFromCatalog(index) }
+
     ////////////////
     // Analysis page
     ////////////////

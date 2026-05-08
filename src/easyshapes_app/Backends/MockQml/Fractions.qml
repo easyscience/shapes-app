@@ -34,7 +34,7 @@ QtObject {
         function onRowsInserted(parent, first, last) {
             for (let i = first; i <= last; ++i) {
                 const c = root.source.get(i)
-                backing.insert(i, { name: c.name, fracs: 100, present: true })
+                backing.insert(i, { name: c.name, fracs: 1, present: true })
             }
         }
         function onRowsRemoved(parent, first, last) {
@@ -53,7 +53,7 @@ QtObject {
         if (!source) return
         for (let i = 0; i < source.count; ++i) {
             const c = source.get(i)
-            backing.append({ name: c.name, fracs: 100, present: true })
+            backing.append({ name: c.name, fracs: 1, present: true })
         }
     }
 

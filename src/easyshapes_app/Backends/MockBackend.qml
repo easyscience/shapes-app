@@ -39,6 +39,9 @@ QtObject {
     // Lattice structure parameters (single record, edited inline) plus a
     // single-record substructure with its own asset library.
     property var latticeStructure: MockLogic.LatticeStructure
+    // Solution group: solution (single-record, TIP3 default) + ions (max 2 rows).
+    property var solution: MockLogic.Solution
+    property var ions: MockLogic.Ions
     property var analysis: MockLogic.Analysis
     property var status: MockLogic.Status
     property var report: MockLogic.Report

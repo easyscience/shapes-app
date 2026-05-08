@@ -88,8 +88,7 @@ EaElements.GroupColumn {
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: symmetric ? innerDmin : outerDmin
-                enabled: !symmetric
+                text: outerDmin
                 onEditingFinished: Globals.BackendWrapper.lamellaeSetOuterDmin(index, parseFloat(text))
                 validator: DoubleValidator { bottom: 0.25 }
             }

@@ -106,7 +106,7 @@ EaElements.GroupColumn {
 
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 12,
-                EaStyle.Sizes.fontPixelSize * 6,
+                EaStyle.Sizes.fontPixelSize * 7,
                 -1
             ]
 

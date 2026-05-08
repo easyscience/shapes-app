@@ -101,10 +101,10 @@ EaComponents.SideBarColumn {
     }
 
     EaElements.GroupBox {
-        title: qsTr('Solvent')
-        icon: 'grip-horizontal'
+        title: qsTr('Solution')
+        icon: 'flask'
 
-        Loader { source: 'Groups/Group3.qml' }
+        Loader { source: 'Groups/Solution.qml' }
     }
 
     EaElements.GroupBox {

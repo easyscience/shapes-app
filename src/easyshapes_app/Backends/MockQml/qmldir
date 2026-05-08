@@ -13,6 +13,8 @@ singleton RodStructure RodStructure.qml
 singleton BilayerStructure BilayerStructure.qml
 singleton MonolayerStructure MonolayerStructure.qml
 singleton LatticeStructure LatticeStructure.qml
+singleton Solution Solution.qml
+singleton Ions Ions.qml
 singleton Analysis Analysis.qml
 singleton Report Report.qml
 singleton Status Status.qml
