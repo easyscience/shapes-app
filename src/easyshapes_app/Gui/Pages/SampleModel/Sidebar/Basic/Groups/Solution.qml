@@ -143,7 +143,7 @@ EaElements.GroupColumn {
                         required property int index
                         required property string name
 
-                        height: chipLabel.implicitHeight * 2
+                        height: ionChipRow.height
                         width: EaStyle.Sizes.fontPixelSize
                              + chipLabel.implicitWidth
                              + EaStyle.Sizes.fontPixelSize
