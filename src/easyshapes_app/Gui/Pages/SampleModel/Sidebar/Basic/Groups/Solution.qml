@@ -5,6 +5,7 @@
 import QtQuick
 import QtQuick.Controls
 
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
@@ -110,7 +111,7 @@ EaElements.GroupColumn {
 
         Column {
             width: EaStyle.Sizes.sideBarContentWidth / 3
-            spacing: EaStyle.Sizes.fontPixelSize * 0.5
+            spacing: EaStyle.Sizes.fontPixelSize
 
             EaElements.Label {
                 enabled: false
@@ -119,7 +120,7 @@ EaElements.GroupColumn {
 
             Row {
                 id: ionChipRow
-                spacing: EaStyle.Sizes.fontPixelSize
+                spacing: EaStyle.Sizes.fontPixelSize * 0.5
                 height: EaStyle.Sizes.fontPixelSize * 2
                 width: buttonWidth
 
@@ -142,8 +143,12 @@ EaElements.GroupColumn {
                         required property int index
                         required property string name
 
-                        height: ionChipRow.height
-                        width: (ionChipRow.width - ionChipRow.spacing) / 2
+                        height: chipLabel.implicitHeight * 2
+                        width: EaStyle.Sizes.fontPixelSize
+                             + chipLabel.implicitWidth
+                             + EaStyle.Sizes.fontPixelSize
+                             + chipRemove.width
+                             + EaStyle.Sizes.fontPixelSize * 0.6
                         radius: height / 2
                         color: EaStyle.Colors.appBarBackground
                         border.color: EaStyle.Colors.appBarComboBoxBorder
@@ -162,25 +167,30 @@ EaElements.GroupColumn {
                             }
                         }
 
-                        EaElements.ToolButton {
+                        EaElements.Label {
                             id: chipRemove
-                            width: EaStyle.Sizes.toolButtonHeight * 0.4
-                            height: EaStyle.Sizes.toolButtonHeight * 0.4
+                            text: '×'
+                            font.pixelSize: EaStyle.Sizes.fontPixelSize * 1.4
+                            color: chipRemoveArea.containsMouse
+                                   ? EaStyle.Colors.themeForegroundHovered
+                                   : EaStyle.Colors.themeForegroundMinor
                             anchors.right: parent.right
                             anchors.rightMargin: EaStyle.Sizes.fontPixelSize * 0.6
                             anchors.verticalCenter: parent.verticalCenter
-                            ToolTip.text: qsTr('Remove this ion')
-                            onClicked: Globals.BackendWrapper.ionsRemove(index)
 
-                            contentItem: Text {
-                                text: 'X'
-                                font.family: EaStyle.Fonts.fontFamily
-                                font.pixelSize: EaStyle.Sizes.fontPixelSize
-                                color: chipRemove.hovered
-                                       ? EaStyle.Colors.themeForegroundHovered
-                                       : EaStyle.Colors.themeForegroundMinor
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
+                            MouseArea {
+                                id: chipRemoveArea
+                                anchors.fill: parent
+                                anchors.margins: -EaStyle.Sizes.fontPixelSize * 0.3
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: Globals.BackendWrapper.ionsRemove(index)
+                            }
+
+                            EaElements.ToolTip {
+                                text: qsTr('Remove this ion')
+                                visible: chipRemoveArea.containsMouse
+                                      && EaGlobals.Vars.showToolTips
                             }
                         }
                     }
@@ -198,18 +208,22 @@ EaElements.GroupColumn {
 
         Column {
             width: EaStyle.Sizes.sideBarContentWidth / 3
-            spacing: EaStyle.Sizes.fontPixelSize * 0.5
+            spacing: EaStyle.Sizes.fontPixelSize
 
-            EaElements.Label {
-                enabled: false
-                text: qsTr('Amount')
-            }
-            EaElements.TextField {
-                id: ionAmountField
+            Column {
                 width: parent.width
-                enabled: !matchStructureCheck.checked
-                placeholderText: qsTr('Set the amount of selected ions')
-                validator: IntValidator { bottom: 0 }
+
+                EaElements.Label {
+                    enabled: false
+                    text: qsTr('Amount')
+                }
+                EaElements.TextField {
+                    id: ionAmountField
+                    width: parent.width
+                    enabled: !matchStructureCheck.checked
+                    placeholderText: qsTr('Set the amount of selected ions')
+                    validator: IntValidator { bottom: 0 }
+                }
             }
             EaElements.CheckBox {
                 id: matchStructureCheck
