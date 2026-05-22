@@ -14,6 +14,10 @@ QtObject {
     property var project: MockLogic.Project
     property var sampleModel: MockLogic.SampleModel
     property var components: MockLogic.Components
+    // Advanced sidebar (Sample Model page) domain singletons.
+    property var componentsFiles: MockLogic.ComponentsFiles
+    property var positionRestraints: MockLogic.PositionRestraints
+    property var structureFiles: MockLogic.StructureFiles
     // Default fractions set tied to the shared component list.
     // Used as the fallback for the Fractions sidebar component when no
     // per-row override is set.
@@ -43,12 +47,16 @@ QtObject {
     property var solution: MockLogic.Solution
     property var ions: MockLogic.Ions
     property var analysis: MockLogic.Analysis
+    // Analysis page — equilibration configuration (config files + force
+    // field + step range), driving the Equilibrate action.
+    property var analysisConfig: MockLogic.AnalysisConfig
     property var status: MockLogic.Status
     property var report: MockLogic.Report
 
     Component.onCompleted: {
         layers.fractionsSource = MockLogic.Components.loaded
         lamellae.fractionsSource = MockLogic.Components.loaded
+        positionRestraints.source = MockLogic.Components.loaded
     }
 
 }

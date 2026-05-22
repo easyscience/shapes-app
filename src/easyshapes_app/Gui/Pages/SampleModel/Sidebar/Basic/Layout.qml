@@ -5,6 +5,7 @@
 import QtQuick
 import QtQuick.Controls
 
+import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
 
@@ -107,11 +108,20 @@ EaComponents.SideBarColumn {
         Loader { source: 'Groups/Solution.qml' }
     }
 
-    EaElements.GroupBox {
-        title: qsTr('Group 1')
-        icon: 'rocket'
+    // Centered "Assemble" call-to-action below the groups.
+    Item {
+        width: parent.width
+        height: assembleButton.height + EaStyle.Sizes.fontPixelSize
 
-        Loader { source: 'Groups/Group2.qml' }
+        EaElements.SideBarButton {
+            id: assembleButton
+            anchors.centerIn: parent
+            text: qsTr('Assemble')
+            fontIcon: 'cubes'
+            width: EaStyle.Sizes.sideBarContentWidth
+            enabled: Globals.BackendWrapper.sampleModelLoaded.length > 0
+            onClicked: console.debug('Assemble clicked')
+        }
     }
 
 }

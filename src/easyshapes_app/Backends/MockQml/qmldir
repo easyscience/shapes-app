@@ -3,6 +3,9 @@ module MockQml
 singleton Project Project.qml
 singleton SampleModel SampleModel.qml
 singleton Components Components.qml
+singleton ComponentsFiles ComponentsFiles.qml
+singleton PositionRestraints PositionRestraints.qml
+singleton StructureFiles StructureFiles.qml
 Fractions Fractions.qml
 singleton Layers Layers.qml
 singleton Lamellae Lamellae.qml
@@ -16,5 +19,6 @@ singleton LatticeStructure LatticeStructure.qml
 singleton Solution Solution.qml
 singleton Ions Ions.qml
 singleton Analysis Analysis.qml
+singleton AnalysisConfig AnalysisConfig.qml
 singleton Report Report.qml
 singleton Status Status.qml

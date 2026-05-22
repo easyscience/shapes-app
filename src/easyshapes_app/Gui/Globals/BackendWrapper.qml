@@ -206,12 +206,60 @@ QtObject {
     function ionsSaveToCatalog() { activeBackend.ions.saveToCatalog() }
     function ionsRemoveFromCatalog(index) { activeBackend.ions.removeFromCatalog(index) }
 
+    // Components Files (Sample Model Advanced sidebar). Per-component file
+    // list driven by `componentsFilesSelectedComponent`; switching the
+    // selection repopulates `componentsFilesFiles`.
+    readonly property var componentsFilesFiles: activeBackend.componentsFiles.files
+    readonly property string componentsFilesSelectedComponent: activeBackend.componentsFiles.selectedComponent
+
+    function componentsFilesSelect(name) { activeBackend.componentsFiles.selectComponent(name) }
+    function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
+    function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
+    function componentsFilesExportComponent() { activeBackend.componentsFiles.exportComponent() }
+    function componentsFilesSave() { activeBackend.componentsFiles.save() }
+
+    // Position Restraints (Sample Model Advanced sidebar). One row per
+    // loaded component (mirrored from componentsLoaded); component_name is
+    // read-only here. f_constant is fixed to POSRES_FC_LIP for the mock.
+    readonly property var positionRestraintsItems: activeBackend.positionRestraints.items
+
+    function positionRestraintsSetAtom(index, value) { activeBackend.positionRestraints.setAtom(index, value) }
+    function positionRestraintsSetPForm(index, value) { activeBackend.positionRestraints.setPForm(index, value) }
+    function positionRestraintsSetGeom(index, value) { activeBackend.positionRestraints.setGeom(index, value) }
+    function positionRestraintsSetRadius(index, value) { activeBackend.positionRestraints.setRadius(index, value) }
+
+    // Structure Files (Sample Model Advanced sidebar). List of structure-
+    // related files plus actions for saving the set to the asset library
+    // and re-seeding structure parameters from a serialized data file.
+    readonly property var structureFilesFiles: activeBackend.structureFiles.files
+
+    function structureFilesAppend(item) { activeBackend.structureFiles.appendItem(item) }
+    function structureFilesAppendPath(path) { activeBackend.structureFiles.appendPath(path) }
+    function structureFilesRemove(index) { activeBackend.structureFiles.removeItem(index) }
+    function structureFilesClear() { activeBackend.structureFiles.clear() }
+    function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
+
     ////////////////
     // Analysis page
     ////////////////
 
     // All the properties and methods related to the analysis page
     // are defined directly in the Backends/MockQml/Analysis.qml !!!
+
+    // Analysis configuration group — equilibration .mdp files, the chosen
+    // force field, and the inclusive [start, stop] step range.
+    readonly property var analysisConfigFiles: activeBackend.analysisConfig.configFiles
+    readonly property var analysisConfigForceFields: activeBackend.analysisConfig.forceFields
+    readonly property string analysisConfigForceField: activeBackend.analysisConfig.forceField
+    readonly property int analysisConfigStartStep: activeBackend.analysisConfig.startStep
+    readonly property int analysisConfigStopStep: activeBackend.analysisConfig.stopStep
+
+    function analysisConfigAppendPath(path) { activeBackend.analysisConfig.appendPath(path) }
+    function analysisConfigRemoveFile(index) { activeBackend.analysisConfig.removeFile(index) }
+    function analysisConfigEditFile(index) { activeBackend.analysisConfig.editFile(index) }
+    function analysisConfigSetForceField(value) { activeBackend.analysisConfig.setForceField(value) }
+    function analysisConfigSetStartStep(value) { activeBackend.analysisConfig.setStartStep(value) }
+    function analysisConfigSetStopStep(value) { activeBackend.analysisConfig.setStopStep(value) }
 
     ///////////////
     // Summary page

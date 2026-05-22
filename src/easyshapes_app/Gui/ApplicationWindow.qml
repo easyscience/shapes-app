@@ -108,16 +108,8 @@ EaComponents.ApplicationWindow {
             Component.onCompleted: {
                 Globals.References.applicationWindow.appBarCentralTabs.summaryButton = summaryButton
             }
-        },
-        // Summary page
-
-        // Toolbox page
-        EaElements.AppBarTabButton {
-            fontIcon: 'toolbox'
-            text: qsTr('Toolbox')
-            ToolTip.text: qsTr('Toolbox with common widgets')
         }
-        // Toolbox page
+        // Summary page
 
     ]
 
@@ -131,8 +123,7 @@ EaComponents.ApplicationWindow {
         Loader { source: 'Pages/Project/Layout.qml' },
         Loader { source: 'Pages/SampleModel/Layout.qml' },
         Loader { source: 'Pages/Analysis/Layout.qml' },
-        Loader { source: 'Pages/Report/Layout.qml' },
-        Loader { source: 'Pages/Toolbox/Layout.qml' }
+        Loader { source: 'Pages/Report/Layout.qml' }
     ]
 
     /////////////

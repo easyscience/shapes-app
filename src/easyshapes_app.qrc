@@ -112,15 +112,18 @@
         <file>easyshapes_app.qmlproject</file>
         <file>easyshapes_app/Backends/MockBackend.qml</file>
         <file>easyshapes_app/Backends/MockQml/Analysis.qml</file>
+        <file>easyshapes_app/Backends/MockQml/AnalysisConfig.qml</file>
         <file>easyshapes_app/Backends/MockQml/BallStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/BilayerStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Components.qml</file>
+        <file>easyshapes_app/Backends/MockQml/ComponentsFiles.qml</file>
         <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Ions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Lamellae.qml</file>
         <file>easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Layers.qml</file>
         <file>easyshapes_app/Backends/MockQml/MonolayerStructure.qml</file>
+        <file>easyshapes_app/Backends/MockQml/PositionRestraints.qml</file>
         <file>easyshapes_app/Backends/MockQml/Project.qml</file>
         <file>easyshapes_app/Backends/MockQml/qmldir</file>
         <file>easyshapes_app/Backends/MockQml/Report.qml</file>
@@ -129,6 +132,7 @@
         <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
         <file>easyshapes_app/Backends/MockQml/Solution.qml</file>
         <file>easyshapes_app/Backends/MockQml/Status.qml</file>
+        <file>easyshapes_app/Backends/MockQml/StructureFiles.qml</file>
         <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
         <file>easyshapes_app/Backends/qmldir</file>
         <file>easyshapes_app/Gui/ApplicationWindow.qml</file>
@@ -138,8 +142,9 @@
         <file>easyshapes_app/Gui/Globals/References.qml</file>
         <file>easyshapes_app/Gui/Pages/Analysis/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/Analysis/MainArea/Chart.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Groups/GetStarted.qml</file>
+        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Groups/AnalysisConfig.qml</file>
         <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Layout.qml</file>
+        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Popups/AddAnalysisConfigFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/Home/Content.qml</file>
         <file>easyshapes_app/Gui/Pages/Home/Popups/About.qml</file>
         <file>easyshapes_app/Gui/Pages/Project/Layout.qml</file>
@@ -161,11 +166,16 @@
         <file>easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/PositionRestraints.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/StructureFiles.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Layout.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/AddComponentFiles.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/ReplaceStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BallStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Group2.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
@@ -186,16 +196,6 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingSolvent.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingSubstructure.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/GraphsView.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/Image.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/TextAreaPlain.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/MainArea/TextAreaRich.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Sidebar/Basic/Groups/Group1.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Sidebar/Basic/Groups/Group2.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Sidebar/Basic/Groups/Group3.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Sidebar/Basic/Groups/Group4.qml</file>
-        <file>easyshapes_app/Gui/Pages/Toolbox/Sidebar/Basic/Layout.qml</file>
         <file>easyshapes_app/Gui/qmldir</file>
         <file>easyshapes_app/Gui/StatusBar.qml</file>
         <file>easyshapes_app/main.qml</file>
