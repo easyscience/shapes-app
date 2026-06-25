@@ -12,7 +12,6 @@ import Gui.Globals as Globals
 
 import "../Components" as Local
 
-
 EaElements.GroupColumn {
 
     Row {
@@ -21,23 +20,23 @@ EaElements.GroupColumn {
 
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Zsep')
-            units: 'nm'
+            title: qsTr("Zsep")
+            units: "nm"
             validator: DoubleValidator { bottom: 0 }
             text: Globals.BackendWrapper.monolayerStructure.zsep
             onEditingFinished: Globals.BackendWrapper.monolayerStructure.zsep = parseFloat(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Nside')
-            text: Globals.BackendWrapper.monolayerStructure.nside
+            title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
+            text: Globals.BackendWrapper.monolayerStructure.nside
             onEditingFinished: Globals.BackendWrapper.monolayerStructure.nside = parseInt(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Dmin')
-            units: 'nm'
+            title: qsTr("Dmin")
+            units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
             text: Globals.BackendWrapper.monolayerStructure.dmin
             onEditingFinished: Globals.BackendWrapper.monolayerStructure.dmin = parseFloat(text)
@@ -49,12 +48,8 @@ EaElements.GroupColumn {
 
         EaElements.Label {
             enabled: false
-            text: qsTr('Monolayer Fractions')
+            text: qsTr("Monolayer Fractions")
         }
-
-        Local.Fractions {
-            id: monolayerFractions
-        }
+        Local.Fractions {}
     }
-
 }

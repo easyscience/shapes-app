@@ -10,42 +10,39 @@ import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
 
-
 EaElements.GroupColumn {
 
+    Column {
+        width: EaStyle.Sizes.sideBarContentWidth * 0.2
+
+        EaElements.Label {
+            enabled: false
+            text: qsTr("Fill")
+        }
+        EaElements.ComboBox {
+            width: parent.width
+            model: ["FIBO", "RINGS", "RINGS0"]
+            Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.vesicleStructure.fill)
+            onActivated: (i) => Globals.BackendWrapper.vesicleStructure.fill = model[i]
+        }
+    }
+
     Row {
-        property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.2
-        spacing: EaStyle.Sizes.fontPixelSize * 2
+        spacing: EaStyle.Sizes.fontPixelSize
 
-        Column {
-            width: parent.itemWidth
-
-            EaElements.Label {
-                enabled: false
-                text: qsTr('Fill')
-            }
-            EaElements.ComboBox {
-                width: parent.width
-                model: ['FIBO', 'RINGS', 'RINGS0']
-                Component.onCompleted: {
-                    currentIndex = model.indexOf(Globals.BackendWrapper.ballStructure.fill)
-                }
-                onActivated: (i) => {
-                    Globals.BackendWrapper.ballStructure.fill = model[i]
-                }
-            }
+        EaElements.CheckBox {
+            width: EaStyle.Sizes.sideBarContentWidth * 0.15
+            height: EaStyle.Sizes.fontPixelSize * 3
+            text: qsTr("Fxz")
+            checked: Globals.BackendWrapper.vesicleStructure.fxz
+            onToggled: Globals.BackendWrapper.vesicleStructure.fxz = checked
         }
         EaElements.CheckBox {
-            height: EaStyle.Sizes.fontPixelSize * 5
-            text: qsTr('Fxz')
-            checked: Globals.BackendWrapper.ballStructure.fxz
-            onToggled: Globals.BackendWrapper.ballStructure.fxz = checked
-        }
-        EaElements.CheckBox {
-            height: EaStyle.Sizes.fontPixelSize * 5
-            text: qsTr('Rev')
-            checked: Globals.BackendWrapper.ballStructure.rev
-            onToggled: Globals.BackendWrapper.ballStructure.rev = checked
+            width: EaStyle.Sizes.sideBarContentWidth * 0.15
+            height: EaStyle.Sizes.fontPixelSize * 3
+            text: qsTr("Rev")
+            checked: Globals.BackendWrapper.vesicleStructure.rev
+            onToggled: Globals.BackendWrapper.vesicleStructure.rev = checked
         }
     }
 }

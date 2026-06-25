@@ -10,7 +10,6 @@ import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
-
 EaComponents.ListView {
     // Override to bind a per-row Fractions backend (e.g. layer/lamella).
     // Defaults to the global Fractions set on the wrapper.
@@ -23,7 +22,7 @@ EaComponents.ListView {
         EaStyle.Sizes.fontPixelSize * 6,
         -1,
         EaStyle.Sizes.fontPixelSize * 8,
-        EaStyle.Sizes.fontPixelSize * 8,
+        EaStyle.Sizes.fontPixelSize * 8
     ]
 
     header: EaComponents.ListViewHeader {
@@ -31,7 +30,7 @@ EaComponents.ListView {
             text: qsTr("Present")
             color: EaStyle.Colors.themeForegroundMinor
         }
-        EaComponents.TableViewLabel {} // filler
+        EaComponents.TableViewLabel {}
         EaComponents.TableViewLabel {
             text: qsTr("Component name")
             color: EaStyle.Colors.themeForegroundMinor
@@ -56,7 +55,7 @@ EaComponents.ListView {
             checked: present
             onToggled: present = checked
         }
-        EaComponents.TableViewLabel {} // filler
+        EaComponents.TableViewLabel {}
         EaComponents.TableViewLabel {
             text: name
             enabled: false

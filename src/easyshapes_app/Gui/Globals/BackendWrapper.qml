@@ -34,11 +34,7 @@ QtObject {
     /////////////
 
     readonly property string statusProject: activeBackend.status.project
-    readonly property string statusPhasesCount: activeBackend.status.phasesCount
-    readonly property string statusExperimentsCount: activeBackend.status.experimentsCount
-    readonly property string statusCalculator: activeBackend.status.calculator
-    readonly property string statusMinimizer: activeBackend.status.minimizer
-    readonly property string statusVariables: activeBackend.status.variables
+    readonly property string statusEngine: activeBackend.status.engine
 
     ///////////////
     // Project page
@@ -63,7 +59,9 @@ QtObject {
     readonly property var sampleModelLoaded: activeBackend.sampleModel.loaded
     readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
     readonly property var sampleModelStructureTypes: activeBackend.sampleModel.structureTypes
+    readonly property var sampleModelTypes: activeBackend.sampleModel.modelTypes
     readonly property string sampleModelCurrentStructureType: activeBackend.sampleModel.currentStructureType
+    readonly property string sampleModelCurrentType: activeBackend.sampleModel.currentType
 
     property bool sampleModelCreated: activeBackend.sampleModel.created
     onSampleModelCreatedChanged: activeBackend.sampleModel.created = sampleModelCreated
@@ -78,6 +76,9 @@ QtObject {
         // structure_type into its own property here so visibility bindings
         // (Layers/Lamellae GroupBoxes) update.
         if (field === 'structure_type') activeBackend.sampleModel.currentStructureType = value
+        // Same in-place-mutation caveat for the Discrete/Lattice type: mirror
+        // it so the Lattice Parameters GroupBox visibility binding updates.
+        if (field === 'type') activeBackend.sampleModel.currentType = value
     }
     function sampleModelClear() { activeBackend.sampleModel.clear() }
     function sampleModelSaveToCatalog() { activeBackend.sampleModel.saveToCatalog() }
@@ -158,44 +159,23 @@ QtObject {
     // shown only when sampleModelCurrentStructureType === 'Monolayer'.
     readonly property var monolayerStructure: activeBackend.monolayerStructure
 
-    // Lattice structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Lattice'. The
-    // substructure slot mirrors the SampleModel loaded/available shape, so
-    // the embedded list/popups follow the same recipe.
+    // Lattice parameters (Sample Model sidebar). Single-record fielded form
+    // shown only when sampleModelCurrentType === 'Lattice' (the Discrete/Lattice
+    // arrangement, decoupled from the shape).
     readonly property var latticeStructure: activeBackend.latticeStructure
-    readonly property var latticeSubstructureLoaded: activeBackend.latticeStructure.substructureLoaded
-    readonly property var latticeSubstructureAvailable: activeBackend.latticeStructure.availableSubstructures
-    readonly property var latticeSubstructureTypes: activeBackend.latticeStructure.substructureTypes
 
-    function latticeSubstructureSetLoaded(item) { activeBackend.latticeStructure.setSubstructureLoaded(item) }
-    function latticeSubstructureClear() { activeBackend.latticeStructure.clearSubstructure() }
-    function latticeSubstructureSaveToCatalog() { activeBackend.latticeStructure.saveSubstructureToCatalog() }
-    function latticeSubstructureRemoveFromCatalog(index) { activeBackend.latticeStructure.removeSubstructureFromCatalog(index) }
+    // Buffer group (Sample Model sidebar). Solvent is a single selected value
+    // ('(None)' / TIP3 / Ethanol); buffer components are a row list (salts,
+    // buffering agents) backed by a shared catalog.
+    readonly property var bufferSolventOptions: activeBackend.buffer.solventOptions
+    property string bufferSolvent: activeBackend.buffer.solvent
+    onBufferSolventChanged: activeBackend.buffer.solvent = bufferSolvent
 
-    // Solution group (Sample Model sidebar). Two backend-owned slots:
-    //   * solution — single-record JS array (capacity 0 or 1), TIP3 by default.
-    //   * ions     — ListModel with at most 2 rows, name only.
+    readonly property var bufferComponents: activeBackend.buffer.components
+    readonly property var bufferComponentsAvailable: activeBackend.buffer.available
 
-    readonly property var solutionLoaded: activeBackend.solution.loaded
-    readonly property var solutionAvailable: activeBackend.solution.available
-    readonly property var solutionTypes: activeBackend.solution.solutionTypes
-
-    function solutionSetLoaded(item) { activeBackend.solution.setLoaded(item) }
-    function solutionUpdateField(field, value) { activeBackend.solution.updateField(field, value) }
-    function solutionClear() { activeBackend.solution.clear() }
-    function solutionSaveToCatalog() { activeBackend.solution.saveToCatalog() }
-    function solutionRemoveFromCatalog(index) { activeBackend.solution.removeFromCatalog(index) }
-
-    // Solvent aliases — same backend object, used by the solvent table popup files.
-    readonly property var solventLoaded: activeBackend.solution.loaded
-    readonly property var solventAvailable: activeBackend.solution.available
-    readonly property var solventTypes: activeBackend.solution.solutionTypes
-
-    function solventSetLoaded(item) { activeBackend.solution.setLoaded(item) }
-    function solventUpdateField(field, value) { activeBackend.solution.updateField(field, value) }
-    function solventClear() { activeBackend.solution.clear() }
-    function solventSaveToCatalog() { activeBackend.solution.saveToCatalog() }
-    function solventRemoveFromCatalog(index) { activeBackend.solution.removeFromCatalog(index) }
+    function bufferComponentsAppend(item) { activeBackend.buffer.appendComponent(item) }
+    function bufferComponentsRemove(index) { activeBackend.buffer.removeComponent(index) }
 
     readonly property var ionsLoaded: activeBackend.ions.loaded
     readonly property var ionsAvailable: activeBackend.ions.available
@@ -211,22 +191,36 @@ QtObject {
     // selection repopulates `componentsFilesFiles`.
     readonly property var componentsFilesFiles: activeBackend.componentsFiles.files
     readonly property string componentsFilesSelectedComponent: activeBackend.componentsFiles.selectedComponent
+    readonly property string componentsFilesEditName: activeBackend.componentsFiles.editName
 
     function componentsFilesSelect(name) { activeBackend.componentsFiles.selectComponent(name) }
+    function componentsFilesCreateNew() { activeBackend.componentsFiles.createNew() }
+    function componentsFilesSetEditName(name) { activeBackend.componentsFiles.editName = name }
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
+    function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
     function componentsFilesExportComponent() { activeBackend.componentsFiles.exportComponent() }
-    function componentsFilesSave() { activeBackend.componentsFiles.save() }
 
-    // Position Restraints (Sample Model Advanced sidebar). One row per
-    // loaded component (mirrored from componentsLoaded); component_name is
-    // read-only here. f_constant is fixed to POSRES_FC_LIP for the mock.
-    readonly property var positionRestraintsItems: activeBackend.positionRestraints.items
-
-    function positionRestraintsSetAtom(index, value) { activeBackend.positionRestraints.setAtom(index, value) }
-    function positionRestraintsSetPForm(index, value) { activeBackend.positionRestraints.setPForm(index, value) }
-    function positionRestraintsSetGeom(index, value) { activeBackend.positionRestraints.setGeom(index, value) }
-    function positionRestraintsSetRadius(index, value) { activeBackend.positionRestraints.setRadius(index, value) }
+    // Save the current file list to the asset library and load the component
+    // into the basic-tab components list (under whatever name is in the name
+    // field) if it isn't already there.
+    function componentsFilesSave() {
+        const name = activeBackend.componentsFiles.save()
+        if (!name)
+            return
+        const loaded = activeBackend.components.loaded
+        for (let i = 0; i < loaded.count; ++i) {
+            if (loaded.get(i).name === name)
+                return
+        }
+        activeBackend.components.appendItem({
+            name: name,
+            component_type: 'Other',
+            c_ion: '',
+            mint: 0,
+            mext: 0
+        })
+    }
 
     // Structure Files (Sample Model Advanced sidebar). List of structure-
     // related files plus actions for saving the set to the asset library
@@ -238,6 +232,70 @@ QtObject {
     function structureFilesRemove(index) { activeBackend.structureFiles.removeItem(index) }
     function structureFilesClear() { activeBackend.structureFiles.clear() }
     function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
+    function structureFilesExport() { activeBackend.structureFiles.exportFiles() }
+
+    // Library Assets editor (Advanced sidebar). A single draft asset the user
+    // creates or loads from the library, edits, and saves back. `mode` is
+    // 'empty' | 'create' | 'edit'; the type is editable only while creating.
+    readonly property string libraryAssetsMode: activeBackend.libraryAssets.mode
+    readonly property var libraryAssetsTypeOptions: activeBackend.libraryAssets.typeOptions
+    readonly property string libraryAssetsType: activeBackend.libraryAssets.assetType
+    readonly property string libraryAssetsName: activeBackend.libraryAssets.assetName
+    readonly property string libraryAssetsCIon: activeBackend.libraryAssets.cIon
+    readonly property int libraryAssetsMint: activeBackend.libraryAssets.mint
+    readonly property int libraryAssetsMext: activeBackend.libraryAssets.mext
+    readonly property var libraryAssetsPaths: activeBackend.libraryAssets.paths
+    readonly property var libraryAssetsLibrary: activeBackend.libraryAssets.library
+    // Salt composition (used when the type is 'Salt'). `saltReady` is true once
+    // a name and both ions are set.
+    readonly property var libraryAssetsSaltComposition: activeBackend.libraryAssets.saltComposition
+    readonly property bool libraryAssetsSaltReady: activeBackend.libraryAssets.saltReady
+
+    function libraryAssetsCreateNew() { activeBackend.libraryAssets.createNew() }
+    function libraryAssetsSetSaltIon(index, value) { activeBackend.libraryAssets.setSaltIon(index, value) }
+    function libraryAssetsSetSaltCount(index, value) { activeBackend.libraryAssets.setSaltCount(index, value) }
+    function libraryAssetsLoad(item) { activeBackend.libraryAssets.loadAsset(item) }
+    function libraryAssetsSetType(value) { activeBackend.libraryAssets.assetType = value }
+    function libraryAssetsSetName(value) { activeBackend.libraryAssets.assetName = value }
+    function libraryAssetsSetCIon(value) { activeBackend.libraryAssets.cIon = value }
+    function libraryAssetsSetMint(value) { activeBackend.libraryAssets.mint = value }
+    function libraryAssetsSetMext(value) { activeBackend.libraryAssets.mext = value }
+    function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
+    function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
+    function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
+    function libraryAssetsSave() { activeBackend.libraryAssets.save() }
+    function libraryAssetsExport() { activeBackend.libraryAssets.exportAsset() }
+
+    // SMILES generator (Advanced sidebar). Builds a 3D molecular configuration
+    // from a SMILES string. `smilesReady` is true once a name and SMILES string
+    // are provided.
+    readonly property string smilesMoleculeName: activeBackend.smilesGenerator.moleculeName
+    readonly property string smilesFormula: activeBackend.smilesGenerator.formula
+    readonly property string smilesString: activeBackend.smilesGenerator.smiles
+    readonly property real smilesBoxX: activeBackend.smilesGenerator.boxX
+    readonly property real smilesBoxY: activeBackend.smilesGenerator.boxY
+    readonly property real smilesBoxZ: activeBackend.smilesGenerator.boxZ
+    readonly property var smilesFormatOptions: activeBackend.smilesGenerator.formatOptions
+    readonly property string smilesFormat: activeBackend.smilesGenerator.format
+    readonly property var smilesComponentTypeOptions: activeBackend.smilesGenerator.componentTypeOptions
+    readonly property string smilesComponentType: activeBackend.smilesGenerator.componentType
+    readonly property bool smilesCisDoubleBonds: activeBackend.smilesGenerator.cisDoubleBonds
+    readonly property bool smilesAlignZ: activeBackend.smilesGenerator.alignZ
+    readonly property bool smilesFlatXZ: activeBackend.smilesGenerator.flatXZ
+    readonly property bool smilesReady: activeBackend.smilesGenerator.ready
+
+    function smilesSetMoleculeName(value) { activeBackend.smilesGenerator.moleculeName = value }
+    function smilesSetFormula(value) { activeBackend.smilesGenerator.formula = value }
+    function smilesSetString(value) { activeBackend.smilesGenerator.smiles = value }
+    function smilesSetBoxX(value) { activeBackend.smilesGenerator.boxX = value }
+    function smilesSetBoxY(value) { activeBackend.smilesGenerator.boxY = value }
+    function smilesSetBoxZ(value) { activeBackend.smilesGenerator.boxZ = value }
+    function smilesSetFormat(value) { activeBackend.smilesGenerator.format = value }
+    function smilesSetComponentType(value) { activeBackend.smilesGenerator.componentType = value }
+    function smilesSetCisDoubleBonds(value) { activeBackend.smilesGenerator.cisDoubleBonds = value }
+    function smilesSetAlignZ(value) { activeBackend.smilesGenerator.alignZ = value }
+    function smilesSetFlatXZ(value) { activeBackend.smilesGenerator.flatXZ = value }
+    function smilesGenerate() { activeBackend.smilesGenerator.generate() }
 
     ////////////////
     // Analysis page

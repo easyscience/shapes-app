@@ -24,6 +24,11 @@ QtObject {
     // Empty string means no selection — `files` is then empty.
     property string selectedComponent: ''
 
+    // Editable name shown in the name field. Tracks `selectedComponent` when a
+    // component is picked from the dropdown, is emptied by `createNew()`, and is
+    // the name the file list is persisted under by `save()`.
+    property string editName: ''
+
     // Internal map: componentName -> JS array of file paths. Mutations go
     // through __syncBack() so the map stays consistent with the ListModel.
     property var filesByComponent: ({
@@ -47,8 +52,8 @@ QtObject {
     }
 
     function selectComponent(name) {
-        if (selectedComponent === name) return
         selectedComponent = name
+        editName = name
         filesModel.clear()
         const list = filesByComponent[name] || []
         for (let i = 0; i < list.length; ++i) {
@@ -56,16 +61,29 @@ QtObject {
         }
     }
 
+    // Start a fresh, unsaved component: clear the dropdown selection, the name
+    // field and the staged file list.
+    function createNew() {
+        selectedComponent = ''
+        editName = ''
+        filesModel.clear()
+    }
+
     function appendFile(path) {
-        if (selectedComponent === '') return
         filesModel.append({ path: path })
-        __syncBack()
+        if (selectedComponent !== '') __syncBack()
     }
 
     function removeFile(index) {
         if (index < 0 || index >= filesModel.count) return
         filesModel.remove(index)
-        __syncBack()
+        if (selectedComponent !== '') __syncBack()
+    }
+
+    // Mock placeholder — real backend will open the file in an editor.
+    function editFile(index) {
+        if (index < 0 || index >= filesModel.count) return
+        console.debug('ComponentsFiles.editFile:', filesModel.get(index).path)
     }
 
     // Export the whole selected component (all its files). Mock backend
@@ -76,14 +94,26 @@ QtObject {
                       JSON.stringify(filesByComponent[selectedComponent] || []))
     }
 
-    // Persist the current file list for the selected component. Mock just
-    // mirrors filesModel back into filesByComponent — already kept in sync,
-    // so this is a no-op for the mock other than the debug print.
+    // Persist the current file list to the asset library under `editName`.
+    // For a freshly created component (`selectedComponent === ''`) this stores
+    // the staged files under the new name and adopts it as the selection.
+    // Renaming an existing component leaves the old map entry untouched (mock
+    // only). Returns the saved name so the caller can mirror it into the
+    // basic-tab components list.
     function save() {
-        if (selectedComponent === '') return
-        __syncBack()
-        console.debug('ComponentsFiles.save:', selectedComponent,
-                      JSON.stringify(filesByComponent[selectedComponent]))
+        const name = (editName || '').trim()
+        if (name === '') return ''
+        const arr = []
+        for (let i = 0; i < filesModel.count; ++i) {
+            arr.push(filesModel.get(i).path)
+        }
+        const copy = Object.assign({}, filesByComponent)
+        copy[name] = arr
+        filesByComponent = copy
+        selectedComponent = name
+        editName = name
+        console.debug('ComponentsFiles.save:', name, JSON.stringify(arr))
+        return name
     }
 
     function __syncBack() {

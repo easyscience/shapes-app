@@ -6,7 +6,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 
-import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Components as EaComponents
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Style as EaStyle
@@ -14,26 +13,24 @@ import EasyApplication.Gui.Style as EaStyle
 import Gui.Globals as Globals
 
 
-EaElements.Dialog{
-    id: substructureLoadDialog
+EaElements.Dialog {
+    id: libraryAssetLoadDialog
 
-    property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
+    property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 30
 
-    title: qsTr("Load a Substructure from the Asset Library")
+    title: qsTr("Load an Asset from the Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        var indexes = loadSubstructureListView.selectedIndexes
-
+        var indexes = loadLibraryAssetListView.selectedIndexes
         if (indexes.length > 0) {
-            var row = indexes[0].row
-            var item = Globals.BackendWrapper.latticeSubstructureAvailable.get(row)
-            Globals.BackendWrapper.latticeSubstructureSetLoaded(item)
-            loadSubstructureListView.clearSelection()
+            var item = Globals.BackendWrapper.libraryAssetsLibrary.get(indexes[0].row)
+            Globals.BackendWrapper.libraryAssetsLoad(item)
         }
+        loadLibraryAssetListView.clearSelection()
     }
     onRejected: {
-        loadSubstructureListView.clearSelection()
+        loadLibraryAssetListView.clearSelection()
     }
 
     Column {
@@ -41,16 +38,16 @@ EaElements.Dialog{
             enabled: false
             text: qsTr("Available in the Asset Library")
         }
+
         EaComponents.ListView {
-            id: loadSubstructureListView
-            defaultInfoText: qsTr("No substructures found")
+            id: loadLibraryAssetListView
+            defaultInfoText: qsTr("No assets found")
             multiSelection: false
+
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
-                EaStyle.Sizes.fontPixelSize * 10,
-                EaStyle.Sizes.fontPixelSize * 6,
                 -1,
-                EaStyle.Sizes.tableRowHeight,
+                EaStyle.Sizes.fontPixelSize * 10
             ]
 
             header: EaComponents.ListViewHeader {
@@ -67,20 +64,14 @@ EaElements.Dialog{
                     text: qsTr("Type")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Description")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {} // filler
             }
 
-            model: Globals.BackendWrapper.latticeSubstructureAvailable
+            model: Globals.BackendWrapper.libraryAssetsLibrary
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
-                required property string structure_type
-                required property string description
+                required property string type
 
                 EaComponents.TableViewLabel {
                     text: index + 1
@@ -91,15 +82,7 @@ EaElements.Dialog{
                     text: name
                 }
                 EaComponents.TableViewLabel {
-                    text: structure_type
-                }
-                EaComponents.TableViewLabel {
-                    text: description
-                }
-                EaComponents.TableViewButton {
-                    fontIcon: "minus-circle"
-                    ToolTip.text: qsTr("Remove this substructure")
-                    onClicked: Globals.BackendWrapper.latticeSubstructureRemoveFromCatalog(index)
+                    text: type
                 }
             }
         }

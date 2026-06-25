@@ -12,25 +12,32 @@ import EasyApplication.Gui.Components as EaComponents
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr('Components Files')
-        icon: 'file-alt'
+        title: qsTr("Library assets")
+        icon: "book"
         collapsed: false
 
-        Loader { source: 'Groups/ComponentsFiles.qml' }
+        Loader { source: "Groups/LibraryAssetsFiles.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Position Restraints')
-        icon: 'thumbtack'
+        title: qsTr("Components Files")
+        icon: "file-alt"
 
-        Loader { source: 'Groups/PositionRestraints.qml' }
+        Loader { source: "Groups/ComponentsFiles.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Structure Files')
-        icon: 'folder-open'
+        title: qsTr("Sample Model Files")
+        icon: "folder-open"
 
-        Loader { source: 'Groups/StructureFiles.qml' }
+        Loader { source: "Groups/StructureFiles.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("SMILES generator")
+        icon: "atom"
+
+        Loader { source: "Groups/SmilesGenerator.qml" }
     }
 
 }

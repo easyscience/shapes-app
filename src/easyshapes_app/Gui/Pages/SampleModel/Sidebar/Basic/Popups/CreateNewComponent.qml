@@ -26,7 +26,7 @@ EaElements.Dialog{
         Globals.BackendWrapper.componentsAppend({
             name: componentNameField.text,
             component_type: sampleModelTypeField.currentText,
-            atoms: 42,
+            c_ion: "",
             mint: 0,
             mext: 0
         })
@@ -124,8 +124,8 @@ EaElements.Dialog{
         }
         Column {
             EaElements.SideBarButton {
-                fontIcon: 'upload'
-                text: qsTr('Add files')
+                fontIcon: "upload"
+                text: qsTr("Add files")
                 width: componentCreationDialog.width * 0.3164
 
                 onClicked: {
@@ -134,7 +134,7 @@ EaElements.Dialog{
                 }
 
                 Loader {
-                    source: '../Popups/OpenAssetFile.qml'
+                    source: "../Popups/OpenAssetFile.qml"
                 }
             }
         }

@@ -11,15 +11,14 @@ import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
-
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr('Equilibration setup')
-        icon: 'sliders-h'
+        title: qsTr("Equilibration setup")
+        icon: "sliders-h"
         collapsed: false
 
-        Loader { source: 'Groups/AnalysisConfig.qml' }
+        Loader { source: "Groups/AnalysisConfig.qml" }
     }
 
     // Centered "Equilibrate" call-to-action below the groups.
@@ -30,14 +29,13 @@ EaComponents.SideBarColumn {
         EaElements.SideBarButton {
             id: equilibrateButton
             anchors.centerIn: parent
-            text: qsTr('Equilibrate')
-            fontIcon: 'magic'
+            text: qsTr("Equilibrate")
+            fontIcon: "magic"
             width: EaStyle.Sizes.sideBarContentWidth
             enabled: Globals.BackendWrapper.analysisConfigFiles
                      ? Globals.BackendWrapper.analysisConfigFiles.count > 0
                      : false
-            onClicked: console.debug('Equilibrate clicked')
+            onClicked: console.debug("Equilibrate clicked")
         }
     }
-
 }

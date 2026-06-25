@@ -15,25 +15,24 @@ import Gui.Globals as Globals
 
 
 EaElements.Dialog {
-    id: solventLoadDialog
+    id: bufferComponentLoadDialog
 
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
 
-    title: qsTr("Load a Solvent from the Asset Library")
+    title: qsTr("Load Buffer Components from the Asset Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
     onAccepted: {
-        var indexes = loadSolventListView.selectedIndexes
+        var indexes = loadBufferComponentListView.selectedIndexes
 
-        if (indexes.length > 0) {
-            var row = indexes[0].row
-            var item = Globals.BackendWrapper.solventAvailable.get(row)
-            Globals.BackendWrapper.solventSetLoaded(item)
-            loadSolventListView.clearSelection()
+        for (var i = 0; i < indexes.length; ++i) {
+            var item = Globals.BackendWrapper.bufferComponentsAvailable.get(indexes[i].row)
+            Globals.BackendWrapper.bufferComponentsAppend(item)
         }
+        loadBufferComponentListView.clearSelection()
     }
     onRejected: {
-        loadSolventListView.clearSelection()
+        loadBufferComponentListView.clearSelection()
     }
 
     Column {
@@ -42,13 +41,12 @@ EaElements.Dialog {
             text: qsTr("Available in the Asset Library")
         }
         EaComponents.ListView {
-            id: loadSolventListView
-            defaultInfoText: qsTr("No solvents found")
-            multiSelection: false
+            id: loadBufferComponentListView
+            defaultInfoText: qsTr("No buffer components found")
+            multiSelection: true
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
                 EaStyle.Sizes.fontPixelSize * 10,
-                EaStyle.Sizes.fontPixelSize * 6,
                 -1,
             ]
 
@@ -63,21 +61,16 @@ EaElements.Dialog {
                     color: EaStyle.Colors.themeForegroundMinor
                 }
                 EaComponents.TableViewLabel {
-                    text: qsTr("Type")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {
                     text: qsTr("Description")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
             }
 
-            model: Globals.BackendWrapper.solventAvailable
+            model: Globals.BackendWrapper.bufferComponentsAvailable
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
-                required property string solvent_type
                 required property string description
 
                 EaComponents.TableViewLabel {
@@ -87,9 +80,6 @@ EaElements.Dialog {
                 }
                 EaComponents.TableViewLabel {
                     text: name
-                }
-                EaComponents.TableViewLabel {
-                    text: solvent_type
                 }
                 EaComponents.TableViewLabel {
                     text: description

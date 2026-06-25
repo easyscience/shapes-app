@@ -4,19 +4,26 @@
 
 import QtQuick
 import QtQuick.Controls
-//import QtQuick.Dialogs
+import QtQuick.Dialogs
 
-import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
-import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
-
 EaElements.GroupColumn {
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
+    id: root
+    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
+
+    // Counter-ion options: a "(None)" sentinel (empty c_ion) plus the shared ion library.
+    readonly property var cIonOptions: {
+        const lib = Globals.BackendWrapper.ionsAvailable
+        let opts = [qsTr("(None)")]
+        for (let i = 0; i < lib.count; ++i)
+            opts.push(lib.get(i).name)
+        return opts
+    }
 
     EaComponents.ListView {
         id: loadedComponents
@@ -27,7 +34,7 @@ EaElements.GroupColumn {
             EaStyle.Sizes.fontPixelSize * 2.5,
             -1,
             EaStyle.Sizes.fontPixelSize * 6,
-            EaStyle.Sizes.fontPixelSize * 4,
+            EaStyle.Sizes.fontPixelSize * 5,
             EaStyle.Sizes.fontPixelSize * 4,
             EaStyle.Sizes.fontPixelSize * 4,
             EaStyle.Sizes.tableRowHeight
@@ -47,7 +54,7 @@ EaElements.GroupColumn {
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr("Atoms")
+                text: qsTr("C-ion")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -73,7 +80,7 @@ EaElements.GroupColumn {
             required property string component_type
             required property int mint
             required property int mext
-            required property int atoms
+            required property string c_ion
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -90,10 +97,13 @@ EaElements.GroupColumn {
                 enabled: false
             }
 
-            EaComponents.ListViewTextInput {
-                text: atoms
-                onEditingFinished: atoms = parseInt(text)
-                validator: IntValidator { bottom: 0 }
+            EaComponents.TableViewComboBox {
+                horizontalAlignment: Text.AlignHCenter
+                model: root.cIonOptions
+                // Blank collapsed label for the "(None)" sentinel (0) or no match (-1).
+                displayText: currentIndex <= 0 ? "" : currentText
+                Component.onCompleted: currentIndex = c_ion === "" ? 0 : find(c_ion)
+                onActivated: (i) => c_ion = (i === 0 ? "" : model[i])
             }
 
             EaComponents.ListViewTextInput {
@@ -117,49 +127,33 @@ EaElements.GroupColumn {
     }
 
     Grid {
-        columns: 3
+        columns: 2
         spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.SideBarButton {
-            fontIcon: 'upload'
-            text: qsTr('Load component(s)')
+            fontIcon: "file-import"
+            text: qsTr("Load component(s)")
             width: buttonWidth
             onClicked: loadExistingComponentLoader.item.open()
         }
 
         EaElements.SideBarButton {
-            fontIcon: 'plus-circle'
-            text: qsTr('Import component')
+            fontIcon: "upload"
+            text: qsTr("Import component")
             width: buttonWidth
-            onClicked: createNewComponentLoader.item.open()
-        }
-
-        EaElements.SideBarButton {
-            id: saveModelButton
-            fontIcon: 'download'
-            text: qsTr('Save component(s)')
-            width: buttonWidth
-            enabled: Globals.BackendWrapper.componentsLoaded
-                     ? Globals.BackendWrapper.componentsLoaded.count > 0
-                     : false
-            onClicked: {
-                const indexes = loadedComponents.selectedIndexes
-                for (let i = 0; i < indexes.length; ++i)
-                    loadExistingComponentLoader.item.availableComponentsModel.append(
-                        Globals.BackendWrapper.componentsLoaded.get(indexes[i].row)
-                    )
-            }
+            onClicked: importComponentFolderDialog.open()
         }
     }
 
     Loader {
         id: loadExistingComponentLoader
-        source: '../Popups/LoadExistingComponent.qml'
+        source: "../Popups/LoadExistingComponent.qml"
     }
 
-    Loader {
-        id: createNewComponentLoader
-        source: '../Popups/CreateNewComponent.qml'
+    // Folder-based import, matching Model Definition's Import.
+    FolderDialog {
+        id: importComponentFolderDialog
+        title: qsTr("Import a component from a directory")
+        onAccepted: console.debug(`Import component from folder '${selectedFolder}'`)
     }
-
 }

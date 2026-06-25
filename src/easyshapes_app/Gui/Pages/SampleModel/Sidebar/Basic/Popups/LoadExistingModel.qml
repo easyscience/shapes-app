@@ -49,6 +49,7 @@ EaElements.Dialog{
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
                 EaStyle.Sizes.fontPixelSize * 10,
+                EaStyle.Sizes.fontPixelSize * 8,
                 EaStyle.Sizes.fontPixelSize * 6,
                 -1,
                 EaStyle.Sizes.tableRowHeight,
@@ -62,6 +63,10 @@ EaElements.Dialog{
                 }
                 EaComponents.TableViewLabel {
                     text: qsTr("Name")
+                    color: EaStyle.Colors.themeForegroundMinor
+                }
+                EaComponents.TableViewLabel {
+                    text: qsTr("Shape")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
                 EaComponents.TableViewLabel {
@@ -81,6 +86,7 @@ EaElements.Dialog{
                 required property int index
                 required property string name
                 required property string structure_type
+                required property string type
                 required property string description
 
                 EaComponents.TableViewLabel {
@@ -93,6 +99,9 @@ EaElements.Dialog{
                 }
                 EaComponents.TableViewLabel {
                     text: structure_type
+                }
+                EaComponents.TableViewLabel {
+                    text: type
                 }
                 EaComponents.TableViewLabel {
                     text: description

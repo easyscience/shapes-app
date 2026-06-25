@@ -7,5 +7,5 @@ import QtQuick.Dialogs
 
 
 FolderDialog {
-    title: qsTr('Select a directory to replace the structure with')
+    title: qsTr("Select a directory to replace the structure with")
 }

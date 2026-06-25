@@ -39,7 +39,6 @@ QtObject {
                 'basic': {
                     'popups': {
                         'LoadExistingModel': null,
-                        'CreateNewModel': null,
                         'LoadExistingComponent': null,
                         'CreateNewComponent': null,
                         'OpenAssetFile': null

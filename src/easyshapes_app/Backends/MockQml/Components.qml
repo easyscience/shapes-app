@@ -12,7 +12,10 @@ QtObject {
     // ListModel (not JS array) so EaComponents.ListView's ItemSelectionModel
     // can drive Ctrl/Shift multi-selection, and so role-based delegate
     // properties (`required property string name` etc.) bind correctly.
-    // Roles: name, component_type, atoms, mint, mext.
+    // Roles: name, component_type, c_ion, mint, mext.
+    // c_ion is a counter-ion chosen per component from the shared ion
+    // library (Ions.available) — not owned here; this only stores the
+    // selected name (or '' when unset).
     readonly property var loaded: ListModel {
         id: loadedComponentsModel
     }
@@ -27,7 +30,7 @@ QtObject {
         loadedComponentsModel.append({
             name: item.name,
             component_type: item.component_type,
-            atoms: item.atoms,
+            c_ion: item.c_ion !== undefined ? item.c_ion : '',
             mint: item.mint,
             mext: item.mext
         })

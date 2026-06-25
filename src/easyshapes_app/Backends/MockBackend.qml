@@ -16,8 +16,11 @@ QtObject {
     property var components: MockLogic.Components
     // Advanced sidebar (Sample Model page) domain singletons.
     property var componentsFiles: MockLogic.ComponentsFiles
-    property var positionRestraints: MockLogic.PositionRestraints
     property var structureFiles: MockLogic.StructureFiles
+    // Library Assets editor (Advanced sidebar) — draft asset create/load/save.
+    property var libraryAssets: MockLogic.LibraryAssetsEditor
+    // SMILES generator (Advanced sidebar) — molecule from a SMILES string.
+    property var smilesGenerator: MockLogic.SmilesGenerator
     // Default fractions set tied to the shared component list.
     // Used as the fallback for the Fractions sidebar component when no
     // per-row override is set.
@@ -40,11 +43,11 @@ QtObject {
     property var bilayerStructure: MockLogic.BilayerStructure
     // Monolayer structure parameters (single record, edited inline).
     property var monolayerStructure: MockLogic.MonolayerStructure
-    // Lattice structure parameters (single record, edited inline) plus a
-    // single-record substructure with its own asset library.
+    // Lattice structure parameters (single record, edited inline).
     property var latticeStructure: MockLogic.LatticeStructure
-    // Solution group: solution (single-record, TIP3 default) + ions (max 2 rows).
-    property var solution: MockLogic.Solution
+    // Buffer group: solvent selection + buffer components (salts, buffering
+    // agents). Ions singleton stays (used by the Components C-ion picker).
+    property var buffer: MockLogic.Buffer
     property var ions: MockLogic.Ions
     property var analysis: MockLogic.Analysis
     // Analysis page — equilibration configuration (config files + force
@@ -56,7 +59,6 @@ QtObject {
     Component.onCompleted: {
         layers.fractionsSource = MockLogic.Components.loaded
         lamellae.fractionsSource = MockLogic.Components.loaded
-        positionRestraints.source = MockLogic.Components.loaded
     }
 
 }

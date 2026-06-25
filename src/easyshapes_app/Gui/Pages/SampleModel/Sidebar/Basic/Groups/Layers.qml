@@ -5,18 +5,16 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
-import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
 import "../Components" as Local
 
 EaElements.GroupColumn {
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
+    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize * 2) / 3
 
     EaComponents.ListView {
         id: layers
@@ -36,7 +34,7 @@ EaElements.GroupColumn {
                 text: qsTr("№")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-            EaComponents.TableViewLabel {} // filler
+            EaComponents.TableViewLabel {}
             EaComponents.TableViewLabel {
                 text: qsTr("Dmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
@@ -61,7 +59,7 @@ EaElements.GroupColumn {
                 text: index + 1
                 enabled: false
             }
-            EaComponents.TableViewLabel {} // filler
+            EaComponents.TableViewLabel {}
             EaComponents.ListViewTextInput {
                 text: dmin
                 onEditingFinished: Globals.BackendWrapper.layersSetDmin(index, parseFloat(text))
@@ -73,27 +71,24 @@ EaElements.GroupColumn {
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.TableViewButton {
-                id: deleteRowColumn
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this layer")
                 onClicked: Globals.BackendWrapper.layersRemove(index)
             }
         }
     }
-    Item {
-        width: layers.width
-        height: addLayerButton.height
+
+    Grid {
+        columns: 1
 
         EaElements.SideBarButton {
-            id: addLayerButton
-            anchors.right: parent.right
-            anchors.rightMargin: EaStyle.Sizes.tableColumnSpacing
             fontIcon: "plus-circle"
             text: qsTr("Add layer")
             width: buttonWidth
             onClicked: Globals.BackendWrapper.layersAppend({ dmin: 0.25, rmin: 0.5 })
         }
     }
+
     Column {
         id: fractionsSection
         visible: layers.selectedIndexes.length > 0
@@ -101,19 +96,16 @@ EaElements.GroupColumn {
 
         readonly property int selectedRow: layers.selectedIndexes.length > 0 ? layers.selectedIndexes[0].row : -1
         readonly property var selectedFractionsModel: {
-            // Touch the revision token so this binding re-evaluates when
-            // the per-layer Fractions array is rebuilt.
+            // Re-evaluate when the per-layer Fractions array is rebuilt.
             void Globals.BackendWrapper.layersFractionsRevision
             return selectedRow >= 0 ? Globals.BackendWrapper.layersFractionsModelAt(selectedRow) : null
         }
 
         EaElements.Label {
-            id: layerFractionsLabel
             enabled: false
             text: qsTr("Layer %1 Fractions").arg(fractionsSection.selectedRow >= 0 ? fractionsSection.selectedRow + 1 : 1)
         }
         Local.Fractions {
-            id: fractions
             fractionsModel: fractionsSection.selectedFractionsModel
         }
     }

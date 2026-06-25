@@ -15,13 +15,17 @@ QtObject {
         id: loadedIonsModel
     }
 
+    // Charge rendered as superscript via <sup> markup — EaElements labels
+    // (AutoText) and the ComboBox (RichText) render it; the markup is part of
+    // the stored name, so selections round-trip unchanged.
     readonly property var available: ListModel {
-        ListElement { name: 'NA+' }
-        ListElement { name: 'CL-' }
-        ListElement { name: 'K+' }
-        ListElement { name: 'CA2+' }
-        ListElement { name: 'MG2+' }
-        ListElement { name: 'ZN2+' }
+        ListElement { name: 'Na<sup>+</sup>' }
+        ListElement { name: 'Cl<sup>-</sup>' }
+        ListElement { name: 'Br<sup>-</sup>' }
+        ListElement { name: 'K<sup>+</sup>' }
+        ListElement { name: 'Ca<sup>2+</sup>' }
+        ListElement { name: 'Mg<sup>2+</sup>' }
+        ListElement { name: 'Zn<sup>2+</sup>' }
     }
 
     // Hard cap at the backend layer. The button row also disables itself,

@@ -67,7 +67,7 @@ Rectangle {
             }
 
 
-            titleText: 'x'
+            titleText: "x"
             min: Globals.BackendWrapper.activeBackend.analysis.axesRanges["xmin"]
             max: Globals.BackendWrapper.activeBackend.analysis.axesRanges["xmax"]
         }
@@ -89,7 +89,7 @@ Rectangle {
             }
 
 
-            titleText: 'y'
+            titleText: "y"
             min: Globals.BackendWrapper.activeBackend.analysis.axesRanges["ymin"]
             max: Globals.BackendWrapper.activeBackend.analysis.axesRanges["ymax"]
         }

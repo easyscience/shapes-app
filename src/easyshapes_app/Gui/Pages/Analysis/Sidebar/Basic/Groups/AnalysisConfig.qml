@@ -11,12 +11,11 @@ import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
-
 EaElements.GroupColumn {
 
     EaComponents.ListView {
         id: configFilesList
-        defaultInfoText: qsTr('No configuration files added')
+        defaultInfoText: qsTr("No configuration files added")
         multiSelection: false
 
         columnWidths: [
@@ -28,19 +27,15 @@ EaElements.GroupColumn {
 
         header: EaComponents.ListViewHeader {
             EaComponents.TableViewLabel {
-                text: qsTr('№')
+                text: qsTr("№")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
-                text: qsTr('Path')
+                text: qsTr("Path")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-            EaComponents.TableViewLabel {
-                color: EaStyle.Colors.themeForegroundMinor
-            }
-            EaComponents.TableViewLabel {
-                color: EaStyle.Colors.themeForegroundMinor
-            }
+            EaComponents.TableViewLabel {}
+            EaComponents.TableViewLabel {}
         }
 
         model: Globals.BackendWrapper.analysisConfigFiles
@@ -60,24 +55,28 @@ EaElements.GroupColumn {
                 elide: Text.ElideLeft
             }
             EaComponents.TableViewButton {
-                fontIcon: 'edit'
-                ToolTip.text: qsTr('Edit this file')
+                fontIcon: "edit"
+                ToolTip.text: qsTr("Edit this file")
                 onClicked: Globals.BackendWrapper.analysisConfigEditFile(index)
             }
             EaComponents.TableViewButton {
-                fontIcon: 'minus-circle'
-                ToolTip.text: qsTr('Remove this file')
+                fontIcon: "minus-circle"
+                ToolTip.text: qsTr("Remove this file")
                 onClicked: Globals.BackendWrapper.analysisConfigRemoveFile(index)
             }
         }
     }
 
-    EaElements.SideBarButton {
-        fontIcon: 'plus-circle'
-        text: qsTr('Add file(s)')
-        width: EaStyle.Sizes.sideBarContentWidth * 0.48
-        ToolTip.text: qsTr('Pick one or more .mdp files from disk')
-        onClicked: addFilesLoader.item.open()
+    Grid {
+        columns: 1
+
+        EaElements.SideBarButton {
+            fontIcon: "plus-circle"
+            text: qsTr("Add file(s)")
+            width: EaStyle.Sizes.sideBarContentWidth * 0.48
+            ToolTip.text: qsTr("Pick one or more .mdp files from disk")
+            onClicked: addFilesLoader.item.open()
+        }
     }
 
     // ForceField selector on the left, step-range pair on the right.
@@ -87,7 +86,6 @@ EaElements.GroupColumn {
         property real fieldWidth: (halfWidth - EaStyle.Sizes.fontPixelSize * 0.5) / 2
 
         EaElements.ComboBox {
-            id: forceFieldSelector
             width: parent.halfWidth
             topInset: forceFieldLabel.height
             topPadding: topInset + padding
@@ -101,7 +99,7 @@ EaElements.GroupColumn {
 
             EaElements.Label {
                 id: forceFieldLabel
-                text: qsTr('ForceField')
+                text: qsTr("ForceField")
             }
         }
 
@@ -109,7 +107,6 @@ EaElements.GroupColumn {
             spacing: EaStyle.Sizes.fontPixelSize * 0.5
 
             EaElements.TextField {
-                id: startStepField
                 width: parent.parent.fieldWidth
                 topInset: startStepLabel.height
                 topPadding: topInset + padding
@@ -121,12 +118,11 @@ EaElements.GroupColumn {
 
                 EaElements.Label {
                     id: startStepLabel
-                    text: qsTr('Start step')
+                    text: qsTr("Start step")
                 }
             }
 
             EaElements.TextField {
-                id: stopStepField
                 width: parent.parent.fieldWidth
                 topInset: stopStepLabel.height
                 topPadding: topInset + padding
@@ -138,7 +134,7 @@ EaElements.GroupColumn {
 
                 EaElements.Label {
                     id: stopStepLabel
-                    text: qsTr('Stop step')
+                    text: qsTr("Stop step")
                 }
             }
         }
@@ -146,6 +142,6 @@ EaElements.GroupColumn {
 
     Loader {
         id: addFilesLoader
-        source: '../Popups/AddAnalysisConfigFiles.qml'
+        source: "../Popups/AddAnalysisConfigFiles.qml"
     }
 }

@@ -4,28 +4,25 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 
-import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
-import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
 EaElements.GroupColumn {
-    id: root
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
-
-    Component.onCompleted: Globals.References.pages.samplemodel.sidebar.basic.groups.sampleModel = root
+    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
 
     EaComponents.ListView {
         id: loadedSampleModel
-        defaultInfoText: qsTr("Get started by loading or creating a model")
+        defaultInfoText: qsTr("Get started by loading or importing a model")
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.fontPixelSize * 12,
+            EaStyle.Sizes.fontPixelSize * 10,
+            EaStyle.Sizes.fontPixelSize * 6,
             EaStyle.Sizes.fontPixelSize * 7,
             -1
         ]
@@ -37,6 +34,10 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Type")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+            EaComponents.TableViewLabel {
+                text: qsTr("Shape")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -52,61 +53,56 @@ EaElements.GroupColumn {
             required property int index
 
             EaComponents.ListViewTextInput {
-                text: modelData ? modelData.name : ''
-                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField('name', text)
+                text: modelData ? modelData.name : ""
+                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField("name", text)
             }
             EaComponents.TableViewComboBox {
+                horizontalAlignment: Text.AlignHCenter
+                model: Globals.BackendWrapper.sampleModelTypes
+                Component.onCompleted: currentIndex = model.indexOf(modelData.type)
+                onActivated: (i) => Globals.BackendWrapper.sampleModelUpdateField("type", model[i])
+            }
+            EaComponents.TableViewComboBox {
+                horizontalAlignment: Text.AlignHCenter
                 model: Globals.BackendWrapper.sampleModelStructureTypes
-                Component.onCompleted: {
-                    currentIndex = model.indexOf(modelData.structure_type)
-                }
-                onActivated: (i) => {
-                    Globals.BackendWrapper.sampleModelUpdateField('structure_type', model[i])
-                }
+                Component.onCompleted: currentIndex = model.indexOf(modelData.structure_type)
+                onActivated: (i) => Globals.BackendWrapper.sampleModelUpdateField("structure_type", model[i])
             }
             EaComponents.ListViewTextInput {
-                text: modelData ? modelData.description : ''
-                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField('description', text)
+                text: modelData ? modelData.description : ""
+                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField("description", text)
             }
         }
     }
 
     Grid {
-        columns: 3
+        columns: 2
         spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.SideBarButton {
-            fontIcon: "upload"
+            fontIcon: "file-import"
             text: qsTr("Load model")
             width: buttonWidth
             onClicked: loadExistingModelLoader.item.open()
         }
 
         EaElements.SideBarButton {
-            fontIcon: "plus-circle"
-            text: qsTr("Create model")
+            fontIcon: "upload"
+            text: qsTr("Import model")
             width: buttonWidth
-            onClicked: createNewModelLoader.item.open()
-        }
-
-        EaElements.SideBarButton {
-            fontIcon: "download"
-            text: qsTr("Save model")
-            width: buttonWidth
-            enabled: Globals.BackendWrapper.sampleModelLoaded.length > 0
-                  && Globals.BackendWrapper.sampleModelLoaded[0].name !== ""
-            onClicked: Globals.BackendWrapper.sampleModelSaveToCatalog()
+            onClicked: importModelFolderDialog.open()
         }
     }
 
     Loader {
         id: loadExistingModelLoader
-        source: '../Popups/LoadExistingModel.qml'
+        source: "../Popups/LoadExistingModel.qml"
     }
 
-    Loader {
-        id: createNewModelLoader
-        source: '../Popups/CreateNewModel.qml'
+    // Folder-based import: Qt's file dialogs can't accept a folder and a file at once.
+    FolderDialog {
+        id: importModelFolderDialog
+        title: qsTr("Import a model from a directory")
+        onAccepted: console.debug(`Import model from folder '${selectedFolder}'`)
     }
-
 }

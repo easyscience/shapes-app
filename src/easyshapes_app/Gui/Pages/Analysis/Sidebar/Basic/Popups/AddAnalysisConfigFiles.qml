@@ -11,8 +11,8 @@ import Gui.Globals as Globals
 FileDialog {
     fileMode: FileDialog.OpenFiles
     nameFilters: [
-        'GROMACS run parameter files (*.mdp)',
-        'Any (*)'
+        "GROMACS run parameter files (*.mdp)",
+        "Any (*)"
     ]
 
     onAccepted: {

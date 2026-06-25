@@ -12,7 +12,6 @@ import Gui.Globals as Globals
 
 import "../Components" as Local
 
-
 EaElements.GroupColumn {
 
     Row {
@@ -21,25 +20,25 @@ EaElements.GroupColumn {
 
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Dmin')
-            units: 'nm'
+            title: qsTr("Dmin")
+            units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
             text: Globals.BackendWrapper.rodStructure.dmin
             onEditingFinished: Globals.BackendWrapper.rodStructure.dmin = parseFloat(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Rmin')
-            units: 'nm'
+            title: qsTr("Rmin")
+            units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
             text: Globals.BackendWrapper.rodStructure.rmin
             onEditingFinished: Globals.BackendWrapper.rodStructure.rmin = parseFloat(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Turns')
-            text: Globals.BackendWrapper.rodStructure.turns
+            title: qsTr("Turns")
             validator: IntValidator { bottom: 1 }
+            text: Globals.BackendWrapper.rodStructure.turns
             onEditingFinished: Globals.BackendWrapper.rodStructure.turns = parseInt(text)
         }
     }
@@ -50,14 +49,14 @@ EaElements.GroupColumn {
         EaElements.CheckBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
-            text: qsTr('Fxz')
+            text: qsTr("Fxz")
             checked: Globals.BackendWrapper.rodStructure.fxz
             onToggled: Globals.BackendWrapper.rodStructure.fxz = checked
         }
         EaElements.CheckBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
-            text: qsTr('Rev')
+            text: qsTr("Rev")
             checked: Globals.BackendWrapper.rodStructure.rev
             onToggled: Globals.BackendWrapper.rodStructure.rev = checked
         }
@@ -68,12 +67,8 @@ EaElements.GroupColumn {
 
         EaElements.Label {
             enabled: false
-            text: qsTr('Rod Fractions')
+            text: qsTr("Rod Fractions")
         }
-
-        Local.Fractions {
-            id: rodFractions
-        }
+        Local.Fractions {}
     }
-
 }

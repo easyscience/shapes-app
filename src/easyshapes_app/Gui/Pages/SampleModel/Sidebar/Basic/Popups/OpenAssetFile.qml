@@ -14,7 +14,7 @@ import Gui.Globals as Globals
 
 FileDialog{
     fileMode: FileDialog.OpenFiles
-    nameFilters: ['Any (*)', 'Structure files (*.gro *.pdb .*xyz)', 'Topology files (*.itp)', 'Smiles files (*.sml)']
+    nameFilters: ["Any (*)", "Structure files (*.gro *.pdb .*xyz)", "Topology files (*.itp)", "Smiles files (*.sml)"]
 
     onAccepted: {
         for (let i = 0; i < selectedFiles.length; ++i)

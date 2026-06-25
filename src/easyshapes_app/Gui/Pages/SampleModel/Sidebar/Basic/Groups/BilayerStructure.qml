@@ -12,7 +12,6 @@ import Gui.Globals as Globals
 
 import "../Components" as Local
 
-
 EaElements.GroupColumn {
 
     Row {
@@ -21,23 +20,23 @@ EaElements.GroupColumn {
 
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Zsep')
-            units: 'nm'
+            title: qsTr("Zsep")
+            units: "nm"
             validator: DoubleValidator { bottom: 0 }
             text: Globals.BackendWrapper.bilayerStructure.zsep
             onEditingFinished: Globals.BackendWrapper.bilayerStructure.zsep = parseFloat(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Nside')
-            text: Globals.BackendWrapper.bilayerStructure.nside
+            title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
+            text: Globals.BackendWrapper.bilayerStructure.nside
             onEditingFinished: Globals.BackendWrapper.bilayerStructure.nside = parseInt(text)
         }
         EaElements.Parameter {
             width: parent.itemWidth
-            title: qsTr('Dmin')
-            units: 'nm'
+            title: qsTr("Dmin")
+            units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
             text: Globals.BackendWrapper.bilayerStructure.dmin
             onEditingFinished: Globals.BackendWrapper.bilayerStructure.dmin = parseFloat(text)
@@ -49,12 +48,8 @@ EaElements.GroupColumn {
 
         EaElements.Label {
             enabled: false
-            text: qsTr('Bilayer Fractions')
+            text: qsTr("Bilayer Fractions")
         }
-
-        Local.Fractions {
-            id: bilayerFractions
-        }
+        Local.Fractions {}
     }
-
 }

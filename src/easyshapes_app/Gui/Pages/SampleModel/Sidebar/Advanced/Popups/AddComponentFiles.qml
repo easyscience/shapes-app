@@ -11,10 +11,10 @@ import Gui.Globals as Globals
 FileDialog {
     fileMode: FileDialog.OpenFiles
     nameFilters: [
-        'Any (*)',
-        'Structure files (*.gro *.pdb *.xyz)',
-        'Topology files (*.itp)',
-        'Smiles files (*.sml)'
+        "Any (*)",
+        "Structure files (*.gro *.pdb *.xyz)",
+        "Topology files (*.itp)",
+        "Smiles files (*.sml)"
     ]
 
     onAccepted: {

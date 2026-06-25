@@ -5,18 +5,16 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
-import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
 import "../Components" as Local
 
 EaElements.GroupColumn {
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
+    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize * 2) / 3
 
     EaComponents.ListView {
         id: lamellae
@@ -102,7 +100,6 @@ EaElements.GroupColumn {
                 onToggled: Globals.BackendWrapper.lamellaeSetSymmetric(index, checked)
             }
             EaComponents.TableViewButton {
-                id: deleteRowColumn
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this lamella")
                 onClicked: Globals.BackendWrapper.lamellaeRemove(index)
@@ -110,14 +107,10 @@ EaElements.GroupColumn {
         }
     }
 
-    Item {
-        width: lamellae.width
-        height: addLamellaButton.height
+    Grid {
+        columns: 1
 
         EaElements.SideBarButton {
-            id: addLamellaButton
-            anchors.right: parent.right
-            anchors.rightMargin: EaStyle.Sizes.tableColumnSpacing
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
             width: buttonWidth
@@ -133,16 +126,14 @@ EaElements.GroupColumn {
 
         readonly property int selectedRow: lamellae.selectedIndexes.length > 0 ? lamellae.selectedIndexes[0].row : -1
         readonly property bool selectedSymmetric: {
-            // Touch the revision token so this binding re-evaluates when
-            // the selected row's symmetric flag changes.
+            // Re-evaluate when the selected row's symmetric flag changes.
             void Globals.BackendWrapper.lamellaeItemsRevision
             return selectedRow >= 0 && selectedRow < Globals.BackendWrapper.lamellaeItems.count
                 ? Globals.BackendWrapper.lamellaeItems.get(selectedRow).symmetric
                 : true
         }
         readonly property var selectedInnerFractionsModel: {
-            // Touch the revision token so this binding re-evaluates when
-            // the per-lamella Fractions arrays are rebuilt.
+            // Re-evaluate when the per-lamella Fractions arrays are rebuilt.
             void Globals.BackendWrapper.lamellaeFractionsRevision
             return selectedRow >= 0 ? Globals.BackendWrapper.lamellaeInnerFractionsModelAt(selectedRow) : null
         }
@@ -161,7 +152,6 @@ EaElements.GroupColumn {
                     : qsTr("Lamella %1 Inner Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
             }
             Local.Fractions {
-                id: innerFractions
                 fractionsModel: fractionsSection.selectedInnerFractionsModel
             }
         }
@@ -175,7 +165,6 @@ EaElements.GroupColumn {
                 text: qsTr("Lamella %1 Outer Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
             }
             Local.Fractions {
-                id: outerFractions
                 fractionsModel: fractionsSection.selectedOuterFractionsModel
             }
         }

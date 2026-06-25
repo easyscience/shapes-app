@@ -17,24 +17,24 @@ EaComponents.ContentPage {
 
     mainView: EaComponents.MainContent {
         tabs: [
-            EaElements.TabButton { text: qsTr('Chart') }
+            EaElements.TabButton { text: qsTr("Chart") }
         ]
 
         items: [
-            Loader { source: 'MainArea/Chart.qml' }
+            Loader { source: "MainArea/Chart.qml" }
         ]
     }
 
     sideBar: EaComponents.SideBar {
         tabs: [
-            EaElements.TabButton { text: qsTr('Basic controls') }
+            EaElements.TabButton { text: qsTr("Basic controls") }
         ]
 
         items: [
-            Loader { source: 'Sidebar/Basic/Layout.qml' }
+            Loader { source: "Sidebar/Basic/Layout.qml" }
         ]
 
-        continueButton.text: qsTr('Continue')
+        continueButton.text: qsTr("Continue")
 
         continueButton.onClicked: {            
             console.debug(`Clicking '${continueButton.text}' button ::: ${this}`)

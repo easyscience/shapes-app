@@ -11,101 +11,100 @@ import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
-
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr('Model Definition')
-        icon: 'tag'
+        title: qsTr("Model Definition")
+        icon: "tag"
         collapsed: false
 
-        Loader { id: sampleModelLoader; source: 'Groups/SampleModel.qml' }
+        Loader { source: "Groups/SampleModel.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Components')
-        icon: 'puzzle-piece'
+        title: qsTr("Components")
+        icon: "puzzle-piece"
 
-        Loader { source: 'Groups/Components.qml' }
+        Loader { source: "Groups/Components.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Ring Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ring'
+        title: qsTr("Ring Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ring"
 
-        Loader { source: 'Groups/RingStructure.qml' }
+        Loader { source: "Groups/RingStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Ball Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ball'
+        title: qsTr("Ball Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ball"
 
-        Loader { source: 'Groups/BallStructure.qml' }
+        Loader { source: "Groups/BallStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Vesicle Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Vesicle'
+        title: qsTr("Vesicle Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Vesicle"
 
-        Loader { source: 'Groups/VesicleStructure.qml' }
+        Loader { source: "Groups/VesicleStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Rod Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Rod'
+        title: qsTr("Rod Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Rod"
 
-        Loader { source: 'Groups/RodStructure.qml' }
+        Loader { source: "Groups/RodStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Bilayer Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Bilayer'
+        title: qsTr("Bilayer Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Bilayer"
 
-        Loader { source: 'Groups/BilayerStructure.qml' }
+        Loader { source: "Groups/BilayerStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Monolayer Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Monolayer'
+        title: qsTr("Monolayer Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Monolayer"
 
-        Loader { source: 'Groups/MonolayerStructure.qml' }
+        Loader { source: "Groups/MonolayerStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Lattice Structure Definition')
-        icon: 'vector-square'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Lattice'
+        title: qsTr("Layers")
+        icon: "layer-group"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ball"
 
-        Loader { source: 'Groups/LatticeStructure.qml' }
+        Loader { source: "Groups/Layers.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Layers')
-        icon: 'layer-group' // 'grip-lines'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Ball'
+        title: qsTr("Lamellae")
+        icon: "layer-group"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Vesicle"
 
-        Loader { source: 'Groups/Layers.qml' }
+        Loader { source: "Groups/Lamellae.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Lamellae')
-        icon: 'layer-group'
-        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === 'Vesicle'
+        title: qsTr("Lattice Parameters")
+        icon: "vector-square"
+        visible: Globals.BackendWrapper.sampleModelCurrentType === "Lattice"
 
-        Loader { source: 'Groups/Lamellae.qml' }
+        Loader { source: "Groups/LatticeStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Solution')
-        icon: 'flask'
+        title: qsTr("Buffer")
+        icon: "flask"
 
-        Loader { source: 'Groups/Solution.qml' }
+        Loader { source: "Groups/Buffer.qml" }
     }
 
     // Centered "Assemble" call-to-action below the groups.
@@ -116,12 +115,11 @@ EaComponents.SideBarColumn {
         EaElements.SideBarButton {
             id: assembleButton
             anchors.centerIn: parent
-            text: qsTr('Assemble')
-            fontIcon: 'cubes'
+            text: qsTr("Assemble")
+            fontIcon: "cubes"
             width: EaStyle.Sizes.sideBarContentWidth
             enabled: Globals.BackendWrapper.sampleModelLoaded.length > 0
-            onClicked: console.debug('Assemble clicked')
+            onClicked: console.debug("Assemble clicked")
         }
     }
-
 }
