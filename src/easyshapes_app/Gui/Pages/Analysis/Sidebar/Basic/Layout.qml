@@ -35,7 +35,10 @@ EaComponents.SideBarColumn {
             enabled: Globals.BackendWrapper.analysisConfigFiles
                      ? Globals.BackendWrapper.analysisConfigFiles.count > 0
                      : false
-            onClicked: console.debug("Equilibrate clicked")
+            onClicked: {
+                console.debug("Equilibrate clicked")
+                Globals.BackendWrapper.activeBackend.analysis.equilibrate()
+            }
         }
     }
 }

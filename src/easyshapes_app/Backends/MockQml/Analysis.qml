@@ -20,7 +20,16 @@ QtObject {
         "ymax": 100.0,
     }
 
+    // True once equilibration has finished, gating the engine-output and
+    // scattering windows on the Analysis page.
+    property bool equilibrated: false
+
     signal dataPointsChanged(var points)
+
+    function equilibrate() {
+        console.debug("* Equilibration finished (mock)")
+        equilibrated = true
+    }
 
     function generateData() {
         console.debug(`* Generating ${dataSize} data points...`)

@@ -15,13 +15,18 @@ import Gui.Globals as Globals
 
 EaComponents.ContentPage {
 
+    // Two static main-area windows. Both are always shown; their content stays
+    // empty until equilibration is finished (gated on the backend's
+    // `analysis.equilibrated` flag, set by the sidebar's Equilibrate button).
     mainView: EaComponents.MainContent {
         tabs: [
-            EaElements.TabButton { text: qsTr("Chart") }
+            EaElements.TabButton { text: qsTr("Engine output") },
+            EaElements.TabButton { text: qsTr("Scattering") }
         ]
 
         items: [
-            Loader { source: "MainArea/Chart.qml" }
+            Loader { source: "MainArea/EngineOutput.qml" },
+            Loader { source: "MainArea/Scattering.qml" }
         ]
     }
 

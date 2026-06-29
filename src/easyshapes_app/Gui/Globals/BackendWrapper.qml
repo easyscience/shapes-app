@@ -95,6 +95,11 @@ QtObject {
     function componentsRemovePendingFilePath(index) { activeBackend.components.removePendingFilePath(index) }
     function componentsClearPendingFilePaths() { activeBackend.components.clearPendingFilePaths() }
 
+    // Atomistic structure of a loaded component, for the Components viewer:
+    // parsed [{element, x, y, z}] (Å) fed to the Qt Quick 3D viewer. The mock
+    // returns one shared template molecule for every component.
+    function componentStructureAtoms(index) { return activeBackend.components.structureAtoms(index) }
+
     // Global default Fractions set (fallback for the Fractions sidebar
     // component). Layers/Lamellae do NOT use this — see the per-row
     // fraction accessors below.
