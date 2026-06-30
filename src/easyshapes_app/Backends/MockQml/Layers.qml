@@ -22,7 +22,7 @@ QtObject {
     // Table of layers. Roles: dmin, rmin.
     readonly property var items: ListModel {
         id: layersModel
-        ListElement { dmin: 0.25; rmin: 0.5 }
+        ListElement { dmin: 0.5; rmin: 0.25 }
     }
 
     // Parallel array of Fractions QtObjects, one per layer.

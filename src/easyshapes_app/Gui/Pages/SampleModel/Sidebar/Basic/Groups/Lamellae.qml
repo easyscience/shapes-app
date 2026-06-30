@@ -114,7 +114,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
             width: buttonWidth
-            onClicked: Globals.BackendWrapper.lamellaeAppend({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 0.5, symmetric: true })
+            onClicked: Globals.BackendWrapper.lamellaeAppend({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 1.0, symmetric: true })
         }
     }
 

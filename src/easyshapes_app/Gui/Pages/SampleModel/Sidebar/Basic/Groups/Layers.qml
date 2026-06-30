@@ -85,7 +85,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add layer")
             width: buttonWidth
-            onClicked: Globals.BackendWrapper.layersAppend({ dmin: 0.25, rmin: 0.5 })
+            onClicked: Globals.BackendWrapper.layersAppend({ dmin: 0.5, rmin: 0.25 })
         }
     }
 

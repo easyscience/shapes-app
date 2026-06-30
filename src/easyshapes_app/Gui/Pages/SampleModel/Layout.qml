@@ -17,25 +17,21 @@ EaComponents.ContentPage {
     id: root
 
     // Dynamic main-area tabs. The window set is built from backend state and fed
-    // to the TabBar/SwipeView through Repeaters, so conditional windows (Layers,
-    // Lattice) are genuinely INSERTED and REMOVED rather than hidden in place —
+    // to the TabBar/SwipeView through Repeaters, so the conditional window (Lattice)
+    // is genuinely INSERTED and REMOVED rather than hidden in place —
     // no reserved empty slot/gap. The two Repeaters share `mainAreaModel`, so the
     // tabs and views stay index-aligned. Rebuilds when the structure type or the
     // model type changes.
     //
     // LIMITATION: EaComponents.MainContent doesn't expose its TabBar.currentIndex,
-    // so when a conditional window is inserted/removed the selected index can shift
-    // (e.g. inserting Layers before Components bumps Components' index, and the view
-    // jumps). Preserving the selection across edits needs a key-aware container —
+    // so when a conditional window is inserted/removed the selected index can shift.
+    // Preserving the selection across edits needs a key-aware container —
     // see the proposed framework component (a model-driven MainContent exposing
     // `currentKey`). The `key` field below is carried for that future container.
     readonly property var mainAreaModel: {
         let list = []
-        list.push({ key: "distances", label: qsTr("Distances"), source: "MainArea/Distances.qml" })
+        list.push({ key: "shape", label: qsTr("Shape"), source: "MainArea/Shape.qml" })
         list.push({ key: "components", label: qsTr("Components"), source: "MainArea/Components.qml" })
-        if (["Ball", "Vesicle", "Monolayer", "Bilayer"]
-                .includes(Globals.BackendWrapper.sampleModelCurrentStructureType))
-            list.push({ key: "layers", label: qsTr("Layers"), source: "MainArea/Layers.qml" })
         if (Globals.BackendWrapper.sampleModelCurrentType === "Lattice")
             list.push({ key: "lattice", label: qsTr("Lattice"), source: "MainArea/Lattice.qml" })
         return list

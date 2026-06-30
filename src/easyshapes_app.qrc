@@ -171,10 +171,12 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/BaseMol3dQuick.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/ComponentView.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Components.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Distances.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/FlatShapeView.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Lattice.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Layers.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/RingShapeView.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/RodShape.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Shape.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/LibraryAssetsFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SmilesGenerator.qml</file>

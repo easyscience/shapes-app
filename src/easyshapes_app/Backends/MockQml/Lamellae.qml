@@ -22,7 +22,7 @@ QtObject {
     // Table of lamellae. Roles: rmin, innerDmin, outerDmin, shell, symmetric.
     readonly property var items: ListModel {
         id: lamellaeModel
-        ListElement { rmin: 0.5; innerDmin: 0.25; outerDmin: 0.3; shell: 0.5; symmetric: true }
+        ListElement { rmin: 0.5; innerDmin: 0.25; outerDmin: 0.3; shell: 1.0; symmetric: true }
     }
 
     // Parallel arrays of Fractions QtObjects, one inner and one outer
