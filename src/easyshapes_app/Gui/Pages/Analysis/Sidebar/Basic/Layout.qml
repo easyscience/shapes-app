@@ -37,7 +37,9 @@ EaComponents.SideBarColumn {
                      : false
             onClicked: {
                 console.debug("Equilibrate clicked")
-                Globals.BackendWrapper.activeBackend.analysis.equilibrate()
+                // Runs the engine and generates the per-step output
+                // directories consumed by the Advanced tab.
+                Globals.BackendWrapper.analysisEquilibrate()
             }
         }
     }

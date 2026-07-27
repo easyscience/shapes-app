@@ -204,6 +204,7 @@ QtObject {
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
     function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
+    function componentsFilesExportFile(index) { activeBackend.componentsFiles.exportFile(index) }
     function componentsFilesExportComponent() { activeBackend.componentsFiles.exportComponent() }
 
     // Save the current file list to the asset library and load the component
@@ -268,6 +269,7 @@ QtObject {
     function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
     function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
     function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
+    function libraryAssetsExportPath(index) { activeBackend.libraryAssets.exportPath(index) }
     function libraryAssetsSave() { activeBackend.libraryAssets.save() }
     function libraryAssetsExport() { activeBackend.libraryAssets.exportAsset() }
 
@@ -323,6 +325,28 @@ QtObject {
     function analysisConfigSetForceField(value) { activeBackend.analysisConfig.setForceField(value) }
     function analysisConfigSetStartStep(value) { activeBackend.analysisConfig.setStartStep(value) }
     function analysisConfigSetStopStep(value) { activeBackend.analysisConfig.setStopStep(value) }
+
+    // Run the engine, then materialise one output directory per step in the
+    // configured [startStep, stopStep] range for the Advanced sidebar.
+    function analysisEquilibrate() {
+        activeBackend.analysis.equilibrate()
+        activeBackend.equilibrationOutputs.generate(
+            activeBackend.analysisConfig.startStep,
+            activeBackend.analysisConfig.stopStep)
+    }
+
+    // Equilibration outputs group (Analysis Advanced sidebar). `steps` lists
+    // the per-step output directories; `files` holds the contents of the one
+    // currently selected. Both are empty until equilibration has run.
+    readonly property var equilOutputsSteps: activeBackend.equilibrationOutputs.steps
+    readonly property var equilOutputsFiles: activeBackend.equilibrationOutputs.files
+    readonly property int equilOutputsSelectedIndex: activeBackend.equilibrationOutputs.selectedIndex
+    readonly property string equilOutputsSelectedDir: activeBackend.equilibrationOutputs.selectedDir
+
+    function equilOutputsSelect(index) { activeBackend.equilibrationOutputs.selectStep(index) }
+    function equilOutputsExportFile(index) { activeBackend.equilibrationOutputs.exportFile(index) }
+    function equilOutputsExportStep() { activeBackend.equilibrationOutputs.exportStep() }
+    function equilOutputsOpenDir() { activeBackend.equilibrationOutputs.openDir() }
 
     ///////////////
     // Summary page

@@ -13,7 +13,8 @@ import EasyApplication.Gui.Components as EaComponents
 import Gui.Globals as Globals
 
 EaElements.GroupColumn {
-    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
+    id: root
+    property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
 
     // Solvent — single selection (None / TIP3 / Ethanol).
     Row {
@@ -111,14 +112,14 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "file-import"
             text: qsTr("Load components")
-            width: buttonWidth
+            width: root.halfWidth
             onClicked: loadBufferComponentLoader.item.open()
         }
 
         EaElements.SideBarButton {
             fontIcon: "upload"
             text: qsTr("Import components")
-            width: buttonWidth
+            width: root.halfWidth
             onClicked: importBufferFolderDialog.open()
         }
     }

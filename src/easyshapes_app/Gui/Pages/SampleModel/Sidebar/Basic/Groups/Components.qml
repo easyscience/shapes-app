@@ -14,7 +14,7 @@ import Gui.Globals as Globals
 
 EaElements.GroupColumn {
     id: root
-    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
+    property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
 
     // Counter-ion options: a "(None)" sentinel (empty c_ion) plus the shared ion library.
     readonly property var cIonOptions: {
@@ -133,14 +133,14 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "file-import"
             text: qsTr("Load component(s)")
-            width: buttonWidth
+            width: root.halfWidth
             onClicked: loadExistingComponentLoader.item.open()
         }
 
         EaElements.SideBarButton {
             fontIcon: "upload"
             text: qsTr("Import component")
-            width: buttonWidth
+            width: root.halfWidth
             onClicked: importComponentFolderDialog.open()
         }
     }

@@ -11,13 +11,15 @@ import EasyApplication.Gui.Elements as EaElements
 import Gui.Globals as Globals
 
 EaElements.GroupColumn {
+    id: root
+    property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
+    property double quarterWidth: (EaStyle.Sizes.sideBarContentWidth - 3 * EaStyle.Sizes.fontPixelSize) / 4
 
     Row {
-        property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.3
-        spacing: (EaStyle.Sizes.sideBarContentWidth - (itemWidth * 3)) / 2
+        spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
@@ -25,7 +27,7 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.latticeStructure.alpha = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }
@@ -33,7 +35,7 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.latticeStructure.theta = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Sbuff")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
@@ -43,11 +45,10 @@ EaElements.GroupColumn {
     }
 
     Row {
-        property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.2
-        spacing: (EaStyle.Sizes.sideBarContentWidth - (itemWidth * 4)) / 3
+        spacing: EaStyle.Sizes.fontPixelSize
 
         Column {
-            width: parent.itemWidth
+            width: root.quarterWidth
 
             EaElements.Label {
                 enabled: false
@@ -61,21 +62,21 @@ EaElements.GroupColumn {
             }
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Nlatx")
             validator: IntValidator { bottom: 1 }
             text: Globals.BackendWrapper.latticeStructure.nlatx
             onEditingFinished: Globals.BackendWrapper.latticeStructure.nlatx = parseInt(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Nlaty")
             validator: IntValidator { bottom: 1 }
             text: Globals.BackendWrapper.latticeStructure.nlaty
             onEditingFinished: Globals.BackendWrapper.latticeStructure.nlaty = parseInt(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Nlatz")
             validator: IntValidator { bottom: 1 }
             text: Globals.BackendWrapper.latticeStructure.nlatz

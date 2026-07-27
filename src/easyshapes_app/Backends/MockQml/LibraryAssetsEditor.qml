@@ -41,8 +41,13 @@ QtObject {
     property int mint: 0
     property int mext: 0
 
-    // Draft file list (composition of a file-bearing asset). Roles: path.
+    // Draft file list (composition of a file-bearing asset). Roles: path, size.
+    // `size` is a fake label — the mock never touches the disk; files the user
+    // adds get one from `fakeSizes` in order. The real backend stats the file.
     readonly property var paths: ListModel { id: pathsModel }
+
+    readonly property var fakeSizes: ['58 kB', '2.3 MB', '640 kB', '5.1 MB', '11.2 MB']
+    property int fakeSizeIndex: 0
 
     // Draft salt composition (used only when assetType === 'Salt'). Two fixed
     // ion slots. Roles: ion (library ion name, or '' when unset), count (>=1).
@@ -109,15 +114,21 @@ QtObject {
             saltCompositionModel.setProperty(1, 'count', item.count1)
         } else {
             _clearSalt()
-            // Mock: stand-in files for the loaded asset.
-            pathsModel.append({ path: 'assets/' + item.name + '.itp' })
-            pathsModel.append({ path: 'assets/' + item.name + '.gro' })
+            // Mock: stand-in files for the loaded asset, with fake sizes.
+            pathsModel.append({ path: 'assets/' + item.name + '.itp', size: '47 kB' })
+            pathsModel.append({ path: 'assets/' + item.name + '.gro', size: '2.5 MB' })
         }
         _recomputeSalt()
     }
 
     function appendPath(path) {
-        pathsModel.append({ path: path })
+        pathsModel.append({ path: path, size: nextFakeSize() })
+    }
+
+    function nextFakeSize() {
+        const label = fakeSizes[fakeSizeIndex % fakeSizes.length]
+        fakeSizeIndex = fakeSizeIndex + 1
+        return label
     }
 
     function removePath(index) {
@@ -128,6 +139,13 @@ QtObject {
     function editPath(index) {
         if (index < 0 || index >= pathsModel.count) return
         console.debug('LibraryAssetsEditor.editPath:', pathsModel.get(index).path)
+    }
+
+    // Export a single file of the draft asset. Mock placeholder — the real
+    // backend will copy the file to a chosen location.
+    function exportPath(index) {
+        if (index < 0 || index >= pathsModel.count) return
+        console.debug('LibraryAssetsEditor.exportPath:', pathsModel.get(index).path)
     }
 
     function setSaltIon(index, value) {

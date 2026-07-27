@@ -13,13 +13,14 @@ import Gui.Globals as Globals
 import "../Components" as Local
 
 EaElements.GroupColumn {
+    id: root
+    property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
     Row {
-        property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.27
-        spacing: (EaStyle.Sizes.sideBarContentWidth - (itemWidth * 3)) / 2
+        spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Zsep")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
@@ -27,14 +28,14 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.bilayerStructure.zsep = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
             text: Globals.BackendWrapper.bilayerStructure.nside
             onEditingFinished: Globals.BackendWrapper.bilayerStructure.nside = parseInt(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.thirdWidth
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }

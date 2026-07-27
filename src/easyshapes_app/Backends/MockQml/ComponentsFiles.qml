@@ -29,24 +29,29 @@ QtObject {
     // the name the file list is persisted under by `save()`.
     property string editName: ''
 
-    // Internal map: componentName -> JS array of file paths. Mutations go
-    // through __syncBack() so the map stays consistent with the ListModel.
+    // Internal map: componentName -> JS array of {path, size} records.
+    // Mutations go through __syncBack() so the map stays consistent with the
+    // ListModel. `size` is a fake label — the mock never touches the disk.
     property var filesByComponent: ({
         'DPPC': [
-            'assets/components/DPPC.itp',
-            'assets/components/DPPC.gro',
-            'assets/components/DPPC.pdb'
+            { path: 'assets/components/DPPC.itp', size: '46 kB' },
+            { path: 'assets/components/DPPC.gro', size: '2.4 MB' },
+            { path: 'assets/components/DPPC.pdb', size: '3.1 MB' }
         ],
         'DOPC': [
-            'assets/components/DOPC.itp',
-            'assets/components/DOPC.gro'
+            { path: 'assets/components/DOPC.itp', size: '52 kB' },
+            { path: 'assets/components/DOPC.gro', size: '2.7 MB' }
         ],
         'POPC': [
-            'assets/components/POPC.itp'
+            { path: 'assets/components/POPC.itp', size: '49 kB' }
         ]
     })
 
-    // Active file list for `selectedComponent`. Roles: path.
+    // Fake sizes handed out in order to files the user adds from disk.
+    readonly property var fakeSizes: ['74 kB', '1.8 MB', '320 kB', '4.2 MB', '12.5 MB']
+    property int fakeSizeIndex: 0
+
+    // Active file list for `selectedComponent`. Roles: path, size.
     readonly property var files: ListModel {
         id: filesModel
     }
@@ -57,7 +62,7 @@ QtObject {
         filesModel.clear()
         const list = filesByComponent[name] || []
         for (let i = 0; i < list.length; ++i) {
-            filesModel.append({ path: list[i] })
+            filesModel.append({ path: list[i].path, size: list[i].size })
         }
     }
 
@@ -70,8 +75,14 @@ QtObject {
     }
 
     function appendFile(path) {
-        filesModel.append({ path: path })
+        filesModel.append({ path: path, size: nextFakeSize() })
         if (selectedComponent !== '') __syncBack()
+    }
+
+    function nextFakeSize() {
+        const label = fakeSizes[fakeSizeIndex % fakeSizes.length]
+        fakeSizeIndex = fakeSizeIndex + 1
+        return label
     }
 
     function removeFile(index) {
@@ -84,6 +95,13 @@ QtObject {
     function editFile(index) {
         if (index < 0 || index >= filesModel.count) return
         console.debug('ComponentsFiles.editFile:', filesModel.get(index).path)
+    }
+
+    // Export a single file of the selected component. Mock placeholder — the
+    // real backend will copy the file to a chosen location.
+    function exportFile(index) {
+        if (index < 0 || index >= filesModel.count) return
+        console.debug('ComponentsFiles.exportFile:', filesModel.get(index).path)
     }
 
     // Export the whole selected component (all its files). Mock backend
@@ -105,7 +123,8 @@ QtObject {
         if (name === '') return ''
         const arr = []
         for (let i = 0; i < filesModel.count; ++i) {
-            arr.push(filesModel.get(i).path)
+            const row = filesModel.get(i)
+            arr.push({ path: row.path, size: row.size })
         }
         const copy = Object.assign({}, filesByComponent)
         copy[name] = arr
@@ -120,7 +139,8 @@ QtObject {
         if (selectedComponent === '') return
         const arr = []
         for (let i = 0; i < filesModel.count; ++i) {
-            arr.push(filesModel.get(i).path)
+            const row = filesModel.get(i)
+            arr.push({ path: row.path, size: row.size })
         }
         // Reassign the map so the `filesByComponent` property emits its
         // Changed signal — keeps any future bindings on the map honest.

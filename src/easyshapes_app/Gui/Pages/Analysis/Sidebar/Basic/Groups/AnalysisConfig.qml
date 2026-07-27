@@ -12,6 +12,11 @@ import EasyApplication.Gui.Components as EaComponents
 import Gui.Globals as Globals
 
 EaElements.GroupColumn {
+    id: root
+    property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
+    // Two quarters plus one fontPixelSize gap add up to exactly halfWidth, so
+    // the step pair fills the right half of the ForceField row.
+    property double quarterWidth: (EaStyle.Sizes.sideBarContentWidth - 3 * EaStyle.Sizes.fontPixelSize) / 4
 
     EaComponents.ListView {
         id: configFilesList
@@ -73,7 +78,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "plus-circle"
             text: qsTr("Add file(s)")
-            width: EaStyle.Sizes.sideBarContentWidth * 0.48
+            width: root.halfWidth
             ToolTip.text: qsTr("Pick one or more .mdp files from disk")
             onClicked: addFilesLoader.item.open()
         }
@@ -82,11 +87,9 @@ EaElements.GroupColumn {
     // ForceField selector on the left, step-range pair on the right.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
-        property real halfWidth: (EaStyle.Sizes.sideBarContentWidth - spacing) / 2
-        property real fieldWidth: (halfWidth - EaStyle.Sizes.fontPixelSize * 0.5) / 2
 
         EaElements.ComboBox {
-            width: parent.halfWidth
+            width: root.halfWidth
             topInset: forceFieldLabel.height
             topPadding: topInset + padding
             model: Globals.BackendWrapper.analysisConfigForceFields
@@ -104,38 +107,24 @@ EaElements.GroupColumn {
         }
 
         Row {
-            spacing: EaStyle.Sizes.fontPixelSize * 0.5
+            spacing: EaStyle.Sizes.fontPixelSize
 
-            EaElements.TextField {
-                width: parent.parent.fieldWidth
-                topInset: startStepLabel.height
-                topPadding: topInset + padding
-                horizontalAlignment: TextInput.AlignLeft
+            EaElements.Parameter {
+                width: root.quarterWidth
+                title: qsTr("Start step")
                 inputMethodHints: Qt.ImhDigitsOnly
                 validator: IntValidator { bottom: 0 }
                 text: Globals.BackendWrapper.analysisConfigStartStep
                 onEditingFinished: Globals.BackendWrapper.analysisConfigSetStartStep(text)
-
-                EaElements.Label {
-                    id: startStepLabel
-                    text: qsTr("Start step")
-                }
             }
 
-            EaElements.TextField {
-                width: parent.parent.fieldWidth
-                topInset: stopStepLabel.height
-                topPadding: topInset + padding
-                horizontalAlignment: TextInput.AlignLeft
+            EaElements.Parameter {
+                width: root.quarterWidth
+                title: qsTr("Stop step")
                 inputMethodHints: Qt.ImhDigitsOnly
                 validator: IntValidator { bottom: 0 }
                 text: Globals.BackendWrapper.analysisConfigStopStep
                 onEditingFinished: Globals.BackendWrapper.analysisConfigSetStopStep(text)
-
-                EaElements.Label {
-                    id: stopStepLabel
-                    text: qsTr("Stop step")
-                }
             }
         }
     }

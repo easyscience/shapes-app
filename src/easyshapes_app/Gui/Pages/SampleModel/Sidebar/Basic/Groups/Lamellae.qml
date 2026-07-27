@@ -14,7 +14,8 @@ import Gui.Globals as Globals
 import "../Components" as Local
 
 EaElements.GroupColumn {
-    property double buttonWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize * 2) / 3
+    id: root
+    property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
     EaComponents.ListView {
         id: lamellae
@@ -113,7 +114,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
-            width: buttonWidth
+            width: root.thirdWidth
             onClicked: Globals.BackendWrapper.lamellaeAppend({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 1.0, symmetric: true })
         }
     }

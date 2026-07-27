@@ -21,5 +21,6 @@ singleton Buffer Buffer.qml
 singleton Ions Ions.qml
 singleton Analysis Analysis.qml
 singleton AnalysisConfig AnalysisConfig.qml
+singleton EquilibrationOutputs EquilibrationOutputs.qml
 singleton Report Report.qml
 singleton Status Status.qml

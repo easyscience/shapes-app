@@ -13,13 +13,14 @@ import Gui.Globals as Globals
 import "../Components" as Local
 
 EaElements.GroupColumn {
+    id: root
+    property double quarterWidth: (EaStyle.Sizes.sideBarContentWidth - 3 * EaStyle.Sizes.fontPixelSize) / 4
 
     Row {
-        property real itemWidth: EaStyle.Sizes.sideBarContentWidth * 0.2
-        spacing: (EaStyle.Sizes.sideBarContentWidth - (itemWidth * 4)) / 3
+        spacing: EaStyle.Sizes.fontPixelSize
 
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
@@ -27,7 +28,7 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.ringStructure.dmin = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Rmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
@@ -35,7 +36,7 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.ringStructure.rmin = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
@@ -43,7 +44,7 @@ EaElements.GroupColumn {
             onEditingFinished: Globals.BackendWrapper.ringStructure.alpha = parseFloat(text)
         }
         EaElements.Parameter {
-            width: parent.itemWidth
+            width: root.quarterWidth
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }

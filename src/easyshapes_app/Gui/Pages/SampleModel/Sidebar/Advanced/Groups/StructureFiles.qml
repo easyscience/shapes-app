@@ -14,7 +14,8 @@ import Gui.Globals as Globals
 
 
 EaElements.GroupColumn {
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
+    id: root
+    property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
     EaComponents.ListView {
         id: structureFilesList
@@ -24,6 +25,7 @@ EaElements.GroupColumn {
         columnWidths: [
             EaStyle.Sizes.fontPixelSize * 2.5,
             -1,
+            EaStyle.Sizes.fontPixelSize * 5,
             EaStyle.Sizes.tableRowHeight
         ]
 
@@ -34,6 +36,10 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewLabel {
                 text: qsTr("File")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+            EaComponents.TableViewLabel {
+                text: qsTr("Size")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -48,6 +54,7 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string path
+            required property string size
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -56,6 +63,10 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: path
                 elide: Text.ElideLeft
+            }
+            EaComponents.TableViewLabel {
+                text: size
+                enabled: false
             }
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
@@ -72,7 +83,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "plus-circle"
             text: qsTr("Add new file(s)")
-            width: buttonWidth
+            width: root.thirdWidth
             ToolTip.text: qsTr("Pick one or more files from disk and add them to the sample model")
             onClicked: addSampleModelFilesDialog.open()
         }
@@ -80,7 +91,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "save"
             text: qsTr("Save to lib")
-            width: buttonWidth
+            width: root.thirdWidth
             ToolTip.text: qsTr("Save the current sample model files to the asset library")
             enabled: Globals.BackendWrapper.structureFilesFiles
                      ? Globals.BackendWrapper.structureFilesFiles.count > 0
@@ -91,7 +102,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "file-export"
             text: qsTr("Export")
-            width: buttonWidth
+            width: root.thirdWidth
             ToolTip.text: qsTr("Export the current sample model files to disk")
             enabled: Globals.BackendWrapper.structureFilesFiles
                      ? Globals.BackendWrapper.structureFilesFiles.count > 0

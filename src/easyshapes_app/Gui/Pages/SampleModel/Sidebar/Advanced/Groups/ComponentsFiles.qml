@@ -14,8 +14,17 @@ import Gui.Globals as Globals
 
 EaElements.GroupColumn {
     id: root
-    property double buttonWidth: EaStyle.Sizes.sideBarContentWidth * 0.3164
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
+
+    // Row of the file picked in the list, -1 when nothing is selected. Drives
+    // whether Export writes one file or the whole component.
+    readonly property int selectedFileRow: componentFilesList.selectedIndexes.length > 0
+                                           ? componentFilesList.selectedIndexes[0].row
+                                           : -1
+
+    readonly property int fileCount: Globals.BackendWrapper.componentsFilesFiles
+                                     ? Globals.BackendWrapper.componentsFilesFiles.count
+                                     : 0
 
     // Component selector + name editor + Create new, in one row of equal
     // thirds. The dropdown lists only components already loaded on the Basic
@@ -105,6 +114,7 @@ EaElements.GroupColumn {
         columnWidths: [
             EaStyle.Sizes.fontPixelSize * 2.5,
             -1,
+            EaStyle.Sizes.fontPixelSize * 5,
             EaStyle.Sizes.tableRowHeight,
             EaStyle.Sizes.tableRowHeight
         ]
@@ -116,6 +126,10 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Path")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+            EaComponents.TableViewLabel {
+                text: qsTr("Size")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -133,6 +147,7 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string path
+            required property string size
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -141,6 +156,10 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: path
                 elide: Text.ElideLeft
+            }
+            EaComponents.TableViewLabel {
+                text: size
+                enabled: false
             }
             EaComponents.TableViewButton {
                 fontIcon: "edit"
@@ -162,7 +181,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "plus-circle"
             text: qsTr("Add new file(s)")
-            width: buttonWidth
+            width: root.thirdWidth
             ToolTip.text: qsTr("Pick one or more files from disk and add them to this component")
             onClicked: addFilesLoader.item.open()
         }
@@ -170,7 +189,7 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "save"
             text: qsTr("Save to lib")
-            width: buttonWidth
+            width: root.thirdWidth
             ToolTip.text: qsTr("Save this component to the asset library and load it on the Basic tab")
             enabled: Globals.BackendWrapper.componentsFilesEditName.trim() !== ""
             onClicked: Globals.BackendWrapper.componentsFilesSave()
@@ -179,10 +198,15 @@ EaElements.GroupColumn {
         EaElements.SideBarButton {
             fontIcon: "file-export"
             text: qsTr("Export")
-            width: buttonWidth
-            ToolTip.text: qsTr("Export the selected component to disk")
-            enabled: Globals.BackendWrapper.componentsFilesSelectedComponent !== ""
-            onClicked: Globals.BackendWrapper.componentsFilesExportComponent()
+            width: root.thirdWidth
+            ToolTip.text: qsTr("Export the selected file to disk, or the whole component directory when no file is selected")
+            enabled: root.fileCount > 0
+            onClicked: {
+                if (root.selectedFileRow >= 0)
+                    Globals.BackendWrapper.componentsFilesExportFile(root.selectedFileRow)
+                else
+                    Globals.BackendWrapper.componentsFilesExportComponent()
+            }
         }
     }
 

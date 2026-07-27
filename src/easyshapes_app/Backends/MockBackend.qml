@@ -53,6 +53,9 @@ QtObject {
     // Analysis page — equilibration configuration (config files + force
     // field + step range), driving the Equilibrate action.
     property var analysisConfig: MockLogic.AnalysisConfig
+    // Analysis page (Advanced sidebar) — one output directory per
+    // equilibration step, generated from the configured step range.
+    property var equilibrationOutputs: MockLogic.EquilibrationOutputs
     property var status: MockLogic.Status
     property var report: MockLogic.Report
 

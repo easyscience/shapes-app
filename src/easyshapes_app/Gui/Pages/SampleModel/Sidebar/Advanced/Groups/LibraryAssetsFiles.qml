@@ -21,6 +21,17 @@ EaElements.GroupColumn {
     readonly property string assetType: Globals.BackendWrapper.libraryAssetsType
     readonly property bool isSalt: assetType === "Salt"
 
+    readonly property int fileCount: Globals.BackendWrapper.libraryAssetsPaths
+                                     ? Globals.BackendWrapper.libraryAssetsPaths.count
+                                     : 0
+
+    // Row of the file picked in the list, -1 when nothing is selected (or the
+    // list is hidden for a salt). Drives whether Export writes one file or the
+    // whole asset.
+    readonly property int selectedFileRow: !isSalt && assetPathsList.selectedIndexes.length > 0
+                                           ? assetPathsList.selectedIndexes[0].row
+                                           : -1
+
     // Component-only fields (C-ion/Mint/Mext) show for the molecule types and
     // hide for Ion/Solvent/Salt, mirroring the asset class hierarchy.
     readonly property bool isMolecule: assetType === "Lipid"
@@ -251,6 +262,7 @@ EaElements.GroupColumn {
         columnWidths: [
             EaStyle.Sizes.fontPixelSize * 2.5,
             -1,
+            EaStyle.Sizes.fontPixelSize * 5,
             EaStyle.Sizes.tableRowHeight,
             EaStyle.Sizes.tableRowHeight
         ]
@@ -262,6 +274,10 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Path")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+            EaComponents.TableViewLabel {
+                text: qsTr("Size")
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
@@ -279,6 +295,7 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string path
+            required property string size
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -287,6 +304,10 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: path
                 elide: Text.ElideLeft
+            }
+            EaComponents.TableViewLabel {
+                text: size
+                enabled: false
             }
             EaComponents.TableViewButton {
                 fontIcon: "edit"
@@ -332,9 +353,18 @@ EaElements.GroupColumn {
             fontIcon: "file-export"
             text: qsTr("Export")
             width: root.thirdWidth
-            ToolTip.text: qsTr("Export this asset to disk — enabled once it is saved to or loaded from the library")
-            enabled: Globals.BackendWrapper.libraryAssetsMode === "edit"
-            onClicked: Globals.BackendWrapper.libraryAssetsExport()
+            ToolTip.text: qsTr("Export the selected file to disk, or the whole asset directory when no file is selected")
+            // A salt carries no files, so it falls back to the composition
+            // readiness check used by Save.
+            enabled: root.isSalt
+                     ? Globals.BackendWrapper.libraryAssetsSaltReady
+                     : root.fileCount > 0
+            onClicked: {
+                if (root.selectedFileRow >= 0)
+                    Globals.BackendWrapper.libraryAssetsExportPath(root.selectedFileRow)
+                else
+                    Globals.BackendWrapper.libraryAssetsExport()
+            }
         }
     }
 
