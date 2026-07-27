@@ -107,8 +107,14 @@ EaElements.GroupColumn {
             enabled: Globals.BackendWrapper.structureFilesFiles
                      ? Globals.BackendWrapper.structureFilesFiles.count > 0
                      : false
-            onClicked: Globals.BackendWrapper.structureFilesExport()
+            onClicked: exportDestinationDialog.open()
         }
+    }
+
+    FolderDialog {
+        id: exportDestinationDialog
+        title: qsTr("Choose a destination directory")
+        onAccepted: Globals.BackendWrapper.structureFilesExport(selectedFolder.toString())
     }
 
     FileDialog {

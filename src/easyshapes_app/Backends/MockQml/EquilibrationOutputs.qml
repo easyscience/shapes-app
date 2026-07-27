@@ -87,16 +87,18 @@ QtObject {
         }
     }
 
-    // Mock placeholder — real backend will copy the file to a chosen location.
-    function exportFile(index) {
+    // Mock placeholder — real backend will copy the file into `destination`.
+    function exportFile(index, destination) {
         if (index < 0 || index >= filesModel.count) return
-        console.debug('EquilibrationOutputs.exportFile:', filesModel.get(index).path)
+        console.debug('EquilibrationOutputs.exportFile:', filesModel.get(index).path,
+                      '->', destination)
     }
 
-    // Mock placeholder — real backend will archive the selected step directory.
-    function exportStep() {
+    // Mock placeholder — real backend will copy the selected step directory
+    // into `destination`.
+    function exportStep(destination) {
         console.debug('EquilibrationOutputs.exportStep:', selectedDir,
-                      'files=' + filesModel.count)
+                      'files=' + filesModel.count, '->', destination)
     }
 
     // Mock placeholder — real backend will reveal the directory in the file

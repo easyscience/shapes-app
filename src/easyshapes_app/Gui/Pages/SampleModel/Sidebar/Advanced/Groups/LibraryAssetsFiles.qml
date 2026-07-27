@@ -359,12 +359,21 @@ EaElements.GroupColumn {
             enabled: root.isSalt
                      ? Globals.BackendWrapper.libraryAssetsSaltReady
                      : root.fileCount > 0
-            onClicked: {
-                if (root.selectedFileRow >= 0)
-                    Globals.BackendWrapper.libraryAssetsExportPath(root.selectedFileRow)
-                else
-                    Globals.BackendWrapper.libraryAssetsExport()
-            }
+            onClicked: exportDestinationDialog.open()
+        }
+    }
+
+    // Destination picker for Export. What gets written is decided here rather
+    // than on the button, so the selection is read when the user confirms.
+    FolderDialog {
+        id: exportDestinationDialog
+        title: qsTr("Choose a destination directory")
+        onAccepted: {
+            const destination = selectedFolder.toString()
+            if (root.selectedFileRow >= 0)
+                Globals.BackendWrapper.libraryAssetsExportPath(root.selectedFileRow, destination)
+            else
+                Globals.BackendWrapper.libraryAssetsExport(destination)
         }
     }
 

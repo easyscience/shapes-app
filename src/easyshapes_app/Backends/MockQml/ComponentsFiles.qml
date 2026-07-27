@@ -98,18 +98,20 @@ QtObject {
     }
 
     // Export a single file of the selected component. Mock placeholder — the
-    // real backend will copy the file to a chosen location.
-    function exportFile(index) {
+    // real backend will copy the file into `destination`.
+    function exportFile(index, destination) {
         if (index < 0 || index >= filesModel.count) return
-        console.debug('ComponentsFiles.exportFile:', filesModel.get(index).path)
+        console.debug('ComponentsFiles.exportFile:', filesModel.get(index).path,
+                      '->', destination)
     }
 
     // Export the whole selected component (all its files). Mock backend
-    // just logs — the real backend will write to disk.
-    function exportComponent() {
+    // just logs — the real backend will write into `destination`.
+    function exportComponent(destination) {
         if (selectedComponent === '') return
         console.debug('ComponentsFiles.exportComponent:', selectedComponent,
-                      JSON.stringify(filesByComponent[selectedComponent] || []))
+                      JSON.stringify(filesByComponent[selectedComponent] || []),
+                      '->', destination)
     }
 
     // Persist the current file list to the asset library under `editName`.

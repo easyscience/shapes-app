@@ -142,10 +142,11 @@ QtObject {
     }
 
     // Export a single file of the draft asset. Mock placeholder — the real
-    // backend will copy the file to a chosen location.
-    function exportPath(index) {
+    // backend will copy the file into `destination`.
+    function exportPath(index, destination) {
         if (index < 0 || index >= pathsModel.count) return
-        console.debug('LibraryAssetsEditor.exportPath:', pathsModel.get(index).path)
+        console.debug('LibraryAssetsEditor.exportPath:', pathsModel.get(index).path,
+                      '->', destination)
     }
 
     function setSaltIon(index, value) {
@@ -192,8 +193,9 @@ QtObject {
         return true
     }
 
-    function exportAsset() {
-        console.debug('LibraryAssetsEditor.exportAsset:', assetType, assetName)
+    function exportAsset(destination) {
+        console.debug('LibraryAssetsEditor.exportAsset:', assetType, assetName,
+                      '->', destination)
     }
 
     function _clearSalt() {

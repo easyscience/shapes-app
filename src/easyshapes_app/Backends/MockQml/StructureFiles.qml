@@ -54,8 +54,9 @@ QtObject {
         console.debug('StructureFiles.saveToLib: paths=' + filesModel.count)
     }
 
-    // Mock placeholder — real backend will write the files to disk.
-    function exportFiles() {
-        console.debug('StructureFiles.exportFiles: paths=' + filesModel.count)
+    // Mock placeholder — real backend will write the files into `destination`.
+    function exportFiles(destination) {
+        console.debug('StructureFiles.exportFiles: paths=' + filesModel.count,
+                      '->', destination)
     }
 }

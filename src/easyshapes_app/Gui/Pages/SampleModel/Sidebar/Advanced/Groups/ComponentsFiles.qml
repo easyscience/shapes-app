@@ -4,6 +4,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
@@ -201,17 +202,26 @@ EaElements.GroupColumn {
             width: root.thirdWidth
             ToolTip.text: qsTr("Export the selected file to disk, or the whole component directory when no file is selected")
             enabled: root.fileCount > 0
-            onClicked: {
-                if (root.selectedFileRow >= 0)
-                    Globals.BackendWrapper.componentsFilesExportFile(root.selectedFileRow)
-                else
-                    Globals.BackendWrapper.componentsFilesExportComponent()
-            }
+            onClicked: exportDestinationDialog.open()
         }
     }
 
     Loader {
         id: addFilesLoader
         source: "../Popups/AddComponentFiles.qml"
+    }
+
+    // Destination picker for Export. What gets written is decided here rather
+    // than on the button, so the selection is read when the user confirms.
+    FolderDialog {
+        id: exportDestinationDialog
+        title: qsTr("Choose a destination directory")
+        onAccepted: {
+            const destination = selectedFolder.toString()
+            if (root.selectedFileRow >= 0)
+                Globals.BackendWrapper.componentsFilesExportFile(root.selectedFileRow, destination)
+            else
+                Globals.BackendWrapper.componentsFilesExportComponent(destination)
+        }
     }
 }

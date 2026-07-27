@@ -204,8 +204,8 @@ QtObject {
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
     function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
-    function componentsFilesExportFile(index) { activeBackend.componentsFiles.exportFile(index) }
-    function componentsFilesExportComponent() { activeBackend.componentsFiles.exportComponent() }
+    function componentsFilesExportFile(index, destination) { activeBackend.componentsFiles.exportFile(index, destination) }
+    function componentsFilesExportComponent(destination) { activeBackend.componentsFiles.exportComponent(destination) }
 
     // Save the current file list to the asset library and load the component
     // into the basic-tab components list (under whatever name is in the name
@@ -238,7 +238,7 @@ QtObject {
     function structureFilesRemove(index) { activeBackend.structureFiles.removeItem(index) }
     function structureFilesClear() { activeBackend.structureFiles.clear() }
     function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
-    function structureFilesExport() { activeBackend.structureFiles.exportFiles() }
+    function structureFilesExport(destination) { activeBackend.structureFiles.exportFiles(destination) }
 
     // Library Assets editor (Advanced sidebar). A single draft asset the user
     // creates or loads from the library, edits, and saves back. `mode` is
@@ -269,9 +269,9 @@ QtObject {
     function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
     function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
     function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
-    function libraryAssetsExportPath(index) { activeBackend.libraryAssets.exportPath(index) }
+    function libraryAssetsExportPath(index, destination) { activeBackend.libraryAssets.exportPath(index, destination) }
     function libraryAssetsSave() { activeBackend.libraryAssets.save() }
-    function libraryAssetsExport() { activeBackend.libraryAssets.exportAsset() }
+    function libraryAssetsExport(destination) { activeBackend.libraryAssets.exportAsset(destination) }
 
     // SMILES generator (Advanced sidebar). Builds a 3D molecular configuration
     // from a SMILES string. `smilesReady` is true once a name and SMILES string
@@ -344,8 +344,8 @@ QtObject {
     readonly property string equilOutputsSelectedDir: activeBackend.equilibrationOutputs.selectedDir
 
     function equilOutputsSelect(index) { activeBackend.equilibrationOutputs.selectStep(index) }
-    function equilOutputsExportFile(index) { activeBackend.equilibrationOutputs.exportFile(index) }
-    function equilOutputsExportStep() { activeBackend.equilibrationOutputs.exportStep() }
+    function equilOutputsExportFile(index, destination) { activeBackend.equilibrationOutputs.exportFile(index, destination) }
+    function equilOutputsExportStep(destination) { activeBackend.equilibrationOutputs.exportStep(destination) }
     function equilOutputsOpenDir() { activeBackend.equilibrationOutputs.openDir() }
 
     ///////////////
