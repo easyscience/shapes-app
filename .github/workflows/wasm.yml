@@ -154,9 +154,11 @@ jobs:
           cd ../../site
           cp easyshapes_app.html index.html
           ls -lh
+          # Artifact names cannot contain a forward slash, branches can
+          echo "REF_SLUG=${GITHUB_REF_NAME//\//-}" >> "${GITHUB_ENV}"
 
       - name: Upload the built site as artifact
         uses: ./shapes-app/.github/actions/upload-artifact
         with:
-          name: wasm-prototype_easyshapes-app_${{ github.ref_name }}
+          name: wasm-prototype_easyshapes-app_${{ env.REF_SLUG }}
           path: site/
