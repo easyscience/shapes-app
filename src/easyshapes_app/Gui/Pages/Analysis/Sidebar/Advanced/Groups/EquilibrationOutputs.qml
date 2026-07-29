@@ -29,54 +29,36 @@ EaElements.GroupColumn {
                                            ? stepFilesList.selectedIndexes[0].row
                                            : -1
 
-    // Step selector on the left, resolved directory path on the right.
-    Row {
-        spacing: EaStyle.Sizes.fontPixelSize
-
-        Column {
-            EaElements.Label {
-                enabled: false
-                text: qsTr("Step")
-            }
-            EaElements.ComboBox {
-                id: stepSelector
-                width: root.halfWidth
-                textRole: "name"
-                model: Globals.BackendWrapper.equilOutputsSteps
-                enabled: root.hasSteps
-                displayText: currentIndex < 0 ? "" : currentText
-
-                onActivated: (i) => Globals.BackendWrapper.equilOutputsSelect(i)
-
-                // Mirror the dropdown index from the backend's selected step so
-                // regenerating the outputs resets the label too.
-                function syncIndex() {
-                    currentIndex = Globals.BackendWrapper.equilOutputsSelectedIndex
-                }
-
-                Component.onCompleted: syncIndex()
-                Connections {
-                    target: Globals.BackendWrapper.equilOutputsSteps
-                    function onCountChanged() { stepSelector.syncIndex() }
-                }
-                Connections {
-                    target: Globals.BackendWrapper
-                    function onEquilOutputsSelectedIndexChanged() { stepSelector.syncIndex() }
-                }
-            }
+    // Step selector. Picking a step repopulates the file list below.
+    Column {
+        EaElements.Label {
+            enabled: false
+            text: qsTr("Step")
         }
+        EaElements.ComboBox {
+            id: stepSelector
+            width: root.halfWidth
+            textRole: "name"
+            model: Globals.BackendWrapper.equilOutputsSteps
+            enabled: root.hasSteps
+            displayText: currentIndex < 0 ? "" : currentText
 
-        Column {
-            EaElements.Label {
-                enabled: false
-                text: qsTr("Directory")
+            onActivated: (i) => Globals.BackendWrapper.equilOutputsSelect(i)
+
+            // Mirror the dropdown index from the backend's selected step so
+            // regenerating the outputs resets the label too.
+            function syncIndex() {
+                currentIndex = Globals.BackendWrapper.equilOutputsSelectedIndex
             }
-            EaElements.Label {
-                width: root.halfWidth
-                height: EaStyle.Sizes.tableRowHeight
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideLeft
-                text: Globals.BackendWrapper.equilOutputsSelectedDir
+
+            Component.onCompleted: syncIndex()
+            Connections {
+                target: Globals.BackendWrapper.equilOutputsSteps
+                function onCountChanged() { stepSelector.syncIndex() }
+            }
+            Connections {
+                target: Globals.BackendWrapper
+                function onEquilOutputsSelectedIndexChanged() { stepSelector.syncIndex() }
             }
         }
     }

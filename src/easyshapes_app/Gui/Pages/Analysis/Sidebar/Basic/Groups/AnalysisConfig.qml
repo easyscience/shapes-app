@@ -22,6 +22,8 @@ EaElements.GroupColumn {
         id: configFilesList
         defaultInfoText: qsTr("No configuration files added")
         multiSelection: false
+        // The seeded set is equil0..equil6, so show all seven without scrolling.
+        maxRowCountShow: 7
 
         columnWidths: [
             EaStyle.Sizes.fontPixelSize * 2.5,
