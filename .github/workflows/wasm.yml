@@ -20,6 +20,9 @@
 name: WebAssembly prototype build
 
 on:
+  # Trigger the workflow on push, since the manual trigger below only appears once this file is on the default branch
+  push:
+    branches: ['wasm/**']
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
