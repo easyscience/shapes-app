@@ -5,8 +5,8 @@
 import QtQuick
 import QtGraphs
 
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Elements as EaElements
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
 
@@ -53,7 +53,7 @@ GraphsView {
             color: EaStyle.Colors.chartLabels
         }
 
-        titleText: 'x'
+        titleText: "x"
         min: 0
         max: 100
     }
@@ -68,7 +68,7 @@ GraphsView {
             color: EaStyle.Colors.chartLabels
         }
 
-        titleText: 'y'
+        titleText: "y"
         min: -2
         max: 2
     }
@@ -76,7 +76,7 @@ GraphsView {
 
     // lineSeries
     LineSeries {
-        color: 'red'
+        color: "red"
 
         XYPoint { x: 0; y: -1 }
         XYPoint { x: 50; y: 1.5 }

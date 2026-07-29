@@ -5,36 +5,43 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
 
 EaComponents.ContentPage {
 
+    // Two static main-area windows. Both are always shown; their content stays
+    // empty until equilibration is finished (gated on the backend's
+    // `analysis.equilibrated` flag, set by the sidebar's Equilibrate button).
     mainView: EaComponents.MainContent {
         tabs: [
-            EaElements.TabButton { text: qsTr('Chart') }
+            EaElements.TabButton { text: qsTr("Engine output") },
+            EaElements.TabButton { text: qsTr("Scattering") }
         ]
 
         items: [
-            Loader { source: 'MainArea/Chart.qml' }
+            Loader { source: "MainArea/EngineOutput.qml" },
+            Loader { source: "MainArea/Scattering.qml" }
         ]
     }
 
     sideBar: EaComponents.SideBar {
         tabs: [
-            EaElements.TabButton { text: qsTr('Basic controls') }
+            EaElements.TabButton { text: qsTr("Basic controls") },
+            EaElements.TabButton { text: qsTr("Advanced controls") }
         ]
 
         items: [
-            Loader { source: 'Sidebar/Basic/Layout.qml' }
+            Loader { source: "Sidebar/Basic/Layout.qml" },
+            Loader { source: "Sidebar/Advanced/Layout.qml" }
         ]
 
-        continueButton.text: qsTr('Continue')
+        continueButton.text: qsTr("Continue")
 
         continueButton.onClicked: {            
             console.debug(`Clicking '${continueButton.text}' button ::: ${this}`)

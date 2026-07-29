@@ -1,0 +1,164 @@
+# This workflow builds the WebAssembly prototype of the application.
+#
+# Overview:
+#  - Checks out shapes-app and EasyApp side by side, the layout the qrc
+#    and the .pro file expect.
+#  - Installs the Emscripten SDK and Qt for WebAssembly, both pinned.
+#  - Regenerates the Qt resource file, so a stale committed qrc cannot
+#    silently drop QML files from the build.
+#  - Builds with qmake and uploads the result as an artifact.
+#
+# The artifact holds a complete static site. Download it, unzip it, serve
+# the folder over HTTP and open the .html file. Opening it directly from
+# the file system does not work, since browsers refuse to load wasm over
+# file:// URLs.
+#
+# Deployment to GitHub Pages is deliberately not part of this workflow
+# yet - see the notes in docs before adding it, since the gh-pages branch
+# is owned by the documentation workflow.
+
+name: WebAssembly prototype build
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow only one concurrent build, cancelling anything queued behind it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Qt for WebAssembly requires an exact Emscripten version. A mismatch
+# produces undefined symbols at link time.
+#   Emsdk 3.1.50 is needed for Qt 6.7
+#   Emsdk 3.1.56 is needed for Qt 6.8
+#   Emsdk 3.1.70 is needed for Qt 6.9
+#   Emsdk 4.0.7  is needed for Qt 6.10 and 6.11
+env:
+  QT_VER: '6.9.0'
+  QT_VER_NO_DOTS: '690'
+  EMSDK_VER: '3.1.70'
+  # Branch of the EasyApp repository holding the EasyApplication QML modules
+  EASYAPP_REF: selectable_table_view
+
+jobs:
+  build-wasm:
+    # macOS, matching the runner the EasyApp wasm workflow uses. The
+    # Windows host is not a supported build platform for this: the
+    # wasm-emscripten mkspec emits Unix commands such as cp and sed.
+    runs-on: macos-14
+
+    timeout-minutes: 45
+
+    steps:
+      # The qrc and the .pro reach the framework through a relative path,
+      # '../../EasyApp/src', so the two repositories must sit next to each
+      # other exactly as they do in a local workspace.
+      - name: Checkout shapes-app
+        uses: actions/checkout@v5
+        with:
+          path: shapes-app
+
+      - name: Checkout EasyApp
+        uses: actions/checkout@v5
+        with:
+          repository: easyscience/EasyApp
+          ref: ${{ env.EASYAPP_REF }}
+          path: EasyApp
+
+      - name: Cache emsdk
+        id: cache-emsdk
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/emsdk
+          key: ${{ runner.os }}-emsdk-${{ env.EMSDK_VER }}
+
+      - name: Install emsdk
+        if: steps.cache-emsdk.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install ${{ env.EMSDK_VER }}
+          ./emsdk activate ${{ env.EMSDK_VER }}
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/Qt
+          key: ${{ runner.os }}-qt-${{ env.QT_VER }}-wasm
+
+      # Qt Quick 3D backs the 3D structure viewer, Qt Graphs backs the
+      # charts. Neither is part of the base WebAssembly package.
+      - name: Install Qt for WebAssembly
+        if: steps.cache-qt.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          curl -fL -O https://download.qt.io/official_releases/online_installers/qt-online-installer-macOS-universal.dmg
+          hdiutil attach -nobrowse qt-online-installer-macOS-universal.dmg
+          # The volume and the executable inside carry the installer version
+          # in their names, so discover them rather than hard-coding one.
+          VOLUME=$(ls -d /Volumes/qt-online-installer* | head -1)
+          INSTALLER=$(find "${VOLUME}" -type f -path '*/Contents/MacOS/*' | head -1)
+          echo "using ${INSTALLER}"
+          "${INSTALLER}" \
+            --email ${{ secrets.QT_ACCOUNT_EMAIL }} \
+            --pw ${{ secrets.QT_ACCOUNT_PASSWORD }} \
+            --root ${{ github.workspace }}/Qt \
+            --accept-licenses \
+            --accept-obligations \
+            --default-answer \
+            --confirm-command \
+            install \
+              qt.qt6.${{ env.QT_VER_NO_DOTS }}.wasm_singlethread \
+              qt.qt6.${{ env.QT_VER_NO_DOTS }}.addons.qtquick3d \
+              qt.qt6.${{ env.QT_VER_NO_DOTS }}.addons.qtgraphs
+          hdiutil detach "${VOLUME}"
+
+      - name: Print toolchain versions
+        run: |
+          set -euo pipefail
+          source ${{ github.workspace }}/emsdk/emsdk_env.sh
+          em++ --version
+          export PATH=$PATH:${{ github.workspace }}/Qt/${{ env.QT_VER }}/wasm_singlethread/bin
+          qmake -v
+
+      # The committed qrc is generated. Regenerating here means a QML file
+      # added without re-running the script locally still reaches the build.
+      - name: Regenerate the Qt resource file
+        working-directory: shapes-app
+        run: |
+          set -euo pipefail
+          python3 scripts/gen_qrc.py
+          git --no-pager diff --stat -- src/easyshapes_app.qrc
+
+      - name: Build
+        working-directory: shapes-app/src
+        run: |
+          set -euo pipefail
+          source ${{ github.workspace }}/emsdk/emsdk_env.sh
+          export PATH=$PATH:${{ github.workspace }}/Qt/${{ env.QT_VER }}/wasm_singlethread/bin
+          qmake easyshapes_app.pro -spec wasm-emscripten
+          make -j$(sysctl -n hw.ncpu)
+
+      # qtloader.js and qtlogo.svg are copied next to the binary by the
+      # build itself. A favicon keeps the dev server from logging a 404.
+      - name: Collect the built site
+        run: |
+          set -euo pipefail
+          mkdir -p site
+          cd shapes-app/src
+          cp easyshapes_app.html easyshapes_app.js easyshapes_app.wasm ../../site/
+          cp qtloader.js qtlogo.svg ../../site/ 2>/dev/null || true
+          cd ../../site
+          cp easyshapes_app.html index.html
+          ls -lh
+          # Artifact names cannot contain a forward slash, branches can
+          echo "REF_SLUG=${GITHUB_REF_NAME//\//-}" >> "${GITHUB_ENV}"
+
+      - name: Upload the built site as artifact
+        uses: ./shapes-app/.github/actions/upload-artifact
+        with:
+          name: wasm-prototype_easyshapes-app_${{ env.REF_SLUG }}
+          path: site/
