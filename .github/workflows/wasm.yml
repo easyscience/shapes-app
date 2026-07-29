@@ -37,7 +37,6 @@ concurrency:
 env:
   QT_VER: '6.9.0'
   QT_VER_NO_DOTS: '690'
-  QT_INSTALLER_VER: '4.9.0'
   EMSDK_VER: '3.1.70'
   # Branch of the EasyApp repository holding the EasyApplication QML modules
   EASYAPP_REF: selectable_table_view
@@ -96,9 +95,13 @@ jobs:
         if: steps.cache-qt.outputs.cache-hit != 'true'
         run: |
           set -euo pipefail
-          curl -L -O https://download.qt.io/official_releases/online_installers/qt-online-installer-mac-x64-online.dmg
-          hdiutil attach qt-online-installer-mac-x64-online.dmg
-          INSTALLER="/Volumes/qt-online-installer-macOS-x64-${QT_INSTALLER_VER}/qt-online-installer-macOS-x64-${QT_INSTALLER_VER}.app/Contents/MacOS/qt-online-installer-macOS-x64-${QT_INSTALLER_VER}"
+          curl -fL -O https://download.qt.io/official_releases/online_installers/qt-online-installer-macOS-universal.dmg
+          hdiutil attach -nobrowse qt-online-installer-macOS-universal.dmg
+          # The volume and the executable inside carry the installer version
+          # in their names, so discover them rather than hard-coding one.
+          VOLUME=$(ls -d /Volumes/qt-online-installer* | head -1)
+          INSTALLER=$(find "${VOLUME}" -type f -path '*/Contents/MacOS/*' | head -1)
+          echo "using ${INSTALLER}"
           "${INSTALLER}" \
             --email ${{ secrets.QT_ACCOUNT_EMAIL }} \
             --pw ${{ secrets.QT_ACCOUNT_PASSWORD }} \
@@ -111,7 +114,7 @@ jobs:
               qt.qt6.${{ env.QT_VER_NO_DOTS }}.wasm_singlethread \
               qt.qt6.${{ env.QT_VER_NO_DOTS }}.addons.qtquick3d \
               qt.qt6.${{ env.QT_VER_NO_DOTS }}.addons.qtgraphs
-          hdiutil detach "/Volumes/qt-online-installer-macOS-x64-${QT_INSTALLER_VER}"
+          hdiutil detach "${VOLUME}"
 
       - name: Print toolchain versions
         run: |
