@@ -19,6 +19,11 @@ node_modules/
 
 # QtCreator
 *.autosave
+.qtcreator/
+
+# QtCreator qmake
+*.pro.user
+*.pro.user.*
 
 # QtCreator Qml
 *.qmlproject.user

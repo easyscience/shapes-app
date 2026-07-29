@@ -14,6 +14,8 @@ import Gui.Globals as Globals
 
 EaComponents.ApplicationWindow {
 
+    title: Globals.ApplicationInfo.about.name
+
     ///////////////////
     // APPLICATION BAR
     ///////////////////

@@ -1,217 +1,251 @@
 <RCC>
-    <qresource>
-        <file>../../EasyApp/src/EasyApplication/Gui/Animations/ColorReset.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Animations/ThemeChange.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Animations/TranslationChange.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Animations/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/ChartViewHeatmap2dPlotly.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/ChartViewSimple1dPlotly.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly1dBarPlot.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly1dLine.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly1dMeasVsCalc.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly2dHeatmap.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly2dPolarHeatmap.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly3dScatter.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/Plotly3dSurface.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/QtCharts1dBase 2.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/QtCharts1dBase.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/QtCharts1dMeasVsCalc.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/QtCharts1dValueAxis.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Charts/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/AboutDialog.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/AppBarCentralTabs.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/AppBarLeftButtons.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/AppBarRightButtons.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ApplicationWindow.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/BasicReport.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ContentArea.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ContentPage.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/GuideWindow.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/GuideWindowContainer.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/JsonListModel.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ListView.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ListViewDelegate.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ListViewHeader.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ListViewTextInput.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/MainContent.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/PreferencesDialog.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/ProjectDescriptionDialog.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/SideBar.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/SideBarColumn.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableView.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewAdvancedLabel.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewCheckBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewComboBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewDelegate.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewHeader.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewLabel.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewLabelControl.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewParameter.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewTextInput.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/TableViewTwoRowsAdvancedLabel.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Components/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/AppBarTabButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ApplicationWindow.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Button.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/CheckBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/CheckIndicator.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ComboBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/CursorDelegate.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Dialog.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/DialogButtonBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/GroupBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/GroupButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/GroupColumn.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/GroupRow.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Label.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/LinkedImage.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Menu.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/MenuItem.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ParamComboBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ParamTextField.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Parameter.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/RadioButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/RadioIndicator.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/RemoteController.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/RemotePointer.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/RunningLabel.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ScrollBar.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ScrollIndicator.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/SideBarButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/Slider.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/SliderHandle.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/SpinBox.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/SplashScreen.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/StatusBar.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/StatusBarItem.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/TabBar.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/TabButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/TextArea.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/TextField.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/TextInput.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ToolButton.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ToolTip.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/ToolTipShadow.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Elements/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Globals/Vars.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Globals/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Html/plotly-2.18.0.min.js</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Logic/Plotting.js</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Logic/ProjectConfig.js</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Logic/Translate.js</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Logic/Utils.js</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Logic/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Style/Colors.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Style/Fonts.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Style/Sizes.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Style/Times.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Gui/Style/qmldir</file>
-        <file>../../EasyApp/src/EasyApplication/Logic/Maintenance/Updater.qml</file>
-        <file>../../EasyApp/src/EasyApplication/Logic/Maintenance/qmldir</file>
-        <file>easyshapes_app.qmlproject</file>
-        <file>easyshapes_app/Backends/MockBackend.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Analysis.qml</file>
-        <file>easyshapes_app/Backends/MockQml/AnalysisConfig.qml</file>
-        <file>easyshapes_app/Backends/MockQml/BallStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/BilayerStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Buffer.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Components.qml</file>
-        <file>easyshapes_app/Backends/MockQml/ComponentsFiles.qml</file>
-        <file>easyshapes_app/Backends/MockQml/EquilibrationOutputs.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Ions.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Lamellae.qml</file>
-        <file>easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Layers.qml</file>
-        <file>easyshapes_app/Backends/MockQml/LibraryAssetsEditor.qml</file>
-        <file>easyshapes_app/Backends/MockQml/MonolayerStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Project.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Report.qml</file>
-        <file>easyshapes_app/Backends/MockQml/RingStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/RodStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
-        <file>easyshapes_app/Backends/MockQml/SmilesGenerator.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Status.qml</file>
-        <file>easyshapes_app/Backends/MockQml/StructureFiles.qml</file>
-        <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
-        <file>easyshapes_app/Backends/MockQml/qmldir</file>
-        <file>easyshapes_app/Backends/qmldir</file>
-        <file>easyshapes_app/Gui/ApplicationWindow.qml</file>
-        <file>easyshapes_app/Gui/Globals/ApplicationInfo.qml</file>
-        <file>easyshapes_app/Gui/Globals/BackendWrapper.qml</file>
-        <file>easyshapes_app/Gui/Globals/References.qml</file>
-        <file>easyshapes_app/Gui/Globals/qmldir</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/MainArea/Chart.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/MainArea/EngineOutput.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/MainArea/Scattering.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Advanced/Groups/EquilibrationOutputs.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Advanced/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Groups/AnalysisConfig.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Popups/AddAnalysisConfigFiles.qml</file>
-        <file>easyshapes_app/Gui/Pages/Home/Content.qml</file>
-        <file>easyshapes_app/Gui/Pages/Home/Popups/About.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/MainArea/Description.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/Examples.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/GetStarted.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/Recent.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/OpenCifFile.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/ProjectDescription.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Extra/Groups/Scrolling.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Extra/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Text/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/MainArea/Summary.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/Sidebar/Basic/Groups/Export.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/Sidebar/Basic/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Groups/Empty.qml</file>
-        <file>easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/BaseMol3dQuick.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/ComponentView.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Components.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/FlatShapeView.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Lattice.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/RingShapeView.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/RodShape.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Shape.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/LibraryAssetsFiles.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SmilesGenerator.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/StructureFiles.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/AddComponentFiles.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/LoadLibraryAsset.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/ReplaceStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BallStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Buffer.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/MonolayerStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RodStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/VesicleStructure.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingBufferComponent.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingIon.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
-        <file>easyshapes_app/Gui/StatusBar.qml</file>
-        <file>easyshapes_app/Gui/qmldir</file>
-        <file>easyshapes_app/main.qml</file>
-        <file>easyshapes_app/test.qml</file>
-        <file>easyshapes_app/test2.qml</file>
+    <qresource prefix="/">
+        <file alias="Backends/MockBackend.qml">easyshapes_app/Backends/MockBackend.qml</file>
+        <file alias="Backends/MockQml/Analysis.qml">easyshapes_app/Backends/MockQml/Analysis.qml</file>
+        <file alias="Backends/MockQml/AnalysisConfig.qml">easyshapes_app/Backends/MockQml/AnalysisConfig.qml</file>
+        <file alias="Backends/MockQml/BallStructure.qml">easyshapes_app/Backends/MockQml/BallStructure.qml</file>
+        <file alias="Backends/MockQml/BilayerStructure.qml">easyshapes_app/Backends/MockQml/BilayerStructure.qml</file>
+        <file alias="Backends/MockQml/Buffer.qml">easyshapes_app/Backends/MockQml/Buffer.qml</file>
+        <file alias="Backends/MockQml/Components.qml">easyshapes_app/Backends/MockQml/Components.qml</file>
+        <file alias="Backends/MockQml/ComponentsFiles.qml">easyshapes_app/Backends/MockQml/ComponentsFiles.qml</file>
+        <file alias="Backends/MockQml/EquilibrationOutputs.qml">easyshapes_app/Backends/MockQml/EquilibrationOutputs.qml</file>
+        <file alias="Backends/MockQml/Fractions.qml">easyshapes_app/Backends/MockQml/Fractions.qml</file>
+        <file alias="Backends/MockQml/Ions.qml">easyshapes_app/Backends/MockQml/Ions.qml</file>
+        <file alias="Backends/MockQml/Lamellae.qml">easyshapes_app/Backends/MockQml/Lamellae.qml</file>
+        <file alias="Backends/MockQml/LatticeStructure.qml">easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
+        <file alias="Backends/MockQml/Layers.qml">easyshapes_app/Backends/MockQml/Layers.qml</file>
+        <file alias="Backends/MockQml/LibraryAssetsEditor.qml">easyshapes_app/Backends/MockQml/LibraryAssetsEditor.qml</file>
+        <file alias="Backends/MockQml/MonolayerStructure.qml">easyshapes_app/Backends/MockQml/MonolayerStructure.qml</file>
+        <file alias="Backends/MockQml/Project.qml">easyshapes_app/Backends/MockQml/Project.qml</file>
+        <file alias="Backends/MockQml/qmldir">easyshapes_app/Backends/MockQml/qmldir</file>
+        <file alias="Backends/MockQml/Report.qml">easyshapes_app/Backends/MockQml/Report.qml</file>
+        <file alias="Backends/MockQml/RingStructure.qml">easyshapes_app/Backends/MockQml/RingStructure.qml</file>
+        <file alias="Backends/MockQml/RodStructure.qml">easyshapes_app/Backends/MockQml/RodStructure.qml</file>
+        <file alias="Backends/MockQml/SampleModel.qml">easyshapes_app/Backends/MockQml/SampleModel.qml</file>
+        <file alias="Backends/MockQml/SmilesGenerator.qml">easyshapes_app/Backends/MockQml/SmilesGenerator.qml</file>
+        <file alias="Backends/MockQml/Status.qml">easyshapes_app/Backends/MockQml/Status.qml</file>
+        <file alias="Backends/MockQml/StructureFiles.qml">easyshapes_app/Backends/MockQml/StructureFiles.qml</file>
+        <file alias="Backends/MockQml/VesicleStructure.qml">easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
+        <file alias="Backends/qmldir">easyshapes_app/Backends/qmldir</file>
+        <file alias="Gui/ApplicationWindow.qml">easyshapes_app/Gui/ApplicationWindow.qml</file>
+        <file alias="Gui/Globals/ApplicationInfo.qml">easyshapes_app/Gui/Globals/ApplicationInfo.qml</file>
+        <file alias="Gui/Globals/BackendWrapper.qml">easyshapes_app/Gui/Globals/BackendWrapper.qml</file>
+        <file alias="Gui/Globals/qmldir">easyshapes_app/Gui/Globals/qmldir</file>
+        <file alias="Gui/Globals/References.qml">easyshapes_app/Gui/Globals/References.qml</file>
+        <file alias="Gui/Pages/Analysis/Layout.qml">easyshapes_app/Gui/Pages/Analysis/Layout.qml</file>
+        <file alias="Gui/Pages/Analysis/MainArea/Chart.qml">easyshapes_app/Gui/Pages/Analysis/MainArea/Chart.qml</file>
+        <file alias="Gui/Pages/Analysis/MainArea/EngineOutput.qml">easyshapes_app/Gui/Pages/Analysis/MainArea/EngineOutput.qml</file>
+        <file alias="Gui/Pages/Analysis/MainArea/Scattering.qml">easyshapes_app/Gui/Pages/Analysis/MainArea/Scattering.qml</file>
+        <file alias="Gui/Pages/Analysis/Sidebar/Advanced/Groups/EquilibrationOutputs.qml">easyshapes_app/Gui/Pages/Analysis/Sidebar/Advanced/Groups/EquilibrationOutputs.qml</file>
+        <file alias="Gui/Pages/Analysis/Sidebar/Advanced/Layout.qml">easyshapes_app/Gui/Pages/Analysis/Sidebar/Advanced/Layout.qml</file>
+        <file alias="Gui/Pages/Analysis/Sidebar/Basic/Groups/AnalysisConfig.qml">easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Groups/AnalysisConfig.qml</file>
+        <file alias="Gui/Pages/Analysis/Sidebar/Basic/Layout.qml">easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Layout.qml</file>
+        <file alias="Gui/Pages/Analysis/Sidebar/Basic/Popups/AddAnalysisConfigFiles.qml">easyshapes_app/Gui/Pages/Analysis/Sidebar/Basic/Popups/AddAnalysisConfigFiles.qml</file>
+        <file alias="Gui/Pages/Home/Content.qml">easyshapes_app/Gui/Pages/Home/Content.qml</file>
+        <file alias="Gui/Pages/Home/Popups/About.qml">easyshapes_app/Gui/Pages/Home/Popups/About.qml</file>
+        <file alias="Gui/Pages/Project/Layout.qml">easyshapes_app/Gui/Pages/Project/Layout.qml</file>
+        <file alias="Gui/Pages/Project/MainArea/Description.qml">easyshapes_app/Gui/Pages/Project/MainArea/Description.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Groups/Examples.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/Examples.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Groups/GetStarted.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/GetStarted.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Groups/Recent.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/Recent.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Layout.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Layout.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Popups/OpenCifFile.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/OpenCifFile.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Basic/Popups/ProjectDescription.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/ProjectDescription.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Extra/Groups/Scrolling.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Extra/Groups/Scrolling.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Extra/Layout.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Extra/Layout.qml</file>
+        <file alias="Gui/Pages/Project/Sidebar/Text/Layout.qml">easyshapes_app/Gui/Pages/Project/Sidebar/Text/Layout.qml</file>
+        <file alias="Gui/Pages/Report/Layout.qml">easyshapes_app/Gui/Pages/Report/Layout.qml</file>
+        <file alias="Gui/Pages/Report/MainArea/Summary.qml">easyshapes_app/Gui/Pages/Report/MainArea/Summary.qml</file>
+        <file alias="Gui/Pages/Report/Sidebar/Basic/Groups/Export.qml">easyshapes_app/Gui/Pages/Report/Sidebar/Basic/Groups/Export.qml</file>
+        <file alias="Gui/Pages/Report/Sidebar/Basic/Layout.qml">easyshapes_app/Gui/Pages/Report/Sidebar/Basic/Layout.qml</file>
+        <file alias="Gui/Pages/Report/Sidebar/Extra/Groups/Empty.qml">easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Groups/Empty.qml</file>
+        <file alias="Gui/Pages/Report/Sidebar/Extra/Layout.qml">easyshapes_app/Gui/Pages/Report/Sidebar/Extra/Layout.qml</file>
+        <file alias="Gui/Pages/SampleModel/Layout.qml">easyshapes_app/Gui/Pages/SampleModel/Layout.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/BaseMol3dQuick.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/BaseMol3dQuick.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/Components.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/Components.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/ComponentView.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/ComponentView.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/FlatShapeView.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/FlatShapeView.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/GraphsView.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/GraphsView.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/Lattice.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/Lattice.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/RingShapeView.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/RingShapeView.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/RodShape.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/RodShape.qml</file>
+        <file alias="Gui/Pages/SampleModel/MainArea/Shape.qml">easyshapes_app/Gui/Pages/SampleModel/MainArea/Shape.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Groups/LibraryAssetsFiles.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/LibraryAssetsFiles.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SmilesGenerator.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SmilesGenerator.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Groups/StructureFiles.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/StructureFiles.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Layout.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Layout.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Popups/AddComponentFiles.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/AddComponentFiles.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Popups/LoadLibraryAsset.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/LoadLibraryAsset.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Advanced/Popups/ReplaceStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/ReplaceStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Components/Fractions.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/BallStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BallStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/BilayerStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/Buffer.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Buffer.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Components.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Lamellae.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/LatticeStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/Layers.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/MonolayerStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/MonolayerStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RingStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/RodStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/RodStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/SampleModel.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Groups/VesicleStructure.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Groups/VesicleStructure.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Layout.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/CreateNewComponent.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingBufferComponent.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingBufferComponent.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingComponent.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingIon.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingIon.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/LoadExistingModel.qml</file>
+        <file alias="Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml">easyshapes_app/Gui/Pages/SampleModel/Sidebar/Basic/Popups/OpenAssetFile.qml</file>
+        <file alias="Gui/qmldir">easyshapes_app/Gui/qmldir</file>
+        <file alias="Gui/Resources/Images/scattering.jpg">easyshapes_app/Gui/Resources/Images/scattering.jpg</file>
+        <file alias="Gui/Resources/Images/structure.png">easyshapes_app/Gui/Resources/Images/structure.png</file>
+        <file alias="Gui/Resources/Logos/App.png">easyshapes_app/Gui/Resources/Logos/App.png</file>
+        <file alias="Gui/Resources/Logos/App.svg">easyshapes_app/Gui/Resources/Logos/App.svg</file>
+        <file alias="Gui/Resources/Logos/ESS.png">easyshapes_app/Gui/Resources/Logos/ESS.png</file>
+        <file alias="Gui/StatusBar.qml">easyshapes_app/Gui/StatusBar.qml</file>
+        <file alias="main.qml">easyshapes_app/main.qml</file>
+        <file alias="EasyApplication/Gui/Animations/ColorReset.qml">../../EasyApp/src/EasyApplication/Gui/Animations/ColorReset.qml</file>
+        <file alias="EasyApplication/Gui/Animations/qmldir">../../EasyApp/src/EasyApplication/Gui/Animations/qmldir</file>
+        <file alias="EasyApplication/Gui/Animations/ThemeChange.qml">../../EasyApp/src/EasyApplication/Gui/Animations/ThemeChange.qml</file>
+        <file alias="EasyApplication/Gui/Animations/TranslationChange.qml">../../EasyApp/src/EasyApplication/Gui/Animations/TranslationChange.qml</file>
+        <file alias="EasyApplication/Gui/Components/AboutDialog.qml">../../EasyApp/src/EasyApplication/Gui/Components/AboutDialog.qml</file>
+        <file alias="EasyApplication/Gui/Components/AppBarCentralTabs.qml">../../EasyApp/src/EasyApplication/Gui/Components/AppBarCentralTabs.qml</file>
+        <file alias="EasyApplication/Gui/Components/AppBarLeftButtons.qml">../../EasyApp/src/EasyApplication/Gui/Components/AppBarLeftButtons.qml</file>
+        <file alias="EasyApplication/Gui/Components/AppBarRightButtons.qml">../../EasyApp/src/EasyApplication/Gui/Components/AppBarRightButtons.qml</file>
+        <file alias="EasyApplication/Gui/Components/ApplicationWindow.qml">../../EasyApp/src/EasyApplication/Gui/Components/ApplicationWindow.qml</file>
+        <file alias="EasyApplication/Gui/Components/ContentArea.qml">../../EasyApp/src/EasyApplication/Gui/Components/ContentArea.qml</file>
+        <file alias="EasyApplication/Gui/Components/ContentPage.qml">../../EasyApp/src/EasyApplication/Gui/Components/ContentPage.qml</file>
+        <file alias="EasyApplication/Gui/Components/GuideWindow.qml">../../EasyApp/src/EasyApplication/Gui/Components/GuideWindow.qml</file>
+        <file alias="EasyApplication/Gui/Components/GuideWindowContainer.qml">../../EasyApp/src/EasyApplication/Gui/Components/GuideWindowContainer.qml</file>
+        <file alias="EasyApplication/Gui/Components/JsonListModel.qml">../../EasyApp/src/EasyApplication/Gui/Components/JsonListModel.qml</file>
+        <file alias="EasyApplication/Gui/Components/ListView.qml">../../EasyApp/src/EasyApplication/Gui/Components/ListView.qml</file>
+        <file alias="EasyApplication/Gui/Components/ListViewDelegate.qml">../../EasyApp/src/EasyApplication/Gui/Components/ListViewDelegate.qml</file>
+        <file alias="EasyApplication/Gui/Components/ListViewHeader.qml">../../EasyApp/src/EasyApplication/Gui/Components/ListViewHeader.qml</file>
+        <file alias="EasyApplication/Gui/Components/ListViewTextInput.qml">../../EasyApp/src/EasyApplication/Gui/Components/ListViewTextInput.qml</file>
+        <file alias="EasyApplication/Gui/Components/MainContent.qml">../../EasyApp/src/EasyApplication/Gui/Components/MainContent.qml</file>
+        <file alias="EasyApplication/Gui/Components/PreferencesDialog.qml">../../EasyApp/src/EasyApplication/Gui/Components/PreferencesDialog.qml</file>
+        <file alias="EasyApplication/Gui/Components/ProjectDescriptionDialog.qml">../../EasyApp/src/EasyApplication/Gui/Components/ProjectDescriptionDialog.qml</file>
+        <file alias="EasyApplication/Gui/Components/qmldir">../../EasyApp/src/EasyApplication/Gui/Components/qmldir</file>
+        <file alias="EasyApplication/Gui/Components/SideBar.qml">../../EasyApp/src/EasyApplication/Gui/Components/SideBar.qml</file>
+        <file alias="EasyApplication/Gui/Components/SideBarColumn.qml">../../EasyApp/src/EasyApplication/Gui/Components/SideBarColumn.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableView.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableView.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewAdvancedLabel.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewAdvancedLabel.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewButton.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewButton.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewCheckBox.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewCheckBox.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewComboBox.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewComboBox.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewDelegate.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewDelegate.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewHeader.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewHeader.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewLabel.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewLabel.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewLabelControl.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewLabelControl.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewParameter.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewParameter.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewTextInput.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewTextInput.qml</file>
+        <file alias="EasyApplication/Gui/Components/TableViewTwoRowsAdvancedLabel.qml">../../EasyApp/src/EasyApplication/Gui/Components/TableViewTwoRowsAdvancedLabel.qml</file>
+        <file alias="EasyApplication/Gui/Elements/AppBarTabButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/AppBarTabButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ApplicationWindow.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ApplicationWindow.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Button.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Button.qml</file>
+        <file alias="EasyApplication/Gui/Elements/CheckBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/CheckBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/CheckIndicator.qml">../../EasyApp/src/EasyApplication/Gui/Elements/CheckIndicator.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ComboBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ComboBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/CursorDelegate.qml">../../EasyApp/src/EasyApplication/Gui/Elements/CursorDelegate.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Dialog.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Dialog.qml</file>
+        <file alias="EasyApplication/Gui/Elements/DialogButtonBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/DialogButtonBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/GroupBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/GroupBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/GroupButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/GroupButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/GroupColumn.qml">../../EasyApp/src/EasyApplication/Gui/Elements/GroupColumn.qml</file>
+        <file alias="EasyApplication/Gui/Elements/GroupRow.qml">../../EasyApp/src/EasyApplication/Gui/Elements/GroupRow.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Label.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Label.qml</file>
+        <file alias="EasyApplication/Gui/Elements/LinkedImage.qml">../../EasyApp/src/EasyApplication/Gui/Elements/LinkedImage.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Menu.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Menu.qml</file>
+        <file alias="EasyApplication/Gui/Elements/MenuItem.qml">../../EasyApp/src/EasyApplication/Gui/Elements/MenuItem.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ParamComboBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ParamComboBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Parameter.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Parameter.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ParamTextField.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ParamTextField.qml</file>
+        <file alias="EasyApplication/Gui/Elements/qmldir">../../EasyApp/src/EasyApplication/Gui/Elements/qmldir</file>
+        <file alias="EasyApplication/Gui/Elements/RadioButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/RadioButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/RadioIndicator.qml">../../EasyApp/src/EasyApplication/Gui/Elements/RadioIndicator.qml</file>
+        <file alias="EasyApplication/Gui/Elements/RemotePointer.qml">../../EasyApp/src/EasyApplication/Gui/Elements/RemotePointer.qml</file>
+        <file alias="EasyApplication/Gui/Elements/RunningLabel.qml">../../EasyApp/src/EasyApplication/Gui/Elements/RunningLabel.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ScrollBar.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ScrollBar.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ScrollIndicator.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ScrollIndicator.qml</file>
+        <file alias="EasyApplication/Gui/Elements/SideBarButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/SideBarButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/Slider.qml">../../EasyApp/src/EasyApplication/Gui/Elements/Slider.qml</file>
+        <file alias="EasyApplication/Gui/Elements/SliderHandle.qml">../../EasyApp/src/EasyApplication/Gui/Elements/SliderHandle.qml</file>
+        <file alias="EasyApplication/Gui/Elements/SpinBox.qml">../../EasyApp/src/EasyApplication/Gui/Elements/SpinBox.qml</file>
+        <file alias="EasyApplication/Gui/Elements/SplashScreen.qml">../../EasyApp/src/EasyApplication/Gui/Elements/SplashScreen.qml</file>
+        <file alias="EasyApplication/Gui/Elements/StatusBar.qml">../../EasyApp/src/EasyApplication/Gui/Elements/StatusBar.qml</file>
+        <file alias="EasyApplication/Gui/Elements/StatusBarItem.qml">../../EasyApp/src/EasyApplication/Gui/Elements/StatusBarItem.qml</file>
+        <file alias="EasyApplication/Gui/Elements/TabBar.qml">../../EasyApp/src/EasyApplication/Gui/Elements/TabBar.qml</file>
+        <file alias="EasyApplication/Gui/Elements/TabButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/TabButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/TextArea.qml">../../EasyApp/src/EasyApplication/Gui/Elements/TextArea.qml</file>
+        <file alias="EasyApplication/Gui/Elements/TextField.qml">../../EasyApp/src/EasyApplication/Gui/Elements/TextField.qml</file>
+        <file alias="EasyApplication/Gui/Elements/TextInput.qml">../../EasyApp/src/EasyApplication/Gui/Elements/TextInput.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ToolButton.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ToolButton.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ToolTip.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ToolTip.qml</file>
+        <file alias="EasyApplication/Gui/Elements/ToolTipShadow.qml">../../EasyApp/src/EasyApplication/Gui/Elements/ToolTipShadow.qml</file>
+        <file alias="EasyApplication/Gui/Globals/qmldir">../../EasyApp/src/EasyApplication/Gui/Globals/qmldir</file>
+        <file alias="EasyApplication/Gui/Globals/Vars.qml">../../EasyApp/src/EasyApplication/Gui/Globals/Vars.qml</file>
+        <file alias="EasyApplication/Gui/Logic/Plotting.js">../../EasyApp/src/EasyApplication/Gui/Logic/Plotting.js</file>
+        <file alias="EasyApplication/Gui/Logic/ProjectConfig.js">../../EasyApp/src/EasyApplication/Gui/Logic/ProjectConfig.js</file>
+        <file alias="EasyApplication/Gui/Logic/qmldir">../../EasyApp/src/EasyApplication/Gui/Logic/qmldir</file>
+        <file alias="EasyApplication/Gui/Logic/Translate.js">../../EasyApp/src/EasyApplication/Gui/Logic/Translate.js</file>
+        <file alias="EasyApplication/Gui/Logic/Utils.js">../../EasyApp/src/EasyApplication/Gui/Logic/Utils.js</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Black.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Black.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Bold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Bold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-ExtraBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-ExtraBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-ExtraLight.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-ExtraLight.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Light.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Light.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Medium.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Medium.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-SemiBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-SemiBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Thin.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans/EncodeSans-Thin.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Black.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Black.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Bold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Bold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-ExtraBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-ExtraBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-ExtraLight.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-ExtraLight.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Light.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Light.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Medium.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Medium.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-SemiBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-SemiBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Thin.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Condensed/EncodeSansCondensed-Thin.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Black.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Black.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Bold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Bold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-ExtraBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-ExtraBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-ExtraLight.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-ExtraLight.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Light.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Light.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Medium.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Medium.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-SemiBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-SemiBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Thin.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Encode_Sans_Expanded/EncodeSansExpanded-Thin.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 5 Free-Solid-900.otf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 5 Free-Solid-900.otf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 6 Free-Solid-900.otf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 6 Free-Solid-900.otf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 7 Free-Solid-900.otf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/FontAwesome/Font Awesome 7 Free-Solid-900.otf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Black.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Black.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-BlackItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-BlackItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Bold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Bold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-BoldItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-BoldItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraBoldItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraBoldItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraLight.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraLight.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraLightItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-ExtraLightItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Italic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Italic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Light.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Light.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-LightItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-LightItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-SemiBold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-SemiBold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-SemiBoldItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/Nunito/Nunito-SemiBoldItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/PT_Mono/PTMono-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/PT_Mono/PTMono-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Bold.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Bold.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-BoldItalic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-BoldItalic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Italic.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Italic.ttf</file>
+        <file alias="EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Regular.ttf">../../EasyApp/src/EasyApplication/Gui/Resources/Fonts/PT_Sans/PTSans-Regular.ttf</file>
+        <file alias="EasyApplication/Gui/Style/Colors.qml">../../EasyApp/src/EasyApplication/Gui/Style/Colors.qml</file>
+        <file alias="EasyApplication/Gui/Style/Fonts.qml">../../EasyApp/src/EasyApplication/Gui/Style/Fonts.qml</file>
+        <file alias="EasyApplication/Gui/Style/qmldir">../../EasyApp/src/EasyApplication/Gui/Style/qmldir</file>
+        <file alias="EasyApplication/Gui/Style/Sizes.qml">../../EasyApp/src/EasyApplication/Gui/Style/Sizes.qml</file>
+        <file alias="EasyApplication/Gui/Style/Times.qml">../../EasyApp/src/EasyApplication/Gui/Style/Times.qml</file>
+        <file alias="EasyApplication/Logic/Maintenance/qmldir">../../EasyApp/src/EasyApplication/Logic/Maintenance/qmldir</file>
+        <file alias="EasyApplication/Logic/Maintenance/Updater.qml">../../EasyApp/src/EasyApplication/Logic/Maintenance/Updater.qml</file>
     </qresource>
 </RCC>
