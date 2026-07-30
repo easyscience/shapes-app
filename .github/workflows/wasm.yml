@@ -35,9 +35,9 @@ concurrency:
 #   Emsdk 3.1.70 is needed for Qt 6.9
 #   Emsdk 4.0.7  is needed for Qt 6.10 and 6.11
 env:
-  QT_VER: '6.9.0'
-  QT_VER_NO_DOTS: '690'
-  EMSDK_VER: '3.1.70'
+  QT_VER: '6.10.3'
+  QT_VER_NO_DOTS: '6103'
+  EMSDK_VER: '4.0.7'
   # Branch of the EasyApp repository holding the EasyApplication QML modules
   EASYAPP_REF: selectable_table_view
 
