@@ -13,9 +13,16 @@
 # the file system does not work, since browsers refuse to load wasm over
 # file:// URLs.
 #
-# Deployment to GitHub Pages is deliberately not part of this workflow
-# yet - see the notes in docs before adding it, since the gh-pages branch
-# is owned by the documentation workflow.
+# The build is also published to GitHub Pages, under a path of its own:
+#
+#   https://easyscience.github.io/<repo>/wasm/<branch>/
+#
+# The gh-pages branch is owned by the documentation workflow, which uses
+# mike to manage /latest/, /dev/ and the versioned folders. This workflow
+# never touches those: it publishes into a wasm/ subdirectory with
+# keep_files, so nothing else on the branch is removed. Its deploy job also
+# shares the docs workflow's concurrency group, so the two never push to
+# gh-pages at the same time.
 
 name: WebAssembly prototype build
 
@@ -41,8 +48,10 @@ env:
   QT_VER: '6.10.3'
   QT_VER_NO_DOTS: '6103'
   EMSDK_VER: '4.0.7'
-  # Branch of the EasyApp repository holding the EasyApplication QML modules
-  EASYAPP_REF: selectable_table_view
+  # Branch of the EasyApp repository holding the EasyApplication QML modules.
+  # wasm_clipping_fix carries the WebAssembly clipping fixes: list and swipe
+  # view components use a layer instead of clip when running in a browser.
+  EASYAPP_REF: wasm_clipping_fix
 
 jobs:
   build-wasm:
@@ -165,3 +174,74 @@ jobs:
         with:
           name: wasm-prototype_easyshapes-app_${{ env.REF_SLUG }}
           path: site/
+
+      # Hand the site to the deploy job below. The artifact above is for
+      # people to download; this one is machine plumbing, kept separate so
+      # the two can be changed independently.
+      - name: Upload the site for deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-site-for-pages
+          path: site/
+          retention-days: 1
+
+  # ---------------------------------------------------------------------
+  # Publish to GitHub Pages, under wasm/<branch>/
+  #
+  # Runs on Linux because it only moves files about. Shares the docs
+  # workflow's concurrency group so the two never push to gh-pages at once,
+  # and uses keep_files with a destination directory so nothing the docs
+  # own is touched.
+  deploy-pages:
+    needs: build-wasm
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: docs-gh-pages-deploy
+      cancel-in-progress: false
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v5
+
+      - name: Download the built site
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-site-for-pages
+          path: site
+
+      # Branch names can contain slashes; a URL path segment should not.
+      - name: Work out the publication path
+        run: |
+          set -euo pipefail
+          echo "REF_SLUG=${GITHUB_REF_NAME//\//-}" >> "${GITHUB_ENV}"
+
+      # Same app token the docs and dashboard workflows use, so the commit
+      # on gh-pages is attributed to easyscience[bot] rather than to a
+      # personal account.
+      - name: Setup easyscience[bot]
+        id: bot
+        uses: ./.github/actions/setup-easyscience-bot
+        with:
+          app-id: ${{ vars.EASYSCIENCE_APP_ID }}
+          private-key: ${{ secrets.EASYSCIENCE_APP_KEY }}
+
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          personal_token: ${{ steps.bot.outputs.token }}
+          publish_branch: gh-pages
+          publish_dir: ./site
+          destination_dir: wasm/${{ env.REF_SLUG }}
+          keep_files: true
+          commit_message: >-
+            publish WebAssembly prototype for ${{ github.ref_name }}
+
+      - name: Add the link to the run summary
+        run: |
+          set -euo pipefail
+          URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/wasm/${REF_SLUG}/"
+          echo "WebAssembly prototype: [${URL}](${URL})" >> "${GITHUB_STEP_SUMMARY}"
