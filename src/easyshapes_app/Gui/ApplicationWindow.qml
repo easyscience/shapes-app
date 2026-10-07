@@ -5,14 +5,16 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
 
 import Gui as Gui
 import Gui.Globals as Globals
 
 EaComponents.ApplicationWindow {
+
+    title: Globals.ApplicationInfo.about.name
 
     ///////////////////
     // APPLICATION BAR
@@ -75,9 +77,9 @@ EaComponents.ApplicationWindow {
         EaElements.AppBarTabButton {
             id: sampleModelButton
             enabled: false
-            fontIcon: 'puzzle-piece'
-            text: qsTr('Sample model')
-            ToolTip.text: qsTr('Sample model definition page')
+            fontIcon: 'vial' // 'layer-group'  'vials' 'vial'
+            text: qsTr('Sample Model') // qsTr('Model')
+            ToolTip.text: qsTr('Sample Model definition page')
             Component.onCompleted: {
                 Globals.References.applicationWindow.appBarCentralTabs.sampleModelButton = sampleModelButton
             }
@@ -108,16 +110,8 @@ EaComponents.ApplicationWindow {
             Component.onCompleted: {
                 Globals.References.applicationWindow.appBarCentralTabs.summaryButton = summaryButton
             }
-        },
-        // Summary page
-
-        // Toolbox page
-        EaElements.AppBarTabButton {
-            fontIcon: 'toolbox'
-            text: qsTr('Toolbox')
-            ToolTip.text: qsTr('Toolbox with common widgets')
         }
-        // Toolbox page
+        // Summary page
 
     ]
 
@@ -131,8 +125,7 @@ EaComponents.ApplicationWindow {
         Loader { source: 'Pages/Project/Layout.qml' },
         Loader { source: 'Pages/SampleModel/Layout.qml' },
         Loader { source: 'Pages/Analysis/Layout.qml' },
-        Loader { source: 'Pages/Report/Layout.qml' },
-        Loader { source: 'Pages/Toolbox/Layout.qml' }
+        Loader { source: 'Pages/Report/Layout.qml' }
     ]
 
     /////////////

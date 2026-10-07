@@ -48,6 +48,7 @@ gsl = '*'    # GNU Scientific Library; required for pdffit2.
 [pypi-dependencies] # == [feature.default.pypi-dependencies]
 pip = '*'                                                          # Native package installer
 easyshapes_app = { path = ".", editable = true, extras = ['dev'] }
+pyside6-addons = ">=6.9.3, <7"
 
 # Specific features: Set specific Python versions
 

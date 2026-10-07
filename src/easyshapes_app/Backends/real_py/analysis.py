@@ -17,6 +17,7 @@ class Analysis(QObject):
     dataSizeChanged = Signal()
     dataPointsChanged = Signal('QVariantList')  # Emitted with list<QPointF>
     axesRangesChanged = Signal()  # Emitted when range dict updates
+    equilibratedChanged = Signal()  # Emitted when the equilibration state flips
 
     def __init__(self):
         super().__init__()
@@ -28,6 +29,7 @@ class Analysis(QObject):
             'ymin': 0.0,
             'ymax': 100.0,
         }
+        self._equilibrated = False
 
     # ------------------------------------------------------------------
     # QML-accessible Properties
@@ -55,9 +57,23 @@ class Analysis(QObject):
         """
         return self._axesRanges
 
+    @Property(bool, notify=equilibratedChanged)
+    def equilibrated(self):
+        """True once equilibration has finished, so the engine output and
+        scattering data are available. Placeholder flag for the real MD run."""
+        return self._equilibrated
+
     # ------------------------------------------------------------------
     # Public Slot Called from QML
     # ------------------------------------------------------------------
+
+    @Slot()
+    def equilibrate(self):
+        """Mark equilibration as finished (placeholder for the real engine run)."""
+        if self._equilibrated:
+            return
+        self._equilibrated = True
+        self.equilibratedChanged.emit()
 
     @Slot()
     def generateData(self):

@@ -5,57 +5,57 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
-
 
 EaElements.StatusBar {
 
     visible: EaGlobals.Vars.appBarCurrentIndex !== 0
 
     EaElements.StatusBarItem {
-        keyIcon: 'archive'
-        keyText: qsTr('Project')
+        keyIcon: "archive"
+        keyText: qsTr("Project")
         valueText: Globals.BackendWrapper.statusProject
-        ToolTip.text: qsTr('Current project')
+        ToolTip.text: qsTr("Current project")
     }
 
     EaElements.StatusBarItem {
-        keyIcon: 'layer-group'
-        keyText: qsTr('Models')
-        valueText: Globals.BackendWrapper.statusPhasesCount
-        ToolTip.text: qsTr('Number of models added')
+        keyIcon: "vial"
+        keyText: qsTr("Shape")
+        // Bare shape for a discrete model, or "Lattice (<shape>)" on a lattice.
+        valueText: {
+            const shape = Globals.BackendWrapper.sampleModelCurrentStructureType
+            if (!shape)
+                return ""
+            return Globals.BackendWrapper.sampleModelCurrentType === "Lattice"
+                   ? qsTr("Lattice (%1)").arg(shape.toLowerCase())
+                   : shape
+        }
+        ToolTip.text: qsTr("Current sample model shape and lattice arrangement")
     }
 
     EaElements.StatusBarItem {
-        keyIcon: 'microscope'
-        keyText: qsTr('Experiments')
-        valueText: Globals.BackendWrapper.statusExperimentsCount
-        ToolTip.text: qsTr('Number of experiments added')
+        keyIcon: "puzzle-piece"
+        keyText: qsTr("Components")
+        valueText: "" + (Globals.BackendWrapper.componentsLoaded
+                         ? Globals.BackendWrapper.componentsLoaded.count
+                         : 0)
+        ToolTip.text: qsTr("Number of components")
     }
 
     EaElements.StatusBarItem {
-        keyIcon: 'calculator'
-        keyText: qsTr('Calculator')
-        valueText: Globals.BackendWrapper.statusCalculator
-        ToolTip.text: qsTr('Current calculation engine')
+        keyIcon: "cogs"
+        keyText: qsTr("Engine")
+        valueText: Globals.BackendWrapper.statusEngine
+        ToolTip.text: qsTr("Simulation engine")
     }
 
     EaElements.StatusBarItem {
-        keyIcon: 'level-down-alt'
-        keyText: qsTr('Minimizer')
-        valueText: Globals.BackendWrapper.statusMinimizer
-        ToolTip.text: qsTr('Current minimization engine and method')
+        keyIcon: "bezier-curve"
+        keyText: qsTr("Force field")
+        valueText: Globals.BackendWrapper.analysisConfigForceField
+        ToolTip.text: qsTr("Force field selected on the Analysis page")
     }
-
-    EaElements.StatusBarItem {
-        keyIcon: 'th-list'
-        keyText: qsTr('Parameters')
-        valueText: Globals.BackendWrapper.statusVariables
-        ToolTip.text: qsTr('Number of parameters: total, free and fixed')
-    }
-
 }

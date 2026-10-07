@@ -5,40 +5,121 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
-
 
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr('Group 1')
-        icon: 'rocket'
+        title: qsTr("Model Definition")
+        icon: "tag"
+        collapsed: false
 
-        Loader { source: 'Groups/Group1.qml' }
+        Loader { source: "Groups/SampleModel.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 2')
-        icon: 'rocket'
+        title: qsTr("Components")
+        icon: "puzzle-piece"
 
-        Loader { source: 'Groups/Group2.qml' }
+        Loader { source: "Groups/Components.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 3')
-        icon: 'rocket'
+        title: qsTr("Ring Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ring"
 
-        Loader { source: 'Groups/Group3.qml' }
+        Loader { source: "Groups/RingStructure.qml" }
     }
 
     EaElements.GroupBox {
-        title: qsTr('Group 4')
-        icon: 'rocket'
+        title: qsTr("Ball Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ball"
 
-        Loader { source: 'Groups/Group4.qml' }
+        Loader { source: "Groups/BallStructure.qml" }
     }
 
+    EaElements.GroupBox {
+        title: qsTr("Vesicle Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Vesicle"
+
+        Loader { source: "Groups/VesicleStructure.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Rod Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Rod"
+
+        Loader { source: "Groups/RodStructure.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Bilayer Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Bilayer"
+
+        Loader { source: "Groups/BilayerStructure.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Monolayer Structure Definition")
+        icon: "project-diagram"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Monolayer"
+
+        Loader { source: "Groups/MonolayerStructure.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Layers")
+        icon: "layer-group"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Ball"
+
+        Loader { source: "Groups/Layers.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Lamellae")
+        icon: "layer-group"
+        visible: Globals.BackendWrapper.sampleModelCurrentStructureType === "Vesicle"
+
+        Loader { source: "Groups/Lamellae.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Lattice Parameters")
+        icon: "vector-square"
+        visible: Globals.BackendWrapper.sampleModelCurrentType === "Lattice"
+
+        Loader { source: "Groups/LatticeStructure.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Buffer")
+        icon: "flask"
+
+        Loader { source: "Groups/Buffer.qml" }
+    }
+
+    // Centered "Assemble" call-to-action below the groups.
+    Item {
+        width: parent.width
+        height: assembleButton.height + EaStyle.Sizes.fontPixelSize
+
+        EaElements.SideBarButton {
+            id: assembleButton
+            anchors.centerIn: parent
+            text: qsTr("Assemble")
+            fontIcon: "cubes"
+            width: EaStyle.Sizes.sideBarContentWidth
+            enabled: Globals.BackendWrapper.sampleModelLoaded.length > 0
+            onClicked: console.debug("Assemble clicked")
+        }
+    }
 }

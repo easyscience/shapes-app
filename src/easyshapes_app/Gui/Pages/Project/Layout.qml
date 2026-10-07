@@ -5,10 +5,10 @@
 import QtQuick
 import QtQuick.Controls
 
-import EasyApp.Gui.Style as EaStyle
-import EasyApp.Gui.Globals as EaGlobals
-import EasyApp.Gui.Elements as EaElements
-import EasyApp.Gui.Components as EaComponents
+import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
@@ -31,15 +31,11 @@ EaComponents.ContentPage {
 
     sideBar: EaComponents.SideBar {
         tabs: [
-            EaElements.TabButton { text: qsTr('Basic controls') },
-            EaElements.TabButton { text: qsTr('Extra controls') },
-            EaElements.TabButton { text: qsTr('Text mode controls'); enabled: false }
+            EaElements.TabButton { text: qsTr('Basic controls') }
         ]
 
         items: [
-            Loader { source: 'Sidebar/Basic/Layout.qml' },
-            Loader { source: 'Sidebar/Extra/Layout.qml' },
-            Loader { source: 'Sidebar/Text/Layout.qml' }
+            Loader { source: 'Sidebar/Basic/Layout.qml' }
         ]
 
         continueButton.text: Globals.BackendWrapper.projectCreated ?
