@@ -4,12 +4,15 @@
 
 import time
 from pathlib import Path
-from PySide6.QtCore import QObject, Signal, Slot, Property
 
-from EasyApp.Logic.Logging import console
+from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import Property
+from PySide6.QtCore import QObject
+from PySide6.QtCore import Signal
+from PySide6.QtCore import Slot
+
 from .logic.helpers import IO
 from .logic.helpers import DottyDict
-
 
 _INFO = {'description': '', 'location': str(Path.home()), 'creationDate': ''}
 
@@ -121,12 +124,13 @@ class Project(QObject):
 
     @Slot(str, str)
     def editInfo(self, path, new_value):
-        if DottyDict.get(self._info, path) == new_value:
+        old_value = DottyDict.get(self._info, path)
+        if old_value == new_value:
             return
         console.debug(
             IO.format_msg(
                 'main',
-                f"Changing project info.{path} from '{DottyDict.get(self._info, path)}' to '{new_value}'",
+                f"Changing project info.{path} from '{old_value}' to '{new_value}'",
             )
         )
         DottyDict.set(self._info, path, new_value)

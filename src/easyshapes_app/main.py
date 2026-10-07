@@ -1,25 +1,21 @@
 # SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
-import EasyApp
-
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterSingletonType
-from PySide6.QtCore import qInstallMessageHandler
-
-# It is usually assumed that the EasyApp package is already installed in the desired python environment.
-# If this is not the case, and if the example is run from the EasyApp repository, one need to add the path to the
-# EasyApp source code.
-CURRENT_DIR = Path(__file__).parent  # path to qml components of the current project
-EASYAPP_DIR = Path(EasyApp.__path__[0]).resolve().parent  # path the installed easyapp module
-
-from EasyApp.Logic.Logging import console
-
+import EasyApplication
 from Backends.real_backend import Backend
+from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import qInstallMessageHandler
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtQml import qmlRegisterSingletonType
 
+# Path to the QML components of the current project
+CURRENT_DIR = Path(__file__).parent
+# Parent dir of the installed EasyApplication package
+EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent
 
 if __name__ == '__main__':
     qInstallMessageHandler(console.qmlMessageHandler)

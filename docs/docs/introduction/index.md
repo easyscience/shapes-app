@@ -11,11 +11,13 @@ molecular aggregates and pre-assembled composite structures to seed
 molecular dynamics (MD) simulations aimed at studying equilibration
 (relaxation) processes in soft matter and biomolecular systems.
 
-**EasyShapes** is developed as a cross-platform Qt QML desktop
-application.
+**EasyShapes** is developed as a cross-platform desktop application
+based on Qt and QML.
 
+<!--
 **EasyShapes** is developed using the
 [EasyScience framework](https://easyscience.org).
+-->
 
 ## License
 
@@ -45,22 +47,24 @@ BibTeX, JSON) are available on the
 
 ## Contributing
 
-We welcome contributions from the community! **EasyShapes** is intended
-to be a community-driven, open-source project supported by a diverse
-group of contributors.
+We welcome contributions of any kind!
+
+**EasyShapes** is intended to be a community-driven, open-source project
+supported by a diverse group of contributors.
 
 The project is maintained by the
 [European Spallation Source (ESS)](https://ess.eu).
 
-To contribute, see our
+If you would like to report a bug or request a new feature, please use
+the
+[GitHub Issue Tracker](https://github.com/easyscience/shapes-app/issues)
+(A free GitHub account is required.)
+
+To contribute code, documentation, or tests, please see our
 [:material-account-plus: Contributing Guidelines](https://github.com/easyscience/shapes-app/blob/master/CONTRIBUTING.md)
-on GitHub.
+for detailed development instructions.
 
 ## Get in Touch
 
-For general questions or feedback, contact us at
+For general questions or feedback, please contact us at
 [support@easyshapes.org](mailto:support@easyshapes.org).
-
-To report bugs or request features, please use the
-[GitHub Issue Tracker](https://github.com/easyscience/shapes-app/issues)
-(free registration required).

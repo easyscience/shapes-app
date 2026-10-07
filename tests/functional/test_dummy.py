@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-def test_dummy_fast():
+def test_dummy():
     calculated = 2 + 2
     expected = 4
     assert calculated == expected
