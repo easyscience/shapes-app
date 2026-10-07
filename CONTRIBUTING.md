@@ -42,8 +42,8 @@ Please make sure you follow the EasyScience organization-wide
 If you are not planning to contribute code, you may want to:
 
 - 🐞 Report a bug — see [Reporting Issues](#11-reporting-issues)
-- 🛡 Report a security issue —
-  see [Security Issues](#12-security-issues)
+- 🛡 Report a security issue — see
+  [Security Issues](#12-security-issues)
 - 💬 Ask a question or start a discussion at
   [Project Discussions](https://github.com/easyscience/shapes-lib/discussions)
 
@@ -447,5 +447,4 @@ then tagged and published on GitHub and PyPI.
 
 ---
 
-Thank you for contributing to EasyShapes and the EasyScience
-ecosystem!
+Thank you for contributing to EasyShapes and the EasyScience ecosystem!

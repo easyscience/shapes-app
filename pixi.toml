@@ -49,11 +49,8 @@ PYTHONPATH = "${PIXI_PROJECT_ROOT}/src;%PYTHONPATH%"
 
 # Set specific Python versions to be used in CI testing.
 
-
 [feature.py-max.dependencies]
 python = '3.13.*'
-
-
 
 # Development dependencies for local development and testing with
 # editable installations.
@@ -77,8 +74,6 @@ pyside6-addons = '>=6.9.3, <7'
 
 # The `default` feature is always included in all environments.
 # Additional features can be specified per environment.
-
-
 
 # The `default` environment is developer-oriented for local development
 # and testing with editable installation of the current package.
