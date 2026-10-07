@@ -3,9 +3,12 @@
 
 
 import numpy as np
-from PySide6.QtCore import QObject, Signal, Slot, Property, QPointF
-
 from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import Property
+from PySide6.QtCore import QObject
+from PySide6.QtCore import QPointF
+from PySide6.QtCore import Signal
+from PySide6.QtCore import Slot
 
 
 class Analysis(QObject):
@@ -59,8 +62,10 @@ class Analysis(QObject):
 
     @Property(bool, notify=equilibratedChanged)
     def equilibrated(self):
-        """True once equilibration has finished, so the engine output and
-        scattering data are available. Placeholder flag for the real MD run."""
+        """True once equilibration has finished, so the engine output
+        and scattering data are available. Placeholder flag for the
+        real MD run.
+        """
         return self._equilibrated
 
     # ------------------------------------------------------------------
@@ -69,7 +74,10 @@ class Analysis(QObject):
 
     @Slot()
     def equilibrate(self):
-        """Mark equilibration as finished (placeholder for the real engine run)."""
+        """Mark equilibration as finished.
+
+        Placeholder for the real engine run.
+        """
         if self._equilibrated:
             return
         self._equilibrated = True

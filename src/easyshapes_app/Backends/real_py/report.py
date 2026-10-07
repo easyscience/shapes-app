@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-from PySide6.QtCore import QObject, Signal, Property
-
+from PySide6.QtCore import Property
+from PySide6.QtCore import QObject
+from PySide6.QtCore import Signal
 
 _HTML = """<!DOCTYPE html>
 <html>

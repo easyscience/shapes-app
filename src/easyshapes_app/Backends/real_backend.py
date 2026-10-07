@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-from PySide6.QtCore import QObject, Property
-
 from EasyApplication.Logic.Logging import LoggerLevelHandler
+from PySide6.QtCore import Property
+from PySide6.QtCore import QObject
 
-from .real_py.project import Project
 from .real_py.analysis import Analysis
-from .real_py.status import Status
+from .real_py.project import Project
 from .real_py.report import Report
+from .real_py.status import Status
 
 
 class Backend(QObject):
@@ -33,9 +33,10 @@ class Backend(QObject):
         # Connections
         #############
 
-        # Connect the signals of various Backend objects to the methods of this class defined below.
-        # This allows, through the methods of this class, to update dependent objects, but keep them
-        # unaware of each other.
+        # Connect the signals of various Backend objects to the
+        # methods of this class defined below. This allows, through
+        # the methods of this class, to update dependent objects, but
+        # keep them unaware of each other.
 
         # Project
         self._project.nameChanged.connect(self.onProjectNameChanged)
