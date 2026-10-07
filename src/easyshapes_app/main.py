@@ -4,7 +4,7 @@
 from pathlib import Path
 import sys
 
-import EasyApp
+import EasyApplication
 
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine, qmlRegisterSingletonType
@@ -14,9 +14,9 @@ from PySide6.QtCore import qInstallMessageHandler
 # If this is not the case, and if the example is run from the EasyApp repository, one need to add the path to the
 # EasyApp source code.
 CURRENT_DIR = Path(__file__).parent  # path to qml components of the current project
-EASYAPP_DIR = Path(EasyApp.__path__[0]).resolve().parent  # path the installed easyapp module
+EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent  # path the installed easyapp module
 
-from EasyApp.Logic.Logging import console
+from EasyApplication.Logic.Logging import console
 
 from Backends.real_backend import Backend
 

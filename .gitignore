@@ -2,6 +2,10 @@
 __pycache__/
 .venv/
 .coverage
+.pyc
+
+# Pixi
+.pixi/
 
 # PyInstaller
 dist/
@@ -28,12 +32,8 @@ node_modules/
 # QtCreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
-
-# QtCreator Python
 *.pyproject.user
 *.pyproject.user.*
-
-# QtCreator CMake
 CMakeLists.txt.user*
 
 # PyCharm
@@ -46,3 +46,8 @@ CMakeLists.txt.user*
 .DS_Store
 *.app
 *.dmg
+
+# Misc
+.cache/
+*.log
+*.zip

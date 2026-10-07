@@ -21,7 +21,7 @@ theme:
     - content.tooltips
     - navigation.footer
     - navigation.indexes
-    - navigation.instant # Instant loading (SPA-like)
+    #- navigation.instant # Instant loading, but it causes issues with rendering equations
     #- navigation.sections
     - navigation.top # Back-to-top button
     - navigation.tracking # Anchor tracking
@@ -64,9 +64,6 @@ extra:
     - icon: easyshapes # File: overrides/.icons/easyshapes.svg
       link: https://easyscience.github.io/shapes
       name: EasyShapes Main Webpage
-    - icon: app # File: overrides/.icons/app.svg
-      link: https://easyscience.github.io/shapes-lib
-      name: EasyShapes Library Docs
     - icon: fontawesome/brands/github # Name as in Font Awesome
       link: https://github.com/easyscience/shapes-app
       name: EasyShapes Application Source Code on GitHub
@@ -84,8 +81,12 @@ extra:
 # Customization to be included by the theme
 extra_css:
   - assets/stylesheets/extra.css
+
 extra_javascript:
   - assets/javascripts/extra.js
+  # MathJax for rendering mathematical expressions
+  - assets/javascripts/mathjax.js # Custom MathJax config to ensure compatibility with mkdocs-jupyter
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js # Official MathJax CDN
 
 # A list of extensions beyond the ones that MkDocs uses by default (meta, toc, tables, and fenced_code)
 markdown_extensions:
@@ -94,6 +95,8 @@ markdown_extensions:
   - attr_list
   - def_list
   - footnotes
+  - pymdownx.arithmatex: # rendering of equations and integrates with MathJax or KaTeX
+      generic: true
   - pymdownx.blocks.caption
   - pymdownx.details
   - pymdownx.emoji:
@@ -132,7 +135,7 @@ plugins:
       allow_errors: false
       include_source: true
       include_requirejs: true # Required for Plotly
-      custom_mathjax_url: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS_CHTML-full,Safe'
+      #custom_mathjax_url: 'https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js' # See 'extra_javascript' above
       ignore_h1_titles: true # Use titles defined in the nav section below
       remove_tag_config:
         remove_input_tags:
@@ -142,13 +145,33 @@ plugins:
         python:
           paths: ['src'] # Change 'src' to your actual sources directory
           options:
-            docstring_style: google
-            group_by_category: false
+            annotations_path: source
+            docstring_style: numpy
+            group_by_category: true
+            members_order: source
             heading_level: 1
             show_root_heading: true
             show_root_full_path: false
             show_submodules: true
-            show_source: true
+            show_source: false
+            show_bases: false
+            # Uncomment when the project depends on `easyscience` and inherited
+            # EasyScience base-class members should be shown in the API docs.
+            # preload_modules:
+            #   - easyscience
+            inherited_members: true
+            show_category_heading: true
+            merge_init_into_class: true
+            docstring_options:
+              ignore_init_summary: true
+            summary: true
+            relative_crossrefs: true
+            scoped_crossrefs: true
+            filters: ["!^_[^_]", "!__repr__", "!__dir__"] # This is the default filter minus __repr__ and __dir__
+          inventories:
+          - url: https://scipp.github.io/objects.inv
+          - url: https://numpy.org/doc/stable/objects.inv
+          - url: https://easyscience.github.io/core/latest/objects.inv
   - search
 
 # Determines additional directories to watch when running mkdocs serve

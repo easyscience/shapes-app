@@ -5,7 +5,7 @@
 import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, Property, QPointF
 
-from EasyApp.Logic.Logging import console
+from EasyApplication.Logic.Logging import console
 
 
 class Analysis(QObject):
