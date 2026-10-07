@@ -31,15 +31,11 @@ EaComponents.ContentPage {
 
     sideBar: EaComponents.SideBar {
         tabs: [
-            EaElements.TabButton { text: qsTr('Basic controls') },
-            EaElements.TabButton { text: qsTr('Extra controls') },
-            EaElements.TabButton { text: qsTr('Text mode controls'); enabled: false }
+            EaElements.TabButton { text: qsTr('Basic controls') }
         ]
 
         items: [
-            Loader { source: 'Sidebar/Basic/Layout.qml' },
-            Loader { source: 'Sidebar/Extra/Layout.qml' },
-            Loader { source: 'Sidebar/Text/Layout.qml' }
+            Loader { source: 'Sidebar/Basic/Layout.qml' }
         ]
 
         continueButton.text: Globals.BackendWrapper.projectCreated ?

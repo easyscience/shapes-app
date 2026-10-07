@@ -58,17 +58,10 @@ ApplicationWindow{
             //     Loader { source: 'Gui/Pages/SampleModel/Sidebar/Basic/Groups/Solution.qml'}
             // }
 
-            EaElements.Pill {
-                text: "text"
-            }
-
-            EaElements.Pill {
-                text: "fontIcon"
-                fontIcon: "atom"
-            }
-
-            EaElements.Pill {
-                text: "superlongtext why can't I hold all this text in my hands"
+            EaElements.Parameter {
+                units: 'nm'
+                title: 'whatver'
+                text: "ungabunga"
             }
         }
     }
