@@ -23,10 +23,10 @@ EaElements.GroupColumn {
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.tableColumnAuto,    // №
-            EaStyle.Sizes.tableColumnFlex,    // filler
-            EaStyle.Sizes.tableColumnAuto,    // Dmin, nm
-            EaStyle.Sizes.tableColumnAuto,    // Rmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // №
+            EaStyle.Sizes.columnWidthFlex,    // filler
+            EaStyle.Sizes.columnWidthAuto,    // Dmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // Rmin, nm
             EaStyle.Sizes.tableRowHeight      // delete button
         ]
 
