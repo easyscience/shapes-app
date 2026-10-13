@@ -10,11 +10,13 @@ from shapes.project.analysis import Analysis
 
 @dataclass
 class Session:
-    """What the app works on, shared by the root and all logic.
+    """
+    What the app works on, shared by the root and all logic.
 
-    A sample model and an analysis can exist before a project. Creating the first
-    project takes them in; loading a project replaces all three. Logic reads them
-    here every time and never keeps its own reference.
+    A sample model and an analysis can exist before a project. Creating
+    the first project takes them in; loading a project replaces all
+    three. Parts read them here every time and never keep their own
+    reference.
     """
 
     project: Project | None = None

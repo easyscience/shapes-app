@@ -21,11 +21,12 @@ class Backend(QObject):
         # Private attributes
         ####################
 
-        # What the app works on, shared by all parts. Tests pass their own.
+        # What the app works on, shared by all parts.
+        # Tests pass their own.
         self._session = session or Session()
 
         # Individual Backend objects
-        self._project = Project()
+        self._project = Project(self._session)
         self._analysis = Analysis()
         self._status = Status()
         self._report = Report()

@@ -12,7 +12,8 @@ from PySide6.QtCore import Slot
 
 
 class Analysis(QObject):
-    """Backend object that generates synthetic diffraction-like data and
+    """
+    Backend object that generates synthetic diffraction-like data and
     exposes it to QML as a list of QPointF values plus axis ranges.
     """
 
@@ -54,17 +55,18 @@ class Analysis(QObject):
     @Property('QVariantMap', notify=axesRangesChanged)
     def axesRanges(self):
         """
-        Axis ranges used by the graph:
-        { "xmin": float, "xmax": float, "ymin": float, "ymax": float }
-        Access in QML using: axisX.min: analysis.axesRanges["xmin"]
+        Axis ranges used by the graph: { "xmin": float, "xmax": float,
+        "ymin": float, "ymax": float } Access in QML using: axisX.min:
+        analysis.axesRanges["xmin"]
         """
         return self._axesRanges
 
     @Property(bool, notify=equilibratedChanged)
     def equilibrated(self):
-        """True once equilibration has finished, so the engine output
-        and scattering data are available. Placeholder flag for the
-        real MD run.
+        """
+        True once equilibration has finished, so the engine output and
+        scattering data are available. Placeholder flag for the real MD
+        run.
         """
         return self._equilibrated
 
@@ -74,7 +76,8 @@ class Analysis(QObject):
 
     @Slot()
     def equilibrate(self):
-        """Mark equilibration as finished.
+        """
+        Mark equilibration as finished.
 
         Placeholder for the real engine run.
         """
@@ -111,7 +114,8 @@ class Analysis(QObject):
 
     @staticmethod
     def _ndarrays_to_qpoints(x: np.ndarray, y: np.ndarray):
-        """Convert NumPy X/Y arrays to list[QPointF].
+        """
+        Convert NumPy X/Y arrays to list[QPointF].
 
         Uses memoryview to avoid Python float conversions inside numpy.
         """
@@ -129,8 +133,9 @@ class Analysis(QObject):
         noise_level=1.0,
         background=20.0,
     ):
-        """Generate synthetic diffraction-like pattern from sum of
-        random Gaussians.
+        """
+        Generate synthetic diffraction-like pattern from sum of random
+        Gaussians.
 
         Returns (x, y) NumPy arrays.
         """

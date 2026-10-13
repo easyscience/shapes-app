@@ -1,15 +1,18 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
-"""Suite-wide isolation of the AppFileManager and Library singletons.
+"""
+Suite-wide isolation of the AppFileManager and Library singletons.
 
-Copied from shapespyer's tests/shapes_unit_tests/conftest.py, which is not installed
-with the package; keep the two in step. bare_project comes from its test_library.py.
+Copied from shapespyer's tests/shapes_unit_tests/conftest.py, which is
+not installed with the package; keep the two in step. bare_project comes
+from its test_library.py.
 
-BaseAsset.__init__ constructs AppFileManager(), so merely creating a Solvent or a
-Component reaches for the singleton, and whoever builds it first decides where it
-points. Library works the same way, and its default construction syncs over the
-network. The fixtures below build one offline manager and library per session and
-make them the live singletons at the start of every test. Tests needing their own app
+BaseAsset.__init__ constructs AppFileManager(), so merely creating a
+Solvent or a Component reaches for the singleton, and whoever builds it
+first decides where it points. Library works the same way, and its
+default construction syncs over the network. The fixtures below build
+one offline manager and library per session and make them the live
+singletons at the start of every test. Tests needing their own app
 directory use fresh_file_manager.
 """
 
@@ -31,7 +34,9 @@ from shapes.project.species import Solvent
 
 @pytest.fixture
 def offline_library(tmp_path: Path) -> Library:
-    """A Library with both indices empty and no remote to download from."""
+    """
+    A Library with both indices empty and no remote to download from.
+    """
     if hasattr(Library, '_instance'):
         del Library._instance
     idx_path = tmp_path / 'indices'
@@ -45,7 +50,10 @@ def offline_library(tmp_path: Path) -> Library:
 
 @pytest.fixture
 def config_file(tmp_path: Path) -> Path:
-    """A config file putting the app directory at tmp_path / 'app', with no GROMACS."""
+    """
+    A config file putting the app directory at tmp_path / 'app', with no
+    GROMACS.
+    """
     config_file = tmp_path / 'config.yaml'
     config_file.write_text(
         f'app_path: app\ngmx_executable: {tmp_path / "no-gmx"}\n', encoding='utf-8'
@@ -55,7 +63,10 @@ def config_file(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def fresh_file_manager(config_file: Path, offline_library: Library) -> Iterator[AppFileManager]:
-    """A fresh AppFileManager in tmp_path / 'app', with the offline library live."""
+    """
+    A fresh AppFileManager in tmp_path / 'app', with the offline library
+    live.
+    """
     del offline_library  # requested for building it, which makes it the live library
     if hasattr(AppFileManager, '_instance'):
         del AppFileManager._instance
@@ -66,7 +77,10 @@ def fresh_file_manager(config_file: Path, offline_library: Library) -> Iterator[
 
 @pytest.fixture(scope='session')
 def offline_session_config_file(tmp_path_factory: pytest.TempPathFactory) -> Path:
-    """A config file putting the session's app directory in a session temp directory."""
+    """
+    A config file putting the session's app directory in a session temp
+    directory.
+    """
     config_file = tmp_path_factory.mktemp('config') / 'config.yaml'
     config_file.write_text(
         f'app_path: app\ngmx_executable: {config_file.parent / "no-gmx"}\n', encoding='utf-8'
@@ -78,7 +92,10 @@ def offline_session_config_file(tmp_path_factory: pytest.TempPathFactory) -> Pat
 def offline_session_library(
     tmp_path_factory: pytest.TempPathFactory, offline_session_config_file: Path
 ) -> Library:
-    """An empty library in the session's app directory, with no remote to download from."""
+    """
+    An empty library in the session's app directory, with no remote to
+    download from.
+    """
     if hasattr(Library, '_instance'):
         del Library._instance
     idx_path = tmp_path_factory.mktemp('indices')
@@ -99,13 +116,19 @@ def offline_app_file_manager(offline_session_config_file: Path) -> AppFileManage
 def _isolate_app_file_manager(
     offline_app_file_manager: AppFileManager, offline_session_library: Library
 ) -> None:
-    """Point the singletons at the offline manager and library before every test."""
+    """
+    Point the singletons at the offline manager and library before every
+    test.
+    """
     AppFileManager._instance = offline_app_file_manager
     Library._instance = offline_session_library
 
 
 def bare_project(name: str) -> Project:
-    """A project holding no files, with every part injected instead of loaded."""
+    """
+    A project holding no files, with every part injected instead of
+    loaded.
+    """
     return Project(
         name=name,
         sample_model=SampleModel(
