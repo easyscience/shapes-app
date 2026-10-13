@@ -8,23 +8,21 @@ import QtQuick.Dialogs
 
 import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
 
-FileDialog{
+FolderDialog {
 
-    id: openCifFileDialog
+    id: openProjectDialog
 
-    fileMode: FileDialog.OpenFile
-    nameFilters: [ 'CIF files (*.cif)']
+    title: qsTr('Open project folder')
 
-    onAccepted: {
-        Globals.References.applicationWindow.appBarCentralTabs.summaryButton.enabled = true
-    }
+    onAccepted: Globals.BackendWrapper.projectLoad(EaLogic.Utils.urlToLocalFile(selectedFolder))
 
     Component.onCompleted: {
-        Globals.References.pages.project.sidebar.basic.popups.openCifFile = openCifFileDialog
+        Globals.References.pages.project.sidebar.basic.popups.openProject = openProjectDialog
     }
 
 }

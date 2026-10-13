@@ -29,28 +29,38 @@ QtObject {
         }
     }
 
-    /////////////
-    // Status bar
-    /////////////
+    //////////
+    // Project
+    //////////
 
-    readonly property string statusProject: activeBackend.status.project
-    readonly property string statusEngine: activeBackend.status.engine
+    readonly property bool projectCreated: activeBackend.project.created
+    readonly property string projectError: activeBackend.project.error
+    readonly property string projectName: activeBackend.project.name
+    readonly property string projectDescription: activeBackend.project.description
+    readonly property string projectPath: activeBackend.project.path
+    readonly property string projectPathParentUrl: activeBackend.project.pathParentUrl
+    readonly property string projectModified: activeBackend.project.modified
 
-    ///////////////
-    // Project page
-    ///////////////
-
-    readonly property var projectInfo: activeBackend.project.info
-    readonly property var projectExamples: activeBackend.project.examples
-
-    property bool projectCreated: activeBackend.project.created
-    onProjectCreatedChanged: activeBackend.project.created = projectCreated
-    property string projectName: activeBackend.project.name
-    onProjectNameChanged: activeBackend.project.name = projectName
-
-    function projectCreate() { activeBackend.project.create() }
+    function projectSetError(value) { activeBackend.project.error = value }
+    function projectSetName(value) { activeBackend.project.name = value }
+    function projectSetDescription(value) { activeBackend.project.description = value }
+    function projectCreate(name, description, path) { activeBackend.project.create(name, description, path) }
     function projectSave() { activeBackend.project.save() }
-    function projectEditInfo(path, new_value) { activeBackend.project.editInfo(path, new_value) }
+    function projectLoad(path) { activeBackend.project.load(path) }
+
+    //////////
+    // Library
+    //////////
+
+    readonly property var libraryAvailableProjects: activeBackend.library.availableProjects
+    readonly property var libraryAvailableExamples: activeBackend.library.availableExamples
+
+    /////////
+    // Config
+    /////////
+
+    readonly property string configGmxVersion: activeBackend.config.gmxVersion
+    readonly property string configGmxProblem: activeBackend.config.gmxProblem
 
     ////////////////////
     // Sample Model page

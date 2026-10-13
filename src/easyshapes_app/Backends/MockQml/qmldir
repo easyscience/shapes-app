@@ -1,6 +1,8 @@
 module MockQml
 
 singleton Project Project.qml
+singleton Library Library.qml
+singleton Config Config.qml
 singleton SampleModel SampleModel.qml
 singleton Components Components.qml
 singleton ComponentsFiles ComponentsFiles.qml
@@ -23,4 +25,3 @@ singleton Analysis Analysis.qml
 singleton AnalysisConfig AnalysisConfig.qml
 singleton EquilibrationOutputs EquilibrationOutputs.qml
 singleton Report Report.qml
-singleton Status Status.qml

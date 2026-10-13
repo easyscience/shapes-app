@@ -103,7 +103,7 @@ EaComponents.ApplicationWindow {
         // Summary page
         EaElements.AppBarTabButton {
             id: summaryButton
-            enabled: false
+            enabled: Globals.BackendWrapper.projectCreated
             fontIcon: 'clipboard-list'
             text: qsTr('Summary')
             ToolTip.text: qsTr('Summary of the work done')
@@ -137,6 +137,19 @@ EaComponents.ApplicationWindow {
     ///////
     // MISC
     ///////
+
+    EaElements.Dialog {
+        readonly property string message: Globals.BackendWrapper.projectError
+
+        title: qsTr('Project error')
+        standardButtons: Dialog.Ok
+        modal: true
+
+        onMessageChanged: if (message) open()
+        onClosed: Globals.BackendWrapper.projectSetError('')
+
+        EaElements.Label { text: parent.message }
+    }
 
     onClosing: Qt.quit()
 

@@ -36,7 +36,7 @@ Rectangle {
             validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
             placeholderText: qsTr("Enter project name here")
             text: Globals.BackendWrapper.projectName
-            onEditingFinished: Globals.BackendWrapper.projectName = text
+            onEditingFinished: Globals.BackendWrapper.projectSetName(text)
         }
         // Project title
 
@@ -53,8 +53,8 @@ Rectangle {
             EaElements.TextInput {
                 width: Math.max(implicitWidth, 1)
                 placeholderText: qsTr("Enter project description here")
-                text: Globals.BackendWrapper.projectInfo.description
-                onEditingFinished: Globals.BackendWrapper.projectEditInfo('description', text)
+                text: Globals.BackendWrapper.projectDescription
+                onEditingFinished: Globals.BackendWrapper.projectSetDescription(text)
             }
 
             EaElements.Label {
@@ -63,16 +63,16 @@ Rectangle {
             }
             EaElements.Label {
                 width: Math.max(implicitWidth, 1)
-                text: Globals.BackendWrapper.projectInfo.location
+                text: Globals.BackendWrapper.projectPath
             }
 
             EaElements.Label {
                 font.bold: true
-                text: qsTr('Created:')
+                text: qsTr('Last saved:')
             }
             EaElements.Label {
                 width: Math.max(implicitWidth, 1)
-                text: Globals.BackendWrapper.projectInfo.creationDate
+                text: Globals.BackendWrapper.projectModified
             }
         }
         // Project info

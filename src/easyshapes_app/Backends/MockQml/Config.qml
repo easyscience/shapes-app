@@ -6,9 +6,10 @@ pragma Singleton
 
 import QtQuick
 
+// Mirrors shapes.project.Config.
 QtObject {
 
-    readonly property string project: 'Undefined'
-    readonly property string engine: 'GROMACS'
+    readonly property string gmxVersion: '2024.4'
+    readonly property string gmxProblem: ''
 
 }

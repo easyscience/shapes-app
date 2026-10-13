@@ -25,15 +25,39 @@ EaComponents.TableView {
 
     defaultInfoText: qsTr('No recent projects found')
 
-    // Header row
-    header: EaComponents.TableViewHeader {
+    model: Globals.BackendWrapper.libraryAvailableProjects
 
+    // header
+    header: EaComponents.TableViewHeader {
         EaComponents.TableViewLabel {
             enabled: false
             width: EaStyle.Sizes.fontPixelSize * 2.5
         }
 
+        EaComponents.TableViewLabel {
+            flexibleWidth: true
+            horizontalAlignment: Text.AlignLeft
+            text: qsTr('name / last saved')
+        }
     }
-    // Header row
+    // header
+
+    // delegate
+    delegate: EaComponents.TableViewDelegate {
+        mouseArea.onPressed: Globals.BackendWrapper.projectLoad(tableView.model[index].path)
+
+        EaComponents.TableViewLabel {
+            text: index + 1
+            color: EaStyle.Colors.themeForegroundMinor
+        }
+
+        EaComponents.TableViewTwoRowsAdvancedLabel {
+            fontIcon: 'archive'
+            text: tableView.model[index].name
+            minorText: tableView.model[index].modified
+            ToolTip.text: tableView.model[index].path
+        }
+    }
+    // delegate
 
 }

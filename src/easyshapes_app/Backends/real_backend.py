@@ -7,18 +7,22 @@ from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 
 from .real_py.analysis import Analysis
+from .real_py.logic.session import Session
 from .real_py.project import Project
 from .real_py.report import Report
 from .real_py.status import Status
 
 
 class Backend(QObject):
-    def __init__(self):
+    def __init__(self, session: Session | None = None):
         super().__init__()
 
         ####################
         # Private attributes
         ####################
+
+        # What the app works on, shared by all parts. Tests pass their own.
+        self._session = session or Session()
 
         # Individual Backend objects
         self._project = Project()

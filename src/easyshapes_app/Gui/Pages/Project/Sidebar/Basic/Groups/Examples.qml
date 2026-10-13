@@ -24,7 +24,7 @@ EaComponents.TableView {
 
     defaultInfoText: qsTr('No examples available')
 
-    model: Globals.BackendWrapper.projectExamples
+    model: Globals.BackendWrapper.libraryAvailableExamples
 
     // header
     header: EaComponents.TableViewHeader {
@@ -36,7 +36,7 @@ EaComponents.TableView {
         EaComponents.TableViewLabel {
             flexibleWidth: true
             horizontalAlignment: Text.AlignLeft
-            text: qsTr('name / description')
+            text: qsTr('name / path')
         }
     }
     // header
@@ -44,8 +44,7 @@ EaComponents.TableView {
     // delegate
     delegate: EaComponents.TableViewDelegate {
         mouseArea.onPressed: {
-            const filePath = tableView.model[index].path
-            console.debug(`Loading example: ${filePath}`)
+            Globals.BackendWrapper.projectLoad(tableView.model[index].path)
         }
 
         EaComponents.TableViewLabel {
@@ -56,8 +55,8 @@ EaComponents.TableView {
         EaComponents.TableViewTwoRowsAdvancedLabel {
             fontIcon: 'archive'
             text: tableView.model[index].name
-            minorText: tableView.model[index].description
-            ToolTip.text: tableView.model[index].description
+            minorText: tableView.model[index].path
+            ToolTip.text: tableView.model[index].path
         }
     }
     // delegate
