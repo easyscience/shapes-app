@@ -34,14 +34,12 @@ QtObject {
     //////////
 
     readonly property bool projectCreated: activeBackend.project.created
-    readonly property string projectError: activeBackend.project.error
     readonly property string projectName: activeBackend.project.name
     readonly property string projectDescription: activeBackend.project.description
     readonly property string projectPath: activeBackend.project.path
     readonly property string projectPathParentUrl: activeBackend.project.pathParentUrl
     readonly property string projectModified: activeBackend.project.modified
 
-    function projectSetError(value) { activeBackend.project.error = value }
     function projectSetName(value) { activeBackend.project.name = value }
     function projectSetDescription(value) { activeBackend.project.description = value }
     function projectCreate(name, description, path) { activeBackend.project.create(name, description, path) }
@@ -61,6 +59,14 @@ QtObject {
 
     readonly property string configGmxVersion: activeBackend.config.gmxVersion
     readonly property string configGmxProblem: activeBackend.config.gmxProblem
+
+    ////////
+    // Error
+    ////////
+
+    readonly property string errorMessage: activeBackend.error.message
+
+    function errorSetMessage(value) { activeBackend.error.message = value }
 
     ////////////////////
     // Sample Model page

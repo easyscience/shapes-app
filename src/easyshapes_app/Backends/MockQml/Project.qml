@@ -7,11 +7,10 @@ pragma Singleton
 import QtQuick
 import QtCore
 
-// Mirrors shapes.project.Project. `created` and `error` are GUI state.
+// Mirrors shapes.project.Project. `created` is GUI state.
 QtObject {
 
     property bool created: false
-    property string error: ''
 
     property string name: ''
     property string description: ''

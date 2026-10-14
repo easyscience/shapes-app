@@ -138,15 +138,16 @@ EaComponents.ApplicationWindow {
     // MISC
     ///////
 
+    // Any uncaught exception from Python (Backends/real_py/error.py)
     EaElements.Dialog {
-        readonly property string message: Globals.BackendWrapper.projectError
+        readonly property string message: Globals.BackendWrapper.errorMessage
 
-        title: qsTr('Project error')
+        title: qsTr('Error')
         standardButtons: Dialog.Ok
         modal: true
 
         onMessageChanged: if (message) open()
-        onClosed: Globals.BackendWrapper.projectSetError('')
+        onClosed: Globals.BackendWrapper.errorSetMessage('')
 
         EaElements.Label { text: parent.message }
     }

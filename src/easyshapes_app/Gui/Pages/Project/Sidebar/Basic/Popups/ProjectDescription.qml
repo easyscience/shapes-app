@@ -37,7 +37,8 @@ EaElements.Dialog {
 
     onAccepted: {
         Globals.BackendWrapper.projectCreate(nameField.text, descriptionField.text, locationField.text)
-        if (locationField.text && !Globals.BackendWrapper.projectError)
+        // Reached only when create did not raise: an exception stops this handler
+        if (locationField.text)
             lastParentFolder = Globals.BackendWrapper.projectPathParentUrl
     }
 

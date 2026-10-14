@@ -119,6 +119,7 @@
         <file>easyshapes_app/Backends/MockQml/Components.qml</file>
         <file>easyshapes_app/Backends/MockQml/ComponentsFiles.qml</file>
         <file>easyshapes_app/Backends/MockQml/Config.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Error.qml</file>
         <file>easyshapes_app/Backends/MockQml/EquilibrationOutputs.qml</file>
         <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Ions.qml</file>

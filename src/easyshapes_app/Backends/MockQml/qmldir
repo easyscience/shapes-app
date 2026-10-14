@@ -3,6 +3,7 @@ module MockQml
 singleton Project Project.qml
 singleton Library Library.qml
 singleton Config Config.qml
+singleton Error Error.qml
 singleton SampleModel SampleModel.qml
 singleton Components Components.qml
 singleton ComponentsFiles ComponentsFiles.qml

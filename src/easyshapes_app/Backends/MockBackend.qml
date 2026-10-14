@@ -14,6 +14,7 @@ QtObject {
     property var project: MockLogic.Project
     property var library: MockLogic.Library
     property var config: MockLogic.Config
+    property var error: MockLogic.Error
     property var sampleModel: MockLogic.SampleModel
     property var components: MockLogic.Components
     // Advanced sidebar (Sample Model page) domain singletons.
