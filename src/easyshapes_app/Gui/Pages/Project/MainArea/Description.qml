@@ -5,6 +5,7 @@
 import QtQuick
 
 import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
@@ -21,9 +22,11 @@ Rectangle {
 
         anchors.top: parent.top
         anchors.left: parent.left
+        anchors.right: parent.right
 
         anchors.topMargin: commonSpacing
         anchors.leftMargin: commonSpacing * 1.5
+        anchors.rightMargin: commonSpacing * 1.5
 
         spacing: commonSpacing
 
@@ -62,8 +65,17 @@ Rectangle {
                 text: qsTr('Location:')
             }
             EaElements.Label {
-                width: Math.max(implicitWidth, 1)
+                id: locationLabel
+                // Long paths lose their start, so the project folder stays visible
+                width: Math.min(implicitWidth, container.width - x)
+                elide: Text.ElideLeft
                 text: Globals.BackendWrapper.projectPath
+
+                HoverHandler { id: locationHover }
+                EaElements.ToolTip {
+                    text: locationLabel.text
+                    visible: locationLabel.truncated && locationHover.hovered && EaGlobals.Vars.showToolTips
+                }
             }
 
             EaElements.Label {
