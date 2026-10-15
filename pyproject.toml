@@ -24,6 +24,7 @@ classifiers = [
 requires-python = '>=3.11'
 dependencies = [
   # 'easyscience', # The base library of the EasyScience framework
+  'shapespyer~=0.3.0',  # Projects, sample models and analysis (shapes.project)
   'pooch',  # Data downloader
   'darkdetect',  # Detecting dark mode (system-level)
   'pandas',  # Displaying tables in Jupyter notebooks

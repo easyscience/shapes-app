@@ -64,7 +64,6 @@ charset-normalizer = '<3.5'  # 3.5.2 conda-forge build fails on import (win-64);
 [feature.dev.pypi-dependencies]
 pip = '*'
 easyshapes_app = { path = '.', editable = true, extras = ['dev'] }
-shapespyer = { path = '../shapespyer', editable = true }
 pyside6-addons = '>=6.9.3, <7'
 
 ##############
