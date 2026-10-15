@@ -43,7 +43,7 @@ Grid {
 
         onClicked: {
             console.debug(`Clicking '${text}' button ::: ${this}`)
-            Globals.References.pages.project.sidebar.basic.popups.openProject.open()
+            Globals.References.pages.project.sidebar.basic.popups.openProject.openInLastParentFolder()
         }
 
         Loader {

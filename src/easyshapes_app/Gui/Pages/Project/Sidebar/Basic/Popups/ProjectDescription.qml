@@ -16,13 +16,15 @@ import Gui.Globals as Globals
 
 
 // Create project: name, description and location, all optional. An empty location
-// lets the library choose Projects/<name>-<uid>. The parent of the last location given
-// opens the folder dialog next time; it never fills the location field.
+// lets the library choose Projects/<name>-<uid>; a location with anything in it is
+// refused, so a save never mixes with or replaces other files. The parent of the last
+// location given opens the folder dialog next time; it never fills the location field.
 EaElements.Dialog {
     id: dialog
 
     property string lastParentFolder: ''  // file URL, kept in the settings file
     readonly property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
+    readonly property bool locationTaken: Globals.BackendWrapper.projectLocationTaken(locationField.text)
 
     visible: EaGlobals.Vars.showProjectDescriptionDialog
     title: qsTr('Create project')
@@ -34,6 +36,7 @@ EaElements.Dialog {
         locationField.text = ''
     }
     onClosed: EaGlobals.Vars.showProjectDescriptionDialog = false
+    Component.onCompleted: standardButton(Dialog.Ok).enabled = Qt.binding(() => !locationTaken)
 
     onAccepted: {
         Globals.BackendWrapper.projectCreate(nameField.text, descriptionField.text, locationField.text)
@@ -58,8 +61,8 @@ EaElements.Dialog {
                 // Empty, or a name safe for the default folder Projects/<name>-<uid>
                 validator: RegularExpressionValidator { regularExpression: /^([a-zA-Z][a-zA-Z0-9_\-\.]{1,30})?$/ }
                 placeholderText: qsTr('Optional')
-                Keys.onReturnPressed: dialog.accept()
-                Keys.onEnterPressed: dialog.accept()
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
             }
         }
 
@@ -74,8 +77,8 @@ EaElements.Dialog {
                 implicitWidth: dialog.inputFieldWidth
                 horizontalAlignment: TextInput.AlignLeft
                 placeholderText: qsTr('Optional')
-                Keys.onReturnPressed: dialog.accept()
-                Keys.onEnterPressed: dialog.accept()
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
             }
         }
 
@@ -90,9 +93,10 @@ EaElements.Dialog {
                 implicitWidth: dialog.inputFieldWidth
                 rightPadding: chooseFolderButton.width
                 horizontalAlignment: TextInput.AlignLeft
+                warned: dialog.locationTaken
                 placeholderText: qsTr('Default location')
-                Keys.onReturnPressed: dialog.accept()
-                Keys.onEnterPressed: dialog.accept()
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
 
                 EaElements.ToolButton {
                     id: chooseFolderButton
@@ -103,6 +107,11 @@ EaElements.Dialog {
                     onClicked: folderDialog.open()
                 }
             }
+            EaElements.Label {
+                visible: dialog.locationTaken
+                color: EaStyle.Colors.red
+                text: qsTr('This location is not empty. Choose a new or empty folder.')
+            }
         }
     }
 
@@ -110,7 +119,8 @@ EaElements.Dialog {
         id: folderDialog
         title: qsTr('Choose project folder')
         currentFolder: dialog.lastParentFolder
-        onAccepted: locationField.text = EaLogic.Utils.urlToLocalFile(selectedFolder)
+        // selectedFolder is a url object; urlToLocalFile needs a string
+        onAccepted: locationField.text = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
     }
 
     // Same key as EasyApp's ProjectDescriptionDialog, so an earlier saved folder still works

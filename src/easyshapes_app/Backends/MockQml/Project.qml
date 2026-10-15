@@ -22,6 +22,11 @@ QtObject {
     property string _path: ''
     property string _modified: ''
 
+    // The mock has no file system: a path ending in 'taken' counts as taken
+    function locationTaken(path) {
+        return path.endsWith('taken')
+    }
+
     // A new project in `newPath`, or in the library default folder Projects/<name>-<uid>
     // when it is empty.
     function create(newName, newDescription, newPath) {

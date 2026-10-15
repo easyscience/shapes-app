@@ -12,6 +12,7 @@ import Gui.Globals as Globals
 
 
 Rectangle {
+    id: page
 
     readonly property int commonSpacing: EaStyle.Sizes.fontPixelSize * 1.5
 
@@ -24,11 +25,11 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        anchors.topMargin: commonSpacing
-        anchors.leftMargin: commonSpacing * 1.5
-        anchors.rightMargin: commonSpacing * 1.5
+        anchors.topMargin: page.commonSpacing
+        anchors.leftMargin: page.commonSpacing * 1.5
+        anchors.rightMargin: page.commonSpacing * 1.5
 
-        spacing: commonSpacing
+        spacing: page.commonSpacing
 
         // Project title
         EaElements.TextInput {
@@ -47,7 +48,7 @@ Rectangle {
         Grid {
             columns: 2
             rowSpacing: 0
-            columnSpacing: commonSpacing
+            columnSpacing: page.commonSpacing
 
             EaElements.Label {
                 font.bold: true

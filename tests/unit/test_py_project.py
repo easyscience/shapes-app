@@ -163,3 +163,20 @@ def test_save_updates_modified_and_tells_the_root():
     assert session.project.save_calls == 1
     assert part.modified == local_text(SAVED_AT)
     assert (modified.count(), external.count()) == (1, 1)
+
+
+def test_location_is_taken_only_when_something_is_there(tmp_path):
+    part = Project(Session())
+    empty = tmp_path / 'empty'
+    empty.mkdir()
+    full = tmp_path / 'full'
+    full.mkdir()
+    (full / 'notes.txt').touch()
+    a_file = tmp_path / 'a_file'
+    a_file.touch()
+
+    assert part.locationTaken('') is False
+    assert part.locationTaken(str(tmp_path / 'missing')) is False
+    assert part.locationTaken(str(empty)) is False
+    assert part.locationTaken(str(full)) is True
+    assert part.locationTaken(str(a_file)) is True

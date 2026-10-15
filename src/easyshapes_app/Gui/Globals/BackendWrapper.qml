@@ -45,6 +45,7 @@ QtObject {
     function projectCreate(name, description, path) { activeBackend.project.create(name, description, path) }
     function projectSave() { activeBackend.project.save() }
     function projectLoad(path) { activeBackend.project.load(path) }
+    function projectLocationTaken(path) { return activeBackend.project.locationTaken(path) }
 
     //////////
     // Library

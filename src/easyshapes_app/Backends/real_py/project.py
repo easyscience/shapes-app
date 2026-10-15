@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+from pathlib import Path
+
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
@@ -88,6 +90,22 @@ class Project(QObject):
     ##########################
     # GUI accessible functions
     ##########################
+
+    @Slot(str, result=bool)
+    def locationTaken(self, path):
+        """
+        Whether a location typed for create already holds something: a
+        file, or a folder that is not empty. An empty path means the
+        library default, which its uid keeps new.
+        """
+        if not path:
+            return False
+        location = Path(path)
+        try:
+            return location.is_file() or (location.is_dir() and any(location.iterdir()))
+        except OSError:
+            # An unreadable folder cannot take the project either
+            return True
 
     @Slot(str, str, str)
     def create(self, name, description, path):

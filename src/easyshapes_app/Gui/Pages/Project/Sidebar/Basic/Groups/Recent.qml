@@ -55,7 +55,14 @@ EaComponents.TableView {
             fontIcon: 'archive'
             text: tableView.model[index].name
             minorText: tableView.model[index].modified
-            ToolTip.text: tableView.model[index].path
+
+            // The component's own tooltip shows only when the time is cut,
+            // so the path gets one that shows on every hover
+            HoverHandler { id: pathHover }
+            EaElements.ToolTip {
+                text: tableView.model[index].path
+                visible: pathHover.hovered && EaGlobals.Vars.showToolTips
+            }
         }
     }
     // delegate

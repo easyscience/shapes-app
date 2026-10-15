@@ -138,8 +138,21 @@ EaComponents.ApplicationWindow {
     // MISC
     ///////
 
+    // Ctrl+S (Cmd+S on macOS) does what the Save button does, on any page
+    Shortcut {
+        sequences: [StandardKey.Save]
+        enabled: Globals.BackendWrapper.projectCreated
+        onActivated: {
+            // A field still being edited sends its value when it loses focus
+            contentItem.forceActiveFocus()
+            Globals.BackendWrapper.projectSave()
+        }
+    }
+
     // Any uncaught exception from Python (Backends/real_py/error.py)
     EaElements.Dialog {
+        id: errorDialog
+
         readonly property string message: Globals.BackendWrapper.errorMessage
 
         title: qsTr('Error')
@@ -149,7 +162,7 @@ EaComponents.ApplicationWindow {
         onMessageChanged: if (message) open()
         onClosed: Globals.BackendWrapper.errorSetMessage('')
 
-        EaElements.Label { text: parent.message }
+        EaElements.Label { text: errorDialog.message }
     }
 
     onClosing: Qt.quit()
