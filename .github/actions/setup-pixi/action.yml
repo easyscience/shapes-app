@@ -42,3 +42,10 @@ runs:
         frozen: ${{ inputs.frozen }}
         cache: ${{ inputs.cache }}
         post-cleanup: ${{ inputs.post-cleanup }}
+
+    # PySide6's QtGui (pulled in by QtTest) needs libEGL, which the
+    # Ubuntu runners lack
+    - name: Install Qt system libraries
+      if: runner.os == 'Linux'
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y libegl1
