@@ -23,12 +23,12 @@ EaElements.GroupColumn {
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.tableColumnAuto,    // №
-            EaStyle.Sizes.tableColumnAuto,    // Rmin, nm
-            EaStyle.Sizes.tableColumnAuto,    // Inner Dmin, nm
-            EaStyle.Sizes.tableColumnAuto,    // Outer Dmin, nm
-            EaStyle.Sizes.tableColumnAuto,    // Shell thickness, nm
-            EaStyle.Sizes.tableColumnAuto,    // Symmetric (checkbox)
+            EaStyle.Sizes.columnWidthAuto,    // №
+            EaStyle.Sizes.columnWidthAuto,    // Rmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // Inner Dmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // Outer Dmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // Shell thickness, nm
+            EaStyle.Sizes.columnWidthAuto,    // Symmetric (checkbox)
             EaStyle.Sizes.tableRowHeight      // delete button
         ]
 

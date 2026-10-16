@@ -1,76 +1,52 @@
 # SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
-
-from EasyApplication.Logic.Logging import LoggerLevelHandler
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 
-from .real_py.analysis import Analysis
+from .real_py.config import Config
+from .real_py.error import Error
+from .real_py.library import Library
+from .real_py.logic.session import Session
 from .real_py.project import Project
-from .real_py.report import Report
-from .real_py.status import Status
 
 
 class Backend(QObject):
-    def __init__(self):
+    """
+    The object QML reaches as Backends.PyBackend, mirroring MockBackend.
+
+    Holds the session and one part per domain, and connects parts that
+    react to each other, so the parts don't know each other.
+    """
+
+    def __init__(self, session: Session | None = None):
         super().__init__()
 
-        ####################
-        # Private attributes
-        ####################
+        # What the app works on, shared by all parts.
+        # Tests pass their own.
+        self._session = session or Session()
 
-        # Individual Backend objects
-        self._project = Project()
-        self._analysis = Analysis()
-        self._status = Status()
-        self._report = Report()
+        self._project = Project(self._session)
+        self._library = Library()
+        self._config = Config()
+        self._error = Error()
 
-        # Logger
-        self._logger = LoggerLevelHandler(self)
-
-        #############
-        # Connections
-        #############
-
-        # Connect the signals of various Backend objects to the
-        # methods of this class defined below. This allows, through
-        # the methods of this class, to update dependent objects, but
-        # keep them unaware of each other.
-
-        # Project
-        self._project.nameChanged.connect(self.onProjectNameChanged)
-        self._project.createdChanged.connect(self.onProjectCreatedChanged)
-
-    ##########################
-    # GUI accessible variables
-    ##########################
+        # Recent reads the project index, which create, load and save
+        # change.
+        self._project.externalProjectChanged.connect(self._library.availableProjectsChanged)
 
     @Property('QVariant', constant=True)
     def project(self):
         return self._project
 
     @Property('QVariant', constant=True)
-    def analysis(self):
-        return self._analysis
+    def library(self):
+        return self._library
 
     @Property('QVariant', constant=True)
-    def status(self):
-        return self._status
+    def config(self):
+        return self._config
 
     @Property('QVariant', constant=True)
-    def report(self):
-        return self._report
-
-    ##################################
-    # Functions related to connections
-    ##################################
-
-    # Project
-
-    def onProjectNameChanged(self):
-        self._status.project = self._project.name
-        self._report._asHtml = self._project.name
-
-    def onProjectCreatedChanged(self):
-        self._report.created = self._project.created
+    def error(self):
+        return self._error

@@ -4,30 +4,130 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Dialogs
+import QtCore
 
+import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Globals as EaGlobals
-import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
 
-EaComponents.ProjectDescriptionDialog {
+// Create project: name, description and location, all optional. An empty location
+// lets the library choose Projects/<name>-<uid>; a location with anything in it is
+// refused, so a save never mixes with or replaces other files. The parent of the last
+// location given opens the folder dialog next time; it never fills the location field.
+EaElements.Dialog {
+    id: dialog
+
+    property string lastParentFolder: ''  // file URL, kept in the settings file
+    readonly property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
+    readonly property bool locationTaken: Globals.BackendWrapper.projectLocationTaken(locationField.text)
 
     visible: EaGlobals.Vars.showProjectDescriptionDialog
-    onClosed: EaGlobals.Vars.showProjectDescriptionDialog = false
+    title: qsTr('Create project')
+    standardButtons: Dialog.Ok
 
-    projectName: Globals.BackendWrapper.projectName
-    projectDescription: Globals.BackendWrapper.projectInfo.description
+    onAboutToShow: {
+        nameField.text = ''
+        descriptionField.text = ''
+        locationField.text = ''
+    }
+    onClosed: EaGlobals.Vars.showProjectDescriptionDialog = false
+    Component.onCompleted: standardButton(Dialog.Ok).enabled = Qt.binding(() => !locationTaken)
 
     onAccepted: {
-        Globals.BackendWrapper.projectName = projectName
-        Globals.BackendWrapper.projectEditInfo('description', projectDescription)
-        Globals.BackendWrapper.projectCreate()
-        Globals.References.applicationWindow.appBarCentralTabs.summaryButton.enabled = true
+        Globals.BackendWrapper.projectCreate(nameField.text, descriptionField.text, locationField.text)
+        // Reached only when create did not raise: an exception stops this handler
+        if (locationField.text)
+            lastParentFolder = Globals.BackendWrapper.projectPathParentUrl
     }
 
-    Component.onCompleted: {
-        projectLocation = Globals.BackendWrapper.projectInfo.location
+    Column {
+        spacing: EaStyle.Sizes.fontPixelSize
+
+        // Name
+        Column {
+            EaElements.Label {
+                enabled: false
+                text: qsTr('Name')
+            }
+            EaElements.TextField {
+                id: nameField
+                implicitWidth: dialog.inputFieldWidth
+                horizontalAlignment: TextInput.AlignLeft
+                // Empty, or a name safe for the default folder Projects/<name>-<uid>
+                validator: RegularExpressionValidator { regularExpression: /^([a-zA-Z][a-zA-Z0-9_\-\.]{1,30})?$/ }
+                placeholderText: qsTr('Optional')
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
+            }
+        }
+
+        // Description
+        Column {
+            EaElements.Label {
+                enabled: false
+                text: qsTr('Description')
+            }
+            EaElements.TextField {
+                id: descriptionField
+                implicitWidth: dialog.inputFieldWidth
+                horizontalAlignment: TextInput.AlignLeft
+                placeholderText: qsTr('Optional')
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
+            }
+        }
+
+        // Location
+        Column {
+            EaElements.Label {
+                enabled: false
+                text: qsTr('Location')
+            }
+            EaElements.TextField {
+                id: locationField
+                implicitWidth: dialog.inputFieldWidth
+                rightPadding: chooseFolderButton.width
+                horizontalAlignment: TextInput.AlignLeft
+                warned: dialog.locationTaken
+                placeholderText: qsTr('Default location')
+                Keys.onReturnPressed: if (!dialog.locationTaken) dialog.accept()
+                Keys.onEnterPressed: if (!dialog.locationTaken) dialog.accept()
+
+                EaElements.ToolButton {
+                    id: chooseFolderButton
+                    anchors.right: parent.right
+                    fontIcon: 'folder-open'
+                    showBackground: false
+                    ToolTip.text: qsTr('Choose project folder')
+                    onClicked: folderDialog.open()
+                }
+            }
+            EaElements.Label {
+                visible: dialog.locationTaken
+                color: EaStyle.Colors.red
+                text: qsTr('This location is not empty. Choose a new or empty folder.')
+            }
+        }
+    }
+
+    FolderDialog {
+        id: folderDialog
+        title: qsTr('Choose project folder')
+        currentFolder: dialog.lastParentFolder
+        // selectedFolder is a url object; urlToLocalFile needs a string
+        onAccepted: locationField.text = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
+    }
+
+    // Same key as EasyApp's ProjectDescriptionDialog, so an earlier saved folder still works
+    Settings {
+        location: EaGlobals.Vars.settingsFile
+        category: 'Project.Location'
+        property alias projectParentDirectory: dialog.lastParentFolder
     }
 
 }

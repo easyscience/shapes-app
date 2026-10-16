@@ -29,7 +29,7 @@ QtObject {
             'sidebar': {
                 'basic': {
                     'popups': {
-                        'openCifFile': null
+                        'openProject': null
                     }
                 }
             }

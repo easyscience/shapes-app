@@ -17,7 +17,7 @@ EaElements.StatusBar {
     EaElements.StatusBarItem {
         keyIcon: "archive"
         keyText: qsTr("Project")
-        valueText: Globals.BackendWrapper.statusProject
+        valueText: Globals.BackendWrapper.projectName
         ToolTip.text: qsTr("Current project")
     }
 
@@ -48,8 +48,10 @@ EaElements.StatusBar {
     EaElements.StatusBarItem {
         keyIcon: "cogs"
         keyText: qsTr("Engine")
-        valueText: Globals.BackendWrapper.statusEngine
-        ToolTip.text: qsTr("Simulation engine")
+        valueText: Globals.BackendWrapper.configGmxVersion
+                   ? `GROMACS ${Globals.BackendWrapper.configGmxVersion}`
+                   : Globals.BackendWrapper.configGmxProblem
+        ToolTip.text: qsTr("Simulation engine (GROMACS version, or why it can't run)")
     }
 
     EaElements.StatusBarItem {

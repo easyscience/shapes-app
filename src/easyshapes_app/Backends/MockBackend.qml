@@ -12,6 +12,9 @@ import Backends.MockQml as MockLogic
 QtObject {
 
     property var project: MockLogic.Project
+    property var library: MockLogic.Library
+    property var config: MockLogic.Config
+    property var error: MockLogic.Error
     property var sampleModel: MockLogic.SampleModel
     property var components: MockLogic.Components
     // Advanced sidebar (Sample Model page) domain singletons.
@@ -56,7 +59,6 @@ QtObject {
     // Analysis page (Advanced sidebar) — one output directory per
     // equilibration step, generated from the configured step range.
     property var equilibrationOutputs: MockLogic.EquilibrationOutputs
-    property var status: MockLogic.Status
     property var report: MockLogic.Report
 
     Component.onCompleted: {

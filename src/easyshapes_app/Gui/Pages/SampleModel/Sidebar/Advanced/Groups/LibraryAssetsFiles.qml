@@ -194,7 +194,7 @@ EaElements.GroupColumn {
                 EaStyle.Sizes.fontPixelSize * 2.5,
                 EaStyle.Sizes.fontPixelSize * 7,
                 EaStyle.Sizes.fontPixelSize * 6,
-                EaStyle.Sizes.tableColumnFlex
+                EaStyle.Sizes.columnWidthFlex
             ]
 
             header: EaComponents.ListViewHeader {

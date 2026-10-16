@@ -59,6 +59,7 @@ nodejs = '*'  # Required for Prettier (non-Python formatting)
 jupyterlab = '*'  # Jupyter notebooks
 ipython = '*'  # Interactive Python shell
 pixi-kernel = '*'  # Pixi Jupyter kernel
+charset-normalizer = '<3.5'  # 3.5.2 conda-forge build fails on import (win-64); drop when fixed
 
 [feature.dev.pypi-dependencies]
 pip = '*'
@@ -112,7 +113,7 @@ check = 'pre-commit run --hook-stage manual --all-files'
 ##########
 
 docstring-transform = 'pixi run docstripy src/ -s=numpy -w'
-docstring-format-fix = 'format-docstring src/'
+docstring-format-fix = 'format-docstring src/ tests/'
 notebook-lint-fix = 'nbqa ruff --fix docs/docs/tutorials/'
 py-lint-fix = 'ruff check --fix src/ tests/ docs/docs/tutorials/'
 py-lint-fix-unsafe = 'ruff check --fix --unsafe-fixes src/ tests/ docs/docs/tutorials/'

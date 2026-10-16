@@ -6,9 +6,10 @@ pragma Singleton
 
 import QtQuick
 
+// Mirrors the Python error part. The mock never raises: type a message
+// here to see the dialog in Qt Creator.
 QtObject {
 
-    readonly property string project: 'Undefined'
-    readonly property string engine: 'GROMACS'
+    property string message: ''
 
 }

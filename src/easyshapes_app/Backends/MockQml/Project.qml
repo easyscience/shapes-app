@@ -5,70 +5,48 @@
 pragma Singleton
 
 import QtQuick
+import QtCore
 
+// Mirrors shapes.project.Project. `created` is GUI state.
 QtObject {
 
     property bool created: false
 
     property string name: ''
+    property string description: ''
+    readonly property string path: _path
+    // Python: project.path.parent.as_uri(). The mock opens the home folder.
+    readonly property string pathParentUrl: _path ? StandardPaths.writableLocation(StandardPaths.HomeLocation).toString() : ''
+    readonly property string modified: _modified
 
-    readonly property var info: {
-        'description': '',
-        'location': '',
-        'creationDate': ''
+    property string _path: ''
+    property string _modified: ''
+
+    // The mock has no file system: a path ending in 'taken' counts as taken
+    function locationTaken(path) {
+        return path.endsWith('taken')
     }
 
-    readonly property var examples: [
-        {
-            'description': 'neutrons, powder, constant wavelength, HRPT@PSI',
-            'name': 'La0.5Ba0.5CoO3 (HRPT)',
-            'path': ':/Examples/La0.5Ba0.5CoO3_HRPT@PSI/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, HRPT@PSI',
-            'name': 'La0.5Ba0.5CoO3-Raw (HRPT)',
-            'path': ':/Examples/La0.5Ba0.5CoO3-Raw_HRPT@PSI/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, HRPT@PSI, 2 phases',
-            'name': 'La0.5Ba0.5CoO3-Mult-Phases (HRPT)',
-            'path': ':/Examples/La0.5Ba0.5CoO3-Mult-Phases_HRPT@PSI/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, D20@ILL',
-            'name': 'Co2SiO4 (D20)',
-            'path': ':/Examples/Co2SiO4_D20@ILL/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, G41@LLB',
-            'name': 'Dy3Al5O12 (G41)',
-            'path': ':/Examples/Dy3Al5O12_G41@LLB/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, D1A@ILL',
-            'name': 'PbSO4 (D1A)',
-            'path': ':/Examples/PbSO4_D1A@ILL/project.cif'
-        },
-        {
-            'description': 'neutrons, powder, constant wavelength, 3T2@LLB',
-            'name': 'LaMnO3 (3T2)',
-            'path': ':/Examples/LaMnO3_3T2@LLB/project.cif'
-        }
-    ]
-
-    function create() {
-        console.debug(`Creating project '${name}'`)
-        info.creationDate = `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`
-        infoChanged()  // this signal is not emitted automatically when only part of the object is changed
+    // A new project in `newPath`, or in the library default folder Projects/<name>-<uid>
+    // when it is empty.
+    function create(newName, newDescription, newPath) {
+        name = newName
+        description = newDescription
+        _path = newPath ? newPath : `~/Projects/${newName}-0001`
+        _modified = ''
         created = true
     }
 
     function save() {
-        console.debug(`NOT IMPLEMENTED: Saving project '${name}'`)
+        _modified = new Date().toLocaleString(Qt.locale(), 'dd MMM yyyy HH:mm')
     }
 
-    function editInfo(path, new_value) {
-        console.debug(`NOT IMPLEMENTED: Changing project info.${path} from '${info.path}' to '${new_value}'`)
+    function load(folder) {
+        name = folder.split(/[\\/]/).pop()
+        description = 'Loaded in the mock'
+        _path = folder
+        _modified = '01 Oct 2026 12:00'
+        created = true
     }
 
 }

@@ -5,12 +5,14 @@
 import QtQuick
 
 import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
 
 
 Rectangle {
+    id: page
 
     readonly property int commonSpacing: EaStyle.Sizes.fontPixelSize * 1.5
 
@@ -21,11 +23,13 @@ Rectangle {
 
         anchors.top: parent.top
         anchors.left: parent.left
+        anchors.right: parent.right
 
-        anchors.topMargin: commonSpacing
-        anchors.leftMargin: commonSpacing * 1.5
+        anchors.topMargin: page.commonSpacing
+        anchors.leftMargin: page.commonSpacing * 1.5
+        anchors.rightMargin: page.commonSpacing * 1.5
 
-        spacing: commonSpacing
+        spacing: page.commonSpacing
 
         // Project title
         EaElements.TextInput {
@@ -36,7 +40,7 @@ Rectangle {
             validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
             placeholderText: qsTr("Enter project name here")
             text: Globals.BackendWrapper.projectName
-            onEditingFinished: Globals.BackendWrapper.projectName = text
+            onEditingFinished: Globals.BackendWrapper.projectSetName(text)
         }
         // Project title
 
@@ -44,7 +48,7 @@ Rectangle {
         Grid {
             columns: 2
             rowSpacing: 0
-            columnSpacing: commonSpacing
+            columnSpacing: page.commonSpacing
 
             EaElements.Label {
                 font.bold: true
@@ -53,8 +57,8 @@ Rectangle {
             EaElements.TextInput {
                 width: Math.max(implicitWidth, 1)
                 placeholderText: qsTr("Enter project description here")
-                text: Globals.BackendWrapper.projectInfo.description
-                onEditingFinished: Globals.BackendWrapper.projectEditInfo('description', text)
+                text: Globals.BackendWrapper.projectDescription
+                onEditingFinished: Globals.BackendWrapper.projectSetDescription(text)
             }
 
             EaElements.Label {
@@ -62,17 +66,26 @@ Rectangle {
                 text: qsTr('Location:')
             }
             EaElements.Label {
-                width: Math.max(implicitWidth, 1)
-                text: Globals.BackendWrapper.projectInfo.location
+                id: locationLabel
+                // Long paths lose their start, so the project folder stays visible
+                width: Math.min(implicitWidth, container.width - x)
+                elide: Text.ElideLeft
+                text: Globals.BackendWrapper.projectPath
+
+                HoverHandler { id: locationHover }
+                EaElements.ToolTip {
+                    text: locationLabel.text
+                    visible: locationLabel.truncated && locationHover.hovered && EaGlobals.Vars.showToolTips
+                }
             }
 
             EaElements.Label {
                 font.bold: true
-                text: qsTr('Created:')
+                text: qsTr('Last saved:')
             }
             EaElements.Label {
                 width: Math.max(implicitWidth, 1)
-                text: Globals.BackendWrapper.projectInfo.creationDate
+                text: Globals.BackendWrapper.projectModified
             }
         }
         // Project info

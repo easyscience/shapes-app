@@ -1,137 +1,157 @@
 # SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
-
-import time
 from pathlib import Path
 
-from EasyApplication.Logic.Logging import console
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
+from shapes.project import Project as ProjectLib
 
-from .logic.helpers import IO
-from .logic.helpers import DottyDict
-
-_INFO = {'description': '', 'location': str(Path.home()), 'creationDate': ''}
-
-_EXAMPLES = [
-    {
-        'description': 'neutrons, powder, constant wavelength, HRPT@PSI',
-        'name': 'La0.5Ba0.5CoO3 (HRPT)',
-        'path': ':/Examples/La0.5Ba0.5CoO3_HRPT@PSI/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, HRPT@PSI',
-        'name': 'La0.5Ba0.5CoO3-Raw (HRPT)',
-        'path': ':/Examples/La0.5Ba0.5CoO3-Raw_HRPT@PSI/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, HRPT@PSI, 2 phases',
-        'name': 'La0.5Ba0.5CoO3-Mult-Phases (HRPT)',
-        'path': ':/Examples/La0.5Ba0.5CoO3-Mult-Phases_HRPT@PSI/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, D20@ILL',
-        'name': 'Co2SiO4 (D20)',
-        'path': ':/Examples/Co2SiO4_D20@ILL/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, G41@LLB',
-        'name': 'Dy3Al5O12 (G41)',
-        'path': ':/Examples/Dy3Al5O12_G41@LLB/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, D1A@ILL',
-        'name': 'PbSO4 (D1A)',
-        'path': ':/Examples/PbSO4_D1A@ILL/project.cif',
-    },
-    {
-        'description': 'neutrons, powder, constant wavelength, 3T2@LLB',
-        'name': 'LaMnO3 (3T2)',
-        'path': ':/Examples/LaMnO3_3T2@LLB/project.cif',
-    },
-]
+from .logic.session import Session
 
 
 class Project(QObject):
+    """
+    The session's shapespyer project for QML: its fields, and create,
+    load and save.
+
+    Fields read '' while there is no project. Create and load put the
+    new project into the session together with its sample model and
+    analysis. Errors are not caught here; they go to the global error
+    dialog (PROXY_LAYER.md section 2.7).
+    """
+
     createdChanged = Signal()
     nameChanged = Signal()
-    infoChanged = Signal()
-    examplesChanged = Signal()
+    descriptionChanged = Signal()
+    pathChanged = Signal()
+    modifiedChanged = Signal()
 
-    def __init__(self):
-        super().__init__()
-        self._created = False
-        self._name = ''
-        self._info = _INFO
-        self._examples = _EXAMPLES
+    # Created, loaded or saved: the root tells the parts that may care
+    externalProjectChanged = Signal()
+
+    def __init__(self, session: Session, parent=None):
+        super().__init__(parent)
+        self._session = session
 
     ##########################
     # GUI accessible variables
     ##########################
 
-    # Properties
-
     @Property(bool, notify=createdChanged)
     def created(self):
-        return self._created
-
-    @created.setter
-    def created(self, new_value):
-        if self._created == new_value:
-            return
-        self._created = new_value
-        self.createdChanged.emit()
+        return self._session.project is not None
 
     @Property(str, notify=nameChanged)
     def name(self):
-        return self._name
+        project = self._session.project
+        return project.name if project else ''
 
     @name.setter
-    def name(self, new_value):
-        if self._name == new_value:
+    def name(self, value):
+        project = self._session.project
+        if project is None or project.name == value:
             return
-        console.debug(
-            IO.format_msg('main', f"Changing project name from '{self.name}' to '{new_value}'")
-        )
-        self._name = new_value
+        project.name = value
         self.nameChanged.emit()
 
-    @Property('QVariant', notify=infoChanged)
-    def info(self):
-        return self._info
+    @Property(str, notify=descriptionChanged)
+    def description(self):
+        project = self._session.project
+        return project.description if project else ''
 
-    @Property('QVariant', constant=True)
-    def examples(self):
-        return self._examples
+    @description.setter
+    def description(self, value):
+        project = self._session.project
+        if project is None or project.description == value:
+            return
+        project.description = value
+        self.descriptionChanged.emit()
+
+    @Property(str, notify=pathChanged)
+    def path(self):
+        project = self._session.project
+        return str(project.path) if project else ''
+
+    @Property(str, notify=pathChanged)
+    def pathParentUrl(self):
+        project = self._session.project
+        return project.path.parent.as_uri() if project else ''
+
+    @Property(str, notify=modifiedChanged)
+    def modified(self):
+        project = self._session.project
+        if project is None or project.modified is None:
+            return ''
+        return project.modified.astimezone().strftime('%d %b %Y %H:%M')
 
     ##########################
     # GUI accessible functions
     ##########################
 
-    @Slot()
-    def create(self):
-        console.debug(IO.format_msg('main', f"Creating project '{self.name}'"))
-        self.info['creationDate'] = time.strftime('%d %b %Y %H:%M', time.localtime())
-        self.infoChanged.emit()
-        self.created = True
+    @Slot(str, result=bool)
+    def locationTaken(self, path):
+        """
+        Whether a location typed for create already holds something: a
+        file, or a folder that is not empty. An empty path means the
+        library default, which its uid keeps new.
+        """
+        if not path:
+            return False
+        location = Path(path)
+        try:
+            return location.is_file() or (location.is_dir() and any(location.iterdir()))
+        except OSError:
+            # An unreadable folder cannot take the project either
+            return True
+
+    @Slot(str, str, str)
+    def create(self, name, description, path):
+        """
+        Make a new project. The first one takes in the session's sample
+        model and analysis.
+
+        Empty name and path go to the library as None: it names the
+        project by its uid and puts it in Projects/<full_name>.
+        """
+        first = self._session.project is None
+        self._set_session_project(
+            ProjectLib(
+                name=name or None,
+                description=description,
+                sample_model=self._session.sample_model if first else None,
+                analysis=self._session.analysis if first else None,
+                path=path or None,
+            )
+        )
+
+    @Slot(str)
+    def load(self, path):
+        self._set_session_project(ProjectLib.load(path))
 
     @Slot()
     def save(self):
-        console.debug(IO.format_msg('main', f"Saving project '{self.name}'"))
+        self._session.project.save()
+        self.modifiedChanged.emit()
+        self.externalProjectChanged.emit()
 
-    @Slot(str, str)
-    def editInfo(self, path, new_value):
-        old_value = DottyDict.get(self._info, path)
-        if old_value == new_value:
-            return
-        console.debug(
-            IO.format_msg(
-                'main',
-                f"Changing project info.{path} from '{old_value}' to '{new_value}'",
-            )
-        )
-        DottyDict.set(self._info, path, new_value)
-        self.infoChanged.emit()
+    #########
+    # Helpers
+    #########
+
+    def _set_session_project(self, project):
+        """
+        Put a project into the session with its sample model and
+        analysis, and tell QML.
+        """
+        self._session.project = project
+        self._session.sample_model = project.sample_model
+        self._session.analysis = project.analysis
+        self.createdChanged.emit()
+        self.nameChanged.emit()
+        self.descriptionChanged.emit()
+        self.pathChanged.emit()
+        self.modifiedChanged.emit()
+        self.externalProjectChanged.emit()

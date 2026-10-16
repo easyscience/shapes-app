@@ -118,12 +118,15 @@
         <file>easyshapes_app/Backends/MockQml/Buffer.qml</file>
         <file>easyshapes_app/Backends/MockQml/Components.qml</file>
         <file>easyshapes_app/Backends/MockQml/ComponentsFiles.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Config.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Error.qml</file>
         <file>easyshapes_app/Backends/MockQml/EquilibrationOutputs.qml</file>
         <file>easyshapes_app/Backends/MockQml/Fractions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Ions.qml</file>
         <file>easyshapes_app/Backends/MockQml/Lamellae.qml</file>
         <file>easyshapes_app/Backends/MockQml/LatticeStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Layers.qml</file>
+        <file>easyshapes_app/Backends/MockQml/Library.qml</file>
         <file>easyshapes_app/Backends/MockQml/LibraryAssetsEditor.qml</file>
         <file>easyshapes_app/Backends/MockQml/MonolayerStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/Project.qml</file>
@@ -132,7 +135,6 @@
         <file>easyshapes_app/Backends/MockQml/RodStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
         <file>easyshapes_app/Backends/MockQml/SmilesGenerator.qml</file>
-        <file>easyshapes_app/Backends/MockQml/Status.qml</file>
         <file>easyshapes_app/Backends/MockQml/StructureFiles.qml</file>
         <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/qmldir</file>
@@ -159,7 +161,7 @@
         <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/GetStarted.qml</file>
         <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Groups/Recent.qml</file>
         <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Layout.qml</file>
-        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/OpenCifFile.qml</file>
+        <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/OpenProject.qml</file>
         <file>easyshapes_app/Gui/Pages/Project/Sidebar/Basic/Popups/ProjectDescription.qml</file>
         <file>easyshapes_app/Gui/Pages/Report/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/Report/MainArea/Summary.qml</file>
@@ -208,7 +210,5 @@
         <file>easyshapes_app/Gui/StatusBar.qml</file>
         <file>easyshapes_app/Gui/qmldir</file>
         <file>easyshapes_app/main.qml</file>
-        <file>easyshapes_app/test.qml</file>
-        <file>easyshapes_app/test2.qml</file>
     </qresource>
 </RCC>
