@@ -73,33 +73,127 @@ QtObject {
     // Sample Model page
     ////////////////////
 
-    readonly property var sampleModelLoaded: activeBackend.sampleModel.loaded
-    readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
-    readonly property var sampleModelStructureTypes: activeBackend.sampleModel.structureTypes
-    readonly property var sampleModelTypes: activeBackend.sampleModel.modelTypes
-    readonly property string sampleModelCurrentStructureType: activeBackend.sampleModel.currentStructureType
-    readonly property string sampleModelCurrentType: activeBackend.sampleModel.currentType
+    //////////////
+    // SampleModel
+    //////////////
 
-    property bool sampleModelCreated: activeBackend.sampleModel.created
-    onSampleModelCreatedChanged: activeBackend.sampleModel.created = sampleModelCreated
+    readonly property string sampleModelName: activeBackend.sampleModel.name
+    readonly property var sampleModelShapes: activeBackend.sampleModel.shapes
+    readonly property string sampleModelShape: activeBackend.sampleModel.shape
+    readonly property bool sampleModelLattice: activeBackend.sampleModel.lattice
+
+    function sampleModelSetName(value) { activeBackend.sampleModel.name = value }
+    function sampleModelSetShape(value) { activeBackend.sampleModel.shape = value }
+    function sampleModelSetLattice(value) { activeBackend.sampleModel.lattice = value }
+    function sampleModelCreate() { activeBackend.sampleModel.create() }
+
+    // Load model catalog: mock only until the library catalogs (step 5)
+    readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
 
     function sampleModelSetLoaded(model) { activeBackend.sampleModel.setLoaded(model) }
-    function sampleModelUpdateField(field, value) {
-        activeBackend.sampleModel.updateField(field, value)
-        // updateField mutates `loaded[0]` in place to avoid recreating the
-        // ListView delegate (which would steal focus from any field being
-        // edited). The trade-off is that `loadedChanged` doesn't fire, so
-        // bindings derived from `loaded` won't re-evaluate. Mirror the
-        // structure_type into its own property here so visibility bindings
-        // (Layers/Lamellae GroupBoxes) update.
-        if (field === 'structure_type') activeBackend.sampleModel.currentStructureType = value
-        // Same in-place-mutation caveat for the Discrete/Lattice type: mirror
-        // it so the Lattice Parameters GroupBox visibility binding updates.
-        if (field === 'type') activeBackend.sampleModel.currentType = value
-    }
-    function sampleModelClear() { activeBackend.sampleModel.clear() }
-    function sampleModelSaveToCatalog() { activeBackend.sampleModel.saveToCatalog() }
     function sampleModelRemoveFromCatalog(index) { activeBackend.sampleModel.removeFromCatalog(index) }
+
+    ////////////////
+    // RingStructure
+    ////////////////
+
+    readonly property real ringStructureAlpha: activeBackend.ringStructure.alpha
+    readonly property real ringStructureTheta: activeBackend.ringStructure.theta
+    readonly property real ringStructureDmin: activeBackend.ringStructure.dmin
+    readonly property real ringStructureRmin: activeBackend.ringStructure.rmin
+    readonly property bool ringStructureFxz: activeBackend.ringStructure.fxz
+    readonly property bool ringStructureRev: activeBackend.ringStructure.rev
+
+    function ringStructureSetAlpha(value) { activeBackend.ringStructure.alpha = value }
+    function ringStructureSetTheta(value) { activeBackend.ringStructure.theta = value }
+    function ringStructureSetDmin(value) { activeBackend.ringStructure.dmin = value }
+    function ringStructureSetRmin(value) { activeBackend.ringStructure.rmin = value }
+    function ringStructureSetFxz(value) { activeBackend.ringStructure.fxz = value }
+    function ringStructureSetRev(value) { activeBackend.ringStructure.rev = value }
+
+    ////////////////
+    // BallStructure
+    ////////////////
+
+    readonly property bool ballStructureFxz: activeBackend.ballStructure.fxz
+    readonly property bool ballStructureRev: activeBackend.ballStructure.rev
+    readonly property string ballStructureFill: activeBackend.ballStructure.fill
+
+    function ballStructureSetFxz(value) { activeBackend.ballStructure.fxz = value }
+    function ballStructureSetRev(value) { activeBackend.ballStructure.rev = value }
+    function ballStructureSetFill(value) { activeBackend.ballStructure.fill = value }
+
+    ///////////////////
+    // VesicleStructure
+    ///////////////////
+
+    readonly property bool vesicleStructureFxz: activeBackend.vesicleStructure.fxz
+    readonly property bool vesicleStructureRev: activeBackend.vesicleStructure.rev
+    readonly property string vesicleStructureFill: activeBackend.vesicleStructure.fill
+
+    function vesicleStructureSetFxz(value) { activeBackend.vesicleStructure.fxz = value }
+    function vesicleStructureSetRev(value) { activeBackend.vesicleStructure.rev = value }
+    function vesicleStructureSetFill(value) { activeBackend.vesicleStructure.fill = value }
+
+    ///////////////
+    // RodStructure
+    ///////////////
+
+    readonly property int rodStructureTurns: activeBackend.rodStructure.turns
+    readonly property real rodStructureDmin: activeBackend.rodStructure.dmin
+    readonly property real rodStructureRmin: activeBackend.rodStructure.rmin
+    readonly property bool rodStructureFxz: activeBackend.rodStructure.fxz
+    readonly property bool rodStructureRev: activeBackend.rodStructure.rev
+
+    function rodStructureSetTurns(value) { activeBackend.rodStructure.turns = value }
+    function rodStructureSetDmin(value) { activeBackend.rodStructure.dmin = value }
+    function rodStructureSetRmin(value) { activeBackend.rodStructure.rmin = value }
+    function rodStructureSetFxz(value) { activeBackend.rodStructure.fxz = value }
+    function rodStructureSetRev(value) { activeBackend.rodStructure.rev = value }
+
+    ///////////////////
+    // BilayerStructure
+    ///////////////////
+
+    readonly property real bilayerStructureDmin: activeBackend.bilayerStructure.dmin
+    readonly property real bilayerStructureZsep: activeBackend.bilayerStructure.zsep
+    readonly property int bilayerStructureNside: activeBackend.bilayerStructure.nside
+
+    function bilayerStructureSetDmin(value) { activeBackend.bilayerStructure.dmin = value }
+    function bilayerStructureSetZsep(value) { activeBackend.bilayerStructure.zsep = value }
+    function bilayerStructureSetNside(value) { activeBackend.bilayerStructure.nside = value }
+
+    /////////////////////
+    // MonolayerStructure
+    /////////////////////
+
+    readonly property real monolayerStructureDmin: activeBackend.monolayerStructure.dmin
+    readonly property real monolayerStructureZsep: activeBackend.monolayerStructure.zsep
+    readonly property int monolayerStructureNside: activeBackend.monolayerStructure.nside
+
+    function monolayerStructureSetDmin(value) { activeBackend.monolayerStructure.dmin = value }
+    function monolayerStructureSetZsep(value) { activeBackend.monolayerStructure.zsep = value }
+    function monolayerStructureSetNside(value) { activeBackend.monolayerStructure.nside = value }
+
+    ///////////////////
+    // LatticeStructure
+    ///////////////////
+
+    readonly property real latticeStructureAlpha: activeBackend.latticeStructure.alpha
+    readonly property real latticeStructureTheta: activeBackend.latticeStructure.theta
+    readonly property int latticeStructureNlatx: activeBackend.latticeStructure.nlatx
+    readonly property int latticeStructureNlaty: activeBackend.latticeStructure.nlaty
+    readonly property int latticeStructureNlatz: activeBackend.latticeStructure.nlatz
+    readonly property real latticeStructureSbuff: activeBackend.latticeStructure.sbuff
+    readonly property string latticeStructureLatticeType: activeBackend.latticeStructure.latticeType
+
+    function latticeStructureSetAlpha(value) { activeBackend.latticeStructure.alpha = value }
+    function latticeStructureSetTheta(value) { activeBackend.latticeStructure.theta = value }
+    function latticeStructureSetNlatx(value) { activeBackend.latticeStructure.nlatx = value }
+    function latticeStructureSetNlaty(value) { activeBackend.latticeStructure.nlaty = value }
+    function latticeStructureSetNlatz(value) { activeBackend.latticeStructure.nlatz = value }
+    function latticeStructureSetSbuff(value) { activeBackend.latticeStructure.sbuff = value }
+    function latticeStructureSetLatticeType(value) { activeBackend.latticeStructure.latticeType = value }
 
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
@@ -156,35 +250,6 @@ QtObject {
     // in their binding body to re-evaluate when rows are inserted/removed.
     function lamellaeInnerFractionsModelAt(index) { return activeBackend.lamellae.innerFractionsModelAt(index) }
     function lamellaeOuterFractionsModelAt(index) { return activeBackend.lamellae.outerFractionsModelAt(index) }
-
-    // Ring structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Ring'.
-    readonly property var ringStructure: activeBackend.ringStructure
-
-    // Ball structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Ball'.
-    readonly property var ballStructure: activeBackend.ballStructure
-
-    // Vesicle structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Vesicle'.
-    readonly property var vesicleStructure: activeBackend.vesicleStructure
-
-    // Rod structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Rod'.
-    readonly property var rodStructure: activeBackend.rodStructure
-
-    // Bilayer structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Bilayer'.
-    readonly property var bilayerStructure: activeBackend.bilayerStructure
-
-    // Monolayer structure (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentStructureType === 'Monolayer'.
-    readonly property var monolayerStructure: activeBackend.monolayerStructure
-
-    // Lattice parameters (Sample Model sidebar). Single-record fielded form
-    // shown only when sampleModelCurrentType === 'Lattice' (the Discrete/Lattice
-    // arrangement, decoupled from the shape).
-    readonly property var latticeStructure: activeBackend.latticeStructure
 
     // Buffer group (Sample Model sidebar). Solvent is a single selected value
     // ('(None)' / TIP3 / Ethanol); buffer components are a row list (salts,

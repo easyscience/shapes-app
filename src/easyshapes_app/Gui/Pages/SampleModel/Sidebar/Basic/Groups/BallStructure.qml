@@ -22,8 +22,8 @@ EaElements.GroupColumn {
         EaElements.ComboBox {
             width: parent.width
             model: ["FIBO", "RINGS", "RINGS0"]
-            Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.ballStructure.fill)
-            onActivated: (i) => Globals.BackendWrapper.ballStructure.fill = model[i]
+            currentIndex: model.indexOf(Globals.BackendWrapper.ballStructureFill)
+            onActivated: (i) => Globals.BackendWrapper.ballStructureSetFill(model[i])
         }
     }
 
@@ -34,15 +34,15 @@ EaElements.GroupColumn {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Fxz")
-            checked: Globals.BackendWrapper.ballStructure.fxz
-            onToggled: Globals.BackendWrapper.ballStructure.fxz = checked
+            checked: Globals.BackendWrapper.ballStructureFxz
+            onToggled: Globals.BackendWrapper.ballStructureSetFxz(checked)
         }
         EaElements.CheckBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Rev")
-            checked: Globals.BackendWrapper.ballStructure.rev
-            onToggled: Globals.BackendWrapper.ballStructure.rev = checked
+            checked: Globals.BackendWrapper.ballStructureRev
+            onToggled: Globals.BackendWrapper.ballStructureSetRev(checked)
         }
     }
 }

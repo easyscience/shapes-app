@@ -24,23 +24,23 @@ EaElements.GroupColumn {
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
-            text: Globals.BackendWrapper.rodStructure.dmin
-            onEditingFinished: Globals.BackendWrapper.rodStructure.dmin = parseFloat(text)
+            text: Globals.BackendWrapper.rodStructureDmin
+            onEditingFinished: Globals.BackendWrapper.rodStructureSetDmin(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Rmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
-            text: Globals.BackendWrapper.rodStructure.rmin
-            onEditingFinished: Globals.BackendWrapper.rodStructure.rmin = parseFloat(text)
+            text: Globals.BackendWrapper.rodStructureRmin
+            onEditingFinished: Globals.BackendWrapper.rodStructureSetRmin(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Turns")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.rodStructure.turns
-            onEditingFinished: Globals.BackendWrapper.rodStructure.turns = parseInt(text)
+            text: Globals.BackendWrapper.rodStructureTurns
+            onEditingFinished: Globals.BackendWrapper.rodStructureSetTurns(parseInt(text))
         }
     }
 
@@ -51,15 +51,15 @@ EaElements.GroupColumn {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Fxz")
-            checked: Globals.BackendWrapper.rodStructure.fxz
-            onToggled: Globals.BackendWrapper.rodStructure.fxz = checked
+            checked: Globals.BackendWrapper.rodStructureFxz
+            onToggled: Globals.BackendWrapper.rodStructureSetFxz(checked)
         }
         EaElements.CheckBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Rev")
-            checked: Globals.BackendWrapper.rodStructure.rev
-            onToggled: Globals.BackendWrapper.rodStructure.rev = checked
+            checked: Globals.BackendWrapper.rodStructureRev
+            onToggled: Globals.BackendWrapper.rodStructureSetRev(checked)
         }
     }
 

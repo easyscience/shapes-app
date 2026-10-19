@@ -23,24 +23,24 @@ EaElements.GroupColumn {
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
-            text: Globals.BackendWrapper.latticeStructure.alpha
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.alpha = parseFloat(text)
+            text: Globals.BackendWrapper.latticeStructureAlpha
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetAlpha(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }
-            text: Globals.BackendWrapper.latticeStructure.theta
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.theta = parseFloat(text)
+            text: Globals.BackendWrapper.latticeStructureTheta
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetTheta(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Sbuff")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
-            text: Globals.BackendWrapper.latticeStructure.sbuff
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.sbuff = parseFloat(text)
+            text: Globals.BackendWrapper.latticeStructureSbuff
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetSbuff(parseFloat(text))
         }
     }
 
@@ -56,31 +56,31 @@ EaElements.GroupColumn {
             }
             EaElements.ComboBox {
                 width: parent.width
-                model: Globals.BackendWrapper.latticeStructure.latticeTypes
-                Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.latticeStructure.latticeType)
-                onActivated: (i) => Globals.BackendWrapper.latticeStructure.latticeType = model[i]
+                model: ["LCUB", "LBCC", "LFCC", "LHCP"]
+                currentIndex: model.indexOf(Globals.BackendWrapper.latticeStructureLatticeType)
+                onActivated: (i) => Globals.BackendWrapper.latticeStructureSetLatticeType(model[i])
             }
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Nlatx")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.latticeStructure.nlatx
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.nlatx = parseInt(text)
+            text: Globals.BackendWrapper.latticeStructureNlatx
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlatx(parseInt(text))
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Nlaty")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.latticeStructure.nlaty
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.nlaty = parseInt(text)
+            text: Globals.BackendWrapper.latticeStructureNlaty
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlaty(parseInt(text))
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Nlatz")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.latticeStructure.nlatz
-            onEditingFinished: Globals.BackendWrapper.latticeStructure.nlatz = parseInt(text)
+            text: Globals.BackendWrapper.latticeStructureNlatz
+            onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlatz(parseInt(text))
         }
     }
 }

@@ -12,6 +12,6 @@ QtObject {
     property double rmin: 0.25
     property double alpha: 0.0
     property double theta: 0.0
-    property double fxz: 0.0
-    property double rev: 0.0
+    property bool fxz: false
+    property bool rev: false
 }

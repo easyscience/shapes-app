@@ -15,6 +15,4 @@ QtObject {
     property int nlatx: 1
     property int nlaty: 1
     property int nlatz: 1
-
-    readonly property var latticeTypes: ['LCUB', 'LBCC', 'LFCC', 'LHCP']
 }

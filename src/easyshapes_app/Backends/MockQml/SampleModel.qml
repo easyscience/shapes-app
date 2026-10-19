@@ -8,48 +8,18 @@ import QtQuick
 
 QtObject {
 
-    property bool created: true
+    // The Model Definition row: name, shape, and whether a lattice
+    // repeats the structure. Same names as the Python part.
+    property string name: ''
+    readonly property var shapes: ['Ring', 'Ball', 'Vesicle', 'Rod', 'Bilayer', 'Monolayer']
+    property string shape: 'Ring'
+    property bool lattice: false
 
-    // Loaded sample model — JS array of length 0 or 1.
-    // Capacity is one by convention (single record), but the value is
-    // exposed as an array so QML ListView can consume it directly
-    // (Qt 6 ListView only supports int / ListModel / QAbstractItemModel / JS array).
-    // Element shape: { name, structure_type, type, description }.
-    // Preloaded with an empty default model (no name, Ring shape, Discrete
-    // type) so the user always starts from an editable scaffold.
-    property var loaded: [{
-        name: '',
-        structure_type: 'Ring',
-        type: 'Discrete',
-        description: ''
-    }]
+    // The mock always holds a model, so there is nothing to create
+    function create() {}
 
-    // Geometric shape family (the "Shape" column). Lattice is no longer a
-    // shape — it moved to `type` below.
-    readonly property var structureTypes: [
-        'Ring', 'Ball', 'Vesicle', 'Rod', 'Bilayer', 'Monolayer'
-    ]
-
-    // Arrangement of the shape (the "Type" column). 'Lattice' drives the
-    // Lattice Parameters group's visibility (decoupled from the shape).
-    readonly property var modelTypes: ['Discrete', 'Lattice']
-
-    // Externally-observed structure type. Decoupled from `loaded` because
-    // updateField mutates `loaded[0]` in place (preserving the row delegate
-    // and any focused TextInput) and that mutation does NOT fire loadedChanged.
-    // The wrapper writes this property whenever structure_type is updated;
-    // setLoaded/clear keep it in sync with the active record.
-    property string currentStructureType: 'Ring'
-
-    // Externally-observed model type (Discrete/Lattice). Mirrored for the
-    // same reason as currentStructureType — drives Lattice Parameters
-    // visibility in Layout.qml.
-    property string currentType: 'Discrete'
-
-    // Catalog of saveable/loadable models (asset library).
-    // ListModel mirrors the Python QAbstractListModel with roles
-    // (name, structure_type, description) so delegate code is identical
-    // for both real and mock backends, and ItemSelectionModel works.
+    // Catalog of saved models for the Load model popup. Stays mock until
+    // the library catalogs move to Python (step 5).
     readonly property var availableModels: ListModel {
         ListElement { name: 'Samle1_aluv'; structure_type: 'Vesicle'; type: 'Discrete'; description: 'In order to avoid a prolonged pro-inflammatory neutrophil response, signaling downstream of an agonist-activated G protein-coupled receptor (GPCR) has to be rapidly terminated. Among the family of GPCR kinases (GRKs) that regulate receptor phosphorylation and signaling termination, GRK2, which is highly expressed by immune cells, plays an important role.' }
         ListElement { name: 'Sample2_nanodisc'; structure_type: 'Ring'; type: 'Discrete'; description: 'The medium chain fatty acid receptor GPR84 as well as formyl peptide receptor 2 (FPR2)' }
@@ -65,38 +35,9 @@ QtObject {
 
     function setLoaded(model) {
         console.debug(`Loading sample model '${model.name}'`)
-        loaded = [{
-            name: model.name,
-            structure_type: model.structure_type,
-            type: model.type !== undefined ? model.type : 'Discrete',
-            description: model.description
-        }]
-        currentStructureType = loaded[0].structure_type
-        currentType = loaded[0].type
-        created = true
-    }
-
-    function updateField(field, value) {
-        if (loaded.length === 0) return
-        loaded[0][field] = value
-    }
-
-    function clear() {
-        loaded = []
-        currentStructureType = ''
-        currentType = ''
-        created = false
-    }
-
-    function saveToCatalog() {
-        if (loaded.length === 0 || !loaded[0].name) return
-        availableModels.append({
-            name: loaded[0].name,
-            structure_type: loaded[0].structure_type,
-            type: loaded[0].type,
-            description: loaded[0].description
-        })
-        console.debug(`Saved sample model '${loaded[0].name}' to catalog`)
+        name = model.name
+        shape = model.structure_type
+        lattice = model.type === 'Lattice'
     }
 
     function removeFromCatalog(index) {

@@ -24,23 +24,23 @@ EaElements.GroupColumn {
             title: qsTr("Zsep")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
-            text: Globals.BackendWrapper.bilayerStructure.zsep
-            onEditingFinished: Globals.BackendWrapper.bilayerStructure.zsep = parseFloat(text)
+            text: Globals.BackendWrapper.bilayerStructureZsep
+            onEditingFinished: Globals.BackendWrapper.bilayerStructureSetZsep(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.bilayerStructure.nside
-            onEditingFinished: Globals.BackendWrapper.bilayerStructure.nside = parseInt(text)
+            text: Globals.BackendWrapper.bilayerStructureNside
+            onEditingFinished: Globals.BackendWrapper.bilayerStructureSetNside(parseInt(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
-            text: Globals.BackendWrapper.bilayerStructure.dmin
-            onEditingFinished: Globals.BackendWrapper.bilayerStructure.dmin = parseFloat(text)
+            text: Globals.BackendWrapper.bilayerStructureDmin
+            onEditingFinished: Globals.BackendWrapper.bilayerStructureSetDmin(parseFloat(text))
         }
     }
 

@@ -4,6 +4,7 @@
 from datetime import UTC
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
@@ -39,3 +40,48 @@ class FakeProject:
     def save(self):
         self.save_calls += 1
         self.modified = SAVED_AT
+
+
+class FakeSampleModel:
+    """
+    Stands in for shapes.project.SampleModel. Shape and lattice are
+    plain attributes, which FakeStructureLogic reads and writes.
+    """
+
+    def __init__(self):
+        self.name = 'uid0002'
+        self.shape = 'Ring'
+        self.lattice = False
+        # The current structure's fields, set by each shape's test
+        self.structure = SimpleNamespace()
+
+
+class FakeStructureLogic:
+    """
+    Stands in for real_py/logic/structure.py on a FakeSampleModel.
+    """
+
+    # Only the names are read
+    SHAPES = {'Ring': None, 'Ball': None}
+
+    @staticmethod
+    def shape(sample_model):
+        return sample_model.shape
+
+    @staticmethod
+    def set_shape(sample_model, name):
+        sample_model.shape = name
+
+    @staticmethod
+    def is_lattice(sample_model):
+        return sample_model.lattice
+
+    @staticmethod
+    def set_lattice(sample_model, lattice):
+        sample_model.lattice = lattice
+
+    @staticmethod
+    def shaped(sample_model, name):
+        if sample_model is None or sample_model.shape != name:
+            return None
+        return sample_model.structure

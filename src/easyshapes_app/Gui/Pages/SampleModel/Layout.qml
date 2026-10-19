@@ -32,7 +32,7 @@ EaComponents.ContentPage {
         let list = []
         list.push({ key: "shape", label: qsTr("Shape"), source: "MainArea/Shape.qml" })
         list.push({ key: "components", label: qsTr("Components"), source: "MainArea/Components.qml" })
-        if (Globals.BackendWrapper.sampleModelCurrentType === "Lattice")
+        if (Globals.BackendWrapper.sampleModelLattice)
             list.push({ key: "lattice", label: qsTr("Lattice"), source: "MainArea/Lattice.qml" })
         return list
     }
