@@ -16,14 +16,9 @@ EaElements.GroupColumn {
     id: root
     property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
 
-    // Counter-ion options: a "(None)" sentinel (empty c_ion) plus the shared ion library.
-    readonly property var cIonOptions: {
-        const lib = Globals.BackendWrapper.ionsAvailable
-        let opts = [qsTr("(None)")]
-        for (let i = 0; i < lib.count; ++i)
-            opts.push(lib.get(i).name)
-        return opts
-    }
+    // Counter-ion options: a "(None)" sentinel (empty counterIon) plus the
+    // library's ions.
+    readonly property var cIonOptions: [qsTr("(None)")].concat(Globals.BackendWrapper.libraryAvailableIons)
 
     EaComponents.ListView {
         id: loadedComponents
@@ -77,10 +72,11 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string name
-            required property string component_type
+            required property string componentType
             required property int mint
             required property int mext
-            required property string c_ion
+            required property string counterIon
+            required property string nameError
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -89,11 +85,12 @@ EaElements.GroupColumn {
 
             EaComponents.ListViewTextInput {
                 text: name
+                warned: nameError !== ""
                 onEditingFinished: name = text
             }
 
             EaComponents.TableViewLabel {
-                text: component_type
+                text: componentType
                 enabled: false
             }
 
@@ -102,8 +99,8 @@ EaElements.GroupColumn {
                 model: root.cIonOptions
                 // Blank collapsed label for the "(None)" sentinel (0) or no match (-1).
                 displayText: currentIndex <= 0 ? "" : currentText
-                Component.onCompleted: currentIndex = c_ion === "" ? 0 : find(c_ion)
-                onActivated: (i) => c_ion = (i === 0 ? "" : model[i])
+                Component.onCompleted: currentIndex = counterIon === "" ? 0 : find(counterIon)
+                onActivated: (i) => counterIon = (i === 0 ? "" : model[i])
             }
 
             EaComponents.ListViewTextInput {
@@ -124,6 +121,15 @@ EaElements.GroupColumn {
                 onClicked: Globals.BackendWrapper.componentsRemove(index)
             }
         }
+    }
+
+    // Every value the backend refused, until it is fixed
+    EaElements.Label {
+        width: parent.width
+        visible: text !== ""
+        wrapMode: Text.Wrap
+        color: EaStyle.Colors.red
+        text: Globals.BackendWrapper.componentsErrors
     }
 
     Grid {

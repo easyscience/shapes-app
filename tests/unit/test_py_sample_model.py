@@ -4,17 +4,19 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from easyshapes_app.Backends.real_py import sample_model as sample_model_module
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.sample_model import SampleModel
 from tests.unit.factories import FakeSampleModel
-from tests.unit.factories import FakeStructureLogic
+
+pytestmark = pytest.mark.usefixtures('qcore_application')
 
 
-@pytest.fixture(autouse=True)
-def fake_library(monkeypatch, qcore_application):
-    monkeypatch.setattr(sample_model_module, 'SampleModelLib', FakeSampleModel)
-    monkeypatch.setattr(sample_model_module, 'structure', FakeStructureLogic)
+class OfflineSampleModel(SampleModel):
+    """
+    Creates FakeSampleModels, not library ones.
+    """
+
+    _sample_model_class = FakeSampleModel
 
 
 def all_signals(part):
@@ -43,7 +45,7 @@ def test_fields_are_empty_and_setters_do_nothing_without_sample_model():
 
 def test_create_makes_a_sample_model_only_when_there_is_none():
     session = Session()
-    part = SampleModel(session)
+    part = OfflineSampleModel(session)
     spies = all_signals(part)
 
     part.create()

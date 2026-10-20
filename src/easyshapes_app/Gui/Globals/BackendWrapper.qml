@@ -53,6 +53,7 @@ QtObject {
 
     readonly property var libraryAvailableProjects: activeBackend.library.availableProjects
     readonly property var libraryAvailableExamples: activeBackend.library.availableExamples
+    readonly property var libraryAvailableIons: activeBackend.library.availableIons
 
     /////////
     // Config
@@ -197,11 +198,11 @@ QtObject {
 
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
+    readonly property string componentsErrors: activeBackend.components.loaded.errors
     readonly property var componentsPendingFilePaths: activeBackend.components.pendingFilePaths
 
     function componentsAppend(item) { activeBackend.components.appendItem(item) }
-    function componentsRemove(index) { activeBackend.components.removeItem(index) }
-    function componentsClear() { activeBackend.components.clear() }
+    function componentsRemove(index) { activeBackend.components.remove(index) }
     function componentsAppendPendingFilePath(path) { activeBackend.components.appendPendingFilePath(path) }
     function componentsRemovePendingFilePath(index) { activeBackend.components.removePendingFilePath(index) }
     function componentsClearPendingFilePaths() { activeBackend.components.clearPendingFilePaths() }

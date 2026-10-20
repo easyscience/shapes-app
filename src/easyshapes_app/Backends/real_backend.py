@@ -6,6 +6,7 @@ from PySide6.QtCore import QObject
 
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
+from .real_py.components import Components
 from .real_py.config import Config
 from .real_py.error import Error
 from .real_py.lattice_structure import LatticeStructure
@@ -46,6 +47,7 @@ class Backend(QObject):
         self._bilayer_structure = BilayerStructure(self._session)
         self._monolayer_structure = MonolayerStructure(self._session)
         self._lattice_structure = LatticeStructure(self._session)
+        self._components = Components(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -54,8 +56,9 @@ class Backend(QObject):
         # Create and load bring their own sample model
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # A new structure or sample model: every structure part reads it
-        # again
+        # A new structure or sample model: every part that reads the
+        # structure reads it again. A part missing here keeps showing
+        # the old project's values after a load or a shape switch.
         for part in (
             self._ring_structure,
             self._ball_structure,
@@ -64,6 +67,7 @@ class Backend(QObject):
             self._bilayer_structure,
             self._monolayer_structure,
             self._lattice_structure,
+            self._components,
         ):
             self._sample_model.externalStructureChanged.connect(part.refresh)
 
@@ -114,3 +118,7 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def latticeStructure(self):
         return self._lattice_structure
+
+    @Property('QVariant', constant=True)
+    def components(self):
+        return self._components

@@ -20,4 +20,10 @@ QtObject {
         { 'name': 'SDS-ball', 'path': '~/Examples/SDS-ball' }
     ]
 
+    // Library.available_assets['Ion']
+    readonly property var availableIons: [
+        'Na<sup>+</sup>', 'Cl<sup>-</sup>', 'Br<sup>-</sup>', 'K<sup>+</sup>',
+        'Ca<sup>2+</sup>', 'Mg<sup>2+</sup>', 'Zn<sup>2+</sup>'
+    ]
+
 }

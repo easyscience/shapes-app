@@ -13,8 +13,14 @@ class Config(QObject):
 
     @Property(str, constant=True)
     def gmxVersion(self):
+        """
+        GROMACS version, or '' when the program can't be run.
+        """
         return AppFileManager().config.gmx_version or ''
 
     @Property(str, constant=True)
     def gmxProblem(self):
+        """
+        Why GROMACS can't be run, for the status bar; '' when it can.
+        """
         return AppFileManager().config.gmx_problem or ''

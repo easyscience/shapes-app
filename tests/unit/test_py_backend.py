@@ -34,8 +34,10 @@ def test_project_change_refreshes_sample_model_and_structure_parts(qcore_applica
     spies = [
         QSignalSpy(getattr(getattr(backend, part), signal)) for part, signal in STRUCTURE_SIGNALS
     ]
+    components = QSignalSpy(backend.components.loaded.modelReset)
 
     backend.project.externalProjectChanged.emit()
 
     assert name.count() == 1
     assert [spy.count() for spy in spies] == [1] * len(STRUCTURE_SIGNALS)
+    assert components.count() == 1

@@ -28,6 +28,9 @@ class SampleModel(QObject):
     # The structure was replaced: the root tells the shape parts
     externalStructureChanged = Signal()
 
+    # The library class create builds; tests swap in a fake
+    _sample_model_class = SampleModelLib
+
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
         self._session = session
@@ -90,7 +93,7 @@ class SampleModel(QObject):
         """
         if self._session.sample_model is not None:
             return
-        self._session.sample_model = SampleModelLib()
+        self._session.sample_model = self._sample_model_class()
         self.refresh()
 
     #########

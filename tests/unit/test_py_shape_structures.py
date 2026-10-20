@@ -3,125 +3,69 @@
 
 import pytest
 from PySide6.QtTest import QSignalSpy
-from shapes.basics.defaults import Fill
-from shapes.basics.options import ShapeType
+from shapes.project import Bilayer
+from shapes.project import Lattice
+from shapes.project import Ring
 
 from easyshapes_app.Backends.real_py.ball_structure import BallStructure
 from easyshapes_app.Backends.real_py.bilayer_structure import BilayerStructure
 from easyshapes_app.Backends.real_py.lattice_structure import LatticeStructure
 from easyshapes_app.Backends.real_py.logic.session import Session
+from easyshapes_app.Backends.real_py.logic.structure import SHAPES
 from easyshapes_app.Backends.real_py.monolayer_structure import MonolayerStructure
 from easyshapes_app.Backends.real_py.ring_structure import RingStructure
 from easyshapes_app.Backends.real_py.rod_structure import RodStructure
 from easyshapes_app.Backends.real_py.vesicle_structure import VesicleStructure
 from tests.unit.factories import FakeSampleModel
-from tests.unit.factories import FakeStructureLogic
 
-# Each shape part, its shape, and its fields as (start, new) values
+pytestmark = pytest.mark.usefixtures('qcore_application')
+
+# Each shape part, its shape, and a new value per field, unlike the
+# library default
 PARTS = [
     (
         RingStructure,
         'Ring',
-        {
-            'alpha': (0.0, 30.0),
-            'theta': (0.0, 60.0),
-            'dmin': (0.5, 0.7),
-            'rmin': (0.25, 0.4),
-            'fxz': (False, True),
-            'rev': (False, True),
-        },
+        {'alpha': 30.0, 'theta': 60.0, 'dmin': 0.7, 'rmin': 0.4, 'fxz': True, 'rev': True},
     ),
-    (
-        BallStructure,
-        'Ball',
-        {'fxz': (False, True), 'rev': (False, True), 'fill': ('FIBO', 'RINGS')},
-    ),
-    (
-        VesicleStructure,
-        'Vesicle',
-        {'fxz': (False, True), 'rev': (False, True), 'fill': ('FIBO', 'RINGS')},
-    ),
-    (
-        RodStructure,
-        'Rod',
-        {
-            'turns': (1, 3),
-            'dmin': (0.5, 0.7),
-            'rmin': (0.25, 0.4),
-            'fxz': (False, True),
-            'rev': (False, True),
-        },
-    ),
-    (BilayerStructure, 'Bilayer', {'dmin': (0.5, 0.7), 'zsep': (0.0, 1.5), 'nside': (1, 4)}),
-    (MonolayerStructure, 'Monolayer', {'dmin': (0.5, 0.7), 'zsep': (0.0, 1.5), 'nside': (1, 4)}),
+    (BallStructure, 'Ball', {'fxz': True, 'rev': True, 'fill': 'FIBO'}),
+    (VesicleStructure, 'Vesicle', {'fxz': True, 'rev': True, 'fill': 'FIBO'}),
+    (RodStructure, 'Rod', {'turns': 3, 'dmin': 0.7, 'rmin': 0.4, 'fxz': True, 'rev': True}),
+    (BilayerStructure, 'Bilayer', {'dmin': 0.7, 'zsep': 1.5, 'nside': 4}),
+    (MonolayerStructure, 'Monolayer', {'dmin': 0.7, 'zsep': 1.5, 'nside': 4}),
     (
         LatticeStructure,
         'Lattice',
         {
-            'alpha': (0.0, 30.0),
-            'theta': (0.0, 60.0),
-            'nlatx': (1, 2),
-            'nlaty': (1, 2),
-            'nlatz': (1, 2),
-            'sbuff': (1.0, 2.0),
-            'latticeType': ('LCUB', 'LFCC'),
+            'alpha': 30.0,
+            'theta': 60.0,
+            'nlatx': 2,
+            'nlaty': 2,
+            'nlatz': 2,
+            'sbuff': 2.0,
+            'latticeType': 'LFCC',
         },
     ),
 ]
-SHAPES = [shape for _, shape, _ in PARTS]
+SHAPE_NAMES = [shape for _, shape, _ in PARTS]
 FIELDS = [(case, field) for case in PARTS for field in case[2]]
 
 
-class FakeStructure:
-    """
-    A structure's fields. Like the library, it turns a fill or lattice
-    type name into a Fill or a ShapeType.
-    """
-
-    def __init__(self, **fields):
-        for field, value in fields.items():
-            setattr(self, field, value)
-
-    @property
-    def fill(self):
-        return self._fill
-
-    @fill.setter
-    def fill(self, value):
-        self._fill = Fill[value]
-
-    @property
-    def lattice_type(self):
-        return self._lattice_type
-
-    @lattice_type.setter
-    def lattice_type(self, value):
-        self._lattice_type = ShapeType[value]
-
-
-@pytest.fixture(autouse=True)
-def fake_logic(monkeypatch, qcore_application):
-    for part_class, _, _ in PARTS:
-        monkeypatch.setattr(f'{part_class.__module__}.structure', FakeStructureLogic)
-
-
-def library_name(field):
-    """
-    The library attribute behind a part field: latticeType is
-    lattice_type.
-    """
-    return ''.join(f'_{char.lower()}' if char.isupper() else char for char in field)
-
-
 def build(part_class, shape, fields):
-    sample_model = FakeSampleModel()
-    # Switch on every part: each reads only its own switch
-    sample_model.shape = shape
-    sample_model.lattice = True
-    sample_model.structure = FakeStructure(**{
-        library_name(field): start for field, (start, _) in fields.items()
-    })
+    """
+    A part over a lattice of its shape, so every part is switched on.
+    The lattice part gets a lattice of rings.
+    """
+    sample_model = FakeSampleModel(Lattice(unit=SHAPES.get(shape, Ring)()))
     return part_class(Session(sample_model=sample_model)), sample_model
+
+
+def switched_off(shape):
+    """
+    A structure the part of that shape doesn't read: another shape, no
+    lattice.
+    """
+    return Bilayer() if shape == 'Ring' else Ring()
 
 
 def all_signals(part, fields):
@@ -134,7 +78,7 @@ def all_signals(part, fields):
 def test_setters_write_the_structure_and_emit_only_on_change(case, field):
     part, _ = build(*case)
     spy = QSignalSpy(getattr(part, f'{field}Changed'))
-    new = case[2][field][1]
+    new = case[2][field]
 
     setattr(part, field, new)
     setattr(part, field, new)
@@ -144,25 +88,24 @@ def test_setters_write_the_structure_and_emit_only_on_change(case, field):
     assert spy.count() == 1
 
 
-@pytest.mark.parametrize('case', PARTS, ids=SHAPES)
+@pytest.mark.parametrize('case', PARTS, ids=SHAPE_NAMES)
 def test_fields_read_empty_and_setters_do_nothing_when_switched_off(case):
     part, sample_model = build(*case)
     fields = case[2]
-    sample_model.shape, sample_model.lattice = 'Other', False
-    before = dict(vars(sample_model.structure))
+    sample_model.structure = off = switched_off(case[1])
+    before = dict(vars(off))
     spies = all_signals(part, fields)
 
-    for field, (_, new) in fields.items():
+    for field, new in fields.items():
         setattr(part, field, new)
 
     # 0, 0.0, False or '', by the field's type
-    empty = [type(start)() for start, _ in fields.values()]
-    assert [getattr(part, field) for field in fields] == empty
-    assert vars(sample_model.structure) == before
+    assert [getattr(part, field) for field in fields] == [type(new)() for new in fields.values()]
+    assert vars(off) == before
     assert [spy.count() for spy in spies] == [0] * len(fields)
 
 
-@pytest.mark.parametrize('case', PARTS, ids=SHAPES)
+@pytest.mark.parametrize('case', PARTS, ids=SHAPE_NAMES)
 def test_refresh_emits_every_field_signal_once(case):
     part, _ = build(*case)
     spies = all_signals(part, case[2])
