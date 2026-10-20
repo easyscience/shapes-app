@@ -6,12 +6,25 @@ from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Ball
+from shapes.project import Bilayer
 from shapes.project import Lattice
+from shapes.project import Monolayer
+from shapes.project import Ring
+from shapes.project import Rod
 from shapes.project import SampleModel as SampleModelLib
 from shapes.project import Vesicle
 
-from .logic import structure
 from .logic.session import Session
+
+# GUI name of each shape, in the order the shape list shows them
+SHAPES = {
+    'Ring': Ring,
+    'Ball': Ball,
+    'Vesicle': Vesicle,
+    'Rod': Rod,
+    'Bilayer': Bilayer,
+    'Monolayer': Monolayer,
+}
 
 
 class SampleModel(QObject):
@@ -28,7 +41,8 @@ class SampleModel(QObject):
     shapeChanged = Signal()
     latticeChanged = Signal()
 
-    # The structure was replaced: the root tells the shape parts
+    # The structure was replaced: the root builds new structure adapters
+    # and refreshes the components list
     externalStructureChanged = Signal()
 
     # The library class create builds; tests swap in a fake
@@ -57,7 +71,7 @@ class SampleModel(QObject):
 
     @Property('QVariant', constant=True)
     def shapes(self):
-        return list(structure.SHAPES)
+        return list(SHAPES)
 
     @Property(str, notify=shapeChanged)
     def shape(self):
@@ -67,7 +81,7 @@ class SampleModel(QObject):
         # The lattice's unit, or the structure itself
         current = sample_model.structure
         unit = current.unit if isinstance(current, Lattice) else current
-        return next(name for name, cls in structure.SHAPES.items() if type(unit) is cls)
+        return next(name for name, cls in SHAPES.items() if type(unit) is cls)
 
     @shape.setter
     def shape(self, value):
@@ -88,7 +102,7 @@ class SampleModel(QObject):
                     lamella.outer_leaflet_composition.detach()
         else:
             old.composition.detach()
-        new = structure.SHAPES[value](components=old.components)
+        new = SHAPES[value](components=old.components)
         if lattice:
             sample_model.structure.unit = new
         else:

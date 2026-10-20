@@ -4,8 +4,13 @@
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
+from shapes.project import Ball
+from shapes.project import Bilayer
 from shapes.project import Lattice
+from shapes.project import Monolayer
 from shapes.project import Ring
+from shapes.project import Rod
+from shapes.project import Vesicle
 
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
@@ -29,10 +34,19 @@ class Backend(QObject):
 
     Holds the session and one part per domain, and connects parts that
     react to each other, so the parts don't know each other.
+
+    Also builds the structure adapters: one for the current shape and
+    one for a lattice, built anew on every structure change.
     """
 
     # The adapter of the current structure's shape was replaced
     ringStructureChanged = Signal()
+    ballStructureChanged = Signal()
+    vesicleStructureChanged = Signal()
+    rodStructureChanged = Signal()
+    bilayerStructureChanged = Signal()
+    monolayerStructureChanged = Signal()
+    latticeStructureChanged = Signal()
 
     def __init__(self, session: Session | None = None):
         super().__init__()
@@ -49,12 +63,12 @@ class Backend(QObject):
         # The adapter of the current shape; None while another shape is
         # current
         self._ring_structure = None
-        self._ball_structure = BallStructure(self._session)
-        self._vesicle_structure = VesicleStructure(self._session)
-        self._rod_structure = RodStructure(self._session)
-        self._bilayer_structure = BilayerStructure(self._session)
-        self._monolayer_structure = MonolayerStructure(self._session)
-        self._lattice_structure = LatticeStructure(self._session)
+        self._ball_structure = None
+        self._vesicle_structure = None
+        self._rod_structure = None
+        self._bilayer_structure = None
+        self._monolayer_structure = None
+        self._lattice_structure = None
         self._components = Components(self._session)
 
         # Recent reads the project index, which create, load and save
@@ -64,19 +78,9 @@ class Backend(QObject):
         # Create and load bring their own sample model
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # A new structure or sample model: every part that reads the
-        # structure reads it again. A part missing here keeps showing
-        # the old project's values after a load or a shape switch.
-        for part in (
-            self._ball_structure,
-            self._vesicle_structure,
-            self._rod_structure,
-            self._bilayer_structure,
-            self._monolayer_structure,
-            self._lattice_structure,
-            self._components,
-        ):
-            self._sample_model.externalStructureChanged.connect(part.refresh)
+        # A new structure or sample model: the components list reads it
+        # again
+        self._sample_model.externalStructureChanged.connect(self._components.refresh)
 
         # A new structure or sample model: adapt its shape anew
         self._sample_model.externalStructureChanged.connect(self._adapt_structure)
@@ -105,27 +109,27 @@ class Backend(QObject):
     def ringStructure(self):
         return self._ring_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=ballStructureChanged)
     def ballStructure(self):
         return self._ball_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=vesicleStructureChanged)
     def vesicleStructure(self):
         return self._vesicle_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=rodStructureChanged)
     def rodStructure(self):
         return self._rod_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=bilayerStructureChanged)
     def bilayerStructure(self):
         return self._bilayer_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=monolayerStructureChanged)
     def monolayerStructure(self):
         return self._monolayer_structure
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=latticeStructureChanged)
     def latticeStructure(self):
         return self._lattice_structure
 
@@ -136,9 +140,33 @@ class Backend(QObject):
     def _adapt_structure(self):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
-        unit = structure.unit if isinstance(structure, Lattice) else structure
-        if self._ring_structure is not None:
-            # Deleted after QML has re-read the new one
-            self._ring_structure.deleteLater()
+        lattice = structure if isinstance(structure, Lattice) else None
+        unit = lattice.unit if lattice else structure
+        for adapter in (
+            self._ring_structure,
+            self._ball_structure,
+            self._vesicle_structure,
+            self._rod_structure,
+            self._bilayer_structure,
+            self._monolayer_structure,
+            self._lattice_structure,
+        ):
+            if adapter is not None:
+                # Deleted after QML has re-read the new one
+                adapter.deleteLater()
         self._ring_structure = RingStructure(unit, self) if type(unit) is Ring else None
+        self._ball_structure = BallStructure(unit, self) if type(unit) is Ball else None
+        self._vesicle_structure = VesicleStructure(unit, self) if type(unit) is Vesicle else None
+        self._rod_structure = RodStructure(unit, self) if type(unit) is Rod else None
+        self._bilayer_structure = BilayerStructure(unit, self) if type(unit) is Bilayer else None
+        self._monolayer_structure = (
+            MonolayerStructure(unit, self) if type(unit) is Monolayer else None
+        )
+        self._lattice_structure = LatticeStructure(lattice, self) if lattice else None
         self.ringStructureChanged.emit()
+        self.ballStructureChanged.emit()
+        self.vesicleStructureChanged.emit()
+        self.rodStructureChanged.emit()
+        self.bilayerStructureChanged.emit()
+        self.monolayerStructureChanged.emit()
+        self.latticeStructureChanged.emit()

@@ -9,7 +9,6 @@ from shapes.project import Rod
 from shapes.project import SampleModel as SampleModelLib
 
 from easyshapes_app.Backends.real_py.logic.session import Session
-from easyshapes_app.Backends.real_py.logic.structure import shaped
 from easyshapes_app.Backends.real_py.sample_model import SampleModel
 
 
@@ -59,8 +58,7 @@ def test_lattice_wraps_and_unwraps_the_discrete_structure(qcore_application):
     part.lattice = True
     assert isinstance(sample_model.structure, Lattice)
     assert sample_model.structure.unit is ring
-    assert shaped(sample_model, 'Ring') is ring
-    assert shaped(sample_model, 'Ball') is None
+    assert part.shape == 'Ring'
 
     part.shape = 'Rod'
     assert isinstance(sample_model.structure, Lattice)

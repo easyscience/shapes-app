@@ -3,8 +3,13 @@
 
 import pytest
 from PySide6.QtTest import QSignalSpy
+from shapes.project import Ball
+from shapes.project import Bilayer
 from shapes.project import Lattice
+from shapes.project import Monolayer
 from shapes.project import Ring
+from shapes.project import Rod
+from shapes.project import Vesicle
 
 from easyshapes_app.Backends.real_backend import Backend
 from easyshapes_app.Backends.real_py.logic.session import Session
@@ -20,33 +25,43 @@ def test_project_change_refreshes_recent(qcore_application):
     assert spy.count() == 1
 
 
-# One signal from each structure part, to see its refresh
-STRUCTURE_SIGNALS = [
-    ('ballStructure', 'fillChanged'),
-    ('vesicleStructure', 'fillChanged'),
-    ('rodStructure', 'turnsChanged'),
-    ('bilayerStructure', 'nsideChanged'),
-    ('monolayerStructure', 'nsideChanged'),
-    ('latticeStructure', 'latticeTypeChanged'),
-]
+# Each shape adapter on the backend, and the class it adapts
+SHAPE_ADAPTERS = {
+    'ringStructure': Ring,
+    'ballStructure': Ball,
+    'vesicleStructure': Vesicle,
+    'rodStructure': Rod,
+    'bilayerStructure': Bilayer,
+    'monolayerStructure': Monolayer,
+}
+ADAPTERS = [*SHAPE_ADAPTERS, 'latticeStructure']
 
 
-def test_project_change_refreshes_sample_model_and_structure_parts(qcore_application):
+def test_project_change_refreshes_sample_model_components_and_adapters(qcore_application):
     backend = Backend(Session())
     name = QSignalSpy(backend.sampleModel.nameChanged)
-    spies = [
-        QSignalSpy(getattr(getattr(backend, part), signal)) for part, signal in STRUCTURE_SIGNALS
-    ]
     components = QSignalSpy(backend.components.loaded.modelReset)
-    ring = QSignalSpy(backend.ringStructureChanged)
+    swapped = [QSignalSpy(getattr(backend, f'{adapter}Changed')) for adapter in ADAPTERS]
 
     backend.project.externalProjectChanged.emit()
 
     assert name.count() == 1
-    assert [spy.count() for spy in spies] == [1] * len(STRUCTURE_SIGNALS)
     assert components.count() == 1
-    assert ring.count() == 1
-    assert backend.ringStructure is None
+    assert [spy.count() for spy in swapped] == [1] * len(ADAPTERS)
+    assert [getattr(backend, adapter) for adapter in ADAPTERS] == [None] * len(ADAPTERS)
+
+
+@pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
+@pytest.mark.parametrize('adapter', list(SHAPE_ADAPTERS))
+def test_only_the_current_shape_and_its_lattice_are_adapted(qcore_application, adapter, lattice):
+    unit = SHAPE_ADAPTERS[adapter]()
+    sample_model = FakeSampleModel(Lattice(unit=unit) if lattice else unit)
+    backend = Backend(Session(sample_model=sample_model))
+
+    backend.sampleModel.externalStructureChanged.emit()
+
+    adapted = {name for name in ADAPTERS if getattr(backend, name) is not None}
+    assert adapted == ({adapter, 'latticeStructure'} if lattice else {adapter})
 
 
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])

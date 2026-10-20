@@ -117,85 +117,91 @@ QtObject {
     // BallStructure
     ////////////////
 
-    readonly property bool ballStructureFxz: activeBackend.ballStructure.fxz
-    readonly property bool ballStructureRev: activeBackend.ballStructure.rev
-    readonly property string ballStructureFill: activeBackend.ballStructure.fill
+    // Null while the current shape is not a ball
+    readonly property bool ballStructureFxz: activeBackend.ballStructure?.fxz ?? false
+    readonly property bool ballStructureRev: activeBackend.ballStructure?.rev ?? false
+    readonly property string ballStructureFill: activeBackend.ballStructure?.fill ?? ''
 
-    function ballStructureSetFxz(value) { activeBackend.ballStructure.fxz = value }
-    function ballStructureSetRev(value) { activeBackend.ballStructure.rev = value }
-    function ballStructureSetFill(value) { activeBackend.ballStructure.fill = value }
+    function ballStructureSetFxz(value) { if (activeBackend.ballStructure) activeBackend.ballStructure.fxz = value }
+    function ballStructureSetRev(value) { if (activeBackend.ballStructure) activeBackend.ballStructure.rev = value }
+    function ballStructureSetFill(value) { if (activeBackend.ballStructure) activeBackend.ballStructure.fill = value }
 
     ///////////////////
     // VesicleStructure
     ///////////////////
 
-    readonly property bool vesicleStructureFxz: activeBackend.vesicleStructure.fxz
-    readonly property bool vesicleStructureRev: activeBackend.vesicleStructure.rev
-    readonly property string vesicleStructureFill: activeBackend.vesicleStructure.fill
+    // Null while the current shape is not a vesicle
+    readonly property bool vesicleStructureFxz: activeBackend.vesicleStructure?.fxz ?? false
+    readonly property bool vesicleStructureRev: activeBackend.vesicleStructure?.rev ?? false
+    readonly property string vesicleStructureFill: activeBackend.vesicleStructure?.fill ?? ''
 
-    function vesicleStructureSetFxz(value) { activeBackend.vesicleStructure.fxz = value }
-    function vesicleStructureSetRev(value) { activeBackend.vesicleStructure.rev = value }
-    function vesicleStructureSetFill(value) { activeBackend.vesicleStructure.fill = value }
+    function vesicleStructureSetFxz(value) { if (activeBackend.vesicleStructure) activeBackend.vesicleStructure.fxz = value }
+    function vesicleStructureSetRev(value) { if (activeBackend.vesicleStructure) activeBackend.vesicleStructure.rev = value }
+    function vesicleStructureSetFill(value) { if (activeBackend.vesicleStructure) activeBackend.vesicleStructure.fill = value }
 
     ///////////////
     // RodStructure
     ///////////////
 
-    readonly property int rodStructureTurns: activeBackend.rodStructure.turns
-    readonly property real rodStructureDmin: activeBackend.rodStructure.dmin
-    readonly property real rodStructureRmin: activeBackend.rodStructure.rmin
-    readonly property bool rodStructureFxz: activeBackend.rodStructure.fxz
-    readonly property bool rodStructureRev: activeBackend.rodStructure.rev
+    // Null while the current shape is not a rod
+    readonly property int rodStructureTurns: activeBackend.rodStructure?.turns ?? 0
+    readonly property real rodStructureDmin: activeBackend.rodStructure?.dmin ?? 0
+    readonly property real rodStructureRmin: activeBackend.rodStructure?.rmin ?? 0
+    readonly property bool rodStructureFxz: activeBackend.rodStructure?.fxz ?? false
+    readonly property bool rodStructureRev: activeBackend.rodStructure?.rev ?? false
 
-    function rodStructureSetTurns(value) { activeBackend.rodStructure.turns = value }
-    function rodStructureSetDmin(value) { activeBackend.rodStructure.dmin = value }
-    function rodStructureSetRmin(value) { activeBackend.rodStructure.rmin = value }
-    function rodStructureSetFxz(value) { activeBackend.rodStructure.fxz = value }
-    function rodStructureSetRev(value) { activeBackend.rodStructure.rev = value }
+    function rodStructureSetTurns(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.turns = value }
+    function rodStructureSetDmin(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.dmin = value }
+    function rodStructureSetRmin(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.rmin = value }
+    function rodStructureSetFxz(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.fxz = value }
+    function rodStructureSetRev(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.rev = value }
 
     ///////////////////
     // BilayerStructure
     ///////////////////
 
-    readonly property real bilayerStructureDmin: activeBackend.bilayerStructure.dmin
-    readonly property real bilayerStructureZsep: activeBackend.bilayerStructure.zsep
-    readonly property int bilayerStructureNside: activeBackend.bilayerStructure.nside
+    // Null while the current shape is not a bilayer
+    readonly property real bilayerStructureDmin: activeBackend.bilayerStructure?.dmin ?? 0
+    readonly property real bilayerStructureZsep: activeBackend.bilayerStructure?.zsep ?? 0
+    readonly property int bilayerStructureNside: activeBackend.bilayerStructure?.nside ?? 0
 
-    function bilayerStructureSetDmin(value) { activeBackend.bilayerStructure.dmin = value }
-    function bilayerStructureSetZsep(value) { activeBackend.bilayerStructure.zsep = value }
-    function bilayerStructureSetNside(value) { activeBackend.bilayerStructure.nside = value }
+    function bilayerStructureSetDmin(value) { if (activeBackend.bilayerStructure) activeBackend.bilayerStructure.dmin = value }
+    function bilayerStructureSetZsep(value) { if (activeBackend.bilayerStructure) activeBackend.bilayerStructure.zsep = value }
+    function bilayerStructureSetNside(value) { if (activeBackend.bilayerStructure) activeBackend.bilayerStructure.nside = value }
 
     /////////////////////
     // MonolayerStructure
     /////////////////////
 
-    readonly property real monolayerStructureDmin: activeBackend.monolayerStructure.dmin
-    readonly property real monolayerStructureZsep: activeBackend.monolayerStructure.zsep
-    readonly property int monolayerStructureNside: activeBackend.monolayerStructure.nside
+    // Null while the current shape is not a monolayer
+    readonly property real monolayerStructureDmin: activeBackend.monolayerStructure?.dmin ?? 0
+    readonly property real monolayerStructureZsep: activeBackend.monolayerStructure?.zsep ?? 0
+    readonly property int monolayerStructureNside: activeBackend.monolayerStructure?.nside ?? 0
 
-    function monolayerStructureSetDmin(value) { activeBackend.monolayerStructure.dmin = value }
-    function monolayerStructureSetZsep(value) { activeBackend.monolayerStructure.zsep = value }
-    function monolayerStructureSetNside(value) { activeBackend.monolayerStructure.nside = value }
+    function monolayerStructureSetDmin(value) { if (activeBackend.monolayerStructure) activeBackend.monolayerStructure.dmin = value }
+    function monolayerStructureSetZsep(value) { if (activeBackend.monolayerStructure) activeBackend.monolayerStructure.zsep = value }
+    function monolayerStructureSetNside(value) { if (activeBackend.monolayerStructure) activeBackend.monolayerStructure.nside = value }
 
     ///////////////////
     // LatticeStructure
     ///////////////////
 
-    readonly property real latticeStructureAlpha: activeBackend.latticeStructure.alpha
-    readonly property real latticeStructureTheta: activeBackend.latticeStructure.theta
-    readonly property int latticeStructureNlatx: activeBackend.latticeStructure.nlatx
-    readonly property int latticeStructureNlaty: activeBackend.latticeStructure.nlaty
-    readonly property int latticeStructureNlatz: activeBackend.latticeStructure.nlatz
-    readonly property real latticeStructureSbuff: activeBackend.latticeStructure.sbuff
-    readonly property string latticeStructureLatticeType: activeBackend.latticeStructure.latticeType
+    // Null while no lattice repeats the structure
+    readonly property real latticeStructureAlpha: activeBackend.latticeStructure?.alpha ?? 0
+    readonly property real latticeStructureTheta: activeBackend.latticeStructure?.theta ?? 0
+    readonly property int latticeStructureNlatx: activeBackend.latticeStructure?.nlatx ?? 0
+    readonly property int latticeStructureNlaty: activeBackend.latticeStructure?.nlaty ?? 0
+    readonly property int latticeStructureNlatz: activeBackend.latticeStructure?.nlatz ?? 0
+    readonly property real latticeStructureSbuff: activeBackend.latticeStructure?.sbuff ?? 0
+    readonly property string latticeStructureLatticeType: activeBackend.latticeStructure?.latticeType ?? ''
 
-    function latticeStructureSetAlpha(value) { activeBackend.latticeStructure.alpha = value }
-    function latticeStructureSetTheta(value) { activeBackend.latticeStructure.theta = value }
-    function latticeStructureSetNlatx(value) { activeBackend.latticeStructure.nlatx = value }
-    function latticeStructureSetNlaty(value) { activeBackend.latticeStructure.nlaty = value }
-    function latticeStructureSetNlatz(value) { activeBackend.latticeStructure.nlatz = value }
-    function latticeStructureSetSbuff(value) { activeBackend.latticeStructure.sbuff = value }
-    function latticeStructureSetLatticeType(value) { activeBackend.latticeStructure.latticeType = value }
+    function latticeStructureSetAlpha(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.alpha = value }
+    function latticeStructureSetTheta(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.theta = value }
+    function latticeStructureSetNlatx(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.nlatx = value }
+    function latticeStructureSetNlaty(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.nlaty = value }
+    function latticeStructureSetNlatz(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.nlatz = value }
+    function latticeStructureSetSbuff(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.sbuff = value }
+    function latticeStructureSetLatticeType(value) { if (activeBackend.latticeStructure) activeBackend.latticeStructure.latticeType = value }
 
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded

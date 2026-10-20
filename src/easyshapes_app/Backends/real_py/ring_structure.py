@@ -8,11 +8,11 @@ from PySide6.QtCore import Signal
 
 class RingStructure(QObject):
     """
-    The ring's fields for QML, while the structure, or the unit its
-    lattice repeats, is a ring.
+    One ring's fields for QML: the structure's, or the unit's its
+    lattice repeats.
 
-    For any other shape the fields read 0 or False and the setters do
-    nothing: the page shows the ring group only for a ring.
+    The root builds it while the current structure is a ring and drops
+    it on the next structure change; for any other shape QML finds none.
     """
 
     alphaChanged = Signal()

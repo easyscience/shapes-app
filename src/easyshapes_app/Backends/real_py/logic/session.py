@@ -11,12 +11,13 @@ from shapes.project.analysis import Analysis
 @dataclass
 class Session:
     """
-    What the app works on, shared by the root and all logic.
+    What the app works on, shared by the root and the parts.
 
     A sample model and an analysis can exist before a project. Creating
     the first project takes them in; loading a project replaces all
-    three. Parts read them here every time and never keep their own
-    reference.
+    three. Parts read them here every time. Only a structure adapter
+    keeps its object, and the root replaces the adapter whenever the
+    structure is replaced.
     """
 
     project: Project | None = None

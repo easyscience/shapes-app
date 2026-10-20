@@ -5,26 +5,24 @@ from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
 
-from .logic import structure
-from .logic.session import Session
-
 
 class VesicleStructure(QObject):
     """
-    The vesicle's fields for QML, while the structure, or the unit its
-    lattice repeats, is a vesicle. Its lamellae have their own part.
+    One vesicle's fields for QML: the structure's, or the unit's its
+    lattice repeats. Its lamellae have their own part.
 
-    For any other shape the fields read '' or False and the setters do
-    nothing: the page shows the vesicle group only for a vesicle.
+    The root builds it while the current structure is a vesicle and
+    drops it on the next structure change; for any other shape QML finds
+    none.
     """
 
     fxzChanged = Signal()
     revChanged = Signal()
     fillChanged = Signal()
 
-    def __init__(self, session: Session, parent=None):
+    def __init__(self, vesicle, parent=None):
         super().__init__(parent)
-        self._session = session
+        self._vesicle = vesicle
 
     ##########################
     # GUI accessible variables
@@ -32,55 +30,34 @@ class VesicleStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
-        vesicle = self._vesicle()
-        return vesicle.fxz if vesicle else False
+        return self._vesicle.fxz
 
     @fxz.setter
     def fxz(self, value):
-        vesicle = self._vesicle()
-        if vesicle is None or vesicle.fxz == value:
+        if self._vesicle.fxz == value:
             return
-        vesicle.fxz = value
+        self._vesicle.fxz = value
         self.fxzChanged.emit()
 
     @Property(bool, notify=revChanged)
     def rev(self):
-        vesicle = self._vesicle()
-        return vesicle.rev if vesicle else False
+        return self._vesicle.rev
 
     @rev.setter
     def rev(self, value):
-        vesicle = self._vesicle()
-        if vesicle is None or vesicle.rev == value:
+        if self._vesicle.rev == value:
             return
-        vesicle.rev = value
+        self._vesicle.rev = value
         self.revChanged.emit()
 
     @Property(str, notify=fillChanged)
     def fill(self):
-        vesicle = self._vesicle()
-        return vesicle.fill.name if vesicle else ''
+        return self._vesicle.fill.name
 
     @fill.setter
     def fill(self, value):
-        vesicle = self._vesicle()
-        if vesicle is None or vesicle.fill.name == value:
+        if self._vesicle.fill.name == value:
             return
         # The library takes a Fill name as text
-        vesicle.fill = value
+        self._vesicle.fill = value
         self.fillChanged.emit()
-
-    #########
-    # Helpers
-    #########
-
-    def refresh(self):
-        """
-        Tell QML that the structure was replaced.
-        """
-        self.fxzChanged.emit()
-        self.revChanged.emit()
-        self.fillChanged.emit()
-
-    def _vesicle(self):
-        return structure.shaped(self._session.sample_model, 'Vesicle')
