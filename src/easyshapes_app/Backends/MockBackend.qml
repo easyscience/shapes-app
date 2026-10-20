@@ -24,10 +24,10 @@ QtObject {
     property var libraryAssets: MockLogic.LibraryAssetsEditor
     // SMILES generator (Advanced sidebar) — molecule from a SMILES string.
     property var smilesGenerator: MockLogic.SmilesGenerator
-    // Default fractions set tied to the shared component list.
-    // Used as the fallback for the Fractions sidebar component when no
-    // per-row override is set.
+    // Mock-only: keeps the composition rows in step with the components
     property var fractions: MockLogic.Fractions { source: MockLogic.Components.loaded }
+    // The current structure's composition, as Backend.composition
+    property var composition: fractions.model
     // Layers owns one Fractions instance per layer (per-row state) and
     // shares the same component source so names stay in sync with the
     // global components list.

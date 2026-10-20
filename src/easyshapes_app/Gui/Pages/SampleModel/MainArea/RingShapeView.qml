@@ -102,8 +102,8 @@ Item {
     onClearColorChanged: canvas.requestPaint()
 
     // Global component indices that are actually present in a fractions set:
-    // present === true AND mole ratio (fracs) > 0. With no fractions model, all
-    // loaded components count as present.
+    // present === true AND mole ratio (molRatio) > 0. With no fractions model,
+    // all loaded components count as present.
     function _presentComps(fracModel) {
         const out = []
         if (!fracModel || fracModel.count === undefined) {
@@ -114,7 +114,7 @@ Item {
         const n = Math.min(fracModel.count, components.count)
         for (let i = 0; i < n; ++i) {
             const row = fracModel.get(i)
-            if (row && row.present && row.fracs > 0)
+            if (row && row.present && row.molRatio > 0)
                 out.push(i)
         }
         return out
@@ -169,7 +169,7 @@ Item {
             return out
         }
         return [{ dmin: root.dmin, rmin: root.rmin, reversed: root.rev, showRmin: true,
-                  comps: _presentComps(Globals.BackendWrapper.fractionsModel) }]
+                  comps: _presentComps(Globals.BackendWrapper.compositionItems) }]
     }
 
     // Fractions models to watch for repaint (per leaflet/layer/ring). Rebuilt
@@ -187,7 +187,7 @@ Item {
             for (let i = 0; i < layers.count; ++i)
                 out.push(Globals.BackendWrapper.layersFractionsModelAt(i))
         } else {
-            out.push(Globals.BackendWrapper.fractionsModel)
+            out.push(Globals.BackendWrapper.compositionItems)
         }
         return out.filter(Boolean)
     }

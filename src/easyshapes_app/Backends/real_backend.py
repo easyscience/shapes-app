@@ -15,6 +15,7 @@ from shapes.project import Vesicle
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
 from .real_py.components import Components
+from .real_py.composition import CompositionModel
 from .real_py.config import Config
 from .real_py.error import Error
 from .real_py.lattice_structure import LatticeStructure
@@ -47,6 +48,7 @@ class Backend(QObject):
     bilayerStructureChanged = Signal()
     monolayerStructureChanged = Signal()
     latticeStructureChanged = Signal()
+    compositionChanged = Signal()
 
     def __init__(self, session: Session | None = None):
         super().__init__()
@@ -69,6 +71,7 @@ class Backend(QObject):
         self._bilayer_structure = None
         self._monolayer_structure = None
         self._lattice_structure = None
+        self._composition = None
         self._components = Components(self._session)
 
         # Recent reads the project index, which create, load and save
@@ -137,6 +140,10 @@ class Backend(QObject):
     def components(self):
         return self._components
 
+    @Property('QVariant', notify=compositionChanged)
+    def composition(self):
+        return self._composition
+
     def _adapt_structure(self):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
@@ -150,6 +157,7 @@ class Backend(QObject):
             self._bilayer_structure,
             self._monolayer_structure,
             self._lattice_structure,
+            self._composition,
         ):
             if adapter is not None:
                 # Deleted after QML has re-read the new one
@@ -163,6 +171,16 @@ class Backend(QObject):
             MonolayerStructure(unit, self) if type(unit) is Monolayer else None
         )
         self._lattice_structure = LatticeStructure(lattice, self) if lattice else None
+        # A ball or a vesicle keeps its compositions in layers and
+        # lamellae
+        composition = getattr(unit, 'composition', None)
+        self._composition = None
+        if composition is not None:
+            self._composition = CompositionModel(composition, self)
+            # Removing or renaming a component changes its rows; the
+            # connections end when this model is deleted
+            self._components.loaded.rowsRemoved.connect(self._composition.refresh)
+            self._components.loaded.dataChanged.connect(self._composition.refresh)
         self.ringStructureChanged.emit()
         self.ballStructureChanged.emit()
         self.vesicleStructureChanged.emit()
@@ -170,3 +188,4 @@ class Backend(QObject):
         self.bilayerStructureChanged.emit()
         self.monolayerStructureChanged.emit()
         self.latticeStructureChanged.emit()
+        self.compositionChanged.emit()

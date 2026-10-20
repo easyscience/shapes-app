@@ -15,7 +15,7 @@ QtObject {
     id: root
 
     // Source of components shared with every layer's Fractions instance.
-    // Each layer keeps its own per-instance fracs/present state but
+    // Each layer keeps its own per-instance present/molRatio state but
     // mirrors the same name list.
     property var fractionsSource: null
 

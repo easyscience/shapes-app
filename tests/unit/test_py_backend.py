@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import pytest
+from PySide6.QtCore import QModelIndex
 from PySide6.QtTest import QSignalSpy
 from shapes.project import Ball
 from shapes.project import Bilayer
@@ -42,6 +43,7 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     name = QSignalSpy(backend.sampleModel.nameChanged)
     components = QSignalSpy(backend.components.loaded.modelReset)
     swapped = [QSignalSpy(getattr(backend, f'{adapter}Changed')) for adapter in ADAPTERS]
+    composition = QSignalSpy(backend.compositionChanged)
 
     backend.project.externalProjectChanged.emit()
 
@@ -49,6 +51,8 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     assert components.count() == 1
     assert [spy.count() for spy in swapped] == [1] * len(ADAPTERS)
     assert [getattr(backend, adapter) for adapter in ADAPTERS] == [None] * len(ADAPTERS)
+    assert composition.count() == 1
+    assert backend.composition is None
 
 
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
@@ -81,3 +85,23 @@ def test_ring_adapter_follows_the_current_structure(qcore_application, lattice):
 
     assert backend.ringStructure is None
     assert swapped.count() == 2
+
+
+@pytest.mark.parametrize('adapter', list(SHAPE_ADAPTERS))
+def test_only_shapes_that_own_a_composition_get_its_model(qcore_application, adapter):
+    backend = Backend(Session(sample_model=FakeSampleModel(SHAPE_ADAPTERS[adapter]())))
+
+    backend.sampleModel.externalStructureChanged.emit()
+
+    owns = adapter not in ('ballStructure', 'vesicleStructure')
+    assert (backend.composition is not None) == owns
+
+
+def test_component_changes_refresh_the_composition(qcore_application):
+    backend = Backend(Session(sample_model=FakeSampleModel(Ring())))
+    backend.sampleModel.externalStructureChanged.emit()
+    reset = QSignalSpy(backend.composition.modelReset)
+
+    backend.components.loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+
+    assert reset.count() == 1

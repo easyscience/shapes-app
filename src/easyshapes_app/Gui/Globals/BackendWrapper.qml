@@ -219,13 +219,10 @@ QtObject {
     // returns one shared template molecule for every component.
     function componentStructureAtoms(index) { return activeBackend.components.structureAtoms(index) }
 
-    // Global default Fractions set (fallback for the Fractions sidebar
-    // component). Layers/Lamellae do NOT use this — see the per-row
-    // fraction accessors below.
-    readonly property var fractionsModel: activeBackend.fractions.model
-
-    function fractionsSetFracs(index, value) { activeBackend.fractions.setFracs(index, value) }
-    function fractionsSetPresent(index, value) { activeBackend.fractions.setPresent(index, value) }
+    // Composition of the current ring, rod, bilayer or monolayer; null
+    // in Python for a ball or a vesicle, whose layers and lamellae hold
+    // theirs
+    readonly property var compositionItems: activeBackend.composition
 
     // Layers (Sample Model sidebar). One Fractions instance per layer is
     // owned by the backend; the GUI binds the fractions list of the

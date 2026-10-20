@@ -15,7 +15,7 @@ QtObject {
     id: root
 
     // Source of components shared with every leaflet's Fractions instance.
-    // Each leaflet keeps its own per-instance fracs/present state but
+    // Each leaflet keeps its own per-instance present/molRatio state but
     // mirrors the same component name list.
     property var fractionsSource: null
 
