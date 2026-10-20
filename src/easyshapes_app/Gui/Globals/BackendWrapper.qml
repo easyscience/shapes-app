@@ -98,19 +98,20 @@ QtObject {
     // RingStructure
     ////////////////
 
-    readonly property real ringStructureAlpha: activeBackend.ringStructure.alpha
-    readonly property real ringStructureTheta: activeBackend.ringStructure.theta
-    readonly property real ringStructureDmin: activeBackend.ringStructure.dmin
-    readonly property real ringStructureRmin: activeBackend.ringStructure.rmin
-    readonly property bool ringStructureFxz: activeBackend.ringStructure.fxz
-    readonly property bool ringStructureRev: activeBackend.ringStructure.rev
+    // Null while the current shape is not a ring
+    readonly property real ringStructureAlpha: activeBackend.ringStructure?.alpha ?? 0
+    readonly property real ringStructureTheta: activeBackend.ringStructure?.theta ?? 0
+    readonly property real ringStructureDmin: activeBackend.ringStructure?.dmin ?? 0
+    readonly property real ringStructureRmin: activeBackend.ringStructure?.rmin ?? 0
+    readonly property bool ringStructureFxz: activeBackend.ringStructure?.fxz ?? false
+    readonly property bool ringStructureRev: activeBackend.ringStructure?.rev ?? false
 
-    function ringStructureSetAlpha(value) { activeBackend.ringStructure.alpha = value }
-    function ringStructureSetTheta(value) { activeBackend.ringStructure.theta = value }
-    function ringStructureSetDmin(value) { activeBackend.ringStructure.dmin = value }
-    function ringStructureSetRmin(value) { activeBackend.ringStructure.rmin = value }
-    function ringStructureSetFxz(value) { activeBackend.ringStructure.fxz = value }
-    function ringStructureSetRev(value) { activeBackend.ringStructure.rev = value }
+    function ringStructureSetAlpha(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.alpha = value }
+    function ringStructureSetTheta(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.theta = value }
+    function ringStructureSetDmin(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.dmin = value }
+    function ringStructureSetRmin(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.rmin = value }
+    function ringStructureSetFxz(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.fxz = value }
+    function ringStructureSetRev(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.rev = value }
 
     ////////////////
     // BallStructure

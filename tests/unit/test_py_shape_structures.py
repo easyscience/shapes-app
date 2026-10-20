@@ -23,11 +23,6 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 # Each shape part, its shape, and a new value per field, unlike the
 # library default
 PARTS = [
-    (
-        RingStructure,
-        'Ring',
-        {'alpha': 30.0, 'theta': 60.0, 'dmin': 0.7, 'rmin': 0.4, 'fxz': True, 'rev': True},
-    ),
     (BallStructure, 'Ball', {'fxz': True, 'rev': True, 'fill': 'FIBO'}),
     (VesicleStructure, 'Vesicle', {'fxz': True, 'rev': True, 'fill': 'FIBO'}),
     (RodStructure, 'Rod', {'turns': 3, 'dmin': 0.7, 'rmin': 0.4, 'fxz': True, 'rev': True}),
@@ -49,6 +44,17 @@ PARTS = [
 ]
 SHAPE_NAMES = [shape for _, shape, _ in PARTS]
 FIELDS = [(case, field) for case in PARTS for field in case[2]]
+
+# Each adapter, its library class, and a new value per field, unlike
+# the library default
+ADAPTERS = [
+    (
+        RingStructure,
+        Ring,
+        {'alpha': 30.0, 'theta': 60.0, 'dmin': 0.7, 'rmin': 0.4, 'fxz': True, 'rev': True},
+    ),
+]
+ADAPTER_FIELDS = [(case, field) for case in ADAPTERS for field in case[2]]
 
 
 def build(part_class, shape, fields):
@@ -113,3 +119,22 @@ def test_refresh_emits_every_field_signal_once(case):
     part.refresh()
 
     assert [spy.count() for spy in spies] == [1] * len(case[2])
+
+
+@pytest.mark.parametrize(
+    ('case', 'field'),
+    ADAPTER_FIELDS,
+    ids=[f'{case[1].__name__}-{field}' for case, field in ADAPTER_FIELDS],
+)
+def test_adapter_setters_write_the_structure_and_emit_only_on_change(case, field):
+    adapter_class, library_class, fields = case
+    adapted = library_class()
+    adapter = adapter_class(adapted)
+    spy = QSignalSpy(getattr(adapter, f'{field}Changed'))
+
+    setattr(adapter, field, fields[field])
+    setattr(adapter, field, fields[field])
+
+    assert getattr(adapted, field) == fields[field]
+    assert getattr(adapter, field) == fields[field]
+    assert spy.count() == 1

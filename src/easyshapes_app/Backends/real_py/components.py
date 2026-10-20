@@ -9,8 +9,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Ion
+from shapes.project import Lattice
 
-from .logic import structure
 from .logic.session import Session
 
 
@@ -203,7 +203,10 @@ class ComponentsModel(QAbstractListModel):
 
     def _components(self):
         sample_model = self._session.sample_model
-        return () if sample_model is None else structure.discrete(sample_model).components
+        if sample_model is None:
+            return ()
+        current = sample_model.structure
+        return (current.unit if isinstance(current, Lattice) else current).components
 
 
 class Components(QObject):

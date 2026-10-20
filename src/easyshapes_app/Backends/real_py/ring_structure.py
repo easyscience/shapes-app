@@ -5,9 +5,6 @@ from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
 
-from .logic import structure
-from .logic.session import Session
-
 
 class RingStructure(QObject):
     """
@@ -25,9 +22,9 @@ class RingStructure(QObject):
     fxzChanged = Signal()
     revChanged = Signal()
 
-    def __init__(self, session: Session, parent=None):
+    def __init__(self, ring, parent=None):
         super().__init__(parent)
-        self._session = session
+        self._ring = ring
 
     ##########################
     # GUI accessible variables
@@ -35,96 +32,66 @@ class RingStructure(QObject):
 
     @Property(float, notify=alphaChanged)
     def alpha(self):
-        ring = self._ring()
-        return ring.alpha if ring else 0.0
+        return self._ring.alpha
 
     @alpha.setter
     def alpha(self, value):
-        ring = self._ring()
-        if ring is None or ring.alpha == value:
+        if self._ring.alpha == value:
             return
-        ring.alpha = value
+        self._ring.alpha = value
         self.alphaChanged.emit()
 
     @Property(float, notify=thetaChanged)
     def theta(self):
-        ring = self._ring()
-        return ring.theta if ring else 0.0
+        return self._ring.theta
 
     @theta.setter
     def theta(self, value):
-        ring = self._ring()
-        if ring is None or ring.theta == value:
+        if self._ring.theta == value:
             return
-        ring.theta = value
+        self._ring.theta = value
         self.thetaChanged.emit()
 
     @Property(float, notify=dminChanged)
     def dmin(self):
-        ring = self._ring()
-        return ring.dmin if ring else 0.0
+        return self._ring.dmin
 
     @dmin.setter
     def dmin(self, value):
-        ring = self._ring()
-        if ring is None or ring.dmin == value:
+        if self._ring.dmin == value:
             return
-        ring.dmin = value
+        self._ring.dmin = value
         self.dminChanged.emit()
 
     @Property(float, notify=rminChanged)
     def rmin(self):
-        ring = self._ring()
-        return ring.rmin if ring else 0.0
+        return self._ring.rmin
 
     @rmin.setter
     def rmin(self, value):
-        ring = self._ring()
-        if ring is None or ring.rmin == value:
+        if self._ring.rmin == value:
             return
-        ring.rmin = value
+        self._ring.rmin = value
         self.rminChanged.emit()
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
-        ring = self._ring()
-        return ring.fxz if ring else False
+        return self._ring.fxz
 
     @fxz.setter
     def fxz(self, value):
-        ring = self._ring()
-        if ring is None or ring.fxz == value:
+        if self._ring.fxz == value:
             return
-        ring.fxz = value
+        self._ring.fxz = value
         self.fxzChanged.emit()
 
     @Property(bool, notify=revChanged)
     def rev(self):
-        ring = self._ring()
-        return ring.rev if ring else False
+        return self._ring.rev
 
     @rev.setter
     def rev(self, value):
-        ring = self._ring()
-        if ring is None or ring.rev == value:
+        if self._ring.rev == value:
             return
-        ring.rev = value
+        self._ring.rev = value
         self.revChanged.emit()
-
-    #########
-    # Helpers
-    #########
-
-    def refresh(self):
-        """
-        Tell QML that the structure was replaced.
-        """
-        self.alphaChanged.emit()
-        self.thetaChanged.emit()
-        self.dminChanged.emit()
-        self.rminChanged.emit()
-        self.fxzChanged.emit()
-        self.revChanged.emit()
-
-    def _ring(self):
-        return structure.shaped(self._session.sample_model, 'Ring')

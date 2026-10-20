@@ -3,6 +3,9 @@
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
+from PySide6.QtCore import Signal
+from shapes.project import Lattice
+from shapes.project import Ring
 
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
@@ -28,6 +31,9 @@ class Backend(QObject):
     react to each other, so the parts don't know each other.
     """
 
+    # The adapter of the current structure's shape was replaced
+    ringStructureChanged = Signal()
+
     def __init__(self, session: Session | None = None):
         super().__init__()
 
@@ -40,7 +46,9 @@ class Backend(QObject):
         self._config = Config()
         self._error = Error()
         self._sample_model = SampleModel(self._session)
-        self._ring_structure = RingStructure(self._session)
+        # The adapter of the current shape; None while another shape is
+        # current
+        self._ring_structure = None
         self._ball_structure = BallStructure(self._session)
         self._vesicle_structure = VesicleStructure(self._session)
         self._rod_structure = RodStructure(self._session)
@@ -60,7 +68,6 @@ class Backend(QObject):
         # structure reads it again. A part missing here keeps showing
         # the old project's values after a load or a shape switch.
         for part in (
-            self._ring_structure,
             self._ball_structure,
             self._vesicle_structure,
             self._rod_structure,
@@ -70,6 +77,9 @@ class Backend(QObject):
             self._components,
         ):
             self._sample_model.externalStructureChanged.connect(part.refresh)
+
+        # A new structure or sample model: adapt its shape anew
+        self._sample_model.externalStructureChanged.connect(self._adapt_structure)
 
     @Property('QVariant', constant=True)
     def project(self):
@@ -91,7 +101,7 @@ class Backend(QObject):
     def sampleModel(self):
         return self._sample_model
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=ringStructureChanged)
     def ringStructure(self):
         return self._ring_structure
 
@@ -122,3 +132,13 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def components(self):
         return self._components
+
+    def _adapt_structure(self):
+        sample_model = self._session.sample_model
+        structure = sample_model.structure if sample_model else None
+        unit = structure.unit if isinstance(structure, Lattice) else structure
+        if self._ring_structure is not None:
+            # Deleted after QML has re-read the new one
+            self._ring_structure.deleteLater()
+        self._ring_structure = RingStructure(unit, self) if type(unit) is Ring else None
+        self.ringStructureChanged.emit()

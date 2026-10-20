@@ -10,7 +10,6 @@ from shapes.project.analysis import ForceField
 
 from easyshapes_app.Backends.real_backend import Backend
 from easyshapes_app.Backends.real_py.components import ComponentsModel as Model
-from easyshapes_app.Backends.real_py.logic import structure
 from easyshapes_app.Backends.real_py.logic.session import Session
 
 
@@ -26,7 +25,7 @@ def test_component_edits_survive_project_save_and_load(qcore_application, tmp_pa
     backend = Backend(session)
     backend.project.create('lipids', '', str(tmp_path / 'lipids'))
     # ponytail: added through the library until the GUI can (step 5)
-    structure.discrete(session.sample_model).components.append(Lipid(name='DPPC'))
+    session.sample_model.structure.components.append(Lipid(name='DPPC'))
     backend.components.refresh()
     model = backend.components.loaded
     row = model.index(0)

@@ -4,8 +4,8 @@
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
+from shapes.project import Lattice
 
-from .logic import structure
 from .logic.session import Session
 
 
@@ -144,6 +144,6 @@ class LatticeStructure(QObject):
 
     def _lattice(self):
         sample_model = self._session.sample_model
-        if sample_model is None or not structure.is_lattice(sample_model):
+        if sample_model is None or not isinstance(sample_model.structure, Lattice):
             return None
         return sample_model.structure
