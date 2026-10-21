@@ -26,7 +26,7 @@ Item {
     id: root
 
     property var components: Globals.BackendWrapper.componentsLoaded
-    property var fractions: Globals.BackendWrapper.fractionsModel
+    property var fractions: Globals.BackendWrapper.compositionItems
 
     property real dmin: 0.5
     property real zsep: 0.0
@@ -70,7 +70,7 @@ Item {
         const n = Math.min(fm.count, components.count)
         for (let i = 0; i < n; ++i) {
             const row = fm.get(i)
-            if (row && row.present && row.fracs > 0)
+            if (row && row.present && row.molRatio > 0)
                 out.push(i)
         }
         return out

@@ -44,6 +44,8 @@ EaComponents.ContentPage {
 
         continueButton.onClicked: {            
             console.debug(`Clicking '${continueButton.text}' button ::: ${this}`)
+            // Without a project there is no sample model yet
+            Globals.BackendWrapper.sampleModelCreate()
             Globals.References.applicationWindow.appBarCentralTabs.sampleModelButton.enabled = true
             Globals.References.applicationWindow.appBarCentralTabs.sampleModelButton.toggle()
         }

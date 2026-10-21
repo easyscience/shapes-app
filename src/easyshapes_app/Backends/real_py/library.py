@@ -18,6 +18,10 @@ class Library(QObject):
 
     @Property('QVariant', notify=availableProjectsChanged)
     def availableProjects(self):
+        """
+        Saved projects, most recently saved first: {name, path,
+        modified} rows, modified as local 'dd Mon YYYY HH:MM'.
+        """
         return [
             {
                 'name': path.name,
@@ -29,4 +33,17 @@ class Library(QObject):
 
     @Property('QVariant', constant=True)
     def availableExamples(self):
+        """
+        Example projects, by folder name: {name, path} rows.
+        """
         return [{'name': path.name, 'path': str(path)} for path in LibraryLib().available_examples]
+
+    @Property('QVariant', constant=True)
+    def availableIons(self):
+        """
+        Names of the library's ions, local first, then remote ones not
+        held locally. A counter-ion name the components list accepts.
+        """
+        # ponytail: constant until ions can be saved to the library
+        # (step 5); then a notify signal the root emits after a save
+        return LibraryLib().available_assets.get('Ion', [])

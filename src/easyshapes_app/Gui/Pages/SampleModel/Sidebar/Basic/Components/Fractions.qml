@@ -11,9 +11,9 @@ import EasyApplication.Gui.Components as EaComponents
 import Gui.Globals as Globals
 
 EaComponents.ListView {
-    // Override to bind a per-row Fractions backend (e.g. layer/lamella).
-    // Defaults to the global Fractions set on the wrapper.
-    property var fractionsModel: Globals.BackendWrapper.fractionsModel
+    // Override to bind a per-row composition (e.g. layer/lamella).
+    // Defaults to the current structure's composition.
+    property var fractionsModel: Globals.BackendWrapper.compositionItems
 
     defaultInfoText: qsTr("Missing components")
     selectionActive: false
@@ -48,7 +48,7 @@ EaComponents.ListView {
     delegate: EaComponents.ListViewDelegate {
         required property int index
         required property string name
-        required property double fracs
+        required property double molRatio
         required property bool present
 
         EaComponents.TableViewCheckBox {
@@ -61,9 +61,9 @@ EaComponents.ListView {
             enabled: false
         }
         EaComponents.ListViewTextInput {
-            text: present ? fracs : 0
+            text: present ? molRatio : 0
             enabled: present
-            onEditingFinished: fracs = parseFloat(text)
+            onEditingFinished: molRatio = parseFloat(text)
             validator: DoubleValidator { bottom: 0 }
         }
     }

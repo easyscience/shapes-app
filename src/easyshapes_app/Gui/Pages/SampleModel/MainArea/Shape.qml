@@ -25,7 +25,7 @@ import Gui.Globals as Globals
 Rectangle {
     id: root
 
-    readonly property string structureType: Globals.BackendWrapper.sampleModelCurrentStructureType
+    readonly property string structureType: Globals.BackendWrapper.sampleModelShape
     readonly property bool isRod: structureType === "Rod"
     readonly property bool isFlat: structureType === "Bilayer" || structureType === "Monolayer"
     readonly property bool isRadial: structureType === "Ring"
@@ -46,20 +46,20 @@ Rectangle {
 
         // Single-ring parameters (Ring, and Rod which reuses the ring layout).
         dmin: root.isRod
-              ? Globals.BackendWrapper.rodStructure.dmin
-              : Globals.BackendWrapper.ringStructure.dmin
+              ? Globals.BackendWrapper.rodStructureDmin
+              : Globals.BackendWrapper.ringStructureDmin
         rmin: root.isRod
-              ? Globals.BackendWrapper.rodStructure.rmin
-              : Globals.BackendWrapper.ringStructure.rmin
+              ? Globals.BackendWrapper.rodStructureRmin
+              : Globals.BackendWrapper.ringStructureRmin
 
         // Each structure has its own rev flag.
         rev: root.structureType === "Ball"
-             ? Globals.BackendWrapper.ballStructure.rev
+             ? Globals.BackendWrapper.ballStructureRev
              : root.structureType === "Vesicle"
-               ? Globals.BackendWrapper.vesicleStructure.rev
+               ? Globals.BackendWrapper.vesicleStructureRev
                : root.isRod
-                 ? Globals.BackendWrapper.rodStructure.rev
-                 : Globals.BackendWrapper.ringStructure.rev
+                 ? Globals.BackendWrapper.rodStructureRev
+                 : Globals.BackendWrapper.ringStructureRev
 
         // Ball: one ring per layer. Ring/Rod: no layers -> single ring above.
         layers: root.structureType === "Ball"
@@ -84,14 +84,14 @@ Rectangle {
         reversed: root.structureType === "Monolayer"
 
         dmin: root.structureType === "Monolayer"
-              ? Globals.BackendWrapper.monolayerStructure.dmin
-              : Globals.BackendWrapper.bilayerStructure.dmin
+              ? Globals.BackendWrapper.monolayerStructureDmin
+              : Globals.BackendWrapper.bilayerStructureDmin
         zsep: root.structureType === "Monolayer"
-              ? Globals.BackendWrapper.monolayerStructure.zsep
-              : Globals.BackendWrapper.bilayerStructure.zsep
+              ? Globals.BackendWrapper.monolayerStructureZsep
+              : Globals.BackendWrapper.bilayerStructureZsep
         nside: root.structureType === "Monolayer"
-               ? Globals.BackendWrapper.monolayerStructure.nside
-               : Globals.BackendWrapper.bilayerStructure.nside
+               ? Globals.BackendWrapper.monolayerStructureNside
+               : Globals.BackendWrapper.bilayerStructureNside
     }
 
     // Rod body capsule, drawn in the lower-left quadrant for the Rod structure.
@@ -101,7 +101,7 @@ Rectangle {
         width: parent.width * 0.45
         height: parent.height * 0.45
         visible: root.isRod
-        turns: Globals.BackendWrapper.rodStructure.turns
+        turns: Globals.BackendWrapper.rodStructureTurns
         showDimensions: dimsCheck.checked
     }
 

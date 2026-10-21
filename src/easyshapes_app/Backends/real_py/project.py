@@ -32,6 +32,10 @@ class Project(QObject):
     # Created, loaded or saved: the root tells the parts that may care
     externalProjectChanged = Signal()
 
+    # The library class create builds and load reads; tests swap in a
+    # fake
+    _project_class = ProjectLib
+
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
         self._session = session
@@ -77,11 +81,19 @@ class Project(QObject):
 
     @Property(str, notify=pathChanged)
     def pathParentUrl(self):
+        """
+        file:// URL of the folder holding the project, where the next
+        create dialog opens; '' without a project.
+        """
         project = self._session.project
         return project.path.parent.as_uri() if project else ''
 
     @Property(str, notify=modifiedChanged)
     def modified(self):
+        """
+        Last save as local 'dd Mon YYYY HH:MM'; '' before the first save
+        or without a project.
+        """
         project = self._session.project
         if project is None or project.modified is None:
             return ''
@@ -118,7 +130,7 @@ class Project(QObject):
         """
         first = self._session.project is None
         self._set_session_project(
-            ProjectLib(
+            self._project_class(
                 name=name or None,
                 description=description,
                 sample_model=self._session.sample_model if first else None,
@@ -129,7 +141,7 @@ class Project(QObject):
 
     @Slot(str)
     def load(self, path):
-        self._set_session_project(ProjectLib.load(path))
+        self._set_session_project(self._project_class.load(path))
 
     @Slot()
     def save(self):

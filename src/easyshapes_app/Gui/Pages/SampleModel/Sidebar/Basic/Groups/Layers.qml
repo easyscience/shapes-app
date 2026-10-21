@@ -63,12 +63,14 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {}
             EaComponents.ListViewTextInput {
                 text: dmin
-                onEditingFinished: Globals.BackendWrapper.layersSetDmin(index, parseFloat(text))
+                warned: !acceptableInput
+                onEditingFinished: dmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
                 text: rmin
-                onEditingFinished: Globals.BackendWrapper.layersSetRmin(index, parseFloat(text))
+                warned: !acceptableInput
+                onEditingFinished: rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.TableViewButton {
@@ -86,7 +88,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add layer")
             width: root.thirdWidth
-            onClicked: Globals.BackendWrapper.layersAppend({ dmin: 0.5, rmin: 0.25 })
+            onClicked: Globals.BackendWrapper.layersAdd()
         }
     }
 
@@ -96,18 +98,13 @@ EaElements.GroupColumn {
         width: parent.width
 
         readonly property int selectedRow: layers.selectedIndexes.length > 0 ? layers.selectedIndexes[0].row : -1
-        readonly property var selectedFractionsModel: {
-            // Re-evaluate when the per-layer Fractions array is rebuilt.
-            void Globals.BackendWrapper.layersFractionsRevision
-            return selectedRow >= 0 ? Globals.BackendWrapper.layersFractionsModelAt(selectedRow) : null
-        }
 
         EaElements.Label {
             enabled: false
             text: qsTr("Layer %1 Fractions").arg(fractionsSection.selectedRow >= 0 ? fractionsSection.selectedRow + 1 : 1)
         }
         Local.Fractions {
-            fractionsModel: fractionsSection.selectedFractionsModel
+            fractionsModel: Globals.BackendWrapper.layersCompositions[fractionsSection.selectedRow] ?? null
         }
     }
 }

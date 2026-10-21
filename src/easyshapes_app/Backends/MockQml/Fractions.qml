@@ -7,7 +7,7 @@ import QtQuick
 
 // Fractions backend object — instantiable, NOT a singleton.
 // One instance per layer/lamella. Tracks the shared component list via
-// `source` and adds per-instance `fracs` / `present` state. Sync between
+// `source` and adds per-instance `present` / `molRatio` state. Sync between
 // `source` and the exposed `model` is owned here so GUI consumers only
 // bind `model` and read/write roles via DelegateModel.ReadWrite.
 QtObject {
@@ -17,16 +17,15 @@ QtObject {
     // Typically `MockLogic.Components.loaded`. May be reassigned.
     property var source: null
 
-    // ListModel exposed to the GUI ListView.
-    // Roles: name (mirrored from source), fracs (per-instance),
-    // present (per-instance).
+    // ListModel exposed to the GUI ListView. Roles as CompositionModel:
+    // name (mirrored from source), present, molRatio (per instance).
     readonly property var model: ListModel { id: backing }
 
     Component.onCompleted: rebuild()
     onSourceChanged: rebuild()
 
     // Internal sync. Surgical inserts/removes preserve the per-instance
-    // fracs/present state of unaffected rows; full rebuild only on reset
+    // present/molRatio state of unaffected rows; full rebuild only on reset
     // or source reassignment.
     property var __sync: Connections {
         target: root.source
@@ -34,7 +33,7 @@ QtObject {
         function onRowsInserted(parent, first, last) {
             for (let i = first; i <= last; ++i) {
                 const c = root.source.get(i)
-                backing.insert(i, { name: c.name, fracs: 1, present: true })
+                backing.insert(i, { name: c.name, present: true, molRatio: 1 })
             }
         }
         function onRowsRemoved(parent, first, last) {
@@ -53,17 +52,7 @@ QtObject {
         if (!source) return
         for (let i = 0; i < source.count; ++i) {
             const c = source.get(i)
-            backing.append({ name: c.name, fracs: 1, present: true })
+            backing.append({ name: c.name, present: true, molRatio: 1 })
         }
-    }
-
-    function setFracs(index, value) {
-        if (index < 0 || index >= backing.count) return
-        backing.setProperty(index, 'fracs', value)
-    }
-
-    function setPresent(index, value) {
-        if (index < 0 || index >= backing.count) return
-        backing.setProperty(index, 'present', value)
     }
 }

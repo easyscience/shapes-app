@@ -26,10 +26,10 @@ EaElements.StatusBar {
         keyText: qsTr("Shape")
         // Bare shape for a discrete model, or "Lattice (<shape>)" on a lattice.
         valueText: {
-            const shape = Globals.BackendWrapper.sampleModelCurrentStructureType
+            const shape = Globals.BackendWrapper.sampleModelShape
             if (!shape)
                 return ""
-            return Globals.BackendWrapper.sampleModelCurrentType === "Lattice"
+            return Globals.BackendWrapper.sampleModelLattice
                    ? qsTr("Lattice (%1)").arg(shape.toLowerCase())
                    : shape
         }

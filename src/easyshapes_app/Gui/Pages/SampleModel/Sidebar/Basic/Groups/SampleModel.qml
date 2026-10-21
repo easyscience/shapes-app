@@ -22,10 +22,9 @@ EaElements.GroupColumn {
         multiSelection: false
 
         columnWidths: [
-            EaStyle.Sizes.fontPixelSize * 10,
-            EaStyle.Sizes.fontPixelSize * 6,
+            -1,
             EaStyle.Sizes.fontPixelSize * 7,
-            -1
+            EaStyle.Sizes.fontPixelSize * 8
         ]
 
         header: EaComponents.ListViewHeader {
@@ -41,37 +40,33 @@ EaElements.GroupColumn {
                 text: qsTr("Shape")
                 color: EaStyle.Colors.themeForegroundMinor
             }
-            EaComponents.TableViewLabel {
-                text: qsTr("Description")
-                color: EaStyle.Colors.themeForegroundMinor
-            }
         }
 
-        model: Globals.BackendWrapper.sampleModelLoaded
+        // One row for the session's sample model; none before Continue.
+        // The row edits through the wrapper's set functions until the
+        // library holds several models (then a list model, ReadWrite).
+        model: Globals.BackendWrapper.sampleModelShape ? 1 : 0
 
         delegate: EaComponents.ListViewDelegate {
-            required property var modelData
-            required property int index
-
             EaComponents.ListViewTextInput {
-                text: modelData ? modelData.name : ""
-                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField("name", text)
+                text: Globals.BackendWrapper.sampleModelName
+                onEditingFinished: {
+                    try { Globals.BackendWrapper.sampleModelSetName(text) }
+                    // A refused name leaves the typed text: read the held one back
+                    finally { text = Qt.binding(() => Globals.BackendWrapper.sampleModelName) }
+                }
             }
             EaComponents.TableViewComboBox {
                 horizontalAlignment: Text.AlignHCenter
-                model: Globals.BackendWrapper.sampleModelTypes
-                Component.onCompleted: currentIndex = model.indexOf(modelData.type)
-                onActivated: (i) => Globals.BackendWrapper.sampleModelUpdateField("type", model[i])
+                model: [qsTr("Discrete"), qsTr("Lattice")]
+                currentIndex: Globals.BackendWrapper.sampleModelLattice ? 1 : 0
+                onActivated: (i) => Globals.BackendWrapper.sampleModelSetLattice(i === 1)
             }
             EaComponents.TableViewComboBox {
                 horizontalAlignment: Text.AlignHCenter
-                model: Globals.BackendWrapper.sampleModelStructureTypes
-                Component.onCompleted: currentIndex = model.indexOf(modelData.structure_type)
-                onActivated: (i) => Globals.BackendWrapper.sampleModelUpdateField("structure_type", model[i])
-            }
-            EaComponents.ListViewTextInput {
-                text: modelData ? modelData.description : ""
-                onEditingFinished: Globals.BackendWrapper.sampleModelUpdateField("description", text)
+                model: Globals.BackendWrapper.sampleModelShapes
+                currentIndex: model.indexOf(Globals.BackendWrapper.sampleModelShape)
+                onActivated: (i) => Globals.BackendWrapper.sampleModelSetShape(model[i])
             }
         }
     }

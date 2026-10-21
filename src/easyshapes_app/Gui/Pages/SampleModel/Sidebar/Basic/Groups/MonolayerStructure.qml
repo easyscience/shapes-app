@@ -24,23 +24,23 @@ EaElements.GroupColumn {
             title: qsTr("Zsep")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
-            text: Globals.BackendWrapper.monolayerStructure.zsep
-            onEditingFinished: Globals.BackendWrapper.monolayerStructure.zsep = parseFloat(text)
+            text: Globals.BackendWrapper.monolayerStructureZsep
+            onEditingFinished: Globals.BackendWrapper.monolayerStructureSetZsep(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
-            text: Globals.BackendWrapper.monolayerStructure.nside
-            onEditingFinished: Globals.BackendWrapper.monolayerStructure.nside = parseInt(text)
+            text: Globals.BackendWrapper.monolayerStructureNside
+            onEditingFinished: Globals.BackendWrapper.monolayerStructureSetNside(parseInt(text))
         }
         EaElements.Parameter {
             width: root.thirdWidth
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
-            text: Globals.BackendWrapper.monolayerStructure.dmin
-            onEditingFinished: Globals.BackendWrapper.monolayerStructure.dmin = parseFloat(text)
+            text: Globals.BackendWrapper.monolayerStructureDmin
+            onEditingFinished: Globals.BackendWrapper.monolayerStructureSetDmin(parseFloat(text))
         }
     }
 

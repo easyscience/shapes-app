@@ -5,6 +5,8 @@ from datetime import UTC
 from datetime import datetime
 from pathlib import Path
 
+from shapes.project import Ring
+
 SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
 
@@ -39,3 +41,15 @@ class FakeProject:
     def save(self):
         self.save_calls += 1
         self.modified = SAVED_AT
+
+
+class FakeSampleModel:
+    """
+    Stands in for shapes.project.SampleModel, a library asset. It holds
+    a real structure, a ring unless given, for the real structure logic
+    to read and switch.
+    """
+
+    def __init__(self, structure=None):
+        self.name = 'uid0002'
+        self.structure = structure or Ring()

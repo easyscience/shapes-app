@@ -24,32 +24,32 @@ EaElements.GroupColumn {
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
-            text: Globals.BackendWrapper.ringStructure.dmin
-            onEditingFinished: Globals.BackendWrapper.ringStructure.dmin = parseFloat(text)
+            text: Globals.BackendWrapper.ringStructureDmin
+            onEditingFinished: Globals.BackendWrapper.ringStructureSetDmin(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Rmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
-            text: Globals.BackendWrapper.ringStructure.rmin
-            onEditingFinished: Globals.BackendWrapper.ringStructure.rmin = parseFloat(text)
+            text: Globals.BackendWrapper.ringStructureRmin
+            onEditingFinished: Globals.BackendWrapper.ringStructureSetRmin(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
-            text: Globals.BackendWrapper.ringStructure.alpha
-            onEditingFinished: Globals.BackendWrapper.ringStructure.alpha = parseFloat(text)
+            text: Globals.BackendWrapper.ringStructureAlpha
+            onEditingFinished: Globals.BackendWrapper.ringStructureSetAlpha(parseFloat(text))
         }
         EaElements.Parameter {
             width: root.quarterWidth
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }
-            text: Globals.BackendWrapper.ringStructure.theta
-            onEditingFinished: Globals.BackendWrapper.ringStructure.theta = parseFloat(text)
+            text: Globals.BackendWrapper.ringStructureTheta
+            onEditingFinished: Globals.BackendWrapper.ringStructureSetTheta(parseFloat(text))
         }
     }
 
@@ -60,15 +60,15 @@ EaElements.GroupColumn {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Fxz")
-            checked: Globals.BackendWrapper.ringStructure.fxz
-            onToggled: Globals.BackendWrapper.ringStructure.fxz = checked
+            checked: Globals.BackendWrapper.ringStructureFxz
+            onToggled: Globals.BackendWrapper.ringStructureSetFxz(checked)
         }
         EaElements.CheckBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Rev")
-            checked: Globals.BackendWrapper.ringStructure.rev
-            onToggled: Globals.BackendWrapper.ringStructure.rev = checked
+            checked: Globals.BackendWrapper.ringStructureRev
+            onToggled: Globals.BackendWrapper.ringStructureSetRev(checked)
         }
     }
 

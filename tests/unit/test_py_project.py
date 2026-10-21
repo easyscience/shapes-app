@@ -6,25 +6,29 @@ from pathlib import Path
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from easyshapes_app.Backends.real_py import project as project_module
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.project import Project
 from tests.unit.factories import LOADED_AT
 from tests.unit.factories import SAVED_AT
 from tests.unit.factories import FakeProject
 
+pytestmark = pytest.mark.usefixtures('qcore_application')
+
+
+class OfflineProject(Project):
+    """
+    Builds and loads FakeProjects, not library ones.
+    """
+
+    _project_class = FakeProject
+
 
 def local_text(moment):
     return moment.astimezone().strftime('%d %b %Y %H:%M')
 
 
-@pytest.fixture(autouse=True)
-def fake_project_lib(monkeypatch, qcore_application):
-    monkeypatch.setattr(project_module, 'ProjectLib', FakeProject)
-
-
 def test_fields_are_empty_without_project():
-    part = Project(Session())
+    part = OfflineProject(Session())
 
     assert part.created is False
     assert (part.name, part.description, part.path, part.pathParentUrl, part.modified) == (
@@ -37,7 +41,7 @@ def test_fields_are_empty_without_project():
 
 
 def test_setters_do_nothing_without_project():
-    part = Project(Session())
+    part = OfflineProject(Session())
     spy = QSignalSpy(part.nameChanged)
 
     part.name = 'ring'
@@ -47,7 +51,7 @@ def test_setters_do_nothing_without_project():
 
 
 def test_name_setter_emits_only_on_change():
-    part = Project(Session())
+    part = OfflineProject(Session())
     part.create('ring', '', '')
     spy = QSignalSpy(part.nameChanged)
 
@@ -59,7 +63,7 @@ def test_name_setter_emits_only_on_change():
 
 
 def test_description_setter_emits_only_on_change():
-    part = Project(Session())
+    part = OfflineProject(Session())
     part.create('ring', 'a ring', '')
     spy = QSignalSpy(part.descriptionChanged)
 
@@ -74,7 +78,7 @@ def test_first_create_takes_in_session_sample_model_and_analysis():
     sample_model, analysis = object(), object()
     session = Session(sample_model=sample_model, analysis=analysis)
 
-    Project(session).create('ring', 'a ring', '')
+    OfflineProject(session).create('ring', 'a ring', '')
 
     assert session.project.init_args == {
         'name': 'ring',
@@ -88,7 +92,7 @@ def test_first_create_takes_in_session_sample_model_and_analysis():
 
 def test_create_with_a_project_starts_fresh():
     session = Session()
-    part = Project(session)
+    part = OfflineProject(session)
     part.create('first', '', '')
     first_model = session.sample_model
 
@@ -101,14 +105,14 @@ def test_create_with_a_project_starts_fresh():
 def test_create_passes_empty_name_and_path_as_none():
     session = Session()
 
-    Project(session).create('', '', '')
+    OfflineProject(session).create('', '', '')
 
     assert session.project.init_args['name'] is None
     assert session.project.init_args['path'] is None
 
 
 def test_create_with_path_gives_path_and_parent_url(tmp_path):
-    part = Project(Session())
+    part = OfflineProject(Session())
 
     part.create('ring', '', str(tmp_path / 'ring1'))
 
@@ -118,7 +122,7 @@ def test_create_with_path_gives_path_and_parent_url(tmp_path):
 
 @pytest.mark.parametrize('action', ['create', 'load'])
 def test_create_and_load_emit_every_signal_once(action):
-    part = Project(Session())
+    part = OfflineProject(Session())
     spies = [
         QSignalSpy(signal)
         for signal in (
@@ -141,7 +145,7 @@ def test_create_and_load_emit_every_signal_once(action):
 
 def test_load_replaces_project_sample_model_and_analysis():
     session = Session(sample_model=object(), analysis=object())
-    part = Project(session)
+    part = OfflineProject(session)
 
     part.load(str(Path.home() / 'Projects' / 'ring1'))
 
@@ -153,7 +157,7 @@ def test_load_replaces_project_sample_model_and_analysis():
 
 def test_save_updates_modified_and_tells_the_root():
     session = Session()
-    part = Project(session)
+    part = OfflineProject(session)
     part.create('ring', '', '')
     modified = QSignalSpy(part.modifiedChanged)
     external = QSignalSpy(part.externalProjectChanged)
@@ -166,7 +170,7 @@ def test_save_updates_modified_and_tells_the_root():
 
 
 def test_location_is_taken_only_when_something_is_there(tmp_path):
-    part = Project(Session())
+    part = OfflineProject(Session())
     empty = tmp_path / 'empty'
     empty.mkdir()
     full = tmp_path / 'full'

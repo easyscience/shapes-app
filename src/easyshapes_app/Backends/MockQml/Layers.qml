@@ -7,85 +7,43 @@ pragma Singleton
 import QtQuick
 
 
-// Pattern D backend (multi-row list with selection) for layers, plus a
-// parallel JS array of per-layer Fractions instances. ListElement only
-// accepts literal scalars, so the Fractions QtObjects can't live inside
-// the ListModel rows — they're maintained in lockstep here.
-QtObject {
+// The ball's layers, as Backend.layers. The first row comes from add(),
+// so the compositions follow every row the same way. remove(row) is
+// ListModel's own.
+ListModel {
     id: root
 
-    // Source of components shared with every layer's Fractions instance.
-    // Each layer keeps its own per-instance fracs/present state but
-    // mirrors the same name list.
+    // Components every row's composition follows; set by MockBackend
     property var fractionsSource: null
 
-    // Table of layers. Roles: dmin, rmin.
-    readonly property var items: ListModel {
-        id: layersModel
-        ListElement { dmin: 0.5; rmin: 0.25 }
+    // One Fractions model per row, in row order
+    readonly property var compositions: __fractions.map(fractions => fractions.model)
+
+    property var __fractions: []
+    property var __fractionsComponent: Qt.createComponent(Qt.resolvedUrl("Fractions.qml"))
+
+    Component.onCompleted: add()
+
+    // The library defaults for every layer: the page has no scaling
+    function add() {
+        append({ dmin: 0.5, rmin: 0.25 })
     }
 
-    // Parallel array of Fractions QtObjects, one per layer.
-    // Bumping the revision token triggers rebinding for `var` consumers,
-    // since rebuilding the array reference (not its contents) is what
-    // QML actually signals on.
-    property var fractionsInstances: []
-    property int fractionsRevision: 0
-
-    property var __fractionsComponent: null
-
-    Component.onCompleted: {
-        __fractionsComponent = Qt.createComponent(Qt.resolvedUrl("Fractions.qml"))
-        if (__fractionsComponent.status !== Component.Ready) {
-            console.warn("Layers: failed to load Fractions.qml:", __fractionsComponent.errorString())
-            return
+    // The compositions follow the rows, however they were added or removed
+    onRowsInserted: (parent, first, last) => {
+        const list = __fractions.slice()
+        for (let row = first; row <= last; ++row) {
+            const fractions = __fractionsComponent.createObject(root)
+            // Bound, not copied: MockBackend may set the source later
+            fractions.source = Qt.binding(function() { return root.fractionsSource })
+            list.splice(row, 0, fractions)
         }
-        const arr = []
-        for (let i = 0; i < layersModel.count; ++i) arr.push(__createFractions())
-        fractionsInstances = arr
-        fractionsRevision++
+        __fractions = list
     }
-
-    function __createFractions() {
-        // Bind (don't snapshot) so per-instance Fractions follow later
-        // assignments to root.fractionsSource — singleton init order is
-        // not deterministic, so the source may be set after this runs.
-        const f = __fractionsComponent.createObject(root)
-        f.source = Qt.binding(function() { return root.fractionsSource })
-        return f
-    }
-
-    function appendItem(item) {
-        layersModel.append({ dmin: item.dmin, rmin: item.rmin })
-        const arr = fractionsInstances.slice()
-        arr.push(__createFractions())
-        fractionsInstances = arr
-        fractionsRevision++
-    }
-
-    function removeItem(index) {
-        if (index < 0 || index >= layersModel.count) return
-        layersModel.remove(index)
-        const arr = fractionsInstances.slice()
-        const removed = arr.splice(index, 1)[0]
-        if (removed) removed.destroy()
-        fractionsInstances = arr
-        fractionsRevision++
-    }
-
-    function setDmin(index, value) {
-        if (index < 0 || index >= layersModel.count) return
-        layersModel.setProperty(index, 'dmin', value)
-    }
-
-    function setRmin(index, value) {
-        if (index < 0 || index >= layersModel.count) return
-        layersModel.setProperty(index, 'rmin', value)
-    }
-
-    function fractionsModelAt(index) {
-        if (index < 0 || index >= fractionsInstances.length) return null
-        const f = fractionsInstances[index]
-        return f ? f.model : null
+    onRowsRemoved: (parent, first, last) => {
+        const list = __fractions.slice()
+        for (const fractions of list.splice(first, last - first + 1))
+            fractions.destroy()
+        __fractions = list
     }
 }
