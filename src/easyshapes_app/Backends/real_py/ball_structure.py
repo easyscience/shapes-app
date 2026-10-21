@@ -9,7 +9,7 @@ from PySide6.QtCore import Signal
 class BallStructure(QObject):
     """
     One ball's fields for QML: the structure's, or the unit's its
-    lattice repeats. Its layers have their own part.
+    lattice repeats. Its layers are the root's layers model.
 
     The root builds it while the current structure is a ball and drops
     it on the next structure change; for any other shape QML finds none.

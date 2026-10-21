@@ -9,7 +9,7 @@ from PySide6.QtCore import Signal
 class VesicleStructure(QObject):
     """
     One vesicle's fields for QML: the structure's, or the unit's its
-    lattice repeats. Its lamellae have their own part.
+    lattice repeats. Its lamellae are the root's lamellae model.
 
     The root builds it while the current structure is a vesicle and
     drops it on the next structure change; for any other shape QML finds

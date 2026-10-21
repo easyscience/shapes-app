@@ -44,6 +44,8 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     components = QSignalSpy(backend.components.loaded.modelReset)
     swapped = [QSignalSpy(getattr(backend, f'{adapter}Changed')) for adapter in ADAPTERS]
     composition = QSignalSpy(backend.compositionChanged)
+    layers = QSignalSpy(backend.layersChanged)
+    lamellae = QSignalSpy(backend.lamellaeChanged)
 
     backend.project.externalProjectChanged.emit()
 
@@ -53,6 +55,10 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     assert [getattr(backend, adapter) for adapter in ADAPTERS] == [None] * len(ADAPTERS)
     assert composition.count() == 1
     assert backend.composition is None
+    assert layers.count() == 1
+    assert backend.layers is None
+    assert lamellae.count() == 1
+    assert backend.lamellae is None
 
 
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
@@ -88,19 +94,32 @@ def test_ring_adapter_follows_the_current_structure(qcore_application, lattice):
 
 
 @pytest.mark.parametrize('adapter', list(SHAPE_ADAPTERS))
-def test_only_shapes_that_own_a_composition_get_its_model(qcore_application, adapter):
+def test_each_shape_gets_the_models_of_its_compositions(qcore_application, adapter):
     backend = Backend(Session(sample_model=FakeSampleModel(SHAPE_ADAPTERS[adapter]())))
 
     backend.sampleModel.externalStructureChanged.emit()
 
     owns = adapter not in ('ballStructure', 'vesicleStructure')
     assert (backend.composition is not None) == owns
+    assert (backend.layers is not None) == (adapter == 'ballStructure')
+    assert (backend.lamellae is not None) == (adapter == 'vesicleStructure')
 
 
-def test_component_changes_refresh_the_composition(qcore_application):
-    backend = Backend(Session(sample_model=FakeSampleModel(Ring())))
+# Each shape, and where its first composition's rows are
+COMPOSITION_ROWS = [
+    (Ring, lambda backend: backend.composition),
+    (Ball, lambda backend: backend.layers.compositions[0]),
+    (Vesicle, lambda backend: backend.lamellae.innerLeafletCompositions[0]),
+]
+
+
+@pytest.mark.parametrize(
+    ('shape', 'rows'), COMPOSITION_ROWS, ids=['composition', 'layers', 'lamellae']
+)
+def test_component_changes_refresh_the_composition_rows(qcore_application, shape, rows):
+    backend = Backend(Session(sample_model=FakeSampleModel(shape())))
     backend.sampleModel.externalStructureChanged.emit()
-    reset = QSignalSpy(backend.composition.modelReset)
+    reset = QSignalSpy(rows(backend).modelReset)
 
     backend.components.loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
 

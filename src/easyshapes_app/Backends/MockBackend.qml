@@ -28,11 +28,9 @@ QtObject {
     property var fractions: MockLogic.Fractions { source: MockLogic.Components.loaded }
     // The current structure's composition, as Backend.composition
     property var composition: fractions.model
-    // Layers owns one Fractions instance per layer (per-row state) and
-    // shares the same component source so names stay in sync with the
-    // global components list.
+    // The ball's layers, as Backend.layers; always there in the mock
     property var layers: MockLogic.Layers
-    // Lamellae owns distinct inner/outer Fractions instances per lamella.
+    // The vesicle's lamellae, as Backend.lamellae; always there in the mock
     property var lamellae: MockLogic.Lamellae
     // Ring structure parameters (single record, edited inline).
     property var ringStructure: MockLogic.RingStructure

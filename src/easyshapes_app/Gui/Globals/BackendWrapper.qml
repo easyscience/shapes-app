@@ -224,37 +224,23 @@ QtObject {
     // theirs
     readonly property var compositionItems: activeBackend.composition
 
-    // Layers (Sample Model sidebar). One Fractions instance per layer is
-    // owned by the backend; the GUI binds the fractions list of the
-    // currently-selected layer via layersFractionsModelAt(row).
-    readonly property var layersItems: activeBackend.layers.items
-    readonly property int layersFractionsRevision: activeBackend.layers.fractionsRevision
+    // Layers of the current ball, one composition per row; null in
+    // Python while the current shape is not a ball
+    readonly property var layersItems: activeBackend.layers
+    readonly property var layersCompositions: activeBackend.layers?.compositions ?? []
 
-    function layersAppend(item) { activeBackend.layers.appendItem(item) }
-    function layersRemove(index) { activeBackend.layers.removeItem(index) }
-    function layersSetDmin(index, value) { activeBackend.layers.setDmin(index, value) }
-    function layersSetRmin(index, value) { activeBackend.layers.setRmin(index, value) }
-    // Callers binding through this must also reference layersFractionsRevision
-    // in their binding body to re-evaluate when rows are inserted/removed.
-    function layersFractionsModelAt(index) { return activeBackend.layers.fractionsModelAt(index) }
+    function layersAdd() { if (activeBackend.layers) activeBackend.layers.add() }
+    function layersRemove(index) { if (activeBackend.layers) activeBackend.layers.remove(index) }
 
-    // Lamellae (Sample Model sidebar). One inner and one outer Fractions
-    // instance are owned per lamella; asymmetric lamellae bind both models.
-    readonly property var lamellaeItems: activeBackend.lamellae.items
-    readonly property int lamellaeItemsRevision: activeBackend.lamellae.itemsRevision
-    readonly property int lamellaeFractionsRevision: activeBackend.lamellae.fractionsRevision
+    // Lamellae of the current vesicle, one composition per row and
+    // leaflet; null in Python while the current shape is not a vesicle.
+    // An outer composition is null while its lamella is symmetric
+    readonly property var lamellaeItems: activeBackend.lamellae
+    readonly property var lamellaeInnerLeafletCompositions: activeBackend.lamellae?.innerLeafletCompositions ?? []
+    readonly property var lamellaeOuterLeafletCompositions: activeBackend.lamellae?.outerLeafletCompositions ?? []
 
-    function lamellaeAppend(item) { activeBackend.lamellae.appendItem(item) }
-    function lamellaeRemove(index) { activeBackend.lamellae.removeItem(index) }
-    function lamellaeSetRmin(index, value) { activeBackend.lamellae.setRmin(index, value) }
-    function lamellaeSetInnerDmin(index, value) { activeBackend.lamellae.setInnerDmin(index, value) }
-    function lamellaeSetOuterDmin(index, value) { activeBackend.lamellae.setOuterDmin(index, value) }
-    function lamellaeSetShell(index, value) { activeBackend.lamellae.setShell(index, value) }
-    function lamellaeSetSymmetric(index, value) { activeBackend.lamellae.setSymmetric(index, value) }
-    // Callers binding through these must also reference lamellaeFractionsRevision
-    // in their binding body to re-evaluate when rows are inserted/removed.
-    function lamellaeInnerFractionsModelAt(index) { return activeBackend.lamellae.innerFractionsModelAt(index) }
-    function lamellaeOuterFractionsModelAt(index) { return activeBackend.lamellae.outerFractionsModelAt(index) }
+    function lamellaeAdd() { if (activeBackend.lamellae) activeBackend.lamellae.add() }
+    function lamellaeRemove(index) { if (activeBackend.lamellae) activeBackend.lamellae.remove(index) }
 
     // Buffer group (Sample Model sidebar). Solvent is a single selected value
     // ('(None)' / TIP3 / Ethanol); buffer components are a row list (salts,

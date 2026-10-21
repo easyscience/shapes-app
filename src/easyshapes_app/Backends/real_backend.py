@@ -18,7 +18,9 @@ from .real_py.components import Components
 from .real_py.composition import CompositionModel
 from .real_py.config import Config
 from .real_py.error import Error
+from .real_py.lamellae import LamellaeModel
 from .real_py.lattice_structure import LatticeStructure
+from .real_py.layers import LayersModel
 from .real_py.library import Library
 from .real_py.logic.session import Session
 from .real_py.monolayer_structure import MonolayerStructure
@@ -36,8 +38,9 @@ class Backend(QObject):
     Holds the session and one part per domain, and connects parts that
     react to each other, so the parts don't know each other.
 
-    Also builds the structure adapters: one for the current shape and
-    one for a lattice, built anew on every structure change.
+    Also builds, anew on every structure change, the structure adapters
+    (one for the current shape and one for a lattice) and the model of
+    what the shape holds: its composition, layers or lamellae.
     """
 
     # The adapter of the current structure's shape was replaced
@@ -49,6 +52,8 @@ class Backend(QObject):
     monolayerStructureChanged = Signal()
     latticeStructureChanged = Signal()
     compositionChanged = Signal()
+    layersChanged = Signal()
+    lamellaeChanged = Signal()
 
     def __init__(self, session: Session | None = None):
         super().__init__()
@@ -72,6 +77,8 @@ class Backend(QObject):
         self._monolayer_structure = None
         self._lattice_structure = None
         self._composition = None
+        self._layers = None
+        self._lamellae = None
         self._components = Components(self._session)
 
         # Recent reads the project index, which create, load and save
@@ -144,6 +151,14 @@ class Backend(QObject):
     def composition(self):
         return self._composition
 
+    @Property('QVariant', notify=layersChanged)
+    def layers(self):
+        return self._layers
+
+    @Property('QVariant', notify=lamellaeChanged)
+    def lamellae(self):
+        return self._lamellae
+
     def _adapt_structure(self):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
@@ -158,6 +173,8 @@ class Backend(QObject):
             self._monolayer_structure,
             self._lattice_structure,
             self._composition,
+            self._layers,
+            self._lamellae,
         ):
             if adapter is not None:
                 # Deleted after QML has re-read the new one
@@ -174,13 +191,17 @@ class Backend(QObject):
         # A ball or a vesicle keeps its compositions in layers and
         # lamellae
         composition = getattr(unit, 'composition', None)
-        self._composition = None
-        if composition is not None:
-            self._composition = CompositionModel(composition, self)
-            # Removing or renaming a component changes its rows; the
-            # connections end when this model is deleted
-            self._components.loaded.rowsRemoved.connect(self._composition.refresh)
-            self._components.loaded.dataChanged.connect(self._composition.refresh)
+        self._composition = (
+            CompositionModel(composition, self) if composition is not None else None
+        )
+        self._layers = LayersModel(unit.layers, self) if type(unit) is Ball else None
+        self._lamellae = LamellaeModel(unit.lamellae, self) if type(unit) is Vesicle else None
+        # Removing or renaming a component changes their composition
+        # rows; the connections end when the model is deleted
+        for model in (self._composition, self._layers, self._lamellae):
+            if model is not None:
+                self._components.loaded.rowsRemoved.connect(model.refresh)
+                self._components.loaded.dataChanged.connect(model.refresh)
         self.ringStructureChanged.emit()
         self.ballStructureChanged.emit()
         self.vesicleStructureChanged.emit()
@@ -189,3 +210,5 @@ class Backend(QObject):
         self.monolayerStructureChanged.emit()
         self.latticeStructureChanged.emit()
         self.compositionChanged.emit()
+        self.layersChanged.emit()
+        self.lamellaeChanged.emit()

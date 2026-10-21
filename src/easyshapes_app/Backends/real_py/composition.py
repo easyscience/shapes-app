@@ -14,10 +14,12 @@ class CompositionModel(QAbstractListModel):
     One composition as rows of an editable ListView: one per component,
     in component order.
 
-    Only a ring, rod, bilayer or monolayer has a composition. The root
-    builds this model over the current one, and drops it on the next
-    structure change. A molRatio of 0 marks the component absent and
-    keeps its stored ratio, as the library does.
+    A ring, rod, bilayer or monolayer has one composition, a ball one
+    per layer and a vesicle one per lamella leaflet. The root builds
+    this model over the first kind, LayersModel and LamellaeModel over
+    the others; each goes on the next structure change. A molRatio of 0
+    marks the component absent and keeps its stored ratio, as the
+    library does.
     """
 
     NameRole = Qt.UserRole + 1

@@ -51,11 +51,12 @@ Item {
     // set, one ring is drawn per layer and the single-ring dmin/rmin are ignored.
     property var layers: null
 
-    // Optional lamellae model (Vesicle). Rows: rmin, innerDmin, outerDmin, shell.
-    // Each lamella becomes two leaflet rings (a bilayer): inner at `rmin`, outer
-    // at `rmin + shell/2`, with opposite vector orientation. The shell thickness
-    // `shell` spans from the inner baseline (rmin) out to the outer shell
-    // (rmin + shell). Takes precedence over `layers` when set.
+    // Optional lamellae model (Vesicle). Rows: rmin, innerLeafletDmin,
+    // outerLeafletDmin, shellThickness, symmetric. Each lamella becomes two
+    // leaflet rings (a bilayer): inner at `rmin`, outer at
+    // `rmin + shellThickness/2`, with opposite vector orientation. The shell
+    // thickness spans from the inner baseline (rmin) out to the outer shell
+    // (rmin + shellThickness). Takes precedence over `layers` when set.
     property var lamellae: null
 
     // The real molecular mint->mext vector is long (POPC ~2.6 nm) versus the
@@ -129,32 +130,30 @@ Item {
     // the outer-shell arc + shell-thickness dimension.
     function _ringDefs() {
         if (lamellae && lamellae.count !== undefined) {
-            void Globals.BackendWrapper.lamellaeFractionsRevision
             const out = []
             for (let i = 0; i < lamellae.count; ++i) {
                 const row = lamellae.get(i)
                 if (!row)
                     continue
                 const R = row.rmin   // absolute radius; lamellae overlap if set equal
-                const T = row.shell
+                const T = row.shellThickness
                 // Symmetric lamellae edit a single (inner) fractions set, so both
                 // leaflets mirror it; asymmetric leaflets read their own.
-                const innerComps = _presentComps(Globals.BackendWrapper.lamellaeInnerFractionsModelAt(i))
+                const innerComps = _presentComps(Globals.BackendWrapper.lamellaeInnerLeafletCompositions[i])
                 const outerComps = row.symmetric
                     ? innerComps
-                    : _presentComps(Globals.BackendWrapper.lamellaeOuterFractionsModelAt(i))
+                    : _presentComps(Globals.BackendWrapper.lamellaeOuterLeafletCompositions[i])
                 // Inner leaflet on the lamella baseline; carries the rmin + shell
                 // annotations. Outer leaflet sits T/2 further out with reversed
                 // vectors (the two leaflets point toward the bilayer midplane).
-                out.push({ dmin: row.innerDmin, rmin: R, reversed: root.rev,
+                out.push({ dmin: row.innerLeafletDmin, rmin: R, reversed: root.rev,
                            showRmin: true, shell: T, comps: innerComps })
-                out.push({ dmin: row.outerDmin, rmin: R + T / 2, reversed: !root.rev,
+                out.push({ dmin: row.outerLeafletDmin, rmin: R + T / 2, reversed: !root.rev,
                            showRmin: false, comps: outerComps })
             }
             return out
         }
         if (layers && layers.count !== undefined) {
-            void Globals.BackendWrapper.layersFractionsRevision
             const out = []
             for (let i = 0; i < layers.count; ++i) {
                 const row = layers.get(i)
@@ -164,7 +163,7 @@ Item {
                 // indices 1, 3, ...) are reversed by default; `rev` flips parity.
                 out.push({ dmin: row.dmin, rmin: row.rmin,
                            reversed: (i % 2 === 1) !== root.rev, showRmin: true,
-                           comps: _presentComps(Globals.BackendWrapper.layersFractionsModelAt(i)) })
+                           comps: _presentComps(Globals.BackendWrapper.layersCompositions[i]) })
             }
             return out
         }
@@ -173,19 +172,14 @@ Item {
     }
 
     // Fractions models to watch for repaint (per leaflet/layer/ring). Rebuilt
-    // when the structure adds/removes rows (revision tokens).
+    // when a compositions list changes.
     readonly property var _watchedFractions: {
         const out = []
         if (lamellae && lamellae.count !== undefined) {
-            void Globals.BackendWrapper.lamellaeFractionsRevision
-            for (let i = 0; i < lamellae.count; ++i) {
-                out.push(Globals.BackendWrapper.lamellaeInnerFractionsModelAt(i))
-                out.push(Globals.BackendWrapper.lamellaeOuterFractionsModelAt(i))
-            }
+            out.push(...Globals.BackendWrapper.lamellaeInnerLeafletCompositions,
+                     ...Globals.BackendWrapper.lamellaeOuterLeafletCompositions)
         } else if (layers && layers.count !== undefined) {
-            void Globals.BackendWrapper.layersFractionsRevision
-            for (let i = 0; i < layers.count; ++i)
-                out.push(Globals.BackendWrapper.layersFractionsModelAt(i))
+            out.push(...Globals.BackendWrapper.layersCompositions)
         } else {
             out.push(Globals.BackendWrapper.compositionItems)
         }

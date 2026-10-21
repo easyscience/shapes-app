@@ -67,9 +67,9 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property double rmin
-            required property double innerDmin
-            required property double outerDmin
-            required property double shell
+            required property double innerLeafletDmin
+            required property double outerLeafletDmin
+            required property double shellThickness
             required property bool symmetric
 
             EaComponents.TableViewLabel {
@@ -78,27 +78,31 @@ EaElements.GroupColumn {
             }
             EaComponents.ListViewTextInput {
                 text: rmin
-                onEditingFinished: Globals.BackendWrapper.lamellaeSetRmin(index, parseFloat(text))
+                warned: !acceptableInput
+                onEditingFinished: rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: innerDmin
-                onEditingFinished: Globals.BackendWrapper.lamellaeSetInnerDmin(index, parseFloat(text))
+                text: innerLeafletDmin
+                warned: !acceptableInput
+                onEditingFinished: innerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: outerDmin
-                onEditingFinished: Globals.BackendWrapper.lamellaeSetOuterDmin(index, parseFloat(text))
+                text: outerLeafletDmin
+                warned: !acceptableInput
+                onEditingFinished: outerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: shell
-                onEditingFinished: Globals.BackendWrapper.lamellaeSetShell(index, parseFloat(text))
+                text: shellThickness
+                warned: !acceptableInput
+                onEditingFinished: shellThickness = parseFloat(text)
                 validator: DoubleValidator { bottom: 0 }
             }
             EaComponents.TableViewCheckBox {
                 checked: symmetric
-                onToggled: Globals.BackendWrapper.lamellaeSetSymmetric(index, checked)
+                onToggled: symmetric = checked
             }
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
@@ -115,7 +119,7 @@ EaElements.GroupColumn {
             fontIcon: "plus-circle"
             text: qsTr("Add lamella")
             width: root.thirdWidth
-            onClicked: Globals.BackendWrapper.lamellaeAppend({ rmin: 0.5, innerDmin: 0.25, outerDmin: 0.3, shell: 1.0, symmetric: true })
+            onClicked: Globals.BackendWrapper.lamellaeAdd()
         }
     }
 
@@ -126,22 +130,9 @@ EaElements.GroupColumn {
         spacing: EaStyle.Sizes.groupBoxSpacing
 
         readonly property int selectedRow: lamellae.selectedIndexes.length > 0 ? lamellae.selectedIndexes[0].row : -1
-        readonly property bool selectedSymmetric: {
-            // Re-evaluate when the selected row's symmetric flag changes.
-            void Globals.BackendWrapper.lamellaeItemsRevision
-            return selectedRow >= 0 && selectedRow < Globals.BackendWrapper.lamellaeItems.count
-                ? Globals.BackendWrapper.lamellaeItems.get(selectedRow).symmetric
-                : true
-        }
-        readonly property var selectedInnerFractionsModel: {
-            // Re-evaluate when the per-lamella Fractions arrays are rebuilt.
-            void Globals.BackendWrapper.lamellaeFractionsRevision
-            return selectedRow >= 0 ? Globals.BackendWrapper.lamellaeInnerFractionsModelAt(selectedRow) : null
-        }
-        readonly property var selectedOuterFractionsModel: {
-            void Globals.BackendWrapper.lamellaeFractionsRevision
-            return selectedRow >= 0 ? Globals.BackendWrapper.lamellaeOuterFractionsModelAt(selectedRow) : null
-        }
+        readonly property var selectedOuterComposition: Globals.BackendWrapper.lamellaeOuterLeafletCompositions[selectedRow] ?? null
+        // A symmetric lamella has no outer composition of its own
+        readonly property bool selectedSymmetric: !selectedOuterComposition
 
         Column {
             width: parent.width
@@ -153,7 +144,7 @@ EaElements.GroupColumn {
                     : qsTr("Lamella %1 Inner Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
             }
             Local.Fractions {
-                fractionsModel: fractionsSection.selectedInnerFractionsModel
+                fractionsModel: Globals.BackendWrapper.lamellaeInnerLeafletCompositions[fractionsSection.selectedRow] ?? null
             }
         }
 
@@ -166,7 +157,7 @@ EaElements.GroupColumn {
                 text: qsTr("Lamella %1 Outer Leaflet Fractions").arg(fractionsSection.selectedRow + 1)
             }
             Local.Fractions {
-                fractionsModel: fractionsSection.selectedOuterFractionsModel
+                fractionsModel: fractionsSection.selectedOuterComposition
             }
         }
     }
