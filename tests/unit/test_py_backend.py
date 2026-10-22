@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+from types import SimpleNamespace
+
 import pytest
 from PySide6.QtCore import QModelIndex
 from PySide6.QtTest import QSignalSpy
@@ -46,6 +48,7 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     composition = QSignalSpy(backend.compositionChanged)
     layers = QSignalSpy(backend.layersChanged)
     lamellae = QSignalSpy(backend.lamellaeChanged)
+    buffer = QSignalSpy(backend.bufferChanged)
 
     backend.project.externalProjectChanged.emit()
 
@@ -59,6 +62,20 @@ def test_project_change_refreshes_sample_model_components_and_adapters(qcore_app
     assert backend.layers is None
     assert lamellae.count() == 1
     assert backend.lamellae is None
+    assert buffer.count() == 1
+    assert backend.buffer is None
+
+
+def test_buffer_adapter_reads_the_sample_models_buffer(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.buffer.solvent = SimpleNamespace(name='TIP3')
+    backend = Backend(Session(sample_model=sample_model))
+    swapped = QSignalSpy(backend.bufferChanged)
+
+    backend.sampleModel.externalStructureChanged.emit()
+
+    assert backend.buffer.solvent == 'TIP3'
+    assert swapped.count() == 1
 
 
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])

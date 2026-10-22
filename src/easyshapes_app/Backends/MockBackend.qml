@@ -46,10 +46,8 @@ QtObject {
     property var monolayerStructure: MockLogic.MonolayerStructure
     // Lattice structure parameters (single record, edited inline).
     property var latticeStructure: MockLogic.LatticeStructure
-    // Buffer group: solvent selection + buffer components (salts, buffering
-    // agents). Ions singleton stays (used by the Components C-ion picker).
+    // The sample model's buffer, as Backend.buffer
     property var buffer: MockLogic.Buffer
-    property var ions: MockLogic.Ions
     property var analysis: MockLogic.Analysis
     // Analysis page — equilibration configuration (config files + force
     // field + step range), driving the Equilibrate action.

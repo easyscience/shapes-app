@@ -26,4 +26,12 @@ QtObject {
         'Ca<sup>2+</sup>', 'Mg<sup>2+</sup>', 'Zn<sup>2+</sup>'
     ]
 
+    // Library.available_assets['Solvent']
+    readonly property var availableSolvents: ['TIP3', 'Ethanol']
+
+    // Library.available_assets['Salt']
+    readonly property var availableSalts: [
+        'NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA'
+    ]
+
 }

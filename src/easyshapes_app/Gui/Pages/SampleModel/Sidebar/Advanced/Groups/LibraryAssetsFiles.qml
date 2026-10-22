@@ -38,15 +38,9 @@ EaElements.GroupColumn {
                                        || assetType === "Surfactant"
                                        || assetType === "Component (Other)"
 
-    // Ion options: a leading "(None)" sentinel (empty value) plus the shared
-    // ion library. Used by both the C-ion picker and the salt composition.
-    readonly property var ionOptions: {
-        const lib = Globals.BackendWrapper.ionsAvailable
-        let opts = [qsTr("(None)")]
-        for (let i = 0; i < lib.count; ++i)
-            opts.push(lib.get(i).name)
-        return opts
-    }
+    // Ion options: a leading "(None)" sentinel (empty value) plus the
+    // library's ions. Used by both the C-ion picker and the salt composition.
+    readonly property var ionOptions: [qsTr("(None)")].concat(Globals.BackendWrapper.libraryAvailableIons)
 
     // Row 1 — Create new / Load from lib.
     Grid {
