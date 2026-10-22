@@ -16,6 +16,7 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
 def test_component_edits_survive_project_save_and_load(qcore_application, tmp_path):
+    # In the offline library, where the counter-ion picker finds it
     Ion(name='NA').save()
     # A default analysis loads its force field from the library, empty
     # offline: give the first project one, as bare_project does
@@ -29,9 +30,10 @@ def test_component_edits_survive_project_save_and_load(qcore_application, tmp_pa
     backend.components.refresh()
     model = backend.components.loaded
     row = model.index(0)
+    (ion,) = backend.library.availableIons
 
     assert model.setData(row, 'POPC', Model.NameRole)
-    assert model.setData(row, 'NA', Model.CounterIonRole)
+    assert model.setData(row, ion, Model.CounterIonRole)
     assert model.setData(row, 3, Model.MintRole)
     assert model.setData(row, 9, Model.MextRole)
     backend.project.save()

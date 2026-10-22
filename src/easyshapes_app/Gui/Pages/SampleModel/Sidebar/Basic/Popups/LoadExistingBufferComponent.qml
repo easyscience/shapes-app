@@ -22,13 +22,20 @@ EaElements.Dialog {
     title: qsTr("Load Buffer Components from the Asset Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
+    // The library catalog as a ListModel: the list's selection needs a
+    // model, not a JS array
+    readonly property ListModel catalog: ListModel {}
+
+    onAboutToShow: {
+        catalog.clear()
+        for (const name of Globals.BackendWrapper.libraryAvailableSalts)
+            catalog.append({ name: name })
+    }
     onAccepted: {
         var indexes = loadBufferComponentListView.selectedIndexes
 
-        for (var i = 0; i < indexes.length; ++i) {
-            var item = Globals.BackendWrapper.bufferComponentsAvailable.get(indexes[i].row)
-            Globals.BackendWrapper.bufferComponentsAppend(item)
-        }
+        for (var i = 0; i < indexes.length; ++i)
+            Globals.BackendWrapper.bufferComponentsAppend(catalog.get(indexes[i].row).name)
         loadBufferComponentListView.clearSelection()
     }
     onRejected: {
@@ -46,7 +53,6 @@ EaElements.Dialog {
             multiSelection: true
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
-                EaStyle.Sizes.fontPixelSize * 10,
                 -1,
             ]
 
@@ -60,18 +66,13 @@ EaElements.Dialog {
                     text: qsTr("Name")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Description")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
             }
 
-            model: Globals.BackendWrapper.bufferComponentsAvailable
+            model: bufferComponentLoadDialog.catalog
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
-                required property string description
 
                 EaComponents.TableViewLabel {
                     text: index + 1
@@ -80,10 +81,6 @@ EaElements.Dialog {
                 }
                 EaComponents.TableViewLabel {
                     text: name
-                }
-                EaComponents.TableViewLabel {
-                    text: description
-                    ToolTip.text: description
                 }
             }
         }

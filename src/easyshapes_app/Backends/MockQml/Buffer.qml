@@ -7,11 +7,11 @@ pragma Singleton
 import QtQuick
 
 
+// The sample model's buffer, as Backend.buffer: a solvent name ('' for
+// none) and what is dissolved in it.
 QtObject {
 
-    // Solvent — a single selected value. '(None)' means no solvent.
-    readonly property var solventOptions: ['(None)', 'TIP3', 'Ethanol']
-    property string solvent: '(None)'
+    property string solvent: ''
 
     // Loaded buffer components. ListModel so the ListView's ItemSelectionModel
     // can drive multi-selection and role-based delegate bindings.
@@ -24,25 +24,12 @@ QtObject {
         dynamicRoles: true
     }
 
-    // Catalog of loadable buffer components (salts, buffering agents). Identity
-    // only — concentration is the user's per-experiment choice, set after load.
-    // Roles: name, description.
-    readonly property var available: ListModel {
-        ListElement { name: 'NaCl';      description: 'Sodium chloride — physiological background salt' }
-        ListElement { name: 'KCl';       description: 'Potassium chloride' }
-        ListElement { name: 'Tris';      description: 'Tris(hydroxymethyl)aminomethane buffer' }
-        ListElement { name: 'HEPES';     description: 'Zwitterionic biological buffer (pH 6.8–8.2)' }
-        ListElement { name: 'MgCl₂';     description: 'Magnesium chloride' }
-        ListElement { name: 'CaCl₂';     description: 'Calcium chloride' }
-        ListElement { name: 'Phosphate'; description: 'Sodium phosphate buffer (PBS)' }
-        ListElement { name: 'EDTA';      description: 'Chelating agent' }
-    }
-
-    function appendComponent(item) {
-        bufferComponentsModel.append({
-            name: item.name,
-            concentration: 0
-        })
+    // Python loads the salt from the library and refuses a held name
+    // through the error dialog; the mock skips it
+    function appendComponent(name) {
+        for (let i = 0; i < bufferComponentsModel.count; ++i)
+            if (bufferComponentsModel.get(i).name === name) return
+        bufferComponentsModel.append({ name: name, concentration: 0 })
     }
 
     function removeComponent(index) {

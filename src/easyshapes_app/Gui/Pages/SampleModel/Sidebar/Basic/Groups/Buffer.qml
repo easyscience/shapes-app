@@ -16,7 +16,7 @@ EaElements.GroupColumn {
     id: root
     property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
 
-    // Solvent — single selection (None / TIP3 / Ethanol).
+    // Solvent — single selection: (None) or a library solvent.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
 
@@ -27,11 +27,12 @@ EaElements.GroupColumn {
 
         EaElements.ComboBox {
             width: EaStyle.Sizes.sideBarContentWidth * 0.25
-            model: Globals.BackendWrapper.bufferSolventOptions
-            // Blank collapsed label for the "(None)" sentinel (index 0).
+            // "(None)" first, for no solvent ('')
+            model: [qsTr("(None)")].concat(Globals.BackendWrapper.libraryAvailableSolvents)
+            // Blank collapsed label for "(None)" (index 0).
             displayText: currentIndex <= 0 ? "" : currentText
-            Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.bufferSolvent)
-            onActivated: (i) => Globals.BackendWrapper.bufferSolvent = model[i]
+            currentIndex: Globals.BackendWrapper.bufferSolvent === "" ? 0 : model.indexOf(Globals.BackendWrapper.bufferSolvent)
+            onActivated: (i) => Globals.BackendWrapper.bufferSetSolvent(i === 0 ? "" : model[i])
         }
     }
 
@@ -93,6 +94,7 @@ EaElements.GroupColumn {
                 }
                 EaComponents.ListViewTextInput {
                     text: concentration
+                    warned: !acceptableInput
                     onEditingFinished: concentration = parseFloat(text)
                     validator: DoubleValidator { bottom: 0; decimals: 3; notation: DoubleValidator.StandardNotation }
                 }

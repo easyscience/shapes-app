@@ -4,6 +4,7 @@
 from datetime import UTC
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 
 from shapes.project import Ring
 
@@ -53,3 +54,6 @@ class FakeSampleModel:
     def __init__(self, structure=None):
         self.name = 'uid0002'
         self.structure = structure or Ring()
+        # Empty; the real Buffer is a library asset, which needs the
+        # AppFileManager
+        self.buffer = SimpleNamespace(solvent=None, components=[])

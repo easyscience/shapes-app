@@ -9,8 +9,8 @@ from shapes.project import Library as LibraryLib
 
 class Library(QObject):
     """
-    The shapespyer library's lists for QML: saved projects (Recent) and
-    examples.
+    The shapespyer library's lists for QML: saved projects (Recent),
+    examples, and the ion, solvent and salt catalogs.
     """
 
     # Emitted by the root after a project is created, loaded or saved
@@ -47,3 +47,21 @@ class Library(QObject):
         # ponytail: constant until ions can be saved to the library
         # (step 5); then a notify signal the root emits after a save
         return LibraryLib().available_assets.get('Ion', [])
+
+    @Property('QVariant', constant=True)
+    def availableSolvents(self):
+        """
+        Names of the library's solvents, local first, then remote ones
+        not held locally. A name the solvent picker offers.
+        """
+        # ponytail: constant, as availableIons
+        return LibraryLib().available_assets.get('Solvent', [])
+
+    @Property('QVariant', constant=True)
+    def availableSalts(self):
+        """
+        Names of the library's salts, local first, then remote ones not
+        held locally. A name the Load buffer components popup offers.
+        """
+        # ponytail: constant, as availableIons
+        return LibraryLib().available_assets.get('Salt', [])

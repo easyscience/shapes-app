@@ -54,6 +54,8 @@ QtObject {
     readonly property var libraryAvailableProjects: activeBackend.library.availableProjects
     readonly property var libraryAvailableExamples: activeBackend.library.availableExamples
     readonly property var libraryAvailableIons: activeBackend.library.availableIons
+    readonly property var libraryAvailableSolvents: activeBackend.library.availableSolvents
+    readonly property var libraryAvailableSalts: activeBackend.library.availableSalts
 
     /////////
     // Config
@@ -242,27 +244,14 @@ QtObject {
     function lamellaeAdd() { if (activeBackend.lamellae) activeBackend.lamellae.add() }
     function lamellaeRemove(index) { if (activeBackend.lamellae) activeBackend.lamellae.remove(index) }
 
-    // Buffer group (Sample Model sidebar). Solvent is a single selected value
-    // ('(None)' / TIP3 / Ethanol); buffer components are a row list (salts,
-    // buffering agents) backed by a shared catalog.
-    readonly property var bufferSolventOptions: activeBackend.buffer.solventOptions
-    property string bufferSolvent: activeBackend.buffer.solvent
-    onBufferSolventChanged: activeBackend.buffer.solvent = bufferSolvent
+    // Buffer of the current sample model; null in Python while there is
+    // none. Solvent '' is no solvent; concentrations are in mM
+    readonly property string bufferSolvent: activeBackend.buffer?.solvent ?? ''
+    readonly property var bufferComponents: activeBackend.buffer?.components ?? null
 
-    readonly property var bufferComponents: activeBackend.buffer.components
-    readonly property var bufferComponentsAvailable: activeBackend.buffer.available
-
-    function bufferComponentsAppend(item) { activeBackend.buffer.appendComponent(item) }
-    function bufferComponentsRemove(index) { activeBackend.buffer.removeComponent(index) }
-
-    readonly property var ionsLoaded: activeBackend.ions.loaded
-    readonly property var ionsAvailable: activeBackend.ions.available
-
-    function ionsAppend(item) { activeBackend.ions.appendItem(item) }
-    function ionsRemove(index) { activeBackend.ions.removeItem(index) }
-    function ionsClear() { activeBackend.ions.clear() }
-    function ionsSaveToCatalog() { activeBackend.ions.saveToCatalog() }
-    function ionsRemoveFromCatalog(index) { activeBackend.ions.removeFromCatalog(index) }
+    function bufferSetSolvent(value) { if (activeBackend.buffer) activeBackend.buffer.solvent = value }
+    function bufferComponentsAppend(name) { if (activeBackend.buffer) activeBackend.buffer.appendComponent(name) }
+    function bufferComponentsRemove(index) { if (activeBackend.buffer) activeBackend.buffer.removeComponent(index) }
 
     // Components Files (Sample Model Advanced sidebar). Per-component file
     // list driven by `componentsFilesSelectedComponent`; switching the

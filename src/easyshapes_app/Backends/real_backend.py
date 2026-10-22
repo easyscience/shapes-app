@@ -14,6 +14,7 @@ from shapes.project import Vesicle
 
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
+from .real_py.buffer import Buffer
 from .real_py.components import Components
 from .real_py.composition import CompositionModel
 from .real_py.config import Config
@@ -39,8 +40,9 @@ class Backend(QObject):
     react to each other, so the parts don't know each other.
 
     Also builds, anew on every structure change, the structure adapters
-    (one for the current shape and one for a lattice) and the model of
-    what the shape holds: its composition, layers or lamellae.
+    (one for the current shape and one for a lattice), the model of what
+    the shape holds (its composition, layers or lamellae) and the sample
+    model's buffer adapter.
     """
 
     # The adapter of the current structure's shape was replaced
@@ -54,6 +56,7 @@ class Backend(QObject):
     compositionChanged = Signal()
     layersChanged = Signal()
     lamellaeChanged = Signal()
+    bufferChanged = Signal()
 
     def __init__(self, session: Session | None = None):
         super().__init__()
@@ -79,6 +82,7 @@ class Backend(QObject):
         self._composition = None
         self._layers = None
         self._lamellae = None
+        self._buffer = None
         self._components = Components(self._session)
 
         # Recent reads the project index, which create, load and save
@@ -159,6 +163,10 @@ class Backend(QObject):
     def lamellae(self):
         return self._lamellae
 
+    @Property('QVariant', notify=bufferChanged)
+    def buffer(self):
+        return self._buffer
+
     def _adapt_structure(self):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
@@ -175,6 +183,7 @@ class Backend(QObject):
             self._composition,
             self._layers,
             self._lamellae,
+            self._buffer,
         ):
             if adapter is not None:
                 # Deleted after QML has re-read the new one
@@ -196,6 +205,9 @@ class Backend(QObject):
         )
         self._layers = LayersModel(unit.layers, self) if type(unit) is Ball else None
         self._lamellae = LamellaeModel(unit.lamellae, self) if type(unit) is Vesicle else None
+        # The sample model's, not the structure's: built here because a
+        # new sample model comes with this signal too
+        self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
         # Removing or renaming a component changes their composition
         # rows; the connections end when the model is deleted
         for model in (self._composition, self._layers, self._lamellae):
@@ -212,3 +224,4 @@ class Backend(QObject):
         self.compositionChanged.emit()
         self.layersChanged.emit()
         self.lamellaeChanged.emit()
+        self.bufferChanged.emit()
