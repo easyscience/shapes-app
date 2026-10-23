@@ -168,8 +168,9 @@ def test_create_new_empties_the_draft_and_emits_only_what_changed():
 
 class FakeAsset(SimpleNamespace):
     """
-    Builds as the library classes do, keeping the fields it is given,
-    and logs saves and exports in LOG.
+    Builds as the library classes do: keeps the fields it is given, an
+    ion given by name loaded as a new object. Logs saves and exports in
+    LOG.
     """
 
     LOG = []
@@ -191,6 +192,12 @@ class FakeAsset(SimpleNamespace):
             'anion_count': 2,
         },
     }
+
+    def __init__(self, **fields):
+        for attr in ('counter_ion', 'cation', 'anion'):
+            if isinstance(fields.get(attr), str):
+                fields[attr] = SimpleNamespace(name=fields[attr])
+        super().__init__(**fields)
 
     @classmethod
     def load(cls, name):
@@ -310,6 +317,25 @@ def test_save_builds_an_ion_from_its_name_and_files_only(log):
     part.save(False)
 
     assert log == [('save', FakeAsset(name='CAL', paths=(Path('CAL.itp'),)), False)]
+
+
+def test_builds_reuse_the_ions_of_the_last_build_or_the_load(log):
+    part = OfflineLibraryAssets()
+    part.assetName = 'POPC'
+    part.counterIon = 'CLA'
+    part.save(False)
+    part.save(False)
+    part.load('Lipid', 'DPPC')
+    part.save(False)
+    part.createNew()
+    part.assetName = 'POPC'
+    part.counterIon = 'CLA'
+    part.save(True)
+
+    first, second, loaded, fresh = (entry[1].counter_ion for entry in log)
+    assert second is first
+    assert loaded is FakeAsset.SAVED['DPPC']['counter_ion']
+    assert fresh is not first
 
 
 def test_export_taken_finds_what_an_export_would_replace(tmp_path):
