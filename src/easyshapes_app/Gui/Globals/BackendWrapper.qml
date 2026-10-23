@@ -317,7 +317,6 @@ QtObject {
     readonly property var libraryAssetsPaths: activeBackend.libraryAssets.paths
     readonly property var libraryAssetsSaltComposition: activeBackend.libraryAssets.saltComposition
     readonly property bool libraryAssetsSaltReady: activeBackend.libraryAssets.saltReady
-    readonly property bool libraryAssetsCanEditPath: activeBackend.libraryAssets.canEditPath
 
     function libraryAssetsCreateNew() { activeBackend.libraryAssets.createNew() }
     function libraryAssetsLoad(type, name) { activeBackend.libraryAssets.load(type, name) }
@@ -328,7 +327,6 @@ QtObject {
     function libraryAssetsSetMext(value) { activeBackend.libraryAssets.mext = value }
     function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
     function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
-    // Mock only while libraryAssetsCanEditPath is false in Python
     function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
     // Save asks first when the name is taken; OK saves with overwrite
     function libraryAssetsNameTaken() { return activeBackend.libraryAssets.nameTaken() }

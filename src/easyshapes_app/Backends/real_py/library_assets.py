@@ -10,8 +10,10 @@ from PySide6.QtCore import QLocale
 from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Qt
+from PySide6.QtCore import QUrl
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
+from PySide6.QtGui import QDesktopServices
 from shapes.project import Library
 from shapes.project.species import Component
 from shapes.project.species import Ion
@@ -330,15 +332,6 @@ class LibraryAssets(QObject):
         """
         return bool(self._asset_name) and all(ion for ion, _ in self._salt.rows)
 
-    @Property(bool, constant=True)
-    def canEditPath(self):
-        """
-        Whether the page enables the Edit-file buttons.
-        """
-        # ponytail: off until file_edit_button_task.md is done; the
-        # mock keeps the pencil on for layout work
-        return False
-
     @Slot()
     def createNew(self):
         """
@@ -370,6 +363,17 @@ class LibraryAssets(QObject):
         Remove the file in a row from the draft.
         """
         self._paths.remove(row)
+
+    @Slot(int)
+    def editPath(self, row):
+        """
+        Open the file in a row in the system's default app for its type.
+        """
+        # Opened where it lies: saving in the editor is the user's
+        # choice. A loaded asset's file is the library's own copy
+        path = self._paths.paths[row]
+        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
+            raise RuntimeError(f'No app on this system opens {path}')
 
     @Slot(str, str)
     def load(self, asset_type, name):

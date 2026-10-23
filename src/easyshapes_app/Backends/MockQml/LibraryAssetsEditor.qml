@@ -50,10 +50,6 @@ QtObject {
     // True when a salt can be saved: a name and both ions
     property bool saltReady: false
 
-    // On in the mock for layout work; off in Python until
-    // file_edit_button_task.md is done
-    readonly property bool canEditPath: true
-
     // Mock only: the mock Library, set by MockBackend. A save adds to its
     // index, as a library save does
     property var library: null

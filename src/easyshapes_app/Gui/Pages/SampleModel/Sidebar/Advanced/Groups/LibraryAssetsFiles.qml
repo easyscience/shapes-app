@@ -310,7 +310,6 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewButton {
                 fontIcon: "edit"
-                enabled: Globals.BackendWrapper.libraryAssetsCanEditPath
                 ToolTip.text: qsTr("Edit this file")
                 onClicked: Globals.BackendWrapper.libraryAssetsEditPath(index)
             }
@@ -410,10 +409,14 @@ EaElements.GroupColumn {
         onAccepted: Globals.BackendWrapper.libraryAssetsSave(true)
         onRejected: console.debug(`Save of ${Globals.BackendWrapper.libraryAssetsName} cancelled: the name is taken`)
 
-        EaElements.Label {
-            text: qsTr("The library already holds a %1 named %2. Replace it?")
-                  .arg(Globals.BackendWrapper.libraryAssetsType)
-                  .arg(Globals.BackendWrapper.libraryAssetsName)
+        // In a Column: a bare item under a titled dialog loops its
+        // implicitWidth whenever the text changes
+        Column {
+            EaElements.Label {
+                text: qsTr("The library already holds a %1 named %2. Replace it?")
+                      .arg(Globals.BackendWrapper.libraryAssetsType)
+                      .arg(Globals.BackendWrapper.libraryAssetsName)
+            }
         }
     }
 
@@ -426,10 +429,13 @@ EaElements.GroupColumn {
         onAccepted: Globals.BackendWrapper.libraryAssetsExportTo(folder, root.selectedFileRow, true)
         onRejected: console.debug(`Export to ${folder} cancelled: the folder is taken`)
 
-        EaElements.Label {
-            text: root.selectedFileRow >= 0
-                  ? qsTr("%1 already holds a file of this name. Replace it?").arg(exportOverwriteDialog.folder)
-                  : qsTr("%1 is not empty. Export there anyway? Files of an earlier export of this asset are replaced.").arg(exportOverwriteDialog.folder)
+        // In a Column, as saveOverwriteDialog
+        Column {
+            EaElements.Label {
+                text: root.selectedFileRow >= 0
+                      ? qsTr("%1 already holds a file of this name. Replace it?").arg(exportOverwriteDialog.folder)
+                      : qsTr("%1 is not empty. Export there anyway? Files of an earlier export of this asset are replaced.").arg(exportOverwriteDialog.folder)
+            }
         }
     }
 
