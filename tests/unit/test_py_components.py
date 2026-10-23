@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -21,6 +22,14 @@ class FakeComponent:
         self.counter_ion = counter_ion
         self.mint = 0
         self.mext = 1
+
+    @classmethod
+    def load(cls, name):
+        return cls(name)
+
+    @classmethod
+    def import_from(cls, folder):
+        return cls(Path(folder).name)
 
 
 class Lipid(FakeComponent):
@@ -48,12 +57,16 @@ class FolderClash(FakeComponent):
 
 class FakeComponents(list):
     """
-    The library's collection: rows by index, names, remove by row.
+    The library's collection: rows by index, names, held names, remove
+    by row.
     """
 
     @property
     def names(self):
         return tuple(component.name for component in self)
+
+    def __contains__(self, name):
+        return name in self.names
 
     def remove(self, row):
         del self[row]
@@ -80,6 +93,14 @@ class OfflineComponentsModel(ComponentsModel):
     """
 
     _ion_class = FakeIon
+
+
+class OfflineComponents(Components):
+    """
+    Loads and imports fakes under the library's class names.
+    """
+
+    _types = {'Lipid': Lipid, 'Surfactant': FakeComponent, 'Component': FakeComponent}
 
 
 def session_with_components():
@@ -283,3 +304,51 @@ def test_part_shows_rows_removes_and_refreshes(qcore_application):
     assert part.loaded.count == 2
     assert reset.count() == 1
     assert part.structureAtoms(0) == []
+
+
+def test_part_appends_a_library_component_as_a_new_row(qcore_application):
+    session, components = session_with_components()
+    part = OfflineComponents(session)
+    inserted = QSignalSpy(part.loaded.rowsInserted)
+    count = QSignalSpy(part.loaded.countChanged)
+
+    part.append('Lipid', 'DOPC')
+
+    assert components.names == ('DPPC', 'CHOL', 'POPC', 'DOPC')
+    assert part.loaded.get(3)['componentType'] == 'Lipid'
+    assert (inserted.count(), count.count()) == (1, 1)
+
+
+def test_held_name_raises_before_any_row_opens(qcore_application):
+    session, components = session_with_components()
+    part = OfflineComponents(session)
+    opening = QSignalSpy(part.loaded.rowsAboutToBeInserted)
+
+    with pytest.raises(ValueError, match='already holds POPC'):
+        part.append('Lipid', 'POPC')
+
+    assert len(components) == 3
+    assert opening.count() == 0
+
+
+def test_import_appends_the_class_its_record_names(qcore_application, tmp_path):
+    folder = tmp_path / 'DOPC'
+    folder.mkdir()
+    (folder / 'ser_data.yaml').write_text('dtype: Lipid\n')
+    session, components = session_with_components()
+    part = OfflineComponents(session)
+
+    part.importFrom(str(folder))
+
+    assert components.names[-1] == 'DOPC'
+    assert part.loaded.get(3)['componentType'] == 'Lipid'
+
+
+def test_import_of_another_class_raises(qcore_application, tmp_path):
+    (tmp_path / 'ser_data.yaml').write_text('dtype: Salt\n')
+    session, components = session_with_components()
+
+    with pytest.raises(ValueError, match='holds a Salt, not a component'):
+        OfflineComponents(session).importFrom(str(tmp_path))
+
+    assert len(components) == 3

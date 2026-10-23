@@ -209,13 +209,11 @@ QtObject {
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
     readonly property string componentsErrors: activeBackend.components.loaded.errors
-    readonly property var componentsPendingFilePaths: activeBackend.components.pendingFilePaths
 
-    function componentsAppend(item) { activeBackend.components.appendItem(item) }
+    // type: the library class name, Lipid, Surfactant or Component
+    function componentsAppend(type, name) { activeBackend.components.append(type, name) }
+    function componentsImportFrom(folder) { activeBackend.components.importFrom(folder) }
     function componentsRemove(index) { activeBackend.components.remove(index) }
-    function componentsAppendPendingFilePath(path) { activeBackend.components.appendPendingFilePath(path) }
-    function componentsRemovePendingFilePath(index) { activeBackend.components.removePendingFilePath(index) }
-    function componentsClearPendingFilePaths() { activeBackend.components.clearPendingFilePaths() }
 
     // Atomistic structure of a loaded component, for the Components viewer:
     // parsed [{element, x, y, z}] (Å) fed to the Qt Quick 3D viewer. The mock
@@ -253,6 +251,7 @@ QtObject {
     function bufferSetSolvent(value) { if (activeBackend.buffer) activeBackend.buffer.solvent = value }
     function bufferComponentsAppend(name) { if (activeBackend.buffer) activeBackend.buffer.appendComponent(name) }
     function bufferComponentsRemove(index) { if (activeBackend.buffer) activeBackend.buffer.removeComponent(index) }
+    function bufferImportFrom(folder) { if (activeBackend.buffer) activeBackend.buffer.importFrom(folder) }
 
     // Components Files (Sample Model Advanced sidebar). Per-component file
     // list driven by `componentsFilesSelectedComponent`; switching the
@@ -282,13 +281,7 @@ QtObject {
             if (loaded.get(i).name === name)
                 return
         }
-        activeBackend.components.appendItem({
-            name: name,
-            component_type: 'Other',
-            c_ion: '',
-            mint: 0,
-            mext: 0
-        })
+        activeBackend.components.append('Component', name)
     }
 
     // Structure Files (Sample Model Advanced sidebar). List of structure-

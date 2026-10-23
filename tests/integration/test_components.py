@@ -16,8 +16,10 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
 def test_component_edits_survive_project_save_and_load(qcore_application, tmp_path):
-    # In the offline library, where the counter-ion picker finds it
+    # In the offline library, where the counter-ion picker and the Load
+    # popup find them
     Ion(name='NA').save()
+    Lipid(name='DPPC').save()
     # A default analysis loads its force field from the library, empty
     # offline: give the first project one, as bare_project does
     session = Session(
@@ -25,9 +27,7 @@ def test_component_edits_survive_project_save_and_load(qcore_application, tmp_pa
     )
     backend = Backend(session)
     backend.project.create('lipids', '', str(tmp_path / 'lipids'))
-    # ponytail: added through the library until the GUI can (step 5)
-    session.sample_model.structure.components.append(Lipid(name='DPPC'))
-    backend.components.refresh()
+    backend.components.append('Lipid', 'DPPC')
     model = backend.components.loaded
     row = model.index(0)
     (ion,) = backend.library.availableIons
@@ -48,3 +48,25 @@ def test_component_edits_survive_project_save_and_load(qcore_application, tmp_pa
         'mext': 9,
         'nameError': '',
     }
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
+def test_loaded_and_imported_components_join_the_composition(qcore_application, tmp_path):
+    Lipid(name='DPPC').save()
+    Lipid(name='POPC').export_to(tmp_path / 'POPC')
+    # A default analysis loads its force field from the library, empty
+    # offline: give the first project one, as bare_project does
+    session = Session(
+        analysis=Analysis(equilibration=Equilibration(force_field=ForceField(name='Field')))
+    )
+    backend = Backend(session)
+    backend.project.create('lipids', '', str(tmp_path / 'lipids'))
+
+    (lipid,) = backend.library.availableAssets['Lipid']
+    backend.components.append('Lipid', lipid)
+    backend.components.importFrom(str(tmp_path / 'POPC'))
+
+    assert session.sample_model.structure.components.names == ('DPPC', 'POPC')
+    composition = backend.composition
+    assert [composition.get(row)['name'] for row in range(composition.count)] == ['DPPC', 'POPC']

@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -16,7 +17,7 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 class FakeAsset:
     """
     Loads the salts and solvents named in NAMES, as the library loads
-    saved assets.
+    saved assets, and imports one from any folder, named after it.
     """
 
     NAMES = ('NaCl', 'KCl', 'TIP3')
@@ -30,6 +31,10 @@ class FakeAsset:
         if name not in cls.NAMES:
             raise LookupError(f'Asset with the name {name} was not found in the asset library.')
         return cls(name)
+
+    @classmethod
+    def import_from(cls, folder):
+        return cls(Path(folder).name)
 
 
 class FakeBufferComponents(list):
@@ -151,3 +156,24 @@ def test_remove_component_drops_the_row():
 
     assert [model.get(row)['name'] for row in range(model.count)] == ['KCl']
     assert (removed.count(), count.count()) == (1, 1)
+
+
+def test_import_adds_the_exported_salt_as_a_new_row():
+    part = OfflineBuffer(buffer_with(FakeAsset('NaCl', 0.15)))
+    model = part.components
+    inserted = QSignalSpy(model.rowsInserted)
+
+    part.importFrom('exports/KCl')
+
+    assert model.get(1) == {'name': 'KCl', 'concentration': 0.0}
+    assert inserted.count() == 1
+
+
+def test_import_of_a_held_salt_raises_before_any_row_opens():
+    part = OfflineBuffer(buffer_with(FakeAsset('NaCl', 0.15)))
+    opening = QSignalSpy(part.components.rowsAboutToBeInserted)
+
+    with pytest.raises(ValueError, match='already holds NaCl'):
+        part.importFrom('exports/NaCl')
+
+    assert opening.count() == 0

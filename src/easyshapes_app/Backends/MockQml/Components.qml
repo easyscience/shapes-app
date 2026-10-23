@@ -21,40 +21,31 @@ QtObject {
         property string errors: ''
     }
 
-    // File paths staged while creating a new component.
-    // Roles: path.
-    readonly property var pendingFilePaths: ListModel {
-        id: pendingFilePathsModel
-    }
-
-    // Callers pass library-record keys (component_type, c_ion)
-    function appendItem(item) {
+    // Python loads the component from the library by type and name and
+    // refuses a held name through the error dialog; the mock adds a row
+    // with stand-in fields and skips a held name
+    function append(type, name) {
+        for (let i = 0; i < loadedComponentsModel.count; ++i)
+            if (loadedComponentsModel.get(i).name === name) return
         loadedComponentsModel.append({
-            name: item.name,
-            componentType: item.component_type,
-            counterIon: item.c_ion !== undefined ? item.c_ion : '',
-            mint: item.mint,
-            mext: item.mext,
+            name: name,
+            componentType: type,
+            counterIon: '',
+            mint: 0,
+            mext: 0,
             nameError: ''
         })
+    }
+
+    // Python reads the component an export folder holds; the mock adds a
+    // stand-in named after the folder
+    function importFrom(folder) {
+        append('Component', folder.split(/[\\/]/).pop())
     }
 
     function remove(index) {
         if (index < 0 || index >= loadedComponentsModel.count) return
         loadedComponentsModel.remove(index)
-    }
-
-    function appendPendingFilePath(path) {
-        pendingFilePathsModel.append({ path: path })
-    }
-
-    function removePendingFilePath(index) {
-        if (index < 0 || index >= pendingFilePathsModel.count) return
-        pendingFilePathsModel.remove(index)
-    }
-
-    function clearPendingFilePaths() {
-        pendingFilePathsModel.clear()
     }
 
     // Atomistic structure used to depict a component in the Components viewer.

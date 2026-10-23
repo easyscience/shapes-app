@@ -150,3 +150,19 @@ def test_component_changes_refresh_the_composition_rows(qcore_application, shape
     backend.components.loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
 
     assert reset.count() == 1
+
+
+@pytest.mark.parametrize(
+    ('shape', 'rows'), COMPOSITION_ROWS, ids=['composition', 'layers', 'lamellae']
+)
+def test_added_component_refreshes_the_composition_rows(qcore_application, shape, rows):
+    backend = Backend(Session(sample_model=FakeSampleModel(shape())))
+    backend.sampleModel.externalStructureChanged.emit()
+    reset = QSignalSpy(rows(backend).modelReset)
+    loaded = backend.components.loaded
+
+    # The insert signals an append sends, without a library component
+    loaded.beginInsertRows(QModelIndex(), 0, 0)
+    loaded.endInsertRows()
+
+    assert reset.count() == 1

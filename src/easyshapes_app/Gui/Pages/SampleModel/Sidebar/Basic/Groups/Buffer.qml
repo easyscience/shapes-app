@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -135,6 +136,6 @@ EaElements.GroupColumn {
     FolderDialog {
         id: importBufferFolderDialog
         title: qsTr("Import buffer components from a directory")
-        onAccepted: console.debug(`Import buffer components from folder '${selectedFolder}'`)
+        onAccepted: Globals.BackendWrapper.bufferImportFrom(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))
     }
 }

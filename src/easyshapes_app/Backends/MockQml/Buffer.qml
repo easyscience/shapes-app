@@ -32,6 +32,12 @@ QtObject {
         bufferComponentsModel.append({ name: name, concentration: 0 })
     }
 
+    // Python reads the salt an export folder holds; the mock adds a
+    // stand-in named after the folder
+    function importFrom(folder) {
+        appendComponent(folder.split(/[\\/]/).pop())
+    }
+
     function removeComponent(index) {
         if (index < 0 || index >= bufferComponentsModel.count) return
         bufferComponentsModel.remove(index)

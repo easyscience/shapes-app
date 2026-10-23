@@ -217,10 +217,12 @@ class Backend(QObject):
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too
         self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
-        # Removing or renaming a component changes their composition
-        # rows; the connections end when the model is deleted
+        # Adding, removing or renaming a component changes their
+        # composition rows; the connections end when the model is
+        # deleted
         for model in (self._composition, self._layers, self._lamellae):
             if model is not None:
+                self._components.loaded.rowsInserted.connect(model.refresh)
                 self._components.loaded.rowsRemoved.connect(model.refresh)
                 self._components.loaded.dataChanged.connect(model.refresh)
         self.ringStructureChanged.emit()

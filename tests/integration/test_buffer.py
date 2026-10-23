@@ -44,3 +44,19 @@ def test_buffer_picked_from_the_catalogs_survives_save_and_load(qcore_applicatio
     ]
     # The library holds mol/L
     assert session.sample_model.buffer.components[0].concentration == 0.15
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
+def test_exported_salt_imports_into_the_buffer(qcore_application, tmp_path):
+    Salt(name='KCl').export_to(tmp_path / 'KCl')
+    # As above: the first project needs a force field offline
+    session = Session(
+        analysis=Analysis(equilibration=Equilibration(force_field=ForceField(name='Field')))
+    )
+    backend = Backend(session)
+    backend.project.create('salted', '', str(tmp_path / 'salted'))
+
+    backend.buffer.importFrom(str(tmp_path / 'KCl'))
+
+    assert session.sample_model.buffer.components.names == ('KCl',)
