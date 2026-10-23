@@ -20,18 +20,34 @@ QtObject {
         { 'name': 'SDS-ball', 'path': '~/Examples/SDS-ball' }
     ]
 
+    // Library.available_assets: names by type. A save in the Library
+    // assets editor adds to it (addAsset)
+    property var availableAssets: ({
+        'Lipid': ['DPPC', 'DOPC', 'POPC', 'Cholesterol'],
+        'Surfactant': ['SDS', 'CTAB', 'Triton-X100'],
+        'Component': ['D2O-buffer'],
+        'Ion': [
+            'Na<sup>+</sup>', 'Cl<sup>-</sup>', 'Br<sup>-</sup>', 'K<sup>+</sup>',
+            'Ca<sup>2+</sup>', 'Mg<sup>2+</sup>', 'Zn<sup>2+</sup>'
+        ],
+        'Solvent': ['TIP3', 'Ethanol'],
+        'Salt': ['NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA']
+    })
+
     // Library.available_assets['Ion']
-    readonly property var availableIons: [
-        'Na<sup>+</sup>', 'Cl<sup>-</sup>', 'Br<sup>-</sup>', 'K<sup>+</sup>',
-        'Ca<sup>2+</sup>', 'Mg<sup>2+</sup>', 'Zn<sup>2+</sup>'
-    ]
+    readonly property var availableIons: availableAssets['Ion'] ?? []
 
     // Library.available_assets['Solvent']
-    readonly property var availableSolvents: ['TIP3', 'Ethanol']
+    readonly property var availableSolvents: availableAssets['Solvent'] ?? []
 
     // Library.available_assets['Salt']
-    readonly property var availableSalts: [
-        'NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA'
-    ]
+    readonly property var availableSalts: availableAssets['Salt'] ?? []
+
+    // Mock only: what a save writes to the library index
+    function addAsset(type, name) {
+        const names = availableAssets[type] ?? []
+        if (!names.includes(name))
+            availableAssets = Object.assign({}, availableAssets, { [type]: names.concat([name]) })
+    }
 
 }

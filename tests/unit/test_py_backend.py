@@ -28,6 +28,15 @@ def test_project_change_refreshes_recent(qcore_application):
     assert spy.count() == 1
 
 
+def test_asset_save_refreshes_the_catalogs(qcore_application):
+    backend = Backend(Session())
+    spy = QSignalSpy(backend.library.availableAssetsChanged)
+
+    backend.libraryAssets.externalAssetsChanged.emit()
+
+    assert spy.count() == 1
+
+
 # Each shape adapter on the backend, and the class it adapts
 SHAPE_ADAPTERS = {
     'ringStructure': Ring,

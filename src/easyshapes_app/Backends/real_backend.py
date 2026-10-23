@@ -23,6 +23,7 @@ from .real_py.lamellae import LamellaeModel
 from .real_py.lattice_structure import LatticeStructure
 from .real_py.layers import LayersModel
 from .real_py.library import Library
+from .real_py.library_assets import LibraryAssets
 from .real_py.logic.session import Session
 from .real_py.monolayer_structure import MonolayerStructure
 from .real_py.project import Project
@@ -67,6 +68,7 @@ class Backend(QObject):
 
         self._project = Project(self._session)
         self._library = Library()
+        self._library_assets = LibraryAssets()
         self._config = Config()
         self._error = Error()
         self._sample_model = SampleModel(self._session)
@@ -89,6 +91,9 @@ class Backend(QObject):
         # change.
         self._project.externalProjectChanged.connect(self._library.availableProjectsChanged)
 
+        # A saved asset joins the catalogs
+        self._library_assets.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+
         # Create and load bring their own sample model
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
@@ -106,6 +111,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def library(self):
         return self._library
+
+    @Property('QVariant', constant=True)
+    def libraryAssets(self):
+        return self._library_assets
 
     @Property('QVariant', constant=True)
     def config(self):

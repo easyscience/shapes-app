@@ -21,11 +21,21 @@ EaElements.Dialog {
     title: qsTr("Load an Asset from the Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
+    // The library's assets of the editor's types, as a ListModel: the
+    // list's selection needs a model, not a JS array
+    readonly property ListModel catalog: ListModel {}
+
+    onAboutToShow: {
+        catalog.clear()
+        for (const type of Globals.BackendWrapper.libraryAssetsTypeOptions)
+            for (const name of Globals.BackendWrapper.libraryAvailableAssets[type] ?? [])
+                catalog.append({ name: name, type: type })
+    }
     onAccepted: {
         var indexes = loadLibraryAssetListView.selectedIndexes
         if (indexes.length > 0) {
-            var item = Globals.BackendWrapper.libraryAssetsLibrary.get(indexes[0].row)
-            Globals.BackendWrapper.libraryAssetsLoad(item)
+            const item = catalog.get(indexes[0].row)
+            Globals.BackendWrapper.libraryAssetsLoad(item.type, item.name)
         }
         loadLibraryAssetListView.clearSelection()
     }
@@ -66,7 +76,7 @@ EaElements.Dialog {
                 }
             }
 
-            model: Globals.BackendWrapper.libraryAssetsLibrary
+            model: libraryAssetLoadDialog.catalog
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index

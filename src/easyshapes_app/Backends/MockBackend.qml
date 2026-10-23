@@ -20,7 +20,7 @@ QtObject {
     // Advanced sidebar (Sample Model page) domain singletons.
     property var componentsFiles: MockLogic.ComponentsFiles
     property var structureFiles: MockLogic.StructureFiles
-    // Library Assets editor (Advanced sidebar) — draft asset create/load/save.
+    // Library assets editor (Advanced sidebar), as Backend.libraryAssets
     property var libraryAssets: MockLogic.LibraryAssetsEditor
     // SMILES generator (Advanced sidebar) — molecule from a SMILES string.
     property var smilesGenerator: MockLogic.SmilesGenerator
@@ -60,6 +60,8 @@ QtObject {
     Component.onCompleted: {
         layers.fractionsSource = MockLogic.Components.loaded
         lamellae.fractionsSource = MockLogic.Components.loaded
+        // An editor save writes the library index, as a library save does
+        libraryAssets.library = library
     }
 
 }

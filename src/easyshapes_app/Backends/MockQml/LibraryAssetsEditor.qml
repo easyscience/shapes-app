@@ -7,118 +7,78 @@ pragma Singleton
 import QtQuick
 
 
-// Backend for the "Library assets" editor (Advanced sidebar). Holds a single
-// draft the user either creates from scratch or loads from the library, edits,
-// and saves back. Most types are file-bearing assets (Lipid/Surfactant/
-// Component/Ion/Solvent). 'Salt' is the odd one out: it is NOT an asset but a
-// named collection of ion assets with stoichiometric counts, so for that type
-// the file list is replaced by a two-ion composition.
-//
-// Instantiation of the typed asset is deferred to save() — while editing we
-// keep plain draft fields, so switching the type dropdown never leaves a
-// half-built typed object.
+// Mirrors Backend.libraryAssets: the Library assets editor's draft, which
+// the user creates or loads from the library, edits and saves back. Only
+// the fields are kept while editing; Python builds the typed asset on save
+// and export, so changing the type never leaves a half-built one. A salt
+// has no files of its own: its two ion rows replace the file list.
 QtObject {
     id: root
 
-    // Editor mode:
-    //   'create' — new draft; type dropdown editable. This is the default, so
-    //              the editor opens ready to compose a new asset.
-    //   'edit'   — loaded/saved; type locked (storage is keyed on type).
-    //   'empty'  — reserved; not entered by default.
+    // 'create' while the draft is new; 'edit' once loaded or saved, which
+    // locks the type
     property string mode: 'create'
 
-    // Type options shown in the dropdown. 'Component (Other)' maps to the
-    // Component class; 'Salt' is a collection, not a class.
-    readonly property var typeOptions: ['Lipid', 'Surfactant', 'Component (Other)', 'Ion', 'Solvent', 'Salt']
+    // The library's class names for the asset types
+    readonly property var typeOptions: ['Lipid', 'Surfactant', 'Component', 'Ion', 'Solvent', 'Salt']
 
-    // Draft fields. assetType is a display label from typeOptions. The
-    // component-only fields (cIon/mint/mext) stay at their defaults for the
-    // Ion/Solvent/Salt types, where the UI hides them. Defaults to a molecule
-    // so the editor opens on a typical new-asset form.
+    // Draft fields. counterIon, mint and mext belong to Lipid, Surfactant
+    // and Component; the page hides them for the other types
     property string assetType: 'Lipid'
     property string assetName: ''
-    property string cIon: ''
+    property string counterIon: ''
     property int mint: 0
     property int mext: 0
 
-    // Draft file list (composition of a file-bearing asset). Roles: path, size.
-    // `size` is a fake label — the mock never touches the disk; files the user
-    // adds get one from `fakeSizes` in order. The real backend stats the file.
+    // The draft's files. Roles: path, size. A size is a fake label: the mock
+    // never touches the disk; added files take one from fakeSizes in turn
     readonly property var paths: ListModel { id: pathsModel }
 
     readonly property var fakeSizes: ['58 kB', '2.3 MB', '640 kB', '5.1 MB', '11.2 MB']
     property int fakeSizeIndex: 0
 
-    // Draft salt composition (used only when assetType === 'Salt'). Two fixed
-    // ion slots. Roles: ion (library ion name, or '' when unset), count (>=1).
+    // The salt's ions: row 0 the cation, row 1 the anion. Roles: ion (a
+    // library ion name, '' while unset), count. The page writes the roles
     readonly property var saltComposition: ListModel {
         id: saltCompositionModel
         ListElement { ion: ''; count: 1 }
         ListElement { ion: ''; count: 1 }
+
+        onDataChanged: root._recomputeSalt()
     }
 
-    // True when a Salt draft can be saved: a name plus both ion slots filled.
+    // True when a salt can be saved: a name and both ions
     property bool saltReady: false
 
-    // Mock asset library browsed by the Load-from-lib popup. A mix of kinds so
-    // the browser shows more than components. Roles uniform across rows so the
-    // statically-typed ListModel keeps every column: file-bearing assets leave
-    // the ion0/ion1 slots blank; salts leave c_ion/mint/mext at defaults.
-    // Saving upserts here by (type, name).
-    readonly property var library: ListModel {
-        id: libraryModel
-        ListElement { name: 'DPPC';        type: 'Lipid';             c_ion: '';                 mint: 0; mext: 130; ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'DOPC';        type: 'Lipid';             c_ion: '';                 mint: 0; mext: 138; ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'POPC';        type: 'Lipid';             c_ion: '';                 mint: 0; mext: 134; ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'Cholesterol'; type: 'Lipid';             c_ion: '';                 mint: 0; mext: 74;  ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'SDS';         type: 'Surfactant';        c_ion: 'Na<sup>+</sup>';   mint: 0; mext: 42;  ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'CTAB';        type: 'Surfactant';        c_ion: 'Br<sup>-</sup>';   mint: 0; mext: 62;  ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'Triton-X100'; type: 'Surfactant';        c_ion: '';                 mint: 0; mext: 85;  ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'D2O-buffer';  type: 'Component (Other)';  c_ion: '';                 mint: 0; mext: 3;   ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'Na';          type: 'Ion';               c_ion: '';                 mint: 0; mext: 0;   ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'Cl';          type: 'Ion';               c_ion: '';                 mint: 0; mext: 0;   ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'TIP3';        type: 'Solvent';           c_ion: '';                 mint: 0; mext: 0;   ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'Ethanol';     type: 'Solvent';           c_ion: '';                 mint: 0; mext: 0;   ion0: ''; count0: 0; ion1: ''; count1: 0 }
-        ListElement { name: 'NaCl';        type: 'Salt';              c_ion: '';                 mint: 0; mext: 0;   ion0: 'Na<sup>+</sup>';  count0: 1; ion1: 'Cl<sup>-</sup>'; count1: 1 }
-        ListElement { name: 'CaCl2';       type: 'Salt';              c_ion: '';                 mint: 0; mext: 0;   ion0: 'Ca<sup>2+</sup>'; count0: 1; ion1: 'Cl<sup>-</sup>'; count1: 2 }
-    }
+    // On in the mock for layout work; off in Python until
+    // file_edit_button_task.md is done
+    readonly property bool canEditPath: true
+
+    // Mock only: the mock Library, set by MockBackend. A save adds to its
+    // index, as a library save does
+    property var library: null
+
+    // Mock only: 'Type/name' of the library entry the draft holds, '' for
+    // a new draft
+    property string _loaded: ''
+
+    // Mock only: the fields of each asset saved this session, by
+    // 'Type/name', so loading it back shows them. Other assets load with
+    // stand-in values
+    property var _saved: ({})
 
     onAssetNameChanged: _recomputeSalt()
 
-    // Start a fresh, unsaved draft. Type is editable; default to a molecule so
-    // the component fields are visible to begin with.
     function createNew() {
         mode = 'create'
         assetType = 'Lipid'
         assetName = ''
-        cIon = ''
+        counterIon = ''
         mint = 0
         mext = 0
         pathsModel.clear()
-        _clearSalt()
-    }
-
-    // Adopt a library record into the draft for editing. Type is locked.
-    function loadAsset(item) {
-        mode = 'edit'
-        assetType = item.type
-        assetName = item.name
-        cIon = item.c_ion !== undefined ? item.c_ion : ''
-        mint = item.mint !== undefined ? item.mint : 0
-        mext = item.mext !== undefined ? item.mext : 0
-        pathsModel.clear()
-        if (item.type === 'Salt') {
-            saltCompositionModel.setProperty(0, 'ion', item.ion0)
-            saltCompositionModel.setProperty(0, 'count', item.count0)
-            saltCompositionModel.setProperty(1, 'ion', item.ion1)
-            saltCompositionModel.setProperty(1, 'count', item.count1)
-        } else {
-            _clearSalt()
-            // Mock: stand-in files for the loaded asset, with fake sizes.
-            pathsModel.append({ path: 'assets/' + item.name + '.itp', size: '47 kB' })
-            pathsModel.append({ path: 'assets/' + item.name + '.gro', size: '2.5 MB' })
-        }
-        _recomputeSalt()
+        _setSalt([['', 1], ['', 1]])
+        _loaded = ''
     }
 
     function appendPath(path) {
@@ -141,73 +101,75 @@ QtObject {
         console.debug('LibraryAssetsEditor.editPath:', pathsModel.get(index).path)
     }
 
-    // Export a single file of the draft asset. Mock placeholder — the real
-    // backend will copy the file into `destination`.
-    function exportPath(index, destination) {
-        if (index < 0 || index >= pathsModel.count) return
-        console.debug('LibraryAssetsEditor.exportPath:', pathsModel.get(index).path,
-                      '->', destination)
-    }
-
-    function setSaltIon(index, value) {
-        if (index < 0 || index >= saltCompositionModel.count) return
-        saltCompositionModel.setProperty(index, 'ion', value)
-        _recomputeSalt()
-    }
-
-    function setSaltCount(index, value) {
-        if (index < 0 || index >= saltCompositionModel.count) return
-        saltCompositionModel.setProperty(index, 'count', value)
-    }
-
-    // Instantiate (conceptually) the typed asset / salt from the draft and
-    // persist it to the library. Mock upserts by (type, name) and flips to edit
-    // mode so the type locks. Returns false if the draft is incomplete.
-    function save() {
-        const name = (assetName || '').trim()
-        if (name === '') return false
-        let record
-        if (assetType === 'Salt') {
-            if (!saltReady) return false
-            const r0 = saltCompositionModel.get(0)
-            const r1 = saltCompositionModel.get(1)
-            record = { name: name, type: assetType, c_ion: '', mint: 0, mext: 0,
-                       ion0: r0.ion, count0: r0.count, ion1: r1.ion, count1: r1.count }
-        } else {
-            if (pathsModel.count === 0) return false
-            record = { name: name, type: assetType, c_ion: cIon, mint: mint, mext: mext,
-                       ion0: '', count0: 0, ion1: '', count1: 0 }
+    function load(type, name) {
+        const key = type + '/' + name
+        const record = _saved[key] ?? {
+            counterIon: '',
+            mint: 0,
+            mext: 0,
+            // Stand-in files and ions
+            files: type === 'Salt' ? [] : [
+                { path: 'assets/' + name + '.itp', size: '47 kB' },
+                { path: 'assets/' + name + '.gro', size: '2.5 MB' }
+            ],
+            salt: type === 'Salt'
+                  ? [[library.availableIons[0], 1], [library.availableIons[1], 1]]
+                  : [['', 1], ['', 1]]
         }
-        for (let i = 0; i < libraryModel.count; ++i) {
-            const r = libraryModel.get(i)
-            if (r.type === assetType && r.name === name) {
-                libraryModel.set(i, record)
-                mode = 'edit'
-                console.debug('LibraryAssetsEditor.save (overwrite):', assetType, name)
-                return true
-            }
-        }
-        libraryModel.append(record)
         mode = 'edit'
-        console.debug('LibraryAssetsEditor.save (new):', assetType, name)
-        return true
+        assetType = type
+        assetName = name
+        counterIon = record.counterIon
+        mint = record.mint
+        mext = record.mext
+        pathsModel.clear()
+        for (const file of record.files)
+            pathsModel.append(file)
+        _setSalt(record.salt)
+        _loaded = key
     }
 
-    function exportAsset(destination) {
-        console.debug('LibraryAssetsEditor.exportAsset:', assetType, assetName,
-                      '->', destination)
+    // Another entry's name: saving the loaded one back is a regular save
+    function nameTaken() {
+        return assetType + '/' + assetName !== _loaded
+               && (library.availableAssets[assetType] ?? []).includes(assetName)
     }
 
-    function _clearSalt() {
-        saltCompositionModel.setProperty(0, 'ion', '')
-        saltCompositionModel.setProperty(0, 'count', 1)
-        saltCompositionModel.setProperty(1, 'ion', '')
-        saltCompositionModel.setProperty(1, 'count', 1)
+    function save(overwrite) {
+        const key = assetType + '/' + assetName
+        const files = []
+        for (let i = 0; i < pathsModel.count; ++i) {
+            const row = pathsModel.get(i)
+            files.push({ path: row.path, size: row.size })
+        }
+        const salt = [0, 1].map(i => [saltCompositionModel.get(i).ion, saltCompositionModel.get(i).count])
+        _saved = Object.assign({}, _saved, { [key]: { counterIon, mint, mext, files, salt } })
+        library.addAsset(assetType, assetName)
+        _loaded = key
+        mode = 'edit'
+        console.debug('LibraryAssetsEditor.save:', key, 'overwrite:', overwrite)
+    }
+
+    // The mock has no file system: a folder ending in 'taken' counts as
+    // taken, as in Project.locationTaken
+    function exportTaken(folder, row) {
+        return folder.endsWith('taken')
+    }
+
+    // Row -1 exports the whole asset, a row that one file
+    function exportTo(folder, row, overwrite) {
+        console.debug('LibraryAssetsEditor.exportTo:', assetType, assetName, 'row:', row,
+                      '->', folder, 'overwrite:', overwrite)
+    }
+
+    function _setSalt(rows) {
+        for (let i = 0; i < 2; ++i)
+            saltCompositionModel.set(i, { ion: rows[i][0], count: rows[i][1] })
     }
 
     function _recomputeSalt() {
-        const r0 = saltCompositionModel.get(0)
-        const r1 = saltCompositionModel.get(1)
-        saltReady = (assetName || '').trim() !== '' && !!r0.ion && !!r1.ion
+        saltReady = assetName !== ''
+                    && saltCompositionModel.get(0).ion !== ''
+                    && saltCompositionModel.get(1).ion !== ''
     }
 }

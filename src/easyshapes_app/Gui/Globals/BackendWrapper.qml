@@ -53,6 +53,7 @@ QtObject {
 
     readonly property var libraryAvailableProjects: activeBackend.library.availableProjects
     readonly property var libraryAvailableExamples: activeBackend.library.availableExamples
+    readonly property var libraryAvailableAssets: activeBackend.library.availableAssets
     readonly property var libraryAvailableIons: activeBackend.library.availableIons
     readonly property var libraryAvailableSolvents: activeBackend.library.availableSolvents
     readonly property var libraryAvailableSalts: activeBackend.library.availableSalts
@@ -302,38 +303,40 @@ QtObject {
     function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
     function structureFilesExport(destination) { activeBackend.structureFiles.exportFiles(destination) }
 
-    // Library Assets editor (Advanced sidebar). A single draft asset the user
-    // creates or loads from the library, edits, and saves back. `mode` is
-    // 'empty' | 'create' | 'edit'; the type is editable only while creating.
+    // Library assets editor (Advanced sidebar): one draft asset the user
+    // creates or loads from the library, edits and saves back. The type is
+    // editable only in 'create' mode. The page writes the salt's two rows
+    // (cation, anion) directly
     readonly property string libraryAssetsMode: activeBackend.libraryAssets.mode
     readonly property var libraryAssetsTypeOptions: activeBackend.libraryAssets.typeOptions
     readonly property string libraryAssetsType: activeBackend.libraryAssets.assetType
     readonly property string libraryAssetsName: activeBackend.libraryAssets.assetName
-    readonly property string libraryAssetsCIon: activeBackend.libraryAssets.cIon
+    readonly property string libraryAssetsCounterIon: activeBackend.libraryAssets.counterIon
     readonly property int libraryAssetsMint: activeBackend.libraryAssets.mint
     readonly property int libraryAssetsMext: activeBackend.libraryAssets.mext
     readonly property var libraryAssetsPaths: activeBackend.libraryAssets.paths
-    readonly property var libraryAssetsLibrary: activeBackend.libraryAssets.library
-    // Salt composition (used when the type is 'Salt'). `saltReady` is true once
-    // a name and both ions are set.
     readonly property var libraryAssetsSaltComposition: activeBackend.libraryAssets.saltComposition
     readonly property bool libraryAssetsSaltReady: activeBackend.libraryAssets.saltReady
+    readonly property bool libraryAssetsCanEditPath: activeBackend.libraryAssets.canEditPath
 
     function libraryAssetsCreateNew() { activeBackend.libraryAssets.createNew() }
-    function libraryAssetsSetSaltIon(index, value) { activeBackend.libraryAssets.setSaltIon(index, value) }
-    function libraryAssetsSetSaltCount(index, value) { activeBackend.libraryAssets.setSaltCount(index, value) }
-    function libraryAssetsLoad(item) { activeBackend.libraryAssets.loadAsset(item) }
+    function libraryAssetsLoad(type, name) { activeBackend.libraryAssets.load(type, name) }
     function libraryAssetsSetType(value) { activeBackend.libraryAssets.assetType = value }
     function libraryAssetsSetName(value) { activeBackend.libraryAssets.assetName = value }
-    function libraryAssetsSetCIon(value) { activeBackend.libraryAssets.cIon = value }
+    function libraryAssetsSetCounterIon(value) { activeBackend.libraryAssets.counterIon = value }
     function libraryAssetsSetMint(value) { activeBackend.libraryAssets.mint = value }
     function libraryAssetsSetMext(value) { activeBackend.libraryAssets.mext = value }
     function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
     function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
+    // Mock only while libraryAssetsCanEditPath is false in Python
     function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
-    function libraryAssetsExportPath(index, destination) { activeBackend.libraryAssets.exportPath(index, destination) }
-    function libraryAssetsSave() { activeBackend.libraryAssets.save() }
-    function libraryAssetsExport(destination) { activeBackend.libraryAssets.exportAsset(destination) }
+    // Save asks first when the name is taken; OK saves with overwrite
+    function libraryAssetsNameTaken() { return activeBackend.libraryAssets.nameTaken() }
+    function libraryAssetsSave(overwrite) { activeBackend.libraryAssets.save(overwrite) }
+    // Row -1 is the whole asset. Export asks first when the folder is
+    // taken; OK exports with overwrite
+    function libraryAssetsExportTaken(folder, row) { return activeBackend.libraryAssets.exportTaken(folder, row) }
+    function libraryAssetsExportTo(folder, row, overwrite) { activeBackend.libraryAssets.exportTo(folder, row, overwrite) }
 
     // SMILES generator (Advanced sidebar). Builds a 3D molecular configuration
     // from a SMILES string. `smilesReady` is true once a name and SMILES string

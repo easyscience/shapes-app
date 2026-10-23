@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -36,7 +37,7 @@ EaElements.GroupColumn {
     // hide for Ion/Solvent/Salt, mirroring the asset class hierarchy.
     readonly property bool isMolecule: assetType === "Lipid"
                                        || assetType === "Surfactant"
-                                       || assetType === "Component (Other)"
+                                       || assetType === "Component"
 
     // Ion options: a leading "(None)" sentinel (empty value) plus the
     // library's ions. Used by both the C-ion picker and the salt composition.
@@ -128,14 +129,14 @@ EaElements.GroupColumn {
                 displayText: currentIndex <= 0 ? "" : currentText
 
                 function syncIndex() {
-                    const v = Globals.BackendWrapper.libraryAssetsCIon
+                    const v = Globals.BackendWrapper.libraryAssetsCounterIon
                     currentIndex = v === "" ? 0 : find(v)
                 }
                 Component.onCompleted: syncIndex()
-                onActivated: (i) => Globals.BackendWrapper.libraryAssetsSetCIon(i === 0 ? "" : model[i])
+                onActivated: (i) => Globals.BackendWrapper.libraryAssetsSetCounterIon(i === 0 ? "" : model[i])
                 Connections {
                     target: Globals.BackendWrapper
-                    function onLibraryAssetsCIonChanged() { cIonSelector.syncIndex() }
+                    function onLibraryAssetsCounterIonChanged() { cIonSelector.syncIndex() }
                 }
             }
         }
@@ -149,8 +150,9 @@ EaElements.GroupColumn {
                 width: root.thirdWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: IntValidator { bottom: 0 }
+                warned: !acceptableInput
                 text: Globals.BackendWrapper.libraryAssetsMint
-                onEditingFinished: Globals.BackendWrapper.libraryAssetsSetMint(parseInt(text) || 0)
+                onEditingFinished: Globals.BackendWrapper.libraryAssetsSetMint(parseInt(text))
             }
         }
 
@@ -163,14 +165,15 @@ EaElements.GroupColumn {
                 width: root.thirdWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: IntValidator { bottom: 0 }
+                warned: !acceptableInput
                 text: Globals.BackendWrapper.libraryAssetsMext
-                onEditingFinished: Globals.BackendWrapper.libraryAssetsSetMext(parseInt(text) || 0)
+                onEditingFinished: Globals.BackendWrapper.libraryAssetsSetMext(parseInt(text))
             }
         }
     }
 
     // Salt composition — shown only for the Salt type (replaces the file list).
-    // Two ion slots with stoichiometric counts.
+    // The library's two slots, the cation and the anion, with their counts.
     Column {
         visible: root.isSalt
         width: parent.width
@@ -185,7 +188,7 @@ EaElements.GroupColumn {
             multiSelection: false
 
             columnWidths: [
-                EaStyle.Sizes.fontPixelSize * 2.5,
+                EaStyle.Sizes.fontPixelSize * 4.5,
                 EaStyle.Sizes.fontPixelSize * 7,
                 EaStyle.Sizes.fontPixelSize * 6,
                 EaStyle.Sizes.columnWidthFlex
@@ -193,7 +196,6 @@ EaElements.GroupColumn {
 
             header: EaComponents.ListViewHeader {
                 EaComponents.TableViewLabel {
-                    text: qsTr("№")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
                 EaComponents.TableViewLabel {
@@ -210,6 +212,8 @@ EaElements.GroupColumn {
 
             model: Globals.BackendWrapper.libraryAssetsSaltComposition
 
+            delegateModelAccess: DelegateModel.ReadWrite
+
             delegate: EaComponents.ListViewDelegate {
                 id: saltRow
                 required property int index
@@ -217,7 +221,7 @@ EaElements.GroupColumn {
                 required property int count
 
                 EaComponents.TableViewLabel {
-                    text: index + 1
+                    text: saltRow.index === 0 ? qsTr("Cation") : qsTr("Anion")
                     enabled: false
                 }
 
@@ -228,7 +232,7 @@ EaElements.GroupColumn {
 
                     function sync() { currentIndex = saltRow.ion === "" ? 0 : find(saltRow.ion) }
                     Component.onCompleted: sync()
-                    onActivated: (i) => Globals.BackendWrapper.libraryAssetsSetSaltIon(saltRow.index, i === 0 ? "" : model[i])
+                    onActivated: (i) => saltRow.ion = i === 0 ? "" : model[i]
                     Connections {
                         target: saltRow
                         function onIonChanged() { ionCombo.sync() }
@@ -236,9 +240,10 @@ EaElements.GroupColumn {
                 }
 
                 EaComponents.ListViewTextInput {
-                    text: count
+                    text: saltRow.count
                     validator: IntValidator { bottom: 1 }
-                    onEditingFinished: Globals.BackendWrapper.libraryAssetsSetSaltCount(saltRow.index, parseInt(text) || 1)
+                    warned: !acceptableInput
+                    onEditingFinished: saltRow.count = parseInt(text)
                 }
 
                 EaComponents.TableViewLabel {} // filler, matches the header
@@ -305,6 +310,7 @@ EaElements.GroupColumn {
             }
             EaComponents.TableViewButton {
                 fontIcon: "edit"
+                enabled: Globals.BackendWrapper.libraryAssetsCanEditPath
                 ToolTip.text: qsTr("Edit this file")
                 onClicked: Globals.BackendWrapper.libraryAssetsEditPath(index)
             }
@@ -326,7 +332,7 @@ EaElements.GroupColumn {
             text: qsTr("Add new file")
             width: root.thirdWidth
             ToolTip.text: qsTr("Pick one or more files from disk and add them to this asset")
-            enabled: Globals.BackendWrapper.libraryAssetsMode !== "empty" && !root.isSalt
+            enabled: !root.isSalt
             onClicked: addAssetFilesDialog.open()
         }
 
@@ -340,7 +346,13 @@ EaElements.GroupColumn {
                      : (Globals.BackendWrapper.libraryAssetsName.trim() !== ""
                         && Globals.BackendWrapper.libraryAssetsPaths
                         && Globals.BackendWrapper.libraryAssetsPaths.count > 0)
-            onClicked: Globals.BackendWrapper.libraryAssetsSave()
+            // A name another entry holds asks first
+            onClicked: {
+                if (Globals.BackendWrapper.libraryAssetsNameTaken())
+                    saveOverwriteDialog.open()
+                else
+                    Globals.BackendWrapper.libraryAssetsSave(false)
+            }
         }
 
         EaElements.SideBarButton {
@@ -359,15 +371,18 @@ EaElements.GroupColumn {
 
     // Destination picker for Export. What gets written is decided here rather
     // than on the button, so the selection is read when the user confirms.
+    // A folder the export would replace files in asks first
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
         onAccepted: {
-            const destination = selectedFolder.toString()
-            if (root.selectedFileRow >= 0)
-                Globals.BackendWrapper.libraryAssetsExportPath(root.selectedFileRow, destination)
-            else
-                Globals.BackendWrapper.libraryAssetsExport(destination)
+            const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
+            if (Globals.BackendWrapper.libraryAssetsExportTaken(folder, root.selectedFileRow)) {
+                exportOverwriteDialog.folder = folder
+                exportOverwriteDialog.open()
+            } else {
+                Globals.BackendWrapper.libraryAssetsExportTo(folder, root.selectedFileRow, false)
+            }
         }
     }
 
@@ -382,8 +397,39 @@ EaElements.GroupColumn {
         ]
         onAccepted: {
             for (let i = 0; i < selectedFiles.length; ++i) {
-                Globals.BackendWrapper.libraryAssetsAppendPath(selectedFiles[i].toString())
+                Globals.BackendWrapper.libraryAssetsAppendPath(EaLogic.Utils.urlToLocalFile(selectedFiles[i].toString()))
             }
+        }
+    }
+
+    // Asks before replacing another library entry of this type and name
+    EaElements.Dialog {
+        id: saveOverwriteDialog
+        title: qsTr("Replace library asset")
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: Globals.BackendWrapper.libraryAssetsSave(true)
+        onRejected: console.debug(`Save of ${Globals.BackendWrapper.libraryAssetsName} cancelled: the name is taken`)
+
+        EaElements.Label {
+            text: qsTr("The library already holds a %1 named %2. Replace it?")
+                  .arg(Globals.BackendWrapper.libraryAssetsType)
+                  .arg(Globals.BackendWrapper.libraryAssetsName)
+        }
+    }
+
+    // Asks before an export replaces files; the folder dialog sets folder
+    EaElements.Dialog {
+        id: exportOverwriteDialog
+        property string folder: ""
+        title: qsTr("Replace exported files")
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: Globals.BackendWrapper.libraryAssetsExportTo(folder, root.selectedFileRow, true)
+        onRejected: console.debug(`Export to ${folder} cancelled: the folder is taken`)
+
+        EaElements.Label {
+            text: root.selectedFileRow >= 0
+                  ? qsTr("%1 already holds a file of this name. Replace it?").arg(exportOverwriteDialog.folder)
+                  : qsTr("%1 is not empty. Export there anyway? Files of an earlier export of this asset are replaced.").arg(exportOverwriteDialog.folder)
         }
     }
 
