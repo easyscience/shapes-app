@@ -209,15 +209,14 @@ QtObject {
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
     readonly property string componentsErrors: activeBackend.components.loaded.errors
-    // The reason a refused name was refused, by the name the component
-    // kept
-    readonly property var componentsNameErrors: activeBackend.components.loaded.nameErrors
 
     // type: the library class name, Lipid, Surfactant or Component
     function componentsAppend(type, name) { activeBackend.components.append(type, name) }
     function componentsImportFrom(folder) { activeBackend.components.importFrom(folder) }
-    // With the name cell's checks; a refusal goes to componentsNameErrors
-    function componentsRename(name, newName) { activeBackend.components.rename(name, newName) }
+    // With the name cell's checks; returns why a name was refused, ''
+    // when renamed. The caller shows it: the components list keeps no
+    // record of it
+    function componentsRename(name, newName) { return activeBackend.components.rename(name, newName) }
     function componentsRemove(index) { activeBackend.components.remove(index) }
 
     // Atomistic structure of a loaded component, for the Components viewer:

@@ -23,9 +23,6 @@ QtObject {
     readonly property var loaded: ListModel {
         id: loadedComponentsModel
         property string errors: ''
-        // As the Python model: the reason each refused name was refused,
-        // by the name kept. The mock refuses nothing
-        property var nameErrors: ({})
     }
 
     // Python loads the component from the library by type and name and
@@ -50,16 +47,18 @@ QtObject {
         append('Component', folder.split(/[\\/]/).pop())
     }
 
-    // Python renames through the name cell's path, with its checks; the
-    // mock renames and refuses nothing
+    // Python renames through the name cell's checks and returns why a
+    // name was refused, '' for none; the mock renames and refuses
+    // nothing
     function rename(name, newName) {
         for (let i = 0; i < loadedComponentsModel.count; ++i) {
             if (loadedComponentsModel.get(i).name === name) {
                 loadedComponentsModel.setProperty(i, 'name', newName)
                 renamed(name, newName)
-                return
+                break
             }
         }
+        return ''
     }
 
     function remove(index) {

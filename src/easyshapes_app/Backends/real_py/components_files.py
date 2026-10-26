@@ -49,6 +49,9 @@ class ComponentsFiles(QObject):
         # The live component of the sample the group shows; None while
         # none is picked
         self._component = None
+        # The pick's name QML last saw: refresh emits only when it
+        # changed
+        self._shown_name = ''
         self._files = FilesModel(self)
 
     @Property(str, notify=selectedComponentChanged)
@@ -157,11 +160,13 @@ class ComponentsFiles(QObject):
             component is self._component for component in self._components()
         ):
             self._select(None)
-        else:
+        elif self.selectedComponent != self._shown_name:
+            self._shown_name = self.selectedComponent
             self.selectedComponentChanged.emit()
 
     def _select(self, component):
         self._component = component
+        self._shown_name = self.selectedComponent
         self._files.reset(component.paths if component else ())
         self.selectedComponentChanged.emit()
 

@@ -31,10 +31,14 @@ def test_component_added_in_components_files_renames_saves_exports_and_leaves(
 
     group.create()
     group.appendFile(str(itp))
-    backend.components.rename(group.selectedComponent, 'TstNew')
-    # A second one, refused the name the first now holds
+    assert backend.components.rename(group.selectedComponent, 'TstNew') == ''
+    # A second one, refused the name the first now holds: the reason
+    # goes back to the caller, the components list keeps none
     group.create()
-    backend.components.rename(group.selectedComponent, 'TstNew')
+    assert (
+        backend.components.rename(group.selectedComponent, 'TstNew')
+        == 'Another component is already named TstNew'
+    )
     second = group.selectedComponent
     group.selectComponent('TstNew')
     assert not group.nameTaken()
@@ -42,9 +46,7 @@ def test_component_added_in_components_files_renames_saves_exports_and_leaves(
     group.exportTo(str(tmp_path / 'export'), -1, False)
 
     assert session.sample_model.structure.components.names == ('TstNew', second)
-    assert backend.components.loaded.nameErrors == {
-        second: 'Another component is already named TstNew'
-    }
+    assert backend.components.loaded.errors == ''
     assert [Path(path).name for path in group.files.paths] == ['TstNew.itp']
     assert backend.library.availableAssets['Component'] == ['TstNew']
     assert group.nameTaken()

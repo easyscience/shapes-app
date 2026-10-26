@@ -19,6 +19,22 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 from tests.unit.factories import FakeSampleModel
 
 
+class ByName(list):
+    """
+    The library's collection as both lists read it: by row, by name, and
+    its names.
+    """
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return next(item for item in self if item.name == key)
+        return super().__getitem__(key)
+
+    @property
+    def names(self):
+        return tuple(item.name for item in self)
+
+
 def test_project_change_refreshes_recent(qcore_application):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableProjectsChanged)
@@ -182,17 +198,31 @@ def test_created_component_joins_the_components_list(qcore_application):
 
 
 def test_components_list_changes_refresh_components_files(qcore_application):
+    dppc = SimpleNamespace(name='DPPC', paths=())
+    components = ByName([dppc])
     sample_model = FakeSampleModel()
-    sample_model.structure = SimpleNamespace(components=[SimpleNamespace(name='DPPC')])
+    sample_model.structure = SimpleNamespace(components=components)
     backend = Backend(Session(sample_model=sample_model))
-    spy = QSignalSpy(backend.componentsFiles.selectedComponentChanged)
     loaded = backend.components.loaded
+    group = backend.componentsFiles
+    group.selectComponent('DPPC')
+    spy = QSignalSpy(group.selectedComponentChanged)
 
+    # A rename shows once; a change that keeps the name shows nothing
+    dppc.name = 'DOPC'
     loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    assert (group.selectedComponent, spy.count()) == ('DOPC', 1)
+
     # Private signals: sent the way a remove and a reset send them
     loaded.beginRemoveRows(QModelIndex(), 0, 0)
+    components.remove(dppc)
     loaded.endRemoveRows()
+    assert (group.selectedComponent, spy.count()) == ('', 2)
+
+    components.append(dppc)
+    group.selectComponent('DOPC')
+    sample_model.structure = SimpleNamespace(components=ByName())
     loaded.beginResetModel()
     loaded.endResetModel()
-
-    assert spy.count() == 3
+    assert (group.selectedComponent, spy.count()) == ('', 4)

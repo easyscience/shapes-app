@@ -123,6 +123,10 @@ def test_refresh_keeps_a_renamed_pick_and_drops_a_removed_one():
     part.selectComponent('DPPC')
     spy = QSignalSpy(part.selectedComponentChanged)
 
+    # An edit that keeps the name shows nothing
+    part.refresh()
+    assert spy.count() == 0
+
     dppc.name = 'DOPC'
     part.refresh()
     assert part.selectedComponent == 'DOPC'

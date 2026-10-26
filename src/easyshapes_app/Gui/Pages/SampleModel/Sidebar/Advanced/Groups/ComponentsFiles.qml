@@ -29,8 +29,9 @@ EaElements.GroupColumn {
                                      : 0
 
     readonly property bool picked: Globals.BackendWrapper.componentsFilesSelectedComponent !== ""
-    // Why the components list refused the last name typed for the pick
-    readonly property string nameError: Globals.BackendWrapper.componentsNameErrors[Globals.BackendWrapper.componentsFilesSelectedComponent] ?? ""
+    // Why the last name typed here was refused, '' for none; cleared
+    // when the pick or its name changes
+    property string nameError: ""
 
     // Component selector + name editor + Add new component, in one row of
     // equal thirds. The dropdown lists only components already loaded on the
@@ -87,22 +88,28 @@ EaElements.GroupColumn {
                 enabled: false
                 text: qsTr("Name")
             }
-            // Renames the pick with the components list's checks; a
-            // refused name keeps the old one, the reason below in red
+            // Renames the pick with the components list's checks
             EaElements.TextField {
+                id: nameField
                 width: root.thirdWidth
                 horizontalAlignment: TextInput.AlignLeft
                 readOnly: !root.picked
                 warned: root.nameError !== ""
                 placeholderText: qsTr("Pick or add a component")
                 text: Globals.BackendWrapper.componentsFilesSelectedComponent
+                // A refused name stays typed and red, to edit on; an
+                // accepted one comes back as the pick's new name
                 onEditingFinished: {
-                    if (!root.picked)
-                        return
-                    try {
-                        Globals.BackendWrapper.componentsRename(Globals.BackendWrapper.componentsFilesSelectedComponent, text)
-                    } finally {
-                        text = Qt.binding(() => Globals.BackendWrapper.componentsFilesSelectedComponent)
+                    if (root.picked)
+                        root.nameError = Globals.BackendWrapper.componentsRename(Globals.BackendWrapper.componentsFilesSelectedComponent, text)
+                }
+                Connections {
+                    target: Globals.BackendWrapper
+                    // A new pick, or the pick's new name: show it and drop
+                    // the reason
+                    function onComponentsFilesSelectedComponentChanged() {
+                        root.nameError = ""
+                        nameField.text = Qt.binding(() => Globals.BackendWrapper.componentsFilesSelectedComponent)
                     }
                 }
             }

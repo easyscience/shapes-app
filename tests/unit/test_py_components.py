@@ -349,26 +349,33 @@ def test_part_renames_through_the_name_cells_path(qcore_application):
     part = OfflineComponents(session)
     emitted = emitted_roles(part.loaded)
 
-    part.rename('POPC', 'DOPC')
+    assert part.rename('POPC', 'DOPC') == ''
 
     assert components.names == ('DPPC', 'CHOL', 'DOPC')
     assert emitted == [[Model.NameRole]]
 
 
-def test_refused_rename_keeps_its_reason_by_the_kept_name(qcore_application):
+@pytest.mark.parametrize(
+    ('name', 'new_name', 'reason'),
+    [
+        ('POPC', 'DPPC', 'Another component is already named DPPC'),
+        ('CHOL', 'SOL', 'Folder SOL already exists'),
+    ],
+    ids=['taken', 'folder'],
+)
+def test_refused_rename_returns_its_reason_and_leaves_the_list_alone(
+    qcore_application, name, new_name, reason
+):
     session, components = session_with_components()
     part = OfflineComponents(session)
+    emitted = emitted_roles(part.loaded)
     errors = QSignalSpy(part.loaded.errorsChanged)
 
-    part.rename('POPC', 'DPPC')
+    assert part.rename(name, new_name) == reason
 
     assert components.names == ('DPPC', 'CHOL', 'POPC')
-    assert part.loaded.nameErrors == {'POPC': 'Another component is already named DPPC'}
-
-    part.rename('POPC', 'DOPC')
-
-    assert part.loaded.nameErrors == {}
-    assert errors.count() == 2
+    assert part.loaded.errors == ''
+    assert (emitted, errors.count()) == ([], 0)
 
 
 def test_import_of_another_class_raises(qcore_application, tmp_path):

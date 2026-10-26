@@ -137,14 +137,6 @@ class ComponentsModel(QAbstractListModel):
             if component in self._name_errors
         )
 
-    @Property('QVariant', notify=errorsChanged)
-    def nameErrors(self):
-        """
-        The reason each refused name was refused, by the name the
-        component kept.
-        """
-        return {component.name: error for component, error in self._name_errors.items()}
-
     @Slot(int, result='QVariant')
     def get(self, row):
         """
@@ -187,13 +179,20 @@ class ComponentsModel(QAbstractListModel):
 
     def rename(self, name, new_name):
         """
-        Rename the component of a name as the name cell does; a refused
-        name keeps its reason in nameErrors.
+        Rename the component of a name with the name cell's checks, and
+        return why a name was refused, '' when renamed. The list keeps
+        no record of the refusal: the caller shows it.
         """
-        # Through setData, as the name cell renames: one path for the
-        # checks, the library rename and the signals
+        # Another editor's rename: the name cell's checks and signals,
+        # but the refusal is the caller's to show, not this list's
         row = self._components().names.index(name)
-        self.setData(self.index(row), new_name, self.NameRole)
+        component = self._components()[row]
+        held = component.name
+        error = self._rename(component, new_name)
+        if not error and new_name != held:
+            index = self.index(row)
+            self.dataChanged.emit(index, index, [self.NameRole])
+        return error
 
     def reset(self):
         """
@@ -215,18 +214,7 @@ class ComponentsModel(QAbstractListModel):
         not, until the next accepted name.
         """
         held = component.name
-        error = ''
-        if name != held:
-            if name in self._components().names:
-                # The library would rename first and refuse after,
-                # keeping the clash: refuse here instead
-                error = f'Another component is already named {name}'
-            else:
-                try:
-                    component.name = name
-                except ValueError as err:
-                    # A folder clash; the library keeps the old name
-                    error = str(err)
+        error = self._rename(component, name)
         if error:
             self._name_errors[component] = error
             self.dataChanged.emit(index, index, [self.NameErrorRole])
@@ -239,6 +227,24 @@ class ComponentsModel(QAbstractListModel):
         if roles:
             self.dataChanged.emit(index, index, roles)
         return True
+
+    def _rename(self, component, name):
+        """
+        Rename a component through the library, or say why not; '' when
+        renamed or unchanged.
+        """
+        if name == component.name:
+            return ''
+        if name in self._components().names:
+            # The library would rename first and refuse after, keeping
+            # the clash: refuse here instead
+            return f'Another component is already named {name}'
+        try:
+            component.name = name
+        except ValueError as err:
+            # A folder clash; the library keeps the old name
+            return str(err)
+        return ''
 
     def _components(self):
         sample_model = self._session.sample_model
@@ -286,12 +292,13 @@ class Components(QObject):
             raise ValueError(f'{folder} holds a {component_type}, not a component')
         self._model.append(self._types[component_type].import_from(folder))
 
-    @Slot(str, str)
+    @Slot(str, str, result=str)
     def rename(self, name, new_name):
         """
-        Rename the component of a name, with the name cell's checks.
+        Rename the component of a name with the name cell's checks, and
+        return why a name was refused, '' when renamed.
         """
-        self._model.rename(name, new_name)
+        return self._model.rename(name, new_name)
 
     @Slot(int)
     def remove(self, row):
