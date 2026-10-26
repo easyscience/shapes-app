@@ -137,6 +137,14 @@ class ComponentsModel(QAbstractListModel):
             if component in self._name_errors
         )
 
+    @Property('QVariant', notify=errorsChanged)
+    def nameErrors(self):
+        """
+        The reason each refused name was refused, by the name the
+        component kept.
+        """
+        return {component.name: error for component, error in self._name_errors.items()}
+
     @Slot(int, result='QVariant')
     def get(self, row):
         """
@@ -176,6 +184,16 @@ class ComponentsModel(QAbstractListModel):
         self.countChanged.emit()
         if self._name_errors.pop(component, None) is not None:
             self.errorsChanged.emit()
+
+    def rename(self, name, new_name):
+        """
+        Rename the component of a name as the name cell does; a refused
+        name keeps its reason in nameErrors.
+        """
+        # Through setData, as the name cell renames: one path for the
+        # checks, the library rename and the signals
+        row = self._components().names.index(name)
+        self.setData(self.index(row), new_name, self.NameRole)
 
     def reset(self):
         """
@@ -233,7 +251,7 @@ class ComponentsModel(QAbstractListModel):
 class Components(QObject):
     """
     The components list for QML: its rows, adding a component from the
-    library or from an export folder, and removing one.
+    library or from an export folder, renaming one and removing one.
     """
 
     # The library classes components load from, by class name; tests
@@ -267,6 +285,13 @@ class Components(QObject):
         if component_type not in self._types:
             raise ValueError(f'{folder} holds a {component_type}, not a component')
         self._model.append(self._types[component_type].import_from(folder))
+
+    @Slot(str, str)
+    def rename(self, name, new_name):
+        """
+        Rename the component of a name, with the name cell's checks.
+        """
+        self._model.rename(name, new_name)
 
     @Slot(int)
     def remove(self, row):

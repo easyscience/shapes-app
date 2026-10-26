@@ -17,11 +17,12 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 class FakeComponent:
     """
     Holds its files as the library does: sorted, each once, added and
-    removed by path. Logs saves and exports in calls.
+    removed by path. Unnamed, a uid stands in, as in the library. Logs
+    saves and exports in calls.
     """
 
-    def __init__(self, name, *paths):
-        self.name = name
+    def __init__(self, name=None, *paths):
+        self.name = name if name is not None else 'a1b2c3d4e5f6'
         self._paths = {Path(path) for path in paths}
         self.calls = []
 
@@ -102,15 +103,6 @@ def test_unknown_name_raises():
         part.selectComponent('POPC')
 
 
-def test_create_new_clears_the_pick_and_the_rows():
-    part, _ = part_with(FakeComponent('DPPC', 'DPPC.itp'))
-    part.selectComponent('DPPC')
-
-    part.createNew()
-
-    assert (part.selectedComponent, part.files.count) == ('', 0)
-
-
 def test_file_changes_go_to_the_live_component():
     dppc = FakeComponent('DPPC', 'DPPC.itp')
     part, _ = part_with(dppc)
@@ -141,25 +133,15 @@ def test_refresh_keeps_a_renamed_pick_and_drops_a_removed_one():
     assert spy.count() == 2
 
 
-def test_create_hands_a_new_component_to_the_root_and_picks_it():
+def test_create_hands_an_unnamed_component_to_the_root_and_picks_it():
     part, _ = part_with()
     created = []
     part.externalComponentCreated.connect(created.append)
 
-    part.create('DOPC')
+    part.create()
 
     (component,) = created
-    assert (component.name, part.selectedComponent) == ('DOPC', 'DOPC')
-
-
-def test_create_of_a_held_name_raises_and_emits_nothing():
-    part, _ = part_with(FakeComponent('DPPC'))
-    created = QSignalSpy(part.externalComponentCreated)
-
-    with pytest.raises(ValueError, match='already holds DPPC'):
-        part.create('DPPC')
-
-    assert created.count() == 0
+    assert part.selectedComponent == component.name == 'a1b2c3d4e5f6'
 
 
 def test_name_is_taken_by_a_library_entry_of_its_class():

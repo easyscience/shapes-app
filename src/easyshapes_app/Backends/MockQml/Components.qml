@@ -8,6 +8,10 @@ import QtQuick
 
 QtObject {
 
+    // MockBackend passes a rename on to Components Files, as Backend's
+    // wiring makes the Python group follow it
+    signal renamed(string name, string newName)
+
     // Working set of components currently loaded into the sample model.
     // ListModel (not JS array) so EaComponents.ListView's ItemSelectionModel
     // can drive Ctrl/Shift multi-selection, and so role-based delegate
@@ -19,6 +23,9 @@ QtObject {
     readonly property var loaded: ListModel {
         id: loadedComponentsModel
         property string errors: ''
+        // As the Python model: the reason each refused name was refused,
+        // by the name kept. The mock refuses nothing
+        property var nameErrors: ({})
     }
 
     // Python loads the component from the library by type and name and
@@ -41,6 +48,18 @@ QtObject {
     // stand-in named after the folder
     function importFrom(folder) {
         append('Component', folder.split(/[\\/]/).pop())
+    }
+
+    // Python renames through the name cell's path, with its checks; the
+    // mock renames and refuses nothing
+    function rename(name, newName) {
+        for (let i = 0; i < loadedComponentsModel.count; ++i) {
+            if (loadedComponentsModel.get(i).name === name) {
+                loadedComponentsModel.setProperty(i, 'name', newName)
+                renamed(name, newName)
+                return
+            }
+        }
     }
 
     function remove(index) {

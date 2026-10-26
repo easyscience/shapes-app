@@ -8,9 +8,9 @@ import QtQuick
 
 
 // Mirrors Backend.componentsFiles: the files of one component of the
-// sample, picked from the components list. Create new clears the group;
-// create(name) adds an empty component under that name to the list, as
-// MockBackend wires it, and picks it.
+// sample, picked from the components list. create() adds an empty
+// component, named like a uid, to the list, as MockBackend wires it, and
+// picks it; renaming goes through the components list.
 QtObject {
     id: root
 
@@ -56,14 +56,20 @@ QtObject {
             filesModel.append(file)
     }
 
-    function createNew() {
-        selectedComponent = ''
-        filesModel.clear()
-    }
-
-    function create(name) {
+    // Python's library names an unnamed component by its uid; the mock
+    // makes up one of the same form
+    function create() {
+        const name = Math.random().toString(16).slice(2, 14)
         externalComponentCreated(name)
         selectComponent(name)
+    }
+
+    // Mock only: MockBackend calls it on a rename in the components
+    // list, as Python's refresh follows one
+    function followRename(name, newName) {
+        if (selectedComponent !== name) return
+        filesByComponent = Object.assign({}, filesByComponent, { [newName]: filesByComponent[name] ?? [] })
+        selectedComponent = newName
     }
 
     function appendFile(path) {

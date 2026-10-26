@@ -67,6 +67,7 @@ QtObject {
         // index
         componentsFiles.externalComponentCreated.connect(name => components.append('Component', name))
         componentsFiles.library = library
+        components.renamed.connect((name, newName) => componentsFiles.followRename(name, newName))
     }
 
 }

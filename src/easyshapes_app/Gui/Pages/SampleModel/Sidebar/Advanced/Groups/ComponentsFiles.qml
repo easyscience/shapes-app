@@ -29,17 +29,19 @@ EaElements.GroupColumn {
                                      : 0
 
     readonly property bool picked: Globals.BackendWrapper.componentsFilesSelectedComponent !== ""
+    // Why the components list refused the last name typed for the pick
+    readonly property string nameError: Globals.BackendWrapper.componentsNameErrors[Globals.BackendWrapper.componentsFilesSelectedComponent] ?? ""
 
-    // Component selector + name editor + Create new, in one row of equal
-    // thirds. The dropdown lists only components already loaded on the Basic
-    // tab; picking one loads its files and name.
+    // Component selector + name editor + Add new component, in one row of
+    // equal thirds. The dropdown lists only components already loaded on the
+    // Basic tab; picking one loads its files and name.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
 
         Column {
             EaElements.Label {
                 enabled: false
-                text: qsTr("Component")
+                text: qsTr("Select component")
             }
             EaElements.ComboBox {
                 id: componentSelector
@@ -53,7 +55,7 @@ EaElements.GroupColumn {
                 }
 
                 // Mirror the dropdown index from the backend's selected
-                // component (set by picking a row, Create new, or Save to lib).
+                // component (set by picking a row, Add new component, or a rename).
                 function syncIndex() {
                     const sel = Globals.BackendWrapper.componentsFilesSelectedComponent
                     const m = Globals.BackendWrapper.componentsLoaded
@@ -85,20 +87,20 @@ EaElements.GroupColumn {
                 enabled: false
                 text: qsTr("Name")
             }
-            // The pick's name; after Create new, the name of a new
-            // component, added to the sample on Enter
+            // Renames the pick with the components list's checks; a
+            // refused name keeps the old one, the reason below in red
             EaElements.TextField {
                 width: root.thirdWidth
                 horizontalAlignment: TextInput.AlignLeft
-                readOnly: root.picked
-                validator: RegularExpressionValidator { regularExpression: /^[a-zA-Z][a-zA-Z0-9_\-\.]{1,30}$/ }
-                placeholderText: qsTr("New component name")
+                readOnly: !root.picked
+                warned: root.nameError !== ""
+                placeholderText: qsTr("Pick or add a component")
                 text: Globals.BackendWrapper.componentsFilesSelectedComponent
                 onEditingFinished: {
-                    if (readOnly)
+                    if (!root.picked)
                         return
                     try {
-                        Globals.BackendWrapper.componentsFilesCreate(text)
+                        Globals.BackendWrapper.componentsRename(Globals.BackendWrapper.componentsFilesSelectedComponent, text)
                     } finally {
                         text = Qt.binding(() => Globals.BackendWrapper.componentsFilesSelectedComponent)
                     }
@@ -114,12 +116,21 @@ EaElements.GroupColumn {
             }
             EaElements.SideBarButton {
                 fontIcon: "plus-square"
-                text: qsTr("Create new")
+                text: qsTr("Add new component")
                 width: root.thirdWidth
-                ToolTip.text: qsTr("Start a new component: type its name and press Enter")
-                onClicked: Globals.BackendWrapper.componentsFilesCreateNew()
+                ToolTip.text: qsTr("Add an empty component to the sample, named by its id; rename it in the name field")
+                onClicked: Globals.BackendWrapper.componentsFilesCreate()
             }
         }
+    }
+
+    // The components list's reason for refusing the name typed above
+    EaElements.Label {
+        width: parent.width
+        visible: text !== ""
+        wrapMode: Text.Wrap
+        color: EaStyle.Colors.red
+        text: root.nameError
     }
 
     EaComponents.ListView {

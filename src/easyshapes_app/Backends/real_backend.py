@@ -107,8 +107,8 @@ class Backend(QObject):
         # A new structure or sample model: adapt its shape anew
         self._sample_model.externalStructureChanged.connect(self._adapt_structure)
 
-        # Create new in Components Files adds its component through the
-        # components list, which opens the row
+        # Add new component in Components Files: the component joins the
+        # sample through the components list, which opens the row
         self._components_files.externalComponentCreated.connect(self._components.loaded.append)
 
         # The component Components Files shows may be renamed, removed,

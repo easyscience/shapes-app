@@ -23,21 +23,22 @@ class ComponentsFiles(QObject):
     The Components Files group for QML: the files of one component of
     the sample, the live object, picked from the components list.
 
-    Create new clears the group, and create(name) makes an empty
-    Component that the root adds to the sample. Files change on the
-    component itself. Save to lib and Export ask first when they would
-    replace something: the page checks nameTaken or exportTaken.
+    create() makes an empty Component, named by its uid, that the root
+    adds to the sample; renaming goes through the components list. Files
+    change on the component itself. Save to lib and Export ask first
+    when they would replace something: the page checks nameTaken or
+    exportTaken.
     """
 
     selectedComponentChanged = Signal()
-    # A component Create new made, for the root to add to the sample
+    # A component create() made, for the root to add to the sample
     # through the components list, which opens its row
     externalComponentCreated = Signal(object)
     # A save changed what the library holds: the root makes the
     # catalogs read it again
     externalAssetsChanged = Signal()
 
-    # The class Create new makes, and the library a name is checked in;
+    # The class create() makes, and the library a name is checked in;
     # tests swap in fakes
     _component_class = Component
     _library_class = Library
@@ -46,7 +47,7 @@ class ComponentsFiles(QObject):
         super().__init__(parent)
         self._session = session
         # The live component of the sample the group shows; None while
-        # none is picked, or after Create new until a name is given
+        # none is picked
         self._component = None
         self._files = FilesModel(self)
 
@@ -67,13 +68,6 @@ class ComponentsFiles(QObject):
         Pick the sample's component of that name.
         """
         self._select(self._components()[name])
-
-    @Slot()
-    def createNew(self):
-        """
-        Clear the pick, for a new component's name.
-        """
-        self._select(None)
 
     @Slot(str)
     def appendFile(self, path):
@@ -101,17 +95,14 @@ class ComponentsFiles(QObject):
         if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
             raise RuntimeError(f'No app on this system opens {path}')
 
-    @Slot(str)
-    def create(self, name):
+    @Slot()
+    def create(self):
         """
-        Make an empty component of that name, hand it to the root for
-        the sample, and pick it.
+        Make an empty component, named by its uid, hand it to the root
+        for the sample, and pick it.
         """
-        # Refused here: the components list would refuse it only inside
-        # the root's slot, where the error can't stop this method
-        if name in self._components():
-            raise ValueError(f'The structure already holds {name}')
-        component = self._component_class(name=name)
+        # Unnamed: the library's uid stands in until a rename
+        component = self._component_class()
         self.externalComponentCreated.emit(component)
         self._select(component)
 

@@ -15,7 +15,9 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
-def test_component_made_in_components_files_saves_exports_and_leaves(qcore_application, tmp_path):
+def test_component_added_in_components_files_renames_saves_exports_and_leaves(
+    qcore_application, tmp_path
+):
     itp = tmp_path / 'TstNew.itp'
     itp.write_text('[ moleculetype ]\n')
     # A default analysis loads its force field from the library, empty
@@ -27,13 +29,22 @@ def test_component_made_in_components_files_saves_exports_and_leaves(qcore_appli
     backend.project.create('files', '', str(tmp_path / 'files'))
     group = backend.componentsFiles
 
-    group.create('TstNew')
+    group.create()
     group.appendFile(str(itp))
+    backend.components.rename(group.selectedComponent, 'TstNew')
+    # A second one, refused the name the first now holds
+    group.create()
+    backend.components.rename(group.selectedComponent, 'TstNew')
+    second = group.selectedComponent
+    group.selectComponent('TstNew')
     assert not group.nameTaken()
     group.save(False)
     group.exportTo(str(tmp_path / 'export'), -1, False)
 
-    assert session.sample_model.structure.components.names == ('TstNew',)
+    assert session.sample_model.structure.components.names == ('TstNew', second)
+    assert backend.components.loaded.nameErrors == {
+        second: 'Another component is already named TstNew'
+    }
     assert [Path(path).name for path in group.files.paths] == ['TstNew.itp']
     assert backend.library.availableAssets['Component'] == ['TstNew']
     assert group.nameTaken()

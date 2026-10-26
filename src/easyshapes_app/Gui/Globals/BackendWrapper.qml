@@ -209,10 +209,15 @@ QtObject {
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
     readonly property string componentsErrors: activeBackend.components.loaded.errors
+    // The reason a refused name was refused, by the name the component
+    // kept
+    readonly property var componentsNameErrors: activeBackend.components.loaded.nameErrors
 
     // type: the library class name, Lipid, Surfactant or Component
     function componentsAppend(type, name) { activeBackend.components.append(type, name) }
     function componentsImportFrom(folder) { activeBackend.components.importFrom(folder) }
+    // With the name cell's checks; a refusal goes to componentsNameErrors
+    function componentsRename(name, newName) { activeBackend.components.rename(name, newName) }
     function componentsRemove(index) { activeBackend.components.remove(index) }
 
     // Atomistic structure of a loaded component, for the Components viewer:
@@ -254,14 +259,14 @@ QtObject {
     function bufferImportFrom(folder) { if (activeBackend.buffer) activeBackend.buffer.importFrom(folder) }
 
     // Components Files (Advanced sidebar): the files of one component of
-    // the sample, picked by name ('' for none). Create new clears the
-    // group; create(name) adds an empty component and picks it
+    // the sample, picked by name ('' for none). create() adds an empty
+    // component, named by its uid, and picks it; rename it through
+    // componentsRename
     readonly property var componentsFilesFiles: activeBackend.componentsFiles.files
     readonly property string componentsFilesSelectedComponent: activeBackend.componentsFiles.selectedComponent
 
     function componentsFilesSelect(name) { activeBackend.componentsFiles.selectComponent(name) }
-    function componentsFilesCreateNew() { activeBackend.componentsFiles.createNew() }
-    function componentsFilesCreate(name) { activeBackend.componentsFiles.create(name) }
+    function componentsFilesCreate() { activeBackend.componentsFiles.create() }
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
     function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
