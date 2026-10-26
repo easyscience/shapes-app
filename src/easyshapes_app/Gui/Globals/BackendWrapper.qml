@@ -253,36 +253,26 @@ QtObject {
     function bufferComponentsRemove(index) { if (activeBackend.buffer) activeBackend.buffer.removeComponent(index) }
     function bufferImportFrom(folder) { if (activeBackend.buffer) activeBackend.buffer.importFrom(folder) }
 
-    // Components Files (Sample Model Advanced sidebar). Per-component file
-    // list driven by `componentsFilesSelectedComponent`; switching the
-    // selection repopulates `componentsFilesFiles`.
+    // Components Files (Advanced sidebar): the files of one component of
+    // the sample, picked by name ('' for none). Create new clears the
+    // group; create(name) adds an empty component and picks it
     readonly property var componentsFilesFiles: activeBackend.componentsFiles.files
     readonly property string componentsFilesSelectedComponent: activeBackend.componentsFiles.selectedComponent
-    readonly property string componentsFilesEditName: activeBackend.componentsFiles.editName
 
     function componentsFilesSelect(name) { activeBackend.componentsFiles.selectComponent(name) }
     function componentsFilesCreateNew() { activeBackend.componentsFiles.createNew() }
-    function componentsFilesSetEditName(name) { activeBackend.componentsFiles.editName = name }
+    function componentsFilesCreate(name) { activeBackend.componentsFiles.create(name) }
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
     function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
-    function componentsFilesExportFile(index, destination) { activeBackend.componentsFiles.exportFile(index, destination) }
-    function componentsFilesExportComponent(destination) { activeBackend.componentsFiles.exportComponent(destination) }
-
-    // Save the current file list to the asset library and load the component
-    // into the basic-tab components list (under whatever name is in the name
-    // field) if it isn't already there.
-    function componentsFilesSave() {
-        const name = activeBackend.componentsFiles.save()
-        if (!name)
-            return
-        const loaded = activeBackend.components.loaded
-        for (let i = 0; i < loaded.count; ++i) {
-            if (loaded.get(i).name === name)
-                return
-        }
-        activeBackend.components.append('Component', name)
-    }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function componentsFilesNameTaken() { return activeBackend.componentsFiles.nameTaken() }
+    function componentsFilesSave(overwrite) { activeBackend.componentsFiles.save(overwrite) }
+    // Row -1 is the whole component. Export asks first when the folder
+    // is taken; OK exports with overwrite
+    function componentsFilesExportTaken(folder, row) { return activeBackend.componentsFiles.exportTaken(folder, row) }
+    function componentsFilesExportTo(folder, row, overwrite) { activeBackend.componentsFiles.exportTo(folder, row, overwrite) }
 
     // Structure Files (Sample Model Advanced sidebar). List of structure-
     // related files plus actions for saving the set to the asset library

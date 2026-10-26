@@ -338,19 +338,14 @@ def test_builds_reuse_the_ions_of_the_last_build_or_the_load(log):
     assert fresh is not first
 
 
-def test_export_taken_finds_what_an_export_would_replace(tmp_path):
+def test_export_taken_checks_the_rows_file_or_the_whole_asset(tmp_path):
     part = OfflineLibraryAssets()
-    part.appendPath('DPPC.itp')
-    folder = tmp_path / 'export'
+    part.appendPath('files/DPPC.itp')
+    (tmp_path / 'DPPC.itp').write_text('')
 
-    assert not part.exportTaken(str(folder), -1)
-    folder.mkdir()
-    (folder / 'notes.txt').write_text('')
-    assert part.exportTaken(str(folder), -1)
-    assert not part.exportTaken(str(folder), 0)
-
-    (folder / 'DPPC.itp').write_text('')
-    assert part.exportTaken(str(folder), 0)
+    assert part.exportTaken(str(tmp_path), 0)
+    assert part.exportTaken(str(tmp_path), -1)
+    assert not part.exportTaken(str(tmp_path / 'empty'), -1)
 
 
 def test_export_to_copies_one_file_or_exports_the_asset(tmp_path, log):

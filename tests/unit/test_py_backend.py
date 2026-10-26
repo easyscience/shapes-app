@@ -28,11 +28,12 @@ def test_project_change_refreshes_recent(qcore_application):
     assert spy.count() == 1
 
 
-def test_asset_save_refreshes_the_catalogs(qcore_application):
+@pytest.mark.parametrize('part', ['libraryAssets', 'componentsFiles'])
+def test_asset_save_refreshes_the_catalogs(qcore_application, part):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableAssetsChanged)
 
-    backend.libraryAssets.externalAssetsChanged.emit()
+    getattr(backend, part).externalAssetsChanged.emit()
 
     assert spy.count() == 1
 
@@ -166,3 +167,32 @@ def test_added_component_refreshes_the_composition_rows(qcore_application, shape
     loaded.endInsertRows()
 
     assert reset.count() == 1
+
+
+def test_created_component_joins_the_components_list(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=[])
+    backend = Backend(Session(sample_model=sample_model))
+    inserted = QSignalSpy(backend.components.loaded.rowsInserted)
+
+    backend.componentsFiles.externalComponentCreated.emit(SimpleNamespace(name='DOPC'))
+
+    assert [component.name for component in sample_model.structure.components] == ['DOPC']
+    assert inserted.count() == 1
+
+
+def test_components_list_changes_refresh_components_files(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=[SimpleNamespace(name='DPPC')])
+    backend = Backend(Session(sample_model=sample_model))
+    spy = QSignalSpy(backend.componentsFiles.selectedComponentChanged)
+    loaded = backend.components.loaded
+
+    loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    # Private signals: sent the way a remove and a reset send them
+    loaded.beginRemoveRows(QModelIndex(), 0, 0)
+    loaded.endRemoveRows()
+    loaded.beginResetModel()
+    loaded.endResetModel()
+
+    assert spy.count() == 3

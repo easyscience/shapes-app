@@ -5,6 +5,8 @@
 import QtQuick
 import QtQuick.Dialogs
 
+import EasyApplication.Gui.Logic as EaLogic
+
 import Gui.Globals as Globals
 
 
@@ -19,7 +21,7 @@ FileDialog {
 
     onAccepted: {
         for (let i = 0; i < selectedFiles.length; ++i) {
-            Globals.BackendWrapper.componentsFilesAppend(selectedFiles[i].toString())
+            Globals.BackendWrapper.componentsFilesAppend(EaLogic.Utils.urlToLocalFile(selectedFiles[i].toString()))
         }
     }
 }

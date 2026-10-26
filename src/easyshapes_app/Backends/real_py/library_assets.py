@@ -22,6 +22,8 @@ from shapes.project.species import Salt
 from shapes.project.species import Solvent
 from shapes.project.species import Surfactant
 
+from .logic.files import export_taken
+
 
 class FilesModel(QAbstractListModel):
     """
@@ -439,10 +441,7 @@ class LibraryAssets(QObject):
         Whether an export to a folder would replace files: the row's
         namesake, or for the whole asset (row -1) anything there.
         """
-        folder = Path(folder)
-        if row >= 0:
-            return (folder / self._paths.paths[row].name).exists()
-        return folder.is_dir() and any(folder.iterdir())
+        return export_taken(folder, self._paths.paths[row] if row >= 0 else None)
 
     @Slot(str, int, bool)
     def exportTo(self, folder, row, overwrite):
