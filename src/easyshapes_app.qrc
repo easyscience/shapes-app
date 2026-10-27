@@ -134,7 +134,6 @@
         <file>easyshapes_app/Backends/MockQml/RodStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/SampleModel.qml</file>
         <file>easyshapes_app/Backends/MockQml/SmilesGenerator.qml</file>
-        <file>easyshapes_app/Backends/MockQml/StructureFiles.qml</file>
         <file>easyshapes_app/Backends/MockQml/VesicleStructure.qml</file>
         <file>easyshapes_app/Backends/MockQml/qmldir</file>
         <file>easyshapes_app/Backends/qmldir</file>
@@ -180,8 +179,8 @@
         <file>easyshapes_app/Gui/Pages/SampleModel/MainArea/Shape.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/ComponentsFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/LibraryAssetsFiles.qml</file>
+        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SampleModelFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/SmilesGenerator.qml</file>
-        <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Groups/StructureFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Layout.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/AddComponentFiles.qml</file>
         <file>easyshapes_app/Gui/Pages/SampleModel/Sidebar/Advanced/Popups/LoadLibraryAsset.qml</file>

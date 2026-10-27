@@ -9,38 +9,19 @@ from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.components_files import ComponentsFiles
 from easyshapes_app.Backends.real_py.logic.session import Session
+from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeSampleModel
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
 
 
-class FakeComponent:
+class FakeComponent(FakeAsset):
     """
-    Holds its files as the library does: sorted, each once, added and
-    removed by path. Unnamed, a uid stands in, as in the library. Logs
-    saves and exports in calls.
+    Unnamed, a uid stands in, as in the library.
     """
 
     def __init__(self, name=None, *paths):
-        self.name = name if name is not None else 'a1b2c3d4e5f6'
-        self._paths = {Path(path) for path in paths}
-        self.calls = []
-
-    @property
-    def paths(self):
-        return tuple(sorted(self._paths))
-
-    def add_new_files(self, paths):
-        self._paths.update(Path(path) for path in paths)
-
-    def remove_files(self, paths):
-        self._paths.difference_update(Path(path) for path in paths)
-
-    def save(self, *, overwrite=False):
-        self.calls.append(('save', overwrite))
-
-    def export_to(self, folder, *, overwrite=False):
-        self.calls.append(('export_to', folder, overwrite))
+        super().__init__(name if name is not None else 'a1b2c3d4e5f6', *paths)
 
 
 class FakeComponents(list):
@@ -127,9 +108,13 @@ def test_refresh_keeps_a_renamed_pick_and_drops_a_removed_one():
     part.refresh()
     assert spy.count() == 0
 
+    # A rename moves the files in the working folder
     dppc.name = 'DOPC'
+    dppc.remove_files(['DPPC.itp'])
+    dppc.add_new_files(['DOPC/DPPC.itp'])
     part.refresh()
     assert part.selectedComponent == 'DOPC'
+    assert part.files.paths == (Path('DOPC/DPPC.itp'),)
 
     components.remove(dppc)
     part.refresh()

@@ -96,6 +96,7 @@ class Backend(QObject):
         # A saved asset joins the catalogs
         self._library_assets.externalAssetsChanged.connect(self._library.availableAssetsChanged)
         self._components_files.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+        self._sample_model.externalAssetsChanged.connect(self._library.availableAssetsChanged)
 
         # Create and load bring their own sample model
         self._project.externalProjectChanged.connect(self._sample_model.refresh)

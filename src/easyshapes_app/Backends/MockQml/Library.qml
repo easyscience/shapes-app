@@ -31,7 +31,8 @@ QtObject {
             'Ca<sup>2+</sup>', 'Mg<sup>2+</sup>', 'Zn<sup>2+</sup>'
         ],
         'Solvent': ['TIP3', 'Ethanol'],
-        'Salt': ['NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA']
+        'Salt': ['NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA'],
+        'SampleModel': ['Sample1_aluv', 'Sample2_nanodisc', 'Sample3_cubosome', 'Samplewithareallylongname']
     })
 
     // Library.available_assets['Ion']

@@ -85,17 +85,28 @@ QtObject {
     readonly property var sampleModelShapes: activeBackend.sampleModel.shapes
     readonly property string sampleModelShape: activeBackend.sampleModel.shape
     readonly property bool sampleModelLattice: activeBackend.sampleModel.lattice
+    // The model's own files: Assemble outputs and files added by hand
+    readonly property var sampleModelFiles: activeBackend.sampleModel.files
 
     function sampleModelSetName(value) { activeBackend.sampleModel.name = value }
     function sampleModelSetShape(value) { activeBackend.sampleModel.shape = value }
     function sampleModelSetLattice(value) { activeBackend.sampleModel.lattice = value }
     function sampleModelCreate() { activeBackend.sampleModel.create() }
-
-    // Load model catalog: mock only until the library catalogs (step 5)
-    readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
-
-    function sampleModelSetLoaded(model) { activeBackend.sampleModel.setLoaded(model) }
-    function sampleModelRemoveFromCatalog(index) { activeBackend.sampleModel.removeFromCatalog(index) }
+    // A model from the library by name, or from an export folder; it
+    // replaces the current one
+    function sampleModelLoad(name) { activeBackend.sampleModel.load(name) }
+    function sampleModelImportFrom(folder) { activeBackend.sampleModel.importFrom(folder) }
+    function sampleModelAppendFile(path) { activeBackend.sampleModel.appendFile(path) }
+    function sampleModelRemoveFile(index) { activeBackend.sampleModel.removeFile(index) }
+    function sampleModelEditFile(index) { activeBackend.sampleModel.editFile(index) }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function sampleModelNameTaken() { return activeBackend.sampleModel.nameTaken() }
+    function sampleModelSave(overwrite) { activeBackend.sampleModel.save(overwrite) }
+    // Export asks first when the folder is taken; OK exports with
+    // overwrite
+    function sampleModelExportTaken(folder) { return activeBackend.sampleModel.exportTaken(folder) }
+    function sampleModelExportTo(folder, overwrite) { activeBackend.sampleModel.exportTo(folder, overwrite) }
 
     ////////////////
     // RingStructure
@@ -226,12 +237,13 @@ QtObject {
 
     // Composition of the current ring, rod, bilayer or monolayer; null
     // in Python for a ball or a vesicle, whose layers and lamellae hold
-    // theirs
-    readonly property var compositionItems: activeBackend.composition
+    // theirs. ?? null here and below: Python's None reaches QML as
+    // undefined, which a list's selection model refuses
+    readonly property var compositionItems: activeBackend.composition ?? null
 
     // Layers of the current ball, one composition per row; null in
     // Python while the current shape is not a ball
-    readonly property var layersItems: activeBackend.layers
+    readonly property var layersItems: activeBackend.layers ?? null
     readonly property var layersCompositions: activeBackend.layers?.compositions ?? []
 
     function layersAdd() { if (activeBackend.layers) activeBackend.layers.add() }
@@ -240,7 +252,7 @@ QtObject {
     // Lamellae of the current vesicle, one composition per row and
     // leaflet; null in Python while the current shape is not a vesicle.
     // An outer composition is null while its lamella is symmetric
-    readonly property var lamellaeItems: activeBackend.lamellae
+    readonly property var lamellaeItems: activeBackend.lamellae ?? null
     readonly property var lamellaeInnerLeafletCompositions: activeBackend.lamellae?.innerLeafletCompositions ?? []
     readonly property var lamellaeOuterLeafletCompositions: activeBackend.lamellae?.outerLeafletCompositions ?? []
 
@@ -277,18 +289,6 @@ QtObject {
     // is taken; OK exports with overwrite
     function componentsFilesExportTaken(folder, row) { return activeBackend.componentsFiles.exportTaken(folder, row) }
     function componentsFilesExportTo(folder, row, overwrite) { activeBackend.componentsFiles.exportTo(folder, row, overwrite) }
-
-    // Structure Files (Sample Model Advanced sidebar). List of structure-
-    // related files plus actions for saving the set to the asset library
-    // and re-seeding structure parameters from a serialized data file.
-    readonly property var structureFilesFiles: activeBackend.structureFiles.files
-
-    function structureFilesAppend(item) { activeBackend.structureFiles.appendItem(item) }
-    function structureFilesAppendPath(path) { activeBackend.structureFiles.appendPath(path) }
-    function structureFilesRemove(index) { activeBackend.structureFiles.removeItem(index) }
-    function structureFilesClear() { activeBackend.structureFiles.clear() }
-    function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
-    function structureFilesExport(destination) { activeBackend.structureFiles.exportFiles(destination) }
 
     // Library assets editor (Advanced sidebar): one draft asset the user
     // creates or loads from the library, edits and saves back. The type is

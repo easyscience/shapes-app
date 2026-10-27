@@ -19,7 +19,6 @@ QtObject {
     property var components: MockLogic.Components
     // Components Files (Advanced sidebar), as Backend.componentsFiles
     property var componentsFiles: MockLogic.ComponentsFiles
-    property var structureFiles: MockLogic.StructureFiles
     // Library assets editor (Advanced sidebar), as Backend.libraryAssets
     property var libraryAssets: MockLogic.LibraryAssetsEditor
     // SMILES generator (Advanced sidebar) — molecule from a SMILES string.
@@ -68,6 +67,9 @@ QtObject {
         componentsFiles.externalComponentCreated.connect(name => components.append('Component', name))
         componentsFiles.library = library
         components.renamed.connect((name, newName) => componentsFiles.followRename(name, newName))
+        // A sample model save writes the library index, as Backend wires
+        // the catalogs
+        sampleModel.library = library
     }
 
 }

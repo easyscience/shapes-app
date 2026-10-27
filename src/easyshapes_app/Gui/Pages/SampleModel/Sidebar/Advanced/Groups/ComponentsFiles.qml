@@ -190,6 +190,7 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: path
                 elide: Text.ElideLeft
+                ToolTip.text: path
             }
             EaComponents.TableViewLabel {
                 text: size

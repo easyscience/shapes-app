@@ -44,7 +44,7 @@ def test_project_change_refreshes_recent(qcore_application):
     assert spy.count() == 1
 
 
-@pytest.mark.parametrize('part', ['libraryAssets', 'componentsFiles'])
+@pytest.mark.parametrize('part', ['libraryAssets', 'componentsFiles', 'sampleModel'])
 def test_asset_save_refreshes_the_catalogs(qcore_application, part):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableAssetsChanged)

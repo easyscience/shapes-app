@@ -161,8 +161,8 @@ class ComponentsFiles(QObject):
         ):
             self._select(None)
         elif self.selectedComponent != self._shown_name:
-            self._shown_name = self.selectedComponent
-            self.selectedComponentChanged.emit()
+            # A rename moves the files in the component's working folder
+            self._select(self._component)
 
     def _select(self, component):
         self._component = component

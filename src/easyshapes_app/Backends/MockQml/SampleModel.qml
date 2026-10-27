@@ -15,34 +15,76 @@ QtObject {
     property string shape: 'Ring'
     property bool lattice: false
 
+    // Mock only: the mock Library, set by MockBackend. A save adds to its
+    // index, as a library save does
+    property var library: null
+
+    // The model's own files. Roles: path, size. A size is a fake label:
+    // the mock never touches the disk
+    readonly property var files: ListModel {
+        id: filesModel
+        ListElement { path: 'SampleModel/model.top'; size: '118 kB' }
+        ListElement { path: 'SampleModel/model.gro'; size: '2.6 MB' }
+    }
+
+    // Fake sizes handed out in order to files the user adds from disk
+    readonly property var fakeSizes: ['1.2 MB', '96 kB', '3.4 MB', '512 kB', '17.8 MB']
+    property int fakeSizeIndex: 0
+
     // The mock always holds a model, so there is nothing to create
     function create() {}
 
-    // Catalog of saved models for the Load model popup. Stays mock until
-    // the library catalogs move to Python (step 5).
-    readonly property var availableModels: ListModel {
-        ListElement { name: 'Samle1_aluv'; structure_type: 'Vesicle'; type: 'Discrete'; description: 'In order to avoid a prolonged pro-inflammatory neutrophil response, signaling downstream of an agonist-activated G protein-coupled receptor (GPCR) has to be rapidly terminated. Among the family of GPCR kinases (GRKs) that regulate receptor phosphorylation and signaling termination, GRK2, which is highly expressed by immune cells, plays an important role.' }
-        ListElement { name: 'Sample2_nanodisc'; structure_type: 'Ring'; type: 'Discrete'; description: 'The medium chain fatty acid receptor GPR84 as well as formyl peptide receptor 2 (FPR2)' }
-        ListElement { name: 'Sample3_cubosome'; structure_type: 'Ball'; type: 'Lattice'; description: 'receptors expressed in neutrophils, play a key role in regulating inflammation. In this study, we investigated the effects of GRK2 inhibitors on neutrophil functions induced by GPR84 and FPR2 agonists.' }
-        ListElement { name: 'Sample4'; structure_type: 'Ring'; type: 'Discrete'; description: 'GRK2 was shown to be expressed in human neutrophils and analysis of subcellular fractions' }
-        ListElement { name: 'Sample5'; structure_type: 'Ball'; type: 'Discrete'; description: 'revealed a cytosolic localization. The GRK2 inhibitors enhanced and prolonged neutrophil production ' }
-        ListElement { name: 'Sample6'; structure_type: 'Vesicle'; type: 'Discrete'; description: 'production of reactive oxygen species (ROS) induced by GPR84- but not FPR2-agonists' }
-        ListElement { name: 'Sample7'; structure_type: 'Rod'; type: 'Discrete'; description: 'suggesting a receptor selective function of GRK2. This suggestion was supported by β-arrestin recruitment data. The ROS production induced by a non β-arrestin recruiting GPR84' }
-        ListElement { name: 'Sample8'; structure_type: 'Bilayer'; type: 'Discrete'; description: 'This suggestion was supported by β-arrestin recruitment data. The ROS production induced by a non β-arrestin recruiting GPR84 agonist was not affected by the GRK2 inhibitor.' }
-        ListElement { name: 'Sample9'; structure_type: 'Monolayer'; type: 'Discrete'; description: 'Termination of this β-arrestin independent response relied, similar to the response induced by FPR2 agonists, primarily on the actin cytoskeleton.' }
-        ListElement { name: 'Samplewithareallylongname'; structure_type: 'Rod'; type: 'Lattice'; description: 'In summary, we show that GPR84 utilizes GRK2 in concert with β-arrestin and actin cytoskeleton dependent processes to fine-tune the activity of the ROS generating NADPH-oxidase in neutrophils.' }
+    // The mock knows only names: a new model keeps the shape, and brings
+    // no files
+    function load(modelName) {
+        console.debug('SampleModel.load:', modelName)
+        name = modelName
+        filesModel.clear()
     }
 
-    function setLoaded(model) {
-        console.debug(`Loading sample model '${model.name}'`)
-        name = model.name
-        shape = model.structure_type
-        lattice = model.type === 'Lattice'
+    function importFrom(folder) {
+        console.debug('SampleModel.importFrom:', folder)
+        name = folder.split(/[\\/]/).pop()
+        filesModel.clear()
     }
 
-    function removeFromCatalog(index) {
-        if (index < 0 || index >= availableModels.count) return
-        availableModels.remove(index)
+    function appendFile(path) {
+        filesModel.append({ path: path, size: nextFakeSize() })
+    }
+
+    function nextFakeSize() {
+        const label = fakeSizes[fakeSizeIndex % fakeSizes.length]
+        fakeSizeIndex = fakeSizeIndex + 1
+        return label
+    }
+
+    function removeFile(index) {
+        if (index < 0 || index >= filesModel.count) return
+        filesModel.remove(index)
+    }
+
+    function editFile(index) {
+        if (index < 0 || index >= filesModel.count) return
+        console.debug('SampleModel.editFile:', filesModel.get(index).path)
+    }
+
+    function nameTaken() {
+        return (library.availableAssets['SampleModel'] ?? []).includes(name)
+    }
+
+    function save(overwrite) {
+        library.addAsset('SampleModel', name)
+        console.debug('SampleModel.save:', name, 'overwrite:', overwrite)
+    }
+
+    // The mock has no file system: a folder ending in 'taken' counts as
+    // taken, as in Project.locationTaken
+    function exportTaken(folder) {
+        return folder.endsWith('taken')
+    }
+
+    function exportTo(folder, overwrite) {
+        console.debug('SampleModel.exportTo:', name, '->', folder, 'overwrite:', overwrite)
     }
 
 }

@@ -44,7 +44,35 @@ class FakeProject:
         self.modified = SAVED_AT
 
 
-class FakeSampleModel:
+class FakeAsset:
+    """
+    Holds its files as the library does: sorted, each once, added and
+    removed by path. Logs saves and exports in calls.
+    """
+
+    def __init__(self, name, *paths):
+        self.name = name
+        self._paths = {Path(path) for path in paths}
+        self.calls = []
+
+    @property
+    def paths(self):
+        return tuple(sorted(self._paths))
+
+    def add_new_files(self, paths):
+        self._paths.update(Path(path) for path in paths)
+
+    def remove_files(self, paths):
+        self._paths.difference_update(Path(path) for path in paths)
+
+    def save(self, *, overwrite=False):
+        self.calls.append(('save', overwrite))
+
+    def export_to(self, folder, *, overwrite=False):
+        self.calls.append(('export_to', folder, overwrite))
+
+
+class FakeSampleModel(FakeAsset):
     """
     Stands in for shapes.project.SampleModel, a library asset. It holds
     a real structure, a ring unless given, for the real structure logic
@@ -52,8 +80,20 @@ class FakeSampleModel:
     """
 
     def __init__(self, structure=None):
-        self.name = 'uid0002'
+        super().__init__('uid0002')
         self.structure = structure or Ring()
         # Empty; the real Buffer is a library asset, which needs the
         # AppFileManager
         self.buffer = SimpleNamespace(solvent=None, components=[])
+
+    @classmethod
+    def load(cls, name):
+        model = cls()
+        model.name = name
+        return model
+
+    @classmethod
+    def import_from(cls, folder):
+        model = cls()
+        model.name = Path(folder).name
+        return model

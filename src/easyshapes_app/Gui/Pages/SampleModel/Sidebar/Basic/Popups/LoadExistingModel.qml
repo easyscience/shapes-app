@@ -23,19 +23,22 @@ EaElements.Dialog{
     title: qsTr("Load a Sample Model from the Asset Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
-    onAccepted: {
-        var indexes = loadModelListView.selectedIndexes
+    // The library's sample models, as a ListModel: the list's selection
+    // needs a model, not a JS array
+    readonly property ListModel catalog: ListModel {}
 
-        if (indexes.length > 0) {
-            var row = indexes[0].row
-            var item = Globals.BackendWrapper.sampleModelAvailable.get(row)
-            Globals.BackendWrapper.sampleModelSetLoaded(item)
-            loadModelListView.clearSelection()
-        }
+    onAboutToShow: {
+        catalog.clear()
+        for (const name of Globals.BackendWrapper.libraryAvailableAssets['SampleModel'] ?? [])
+            catalog.append({ name: name })
     }
-    onRejected: {
+    onAccepted: {
+        const selected = loadModelListView.selectedIndexes
+        if (selected.length > 0)
+            Globals.BackendWrapper.sampleModelLoad(catalog.get(selected[0].row).name)
         loadModelListView.clearSelection()
     }
+    onRejected: loadModelListView.clearSelection()
 
     Column {
         EaElements.Label {
@@ -48,11 +51,7 @@ EaElements.Dialog{
             multiSelection: false
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
-                EaStyle.Sizes.fontPixelSize * 10,
-                EaStyle.Sizes.fontPixelSize * 8,
-                EaStyle.Sizes.fontPixelSize * 6,
-                -1,
-                EaStyle.Sizes.tableRowHeight,
+                -1
             ]
 
             header: EaComponents.ListViewHeader {
@@ -65,29 +64,15 @@ EaElements.Dialog{
                     text: qsTr("Name")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Shape")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Type")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Description")
-                    color: EaStyle.Colors.themeForegroundMinor
-                }
-                EaComponents.TableViewLabel {} // filler
             }
 
-            model: Globals.BackendWrapper.sampleModelAvailable
+            model: sampleModelLoadDialog.catalog
+
+            delegateModelAccess: DelegateModel.ReadOnly
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
-                required property string structure_type
-                required property string type
-                required property string description
 
                 EaComponents.TableViewLabel {
                     text: index + 1
@@ -96,20 +81,6 @@ EaElements.Dialog{
                 }
                 EaComponents.TableViewLabel {
                     text: name
-                }
-                EaComponents.TableViewLabel {
-                    text: structure_type
-                }
-                EaComponents.TableViewLabel {
-                    text: type
-                }
-                EaComponents.TableViewLabel {
-                    text: description
-                }
-                EaComponents.TableViewButton {
-                    fontIcon: "minus-circle"
-                    ToolTip.text: qsTr("Remove this component")
-                    onClicked: Globals.BackendWrapper.sampleModelRemoveFromCatalog(index)
                 }
             }
         }

@@ -30,7 +30,7 @@ EaComponents.SideBarColumn {
         title: qsTr("Sample Model Files")
         icon: "folder-open"
 
-        Loader { source: "Groups/StructureFiles.qml" }
+        Loader { source: "Groups/SampleModelFiles.qml" }
     }
 
     EaElements.GroupBox {
