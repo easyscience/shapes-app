@@ -95,6 +95,11 @@ class BufferComponentsModel(QAbstractListModel):
         """
         Add a component as a new row.
         """
+        # The library refuses a held name only inside append, after the
+        # model has opened the new row: refuse before. The error dialog
+        # shows it
+        if component.name in self._components:
+            raise ValueError(f'The buffer already holds {component.name}')
         row = len(self._components)
         self.beginInsertRows(QModelIndex(), row, row)
         self._components.append(component)
@@ -118,8 +123,9 @@ class Buffer(QObject):
 
     The root builds it over the current sample model's buffer and drops
     it on the next structure change; with no sample model QML finds
-    none. Salts and solvents load from the library by name. A name the
-    library lacks, or a salt already held, goes to the error dialog.
+    none. Salts and solvents load from the library by name, and a salt
+    imports from an export folder. A name the library lacks, or a salt
+    already held, goes to the error dialog.
     """
 
     solventChanged = Signal()
@@ -158,12 +164,14 @@ class Buffer(QObject):
         """
         Load a salt from the library by name and add it as a new row.
         """
-        # The library refuses a held name only inside append, after the
-        # model has opened the new row: refuse before. The error dialog
-        # shows it, as an unknown name does
-        if name in self._buffer.components:
-            raise ValueError(f'The buffer already holds {name}')
         self._components.append(self._salt_class.load(name))
+
+    @Slot(str)
+    def importFrom(self, folder):
+        """
+        Add the salt an export folder holds as a new row.
+        """
+        self._components.append(self._salt_class.import_from(folder))
 
     @Slot(int)
     def removeComponent(self, row):

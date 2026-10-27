@@ -162,7 +162,11 @@ EaComponents.ApplicationWindow {
         onMessageChanged: if (message) open()
         onClosed: Globals.BackendWrapper.errorSetMessage('')
 
-        EaElements.Label { text: errorDialog.message }
+        // In a Column: a bare item under a titled dialog loops its
+        // implicitWidth whenever the message changes
+        Column {
+            EaElements.Label { text: errorDialog.message }
+        }
     }
 
     onClosing: Qt.quit()

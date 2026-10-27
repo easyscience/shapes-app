@@ -17,10 +17,9 @@ QtObject {
     property var error: MockLogic.Error
     property var sampleModel: MockLogic.SampleModel
     property var components: MockLogic.Components
-    // Advanced sidebar (Sample Model page) domain singletons.
+    // Components Files (Advanced sidebar), as Backend.componentsFiles
     property var componentsFiles: MockLogic.ComponentsFiles
-    property var structureFiles: MockLogic.StructureFiles
-    // Library Assets editor (Advanced sidebar) — draft asset create/load/save.
+    // Library assets editor (Advanced sidebar), as Backend.libraryAssets
     property var libraryAssets: MockLogic.LibraryAssetsEditor
     // SMILES generator (Advanced sidebar) — molecule from a SMILES string.
     property var smilesGenerator: MockLogic.SmilesGenerator
@@ -60,6 +59,17 @@ QtObject {
     Component.onCompleted: {
         layers.fractionsSource = MockLogic.Components.loaded
         lamellae.fractionsSource = MockLogic.Components.loaded
+        // An editor save writes the library index, as a library save does
+        libraryAssets.library = library
+        // As Backend wires them: a component Components Files creates
+        // joins the components list, and its save writes the library
+        // index
+        componentsFiles.externalComponentCreated.connect(name => components.append('Component', name))
+        componentsFiles.library = library
+        components.renamed.connect((name, newName) => componentsFiles.followRename(name, newName))
+        // A sample model save writes the library index, as Backend wires
+        // the catalogs
+        sampleModel.library = library
     }
 
 }

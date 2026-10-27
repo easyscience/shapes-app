@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -160,6 +161,6 @@ EaElements.GroupColumn {
     FolderDialog {
         id: importComponentFolderDialog
         title: qsTr("Import a component from a directory")
-        onAccepted: console.debug(`Import component from folder '${selectedFolder}'`)
+        onAccepted: Globals.BackendWrapper.componentsImportFrom(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))
     }
 }

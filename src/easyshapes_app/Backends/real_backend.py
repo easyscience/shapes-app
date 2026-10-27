@@ -16,6 +16,7 @@ from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
 from .real_py.buffer import Buffer
 from .real_py.components import Components
+from .real_py.components_files import ComponentsFiles
 from .real_py.composition import CompositionModel
 from .real_py.config import Config
 from .real_py.error import Error
@@ -23,6 +24,7 @@ from .real_py.lamellae import LamellaeModel
 from .real_py.lattice_structure import LatticeStructure
 from .real_py.layers import LayersModel
 from .real_py.library import Library
+from .real_py.library_assets import LibraryAssets
 from .real_py.logic.session import Session
 from .real_py.monolayer_structure import MonolayerStructure
 from .real_py.project import Project
@@ -67,6 +69,7 @@ class Backend(QObject):
 
         self._project = Project(self._session)
         self._library = Library()
+        self._library_assets = LibraryAssets()
         self._config = Config()
         self._error = Error()
         self._sample_model = SampleModel(self._session)
@@ -84,10 +87,16 @@ class Backend(QObject):
         self._lamellae = None
         self._buffer = None
         self._components = Components(self._session)
+        self._components_files = ComponentsFiles(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
         self._project.externalProjectChanged.connect(self._library.availableProjectsChanged)
+
+        # A saved asset joins the catalogs
+        self._library_assets.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+        self._components_files.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+        self._sample_model.externalAssetsChanged.connect(self._library.availableAssetsChanged)
 
         # Create and load bring their own sample model
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
@@ -99,6 +108,17 @@ class Backend(QObject):
         # A new structure or sample model: adapt its shape anew
         self._sample_model.externalStructureChanged.connect(self._adapt_structure)
 
+        # Add new component in Components Files: the component joins the
+        # sample through the components list, which opens the row
+        self._components_files.externalComponentCreated.connect(self._components.loaded.append)
+
+        # The component Components Files shows may be renamed, removed,
+        # or gone with its sample model
+        loaded = self._components.loaded
+        loaded.rowsRemoved.connect(self._components_files.refresh)
+        loaded.dataChanged.connect(self._components_files.refresh)
+        loaded.modelReset.connect(self._components_files.refresh)
+
     @Property('QVariant', constant=True)
     def project(self):
         return self._project
@@ -106,6 +126,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def library(self):
         return self._library
+
+    @Property('QVariant', constant=True)
+    def libraryAssets(self):
+        return self._library_assets
 
     @Property('QVariant', constant=True)
     def config(self):
@@ -150,6 +174,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def components(self):
         return self._components
+
+    @Property('QVariant', constant=True)
+    def componentsFiles(self):
+        return self._components_files
 
     @Property('QVariant', notify=compositionChanged)
     def composition(self):
@@ -208,10 +236,12 @@ class Backend(QObject):
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too
         self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
-        # Removing or renaming a component changes their composition
-        # rows; the connections end when the model is deleted
+        # Adding, removing or renaming a component changes their
+        # composition rows; the connections end when the model is
+        # deleted
         for model in (self._composition, self._layers, self._lamellae):
             if model is not None:
+                self._components.loaded.rowsInserted.connect(model.refresh)
                 self._components.loaded.rowsRemoved.connect(model.refresh)
                 self._components.loaded.dataChanged.connect(model.refresh)
         self.ringStructureChanged.emit()

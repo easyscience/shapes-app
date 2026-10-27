@@ -18,24 +18,25 @@ EaElements.Dialog{
     id: sampleModelLoadDialog
 
     property int inputFieldWidth: EaStyle.Sizes.fontPixelSize * 35
-    property alias availableComponentsModel: availableComponentsModel
 
     title: qsTr("Load Components from the Asset Library")
     standardButtons: Dialog.Ok | Dialog.Cancel
 
+    // The library's lipids, surfactants and other components, as a
+    // ListModel: the list's selection needs a model, not a JS array
+    readonly property ListModel catalog: ListModel {}
+
+    onAboutToShow: {
+        catalog.clear()
+        for (const type of ['Lipid', 'Surfactant', 'Component'])
+            for (const name of Globals.BackendWrapper.libraryAvailableAssets[type] ?? [])
+                catalog.append({ name: name, type: type })
+    }
     onAccepted: {
         let selected = loadComponentListView.selectedIndexes
         for (let i = 0; i < selected.length; ++i) {
-            var row = selected[i].row
-            var item = availableComponentsModel.get(row)
-
-            Globals.BackendWrapper.componentsAppend({
-                name: item.name,
-                component_type: item.component_type,
-                mint: item.mint,
-                mext: item.mext,
-                c_ion: item.c_ion
-            })
+            const item = catalog.get(selected[i].row)
+            Globals.BackendWrapper.componentsAppend(item.type, item.name)
         }
         loadComponentListView.clearSelection()
     }
@@ -51,17 +52,13 @@ EaElements.Dialog{
 
         EaComponents.ListView {
             id: loadComponentListView
-            defaultInfoText: qsTr("No models found")
+            defaultInfoText: qsTr("No components found")
             multiSelection: true
 
             columnWidths: [
                 EaStyle.Sizes.fontPixelSize * 2.5,
                 -1,
-                EaStyle.Sizes.fontPixelSize * 8,
-                EaStyle.Sizes.fontPixelSize * 4.5,
-                EaStyle.Sizes.fontPixelSize * 6,
-                EaStyle.Sizes.fontPixelSize * 6,
-                EaStyle.Sizes.tableRowHeight,
+                EaStyle.Sizes.fontPixelSize * 8
             ]
 
             header: EaComponents.ListViewHeader {
@@ -78,46 +75,16 @@ EaElements.Dialog{
                     text: qsTr("Type")
                     color: EaStyle.Colors.themeForegroundMinor
                 }
-                EaComponents.TableViewLabel {
-                    text: qsTr("C-ion")
-                    color: EaStyle.Colors.themeForegroundMinor
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Mint")
-                    color: EaStyle.Colors.themeForegroundMinor
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                EaComponents.TableViewLabel {
-                    text: qsTr("Mext")
-                    color: EaStyle.Colors.themeForegroundMinor
-                    horizontalAlignment: Text.AlignHCenter
-                }
             }
 
-            model: ListModel {
-                id: availableComponentsModel
-                ListElement { name: "DPPC"; component_type: "Lipid"; c_ion: ""; mint: 0; mext: 130 }
-                ListElement { name: "DOPC"; component_type: "Lipid"; c_ion: ""; mint: 0; mext: 138 }
-                ListElement { name: "POPC"; component_type: "Lipid"; c_ion: ""; mint: 0; mext: 134 }
-                ListElement { name: "DMPC"; component_type: "Lipid"; c_ion: ""; mint: 0; mext: 118 }
-                ListElement { name: "Cholesterol"; component_type: "Lipid"; c_ion: ""; mint: 0; mext: 74 }
-                ListElement { name: "SDS"; component_type: "Surfactant"; c_ion: "Na<sup>+</sup>"; mint: 0; mext: 42 }
-                ListElement { name: "CTAB"; component_type: "Surfactant"; c_ion: "Br<sup>-</sup>"; mint: 0; mext: 62 }
-                ListElement { name: "Triton-X100"; component_type: "Surfactant"; c_ion: ""; mint: 0; mext: 85 }
-                ListElement { name: "Tween-20"; component_type: "Surfactant"; c_ion: ""; mint: 0; mext: 98 }
-                ListElement { name: "D2O-buffer"; component_type: "Other"; c_ion: ""; mint: 0; mext: 3 }
-            }
+            model: sampleModelLoadDialog.catalog
 
             delegateModelAccess: DelegateModel.ReadOnly
 
             delegate: EaComponents.ListViewDelegate {
                 required property int index
                 required property string name
-                required property string component_type
-                required property string c_ion
-                required property int mint
-                required property int mext
+                required property string type
 
                 EaComponents.TableViewLabel {
                     text: index + 1
@@ -128,24 +95,7 @@ EaElements.Dialog{
                     text: name
                 }
                 EaComponents.TableViewLabel {
-                    text: component_type
-                }
-                EaComponents.TableViewLabel {
-                    text: c_ion
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                EaComponents.TableViewLabel {
-                    text: mint
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                EaComponents.TableViewLabel {
-                    text: mext
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                EaComponents.TableViewButton {
-                    fontIcon: "minus-circle"
-                    ToolTip.text: qsTr("Remove this component")
-                    onClicked: availableComponentsModel.remove(index)
+                    text: type
                 }
             }
         }

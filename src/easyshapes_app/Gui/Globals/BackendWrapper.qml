@@ -53,6 +53,7 @@ QtObject {
 
     readonly property var libraryAvailableProjects: activeBackend.library.availableProjects
     readonly property var libraryAvailableExamples: activeBackend.library.availableExamples
+    readonly property var libraryAvailableAssets: activeBackend.library.availableAssets
     readonly property var libraryAvailableIons: activeBackend.library.availableIons
     readonly property var libraryAvailableSolvents: activeBackend.library.availableSolvents
     readonly property var libraryAvailableSalts: activeBackend.library.availableSalts
@@ -84,17 +85,28 @@ QtObject {
     readonly property var sampleModelShapes: activeBackend.sampleModel.shapes
     readonly property string sampleModelShape: activeBackend.sampleModel.shape
     readonly property bool sampleModelLattice: activeBackend.sampleModel.lattice
+    // The model's own files: Assemble outputs and files added by hand
+    readonly property var sampleModelFiles: activeBackend.sampleModel.files
 
     function sampleModelSetName(value) { activeBackend.sampleModel.name = value }
     function sampleModelSetShape(value) { activeBackend.sampleModel.shape = value }
     function sampleModelSetLattice(value) { activeBackend.sampleModel.lattice = value }
     function sampleModelCreate() { activeBackend.sampleModel.create() }
-
-    // Load model catalog: mock only until the library catalogs (step 5)
-    readonly property var sampleModelAvailable: activeBackend.sampleModel.availableModels
-
-    function sampleModelSetLoaded(model) { activeBackend.sampleModel.setLoaded(model) }
-    function sampleModelRemoveFromCatalog(index) { activeBackend.sampleModel.removeFromCatalog(index) }
+    // A model from the library by name, or from an export folder; it
+    // replaces the current one
+    function sampleModelLoad(name) { activeBackend.sampleModel.load(name) }
+    function sampleModelImportFrom(folder) { activeBackend.sampleModel.importFrom(folder) }
+    function sampleModelAppendFile(path) { activeBackend.sampleModel.appendFile(path) }
+    function sampleModelRemoveFile(index) { activeBackend.sampleModel.removeFile(index) }
+    function sampleModelEditFile(index) { activeBackend.sampleModel.editFile(index) }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function sampleModelNameTaken() { return activeBackend.sampleModel.nameTaken() }
+    function sampleModelSave(overwrite) { activeBackend.sampleModel.save(overwrite) }
+    // Export asks first when the folder is taken; OK exports with
+    // overwrite
+    function sampleModelExportTaken(folder) { return activeBackend.sampleModel.exportTaken(folder) }
+    function sampleModelExportTo(folder, overwrite) { activeBackend.sampleModel.exportTo(folder, overwrite) }
 
     ////////////////
     // RingStructure
@@ -208,13 +220,15 @@ QtObject {
     // Components group (Sample Model sidebar)
     readonly property var componentsLoaded: activeBackend.components.loaded
     readonly property string componentsErrors: activeBackend.components.loaded.errors
-    readonly property var componentsPendingFilePaths: activeBackend.components.pendingFilePaths
 
-    function componentsAppend(item) { activeBackend.components.appendItem(item) }
+    // type: the library class name, Lipid, Surfactant or Component
+    function componentsAppend(type, name) { activeBackend.components.append(type, name) }
+    function componentsImportFrom(folder) { activeBackend.components.importFrom(folder) }
+    // With the name cell's checks; returns why a name was refused, ''
+    // when renamed. The caller shows it: the components list keeps no
+    // record of it
+    function componentsRename(name, newName) { return activeBackend.components.rename(name, newName) }
     function componentsRemove(index) { activeBackend.components.remove(index) }
-    function componentsAppendPendingFilePath(path) { activeBackend.components.appendPendingFilePath(path) }
-    function componentsRemovePendingFilePath(index) { activeBackend.components.removePendingFilePath(index) }
-    function componentsClearPendingFilePaths() { activeBackend.components.clearPendingFilePaths() }
 
     // Atomistic structure of a loaded component, for the Components viewer:
     // parsed [{element, x, y, z}] (Å) fed to the Qt Quick 3D viewer. The mock
@@ -223,12 +237,13 @@ QtObject {
 
     // Composition of the current ring, rod, bilayer or monolayer; null
     // in Python for a ball or a vesicle, whose layers and lamellae hold
-    // theirs
-    readonly property var compositionItems: activeBackend.composition
+    // theirs. ?? null here and below: Python's None reaches QML as
+    // undefined, which a list's selection model refuses
+    readonly property var compositionItems: activeBackend.composition ?? null
 
     // Layers of the current ball, one composition per row; null in
     // Python while the current shape is not a ball
-    readonly property var layersItems: activeBackend.layers
+    readonly property var layersItems: activeBackend.layers ?? null
     readonly property var layersCompositions: activeBackend.layers?.compositions ?? []
 
     function layersAdd() { if (activeBackend.layers) activeBackend.layers.add() }
@@ -237,7 +252,7 @@ QtObject {
     // Lamellae of the current vesicle, one composition per row and
     // leaflet; null in Python while the current shape is not a vesicle.
     // An outer composition is null while its lamella is symmetric
-    readonly property var lamellaeItems: activeBackend.lamellae
+    readonly property var lamellaeItems: activeBackend.lamellae ?? null
     readonly property var lamellaeInnerLeafletCompositions: activeBackend.lamellae?.innerLeafletCompositions ?? []
     readonly property var lamellaeOuterLeafletCompositions: activeBackend.lamellae?.outerLeafletCompositions ?? []
 
@@ -252,88 +267,61 @@ QtObject {
     function bufferSetSolvent(value) { if (activeBackend.buffer) activeBackend.buffer.solvent = value }
     function bufferComponentsAppend(name) { if (activeBackend.buffer) activeBackend.buffer.appendComponent(name) }
     function bufferComponentsRemove(index) { if (activeBackend.buffer) activeBackend.buffer.removeComponent(index) }
+    function bufferImportFrom(folder) { if (activeBackend.buffer) activeBackend.buffer.importFrom(folder) }
 
-    // Components Files (Sample Model Advanced sidebar). Per-component file
-    // list driven by `componentsFilesSelectedComponent`; switching the
-    // selection repopulates `componentsFilesFiles`.
+    // Components Files (Advanced sidebar): the files of one component of
+    // the sample, picked by name ('' for none). create() adds an empty
+    // component, named by its uid, and picks it; rename it through
+    // componentsRename
     readonly property var componentsFilesFiles: activeBackend.componentsFiles.files
     readonly property string componentsFilesSelectedComponent: activeBackend.componentsFiles.selectedComponent
-    readonly property string componentsFilesEditName: activeBackend.componentsFiles.editName
 
     function componentsFilesSelect(name) { activeBackend.componentsFiles.selectComponent(name) }
-    function componentsFilesCreateNew() { activeBackend.componentsFiles.createNew() }
-    function componentsFilesSetEditName(name) { activeBackend.componentsFiles.editName = name }
+    function componentsFilesCreate() { activeBackend.componentsFiles.create() }
     function componentsFilesAppend(path) { activeBackend.componentsFiles.appendFile(path) }
     function componentsFilesRemove(index) { activeBackend.componentsFiles.removeFile(index) }
     function componentsFilesEditFile(index) { activeBackend.componentsFiles.editFile(index) }
-    function componentsFilesExportFile(index, destination) { activeBackend.componentsFiles.exportFile(index, destination) }
-    function componentsFilesExportComponent(destination) { activeBackend.componentsFiles.exportComponent(destination) }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function componentsFilesNameTaken() { return activeBackend.componentsFiles.nameTaken() }
+    function componentsFilesSave(overwrite) { activeBackend.componentsFiles.save(overwrite) }
+    // Row -1 is the whole component. Export asks first when the folder
+    // is taken; OK exports with overwrite
+    function componentsFilesExportTaken(folder, row) { return activeBackend.componentsFiles.exportTaken(folder, row) }
+    function componentsFilesExportTo(folder, row, overwrite) { activeBackend.componentsFiles.exportTo(folder, row, overwrite) }
 
-    // Save the current file list to the asset library and load the component
-    // into the basic-tab components list (under whatever name is in the name
-    // field) if it isn't already there.
-    function componentsFilesSave() {
-        const name = activeBackend.componentsFiles.save()
-        if (!name)
-            return
-        const loaded = activeBackend.components.loaded
-        for (let i = 0; i < loaded.count; ++i) {
-            if (loaded.get(i).name === name)
-                return
-        }
-        activeBackend.components.appendItem({
-            name: name,
-            component_type: 'Other',
-            c_ion: '',
-            mint: 0,
-            mext: 0
-        })
-    }
-
-    // Structure Files (Sample Model Advanced sidebar). List of structure-
-    // related files plus actions for saving the set to the asset library
-    // and re-seeding structure parameters from a serialized data file.
-    readonly property var structureFilesFiles: activeBackend.structureFiles.files
-
-    function structureFilesAppend(item) { activeBackend.structureFiles.appendItem(item) }
-    function structureFilesAppendPath(path) { activeBackend.structureFiles.appendPath(path) }
-    function structureFilesRemove(index) { activeBackend.structureFiles.removeItem(index) }
-    function structureFilesClear() { activeBackend.structureFiles.clear() }
-    function structureFilesSaveToLib() { activeBackend.structureFiles.saveToLib() }
-    function structureFilesExport(destination) { activeBackend.structureFiles.exportFiles(destination) }
-
-    // Library Assets editor (Advanced sidebar). A single draft asset the user
-    // creates or loads from the library, edits, and saves back. `mode` is
-    // 'empty' | 'create' | 'edit'; the type is editable only while creating.
+    // Library assets editor (Advanced sidebar): one draft asset the user
+    // creates or loads from the library, edits and saves back. The type is
+    // editable only in 'create' mode. The page writes the salt's two rows
+    // (cation, anion) directly
     readonly property string libraryAssetsMode: activeBackend.libraryAssets.mode
     readonly property var libraryAssetsTypeOptions: activeBackend.libraryAssets.typeOptions
     readonly property string libraryAssetsType: activeBackend.libraryAssets.assetType
     readonly property string libraryAssetsName: activeBackend.libraryAssets.assetName
-    readonly property string libraryAssetsCIon: activeBackend.libraryAssets.cIon
+    readonly property string libraryAssetsCounterIon: activeBackend.libraryAssets.counterIon
     readonly property int libraryAssetsMint: activeBackend.libraryAssets.mint
     readonly property int libraryAssetsMext: activeBackend.libraryAssets.mext
     readonly property var libraryAssetsPaths: activeBackend.libraryAssets.paths
-    readonly property var libraryAssetsLibrary: activeBackend.libraryAssets.library
-    // Salt composition (used when the type is 'Salt'). `saltReady` is true once
-    // a name and both ions are set.
     readonly property var libraryAssetsSaltComposition: activeBackend.libraryAssets.saltComposition
     readonly property bool libraryAssetsSaltReady: activeBackend.libraryAssets.saltReady
 
     function libraryAssetsCreateNew() { activeBackend.libraryAssets.createNew() }
-    function libraryAssetsSetSaltIon(index, value) { activeBackend.libraryAssets.setSaltIon(index, value) }
-    function libraryAssetsSetSaltCount(index, value) { activeBackend.libraryAssets.setSaltCount(index, value) }
-    function libraryAssetsLoad(item) { activeBackend.libraryAssets.loadAsset(item) }
+    function libraryAssetsLoad(type, name) { activeBackend.libraryAssets.load(type, name) }
     function libraryAssetsSetType(value) { activeBackend.libraryAssets.assetType = value }
     function libraryAssetsSetName(value) { activeBackend.libraryAssets.assetName = value }
-    function libraryAssetsSetCIon(value) { activeBackend.libraryAssets.cIon = value }
+    function libraryAssetsSetCounterIon(value) { activeBackend.libraryAssets.counterIon = value }
     function libraryAssetsSetMint(value) { activeBackend.libraryAssets.mint = value }
     function libraryAssetsSetMext(value) { activeBackend.libraryAssets.mext = value }
     function libraryAssetsAppendPath(path) { activeBackend.libraryAssets.appendPath(path) }
     function libraryAssetsRemovePath(index) { activeBackend.libraryAssets.removePath(index) }
     function libraryAssetsEditPath(index) { activeBackend.libraryAssets.editPath(index) }
-    function libraryAssetsExportPath(index, destination) { activeBackend.libraryAssets.exportPath(index, destination) }
-    function libraryAssetsSave() { activeBackend.libraryAssets.save() }
-    function libraryAssetsExport(destination) { activeBackend.libraryAssets.exportAsset(destination) }
+    // Save asks first when the name is taken; OK saves with overwrite
+    function libraryAssetsNameTaken() { return activeBackend.libraryAssets.nameTaken() }
+    function libraryAssetsSave(overwrite) { activeBackend.libraryAssets.save(overwrite) }
+    // Row -1 is the whole asset. Export asks first when the folder is
+    // taken; OK exports with overwrite
+    function libraryAssetsExportTaken(folder, row) { return activeBackend.libraryAssets.exportTaken(folder, row) }
+    function libraryAssetsExportTo(folder, row, overwrite) { activeBackend.libraryAssets.exportTo(folder, row, overwrite) }
 
     // SMILES generator (Advanced sidebar). Builds a 3D molecular configuration
     // from a SMILES string. `smilesReady` is true once a name and SMILES string

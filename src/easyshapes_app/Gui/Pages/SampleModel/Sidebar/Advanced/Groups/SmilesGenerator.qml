@@ -16,10 +16,10 @@ EaElements.GroupColumn {
     property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
-    // Map the display type to the value stored on a component ('Other' rather
-    // than 'Component (Other)', matching the components list).
+    // Map the display type to the library class name a component is
+    // added under ('Component', not 'Component (Other)')
     function storedComponentType(label) {
-        return label === "Component (Other)" ? "Other" : label
+        return label === "Component (Other)" ? "Component" : label
     }
 
     // Molecule identity — Name and Formula.
@@ -191,13 +191,9 @@ EaElements.GroupColumn {
                 ToolTip.text: qsTr("Generate the molecule and add it to the components")
                 enabled: Globals.BackendWrapper.smilesReady
                 onClicked: {
-                    Globals.BackendWrapper.componentsAppend({
-                        name: Globals.BackendWrapper.smilesMoleculeName,
-                        component_type: root.storedComponentType(Globals.BackendWrapper.smilesComponentType),
-                        c_ion: "",
-                        mint: 0,
-                        mext: 0
-                    })
+                    Globals.BackendWrapper.componentsAppend(
+                        root.storedComponentType(Globals.BackendWrapper.smilesComponentType),
+                        Globals.BackendWrapper.smilesMoleculeName)
                     console.debug("SMILES generate → component",
                                   Globals.BackendWrapper.smilesMoleculeName,
                                   "dbcis=" + (Globals.BackendWrapper.smilesCisDoubleBonds ? "['C']" : "[]"),

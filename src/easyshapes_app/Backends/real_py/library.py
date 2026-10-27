@@ -10,11 +10,13 @@ from shapes.project import Library as LibraryLib
 class Library(QObject):
     """
     The shapespyer library's lists for QML: saved projects (Recent),
-    examples, and the ion, solvent and salt catalogs.
+    examples, and the asset catalogs.
     """
 
     # Emitted by the root after a project is created, loaded or saved
     availableProjectsChanged = Signal()
+    # Emitted by the root after an asset is saved
+    availableAssetsChanged = Signal()
 
     @Property('QVariant', notify=availableProjectsChanged)
     def availableProjects(self):
@@ -38,30 +40,34 @@ class Library(QObject):
         """
         return [{'name': path.name, 'path': str(path)} for path in LibraryLib().available_examples]
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=availableAssetsChanged)
+    def availableAssets(self):
+        """
+        Names of every asset by type, local first, then remote ones not
+        held locally. The Load from lib popup lists the editor's types.
+        """
+        return LibraryLib().available_assets
+
+    @Property('QVariant', notify=availableAssetsChanged)
     def availableIons(self):
         """
         Names of the library's ions, local first, then remote ones not
         held locally. A counter-ion name the components list accepts.
         """
-        # ponytail: constant until ions can be saved to the library
-        # (step 5); then a notify signal the root emits after a save
         return LibraryLib().available_assets.get('Ion', [])
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=availableAssetsChanged)
     def availableSolvents(self):
         """
         Names of the library's solvents, local first, then remote ones
         not held locally. A name the solvent picker offers.
         """
-        # ponytail: constant, as availableIons
         return LibraryLib().available_assets.get('Solvent', [])
 
-    @Property('QVariant', constant=True)
+    @Property('QVariant', notify=availableAssetsChanged)
     def availableSalts(self):
         """
         Names of the library's salts, local first, then remote ones not
         held locally. A name the Load buffer components popup offers.
         """
-        # ponytail: constant, as availableIons
         return LibraryLib().available_assets.get('Salt', [])

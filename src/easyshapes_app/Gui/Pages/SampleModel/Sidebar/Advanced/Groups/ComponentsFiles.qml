@@ -9,6 +9,7 @@ import QtQuick.Dialogs
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Logic as EaLogic
 
 import Gui.Globals as Globals
 
@@ -27,16 +28,21 @@ EaElements.GroupColumn {
                                      ? Globals.BackendWrapper.componentsFilesFiles.count
                                      : 0
 
-    // Component selector + name editor + Create new, in one row of equal
-    // thirds. The dropdown lists only components already loaded on the Basic
-    // tab; picking one loads its files and name.
+    readonly property bool picked: Globals.BackendWrapper.componentsFilesSelectedComponent !== ""
+    // Why the last name typed here was refused, '' for none; cleared
+    // when the pick or its name changes
+    property string nameError: ""
+
+    // Component selector + name editor + Add new component, in one row of
+    // equal thirds. The dropdown lists only components already loaded on the
+    // Basic tab; picking one loads its files and name.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
 
         Column {
             EaElements.Label {
                 enabled: false
-                text: qsTr("Component")
+                text: qsTr("Select component")
             }
             EaElements.ComboBox {
                 id: componentSelector
@@ -50,7 +56,7 @@ EaElements.GroupColumn {
                 }
 
                 // Mirror the dropdown index from the backend's selected
-                // component (set by picking a row, Create new, or Save to lib).
+                // component (set by picking a row, Add new component, or a rename).
                 function syncIndex() {
                     const sel = Globals.BackendWrapper.componentsFilesSelectedComponent
                     const m = Globals.BackendWrapper.componentsLoaded
@@ -82,12 +88,30 @@ EaElements.GroupColumn {
                 enabled: false
                 text: qsTr("Name")
             }
+            // Renames the pick with the components list's checks
             EaElements.TextField {
+                id: nameField
                 width: root.thirdWidth
                 horizontalAlignment: TextInput.AlignLeft
-                placeholderText: qsTr("Component name")
-                text: Globals.BackendWrapper.componentsFilesEditName
-                onEditingFinished: Globals.BackendWrapper.componentsFilesSetEditName(text)
+                readOnly: !root.picked
+                warned: root.nameError !== ""
+                placeholderText: qsTr("Pick or add a component")
+                text: Globals.BackendWrapper.componentsFilesSelectedComponent
+                // A refused name stays typed and red, to edit on; an
+                // accepted one comes back as the pick's new name
+                onEditingFinished: {
+                    if (root.picked)
+                        root.nameError = Globals.BackendWrapper.componentsRename(Globals.BackendWrapper.componentsFilesSelectedComponent, text)
+                }
+                Connections {
+                    target: Globals.BackendWrapper
+                    // A new pick, or the pick's new name: show it and drop
+                    // the reason
+                    function onComponentsFilesSelectedComponentChanged() {
+                        root.nameError = ""
+                        nameField.text = Qt.binding(() => Globals.BackendWrapper.componentsFilesSelectedComponent)
+                    }
+                }
             }
         }
 
@@ -99,12 +123,21 @@ EaElements.GroupColumn {
             }
             EaElements.SideBarButton {
                 fontIcon: "plus-square"
-                text: qsTr("Create new")
+                text: qsTr("Add new component")
                 width: root.thirdWidth
-                ToolTip.text: qsTr("Start a new component — clears the selection, name and file list")
-                onClicked: Globals.BackendWrapper.componentsFilesCreateNew()
+                ToolTip.text: qsTr("Add an empty component to the sample, named by its id; rename it in the name field")
+                onClicked: Globals.BackendWrapper.componentsFilesCreate()
             }
         }
+    }
+
+    // The components list's reason for refusing the name typed above
+    EaElements.Label {
+        width: parent.width
+        visible: text !== ""
+        wrapMode: Text.Wrap
+        color: EaStyle.Colors.red
+        text: root.nameError
     }
 
     EaComponents.ListView {
@@ -157,6 +190,7 @@ EaElements.GroupColumn {
             EaComponents.TableViewLabel {
                 text: path
                 elide: Text.ElideLeft
+                ToolTip.text: path
             }
             EaComponents.TableViewLabel {
                 text: size
@@ -184,6 +218,7 @@ EaElements.GroupColumn {
             text: qsTr("Add new file(s)")
             width: root.thirdWidth
             ToolTip.text: qsTr("Pick one or more files from disk and add them to this component")
+            enabled: root.picked
             onClicked: addFilesLoader.item.open()
         }
 
@@ -191,9 +226,15 @@ EaElements.GroupColumn {
             fontIcon: "save"
             text: qsTr("Save to lib")
             width: root.thirdWidth
-            ToolTip.text: qsTr("Save this component to the asset library and load it on the Basic tab")
-            enabled: Globals.BackendWrapper.componentsFilesEditName.trim() !== ""
-            onClicked: Globals.BackendWrapper.componentsFilesSave()
+            ToolTip.text: qsTr("Save this component to the asset library")
+            enabled: root.picked
+            // A name the library holds asks first
+            onClicked: {
+                if (Globals.BackendWrapper.componentsFilesNameTaken())
+                    saveOverwriteDialog.open()
+                else
+                    Globals.BackendWrapper.componentsFilesSave(false)
+            }
         }
 
         EaElements.SideBarButton {
@@ -213,15 +254,54 @@ EaElements.GroupColumn {
 
     // Destination picker for Export. What gets written is decided here rather
     // than on the button, so the selection is read when the user confirms.
+    // A folder the export would replace files in asks first
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
         onAccepted: {
-            const destination = selectedFolder.toString()
-            if (root.selectedFileRow >= 0)
-                Globals.BackendWrapper.componentsFilesExportFile(root.selectedFileRow, destination)
-            else
-                Globals.BackendWrapper.componentsFilesExportComponent(destination)
+            const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
+            if (Globals.BackendWrapper.componentsFilesExportTaken(folder, root.selectedFileRow)) {
+                exportOverwriteDialog.folder = folder
+                exportOverwriteDialog.open()
+            } else {
+                Globals.BackendWrapper.componentsFilesExportTo(folder, root.selectedFileRow, false)
+            }
+        }
+    }
+
+    // Asks before replacing the library's entry of this component's name
+    EaElements.Dialog {
+        id: saveOverwriteDialog
+        title: qsTr("Replace library asset")
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: Globals.BackendWrapper.componentsFilesSave(true)
+        onRejected: console.debug(`Save of ${Globals.BackendWrapper.componentsFilesSelectedComponent} cancelled: the name is taken`)
+
+        // In a Column, as in Library assets: a bare item under a titled
+        // dialog loops its implicitWidth
+        Column {
+            EaElements.Label {
+                text: qsTr("The library already holds a component named %1. Replace it?")
+                      .arg(Globals.BackendWrapper.componentsFilesSelectedComponent)
+            }
+        }
+    }
+
+    // Asks before an export replaces files; the folder dialog sets folder
+    EaElements.Dialog {
+        id: exportOverwriteDialog
+        property string folder: ""
+        title: qsTr("Replace exported files")
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        onAccepted: Globals.BackendWrapper.componentsFilesExportTo(folder, root.selectedFileRow, true)
+        onRejected: console.debug(`Export to ${folder} cancelled: the folder is taken`)
+
+        Column {
+            EaElements.Label {
+                text: root.selectedFileRow >= 0
+                      ? qsTr("%1 already holds a file of this name. Replace it?").arg(exportOverwriteDialog.folder)
+                      : qsTr("%1 is not empty. Export there anyway? Files of an earlier export of this component are replaced.").arg(exportOverwriteDialog.folder)
+            }
         }
     }
 }

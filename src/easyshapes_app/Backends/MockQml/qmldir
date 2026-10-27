@@ -7,7 +7,6 @@ singleton Error Error.qml
 singleton SampleModel SampleModel.qml
 singleton Components Components.qml
 singleton ComponentsFiles ComponentsFiles.qml
-singleton StructureFiles StructureFiles.qml
 singleton LibraryAssetsEditor LibraryAssetsEditor.qml
 singleton SmilesGenerator SmilesGenerator.qml
 Fractions Fractions.qml

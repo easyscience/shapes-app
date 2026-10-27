@@ -19,11 +19,37 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 from tests.unit.factories import FakeSampleModel
 
 
+class ByName(list):
+    """
+    The library's collection as both lists read it: by row, by name, and
+    its names.
+    """
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return next(item for item in self if item.name == key)
+        return super().__getitem__(key)
+
+    @property
+    def names(self):
+        return tuple(item.name for item in self)
+
+
 def test_project_change_refreshes_recent(qcore_application):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableProjectsChanged)
 
     backend.project.externalProjectChanged.emit()
+
+    assert spy.count() == 1
+
+
+@pytest.mark.parametrize('part', ['libraryAssets', 'componentsFiles', 'sampleModel'])
+def test_asset_save_refreshes_the_catalogs(qcore_application, part):
+    backend = Backend(Session())
+    spy = QSignalSpy(backend.library.availableAssetsChanged)
+
+    getattr(backend, part).externalAssetsChanged.emit()
 
     assert spy.count() == 1
 
@@ -141,3 +167,62 @@ def test_component_changes_refresh_the_composition_rows(qcore_application, shape
     backend.components.loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
 
     assert reset.count() == 1
+
+
+@pytest.mark.parametrize(
+    ('shape', 'rows'), COMPOSITION_ROWS, ids=['composition', 'layers', 'lamellae']
+)
+def test_added_component_refreshes_the_composition_rows(qcore_application, shape, rows):
+    backend = Backend(Session(sample_model=FakeSampleModel(shape())))
+    backend.sampleModel.externalStructureChanged.emit()
+    reset = QSignalSpy(rows(backend).modelReset)
+    loaded = backend.components.loaded
+
+    # The insert signals an append sends, without a library component
+    loaded.beginInsertRows(QModelIndex(), 0, 0)
+    loaded.endInsertRows()
+
+    assert reset.count() == 1
+
+
+def test_created_component_joins_the_components_list(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=[])
+    backend = Backend(Session(sample_model=sample_model))
+    inserted = QSignalSpy(backend.components.loaded.rowsInserted)
+
+    backend.componentsFiles.externalComponentCreated.emit(SimpleNamespace(name='DOPC'))
+
+    assert [component.name for component in sample_model.structure.components] == ['DOPC']
+    assert inserted.count() == 1
+
+
+def test_components_list_changes_refresh_components_files(qcore_application):
+    dppc = SimpleNamespace(name='DPPC', paths=())
+    components = ByName([dppc])
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=components)
+    backend = Backend(Session(sample_model=sample_model))
+    loaded = backend.components.loaded
+    group = backend.componentsFiles
+    group.selectComponent('DPPC')
+    spy = QSignalSpy(group.selectedComponentChanged)
+
+    # A rename shows once; a change that keeps the name shows nothing
+    dppc.name = 'DOPC'
+    loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    assert (group.selectedComponent, spy.count()) == ('DOPC', 1)
+
+    # Private signals: sent the way a remove and a reset send them
+    loaded.beginRemoveRows(QModelIndex(), 0, 0)
+    components.remove(dppc)
+    loaded.endRemoveRows()
+    assert (group.selectedComponent, spy.count()) == ('', 2)
+
+    components.append(dppc)
+    group.selectComponent('DOPC')
+    sample_model.structure = SimpleNamespace(components=ByName())
+    loaded.beginResetModel()
+    loaded.endResetModel()
+    assert (group.selectedComponent, spy.count()) == ('', 4)
