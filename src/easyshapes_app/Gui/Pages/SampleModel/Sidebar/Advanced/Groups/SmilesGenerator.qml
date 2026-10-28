@@ -16,12 +16,6 @@ EaElements.GroupColumn {
     property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
-    // Map the display type to the library class name a component is
-    // added under ('Component', not 'Component (Other)')
-    function storedComponentType(label) {
-        return label === "Component (Other)" ? "Component" : label
-    }
-
     // Molecule identity — Name and Formula.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
@@ -31,12 +25,17 @@ EaElements.GroupColumn {
                 enabled: false
                 text: qsTr("Name")
             }
+            // The residue name in the structure file: at most 5 letters
+            // or digits. A name the sample holds turns red but Generate
+            // stays on; adding the component refuses it
             EaElements.TextField {
                 width: root.halfWidth
                 horizontalAlignment: TextInput.AlignLeft
-                placeholderText: qsTr("e.g. SDS")
-                text: Globals.BackendWrapper.smilesMoleculeName
-                onEditingFinished: Globals.BackendWrapper.smilesSetMoleculeName(text)
+                placeholderText: qsTr("e.g. SDS, 5 characters max")
+                validator: RegularExpressionValidator { regularExpression: /[A-Za-z0-9]{0,5}/ }
+                warned: Globals.BackendWrapper.smilesNameTaken
+                text: Globals.BackendWrapper.smilesName
+                onEditingFinished: Globals.BackendWrapper.smilesSetName(text)
             }
         }
 
@@ -49,13 +48,23 @@ EaElements.GroupColumn {
                 width: root.halfWidth
                 horizontalAlignment: TextInput.AlignLeft
                 placeholderText: qsTr("(optional)")
+                validator: RegularExpressionValidator { regularExpression: /[A-Za-z0-9+\-]*/ }
                 text: Globals.BackendWrapper.smilesFormula
                 onEditingFinished: Globals.BackendWrapper.smilesSetFormula(text)
             }
         }
     }
 
-    // The SMILES string. Hydrogens are added automatically by the generator.
+    EaElements.Label {
+        width: parent.width
+        visible: Globals.BackendWrapper.smilesNameTaken
+        wrapMode: Text.Wrap
+        color: EaStyle.Colors.red
+        text: qsTr("The sample already holds a component named %1.")
+              .arg(Globals.BackendWrapper.smilesName)
+    }
+
+    // The SMILES string: atoms, bonds, branches, rings, charges.
     Column {
         width: parent.width
 
@@ -67,12 +76,9 @@ EaElements.GroupColumn {
             width: EaStyle.Sizes.sideBarContentWidth
             horizontalAlignment: TextInput.AlignLeft
             placeholderText: qsTr("e.g. CCCCCCCCCCCCOS(=O)(=O)[O-]")
+            validator: RegularExpressionValidator { regularExpression: /[A-Za-z0-9()\[\]{}=#$@+\-\/\\.%:]*/ }
             text: Globals.BackendWrapper.smilesString
             onEditingFinished: Globals.BackendWrapper.smilesSetString(text)
-        }
-        EaElements.Label {
-            enabled: false
-            text: qsTr("Hydrogens are added automatically.")
         }
     }
 
@@ -92,30 +98,33 @@ EaElements.GroupColumn {
                 title: qsTr("Lx")
                 units: "nm"
                 validator: DoubleValidator { bottom: 0 }
+                warned: !acceptableInput
                 text: Globals.BackendWrapper.smilesBoxX
-                onEditingFinished: Globals.BackendWrapper.smilesSetBoxX(parseFloat(text) || 0)
+                onEditingFinished: Globals.BackendWrapper.smilesSetBoxX(parseFloat(text))
             }
             EaElements.Parameter {
                 width: root.thirdWidth
                 title: qsTr("Ly")
                 units: "nm"
                 validator: DoubleValidator { bottom: 0 }
+                warned: !acceptableInput
                 text: Globals.BackendWrapper.smilesBoxY
-                onEditingFinished: Globals.BackendWrapper.smilesSetBoxY(parseFloat(text) || 0)
+                onEditingFinished: Globals.BackendWrapper.smilesSetBoxY(parseFloat(text))
             }
             EaElements.Parameter {
                 width: root.thirdWidth
                 title: qsTr("Lz")
                 units: "nm"
                 validator: DoubleValidator { bottom: 0 }
+                warned: !acceptableInput
                 text: Globals.BackendWrapper.smilesBoxZ
-                onEditingFinished: Globals.BackendWrapper.smilesSetBoxZ(parseFloat(text) || 0)
+                onEditingFinished: Globals.BackendWrapper.smilesSetBoxZ(parseFloat(text))
             }
         }
     }
 
-    // Generation flags. Flatten-XZ only acts together with Align-to-Z, so it is
-    // disabled unless Align-to-Z is on.
+    // Generation flags. Flatten XZ only acts together with Align Z, so it is
+    // disabled unless Align Z is on.
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
 
@@ -123,15 +132,15 @@ EaElements.GroupColumn {
             width: root.thirdWidth
             height: EaStyle.Sizes.fontPixelSize * 2.5
             text: qsTr("Cis C=C")
-            ToolTip.text: qsTr("Kink C=C double bonds to cis (dbcis)")
-            checked: Globals.BackendWrapper.smilesCisDoubleBonds
-            onToggled: Globals.BackendWrapper.smilesSetCisDoubleBonds(checked)
+            ToolTip.text: qsTr("Kink C=C double bonds as cis instead of trans")
+            checked: Globals.BackendWrapper.smilesCis
+            onToggled: Globals.BackendWrapper.smilesSetCis(checked)
         }
         EaElements.CheckBox {
             width: root.thirdWidth
             height: EaStyle.Sizes.fontPixelSize * 2.5
             text: qsTr("Align Z")
-            ToolTip.text: qsTr("Align the backbone to the Z axis")
+            ToolTip.text: qsTr("Rotate the molecule so a terminal bond lies along Z")
             checked: Globals.BackendWrapper.smilesAlignZ
             onToggled: Globals.BackendWrapper.smilesSetAlignZ(checked)
         }
@@ -139,10 +148,10 @@ EaElements.GroupColumn {
             width: root.thirdWidth
             height: EaStyle.Sizes.fontPixelSize * 2.5
             text: qsTr("Flatten XZ")
-            ToolTip.text: qsTr("Flatten into the XZ plane (only with Align Z)")
+            ToolTip.text: qsTr("Flatten the aligned molecule into the XZ plane (only with Align Z)")
             enabled: Globals.BackendWrapper.smilesAlignZ
-            checked: Globals.BackendWrapper.smilesFlatXZ
-            onToggled: Globals.BackendWrapper.smilesSetFlatXZ(checked)
+            checked: Globals.BackendWrapper.smilesFlattenXz
+            onToggled: Globals.BackendWrapper.smilesSetFlattenXz(checked)
         }
     }
 
@@ -156,9 +165,8 @@ EaElements.GroupColumn {
                 text: qsTr("Type")
             }
             EaElements.ComboBox {
-                id: componentTypeSelector
                 width: root.thirdWidth
-                model: Globals.BackendWrapper.smilesComponentTypeOptions
+                model: Globals.BackendWrapper.smilesComponentTypes
                 Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.smilesComponentType)
                 onActivated: (i) => Globals.BackendWrapper.smilesSetComponentType(model[i])
             }
@@ -170,11 +178,10 @@ EaElements.GroupColumn {
                 text: qsTr("Format")
             }
             EaElements.ComboBox {
-                id: formatSelector
                 width: root.thirdWidth
-                model: Globals.BackendWrapper.smilesFormatOptions
-                Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.smilesFormat)
-                onActivated: (i) => Globals.BackendWrapper.smilesSetFormat(model[i])
+                model: Globals.BackendWrapper.smilesExtensions
+                Component.onCompleted: currentIndex = model.indexOf(Globals.BackendWrapper.smilesExtension)
+                onActivated: (i) => Globals.BackendWrapper.smilesSetExtension(model[i])
             }
         }
 
@@ -184,22 +191,15 @@ EaElements.GroupColumn {
                 enabled: false
                 text: " "
             }
+            // No sample model before Continue: nothing to add the component to
             EaElements.SideBarButton {
                 fontIcon: "cogs"
                 text: qsTr("Generate")
                 width: root.thirdWidth
-                ToolTip.text: qsTr("Generate the molecule and add it to the components")
+                ToolTip.text: qsTr("Build the molecule's structure file and add it to the sample's components")
                 enabled: Globals.BackendWrapper.smilesReady
-                onClicked: {
-                    Globals.BackendWrapper.componentsAppend(
-                        root.storedComponentType(Globals.BackendWrapper.smilesComponentType),
-                        Globals.BackendWrapper.smilesMoleculeName)
-                    console.debug("SMILES generate → component",
-                                  Globals.BackendWrapper.smilesMoleculeName,
-                                  "dbcis=" + (Globals.BackendWrapper.smilesCisDoubleBonds ? "['C']" : "[]"),
-                                  "alignZ=" + Globals.BackendWrapper.smilesAlignZ,
-                                  "fxz=" + Globals.BackendWrapper.smilesFlatXZ)
-                }
+                         && Globals.BackendWrapper.sampleModelShape !== ""
+                onClicked: Globals.BackendWrapper.smilesGenerate()
             }
         }
     }

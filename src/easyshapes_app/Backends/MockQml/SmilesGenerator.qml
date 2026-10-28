@@ -7,65 +7,65 @@ pragma Singleton
 import QtQuick
 
 
-// Backend for the "SMILES generator" (Advanced sidebar). Mirrors the shapespyer
-// `smiles` tool: a molecule is described by a chemical formula, a short name and
-// a SMILES string (hydrogens are added automatically), and is generated into a
-// 3D configuration inside a simulation box. The output is a structure file
-// (.gro / .pdb) that can feed a component's files.
-//
-// A .sml record looks like:  C12SO4  SDS  CCCCCCCCCCCCOS(=O)(=O)[O-]
-// followed by a trailing  Box  Lx Ly Lz.
+// Mirrors Backend.smilesGenerator: a draft of the arguments of
+// shapespyer's Component.from_smiles, and generate(), whose component
+// MockBackend adds to the components list and picks in Components
+// Files, as Backend does with Python's.
 QtObject {
     id: root
 
-    // Molecule identity. `formula` is the chemical formula used as the record
-    // key in a .sml file (e.g. C12SO4); `moleculeName` is the short name (SDS).
-    property string moleculeName: ''
-    property string formula: ''
+    // MockBackend adds the component and picks it, as Backend adds
+    // Python's
+    signal externalComponentCreated(string type, string name)
 
-    // The SMILES string itself.
+    // Mock only: the components list, set by MockBackend; nameTaken
+    // reads its names
+    property var components: null
+
+    property string name: ''
+    // Chemical formula for the file's title line; '' takes the name
+    property string formula: ''
     property string smiles: ''
 
-    // Simulation box edge lengths in nm.
+    // Box lengths in nm
     property real boxX: 1.0
     property real boxY: 1.0
     property real boxZ: 1.0
 
-    // Output configuration format.
-    readonly property var formatOptions: ['GROMACS (.gro)', 'PDB (.pdb)']
-    property string format: 'GROMACS (.gro)'
+    readonly property var extensions: ['.gro', '.pdb']
+    property string extension: '.gro'
 
-    // Component type assigned to the component created on Generate. Display
-    // labels; 'Component (Other)' maps to the stored 'Other'. Defaults to the
-    // generic 'Component (Other)'.
-    readonly property var componentTypeOptions: ['Lipid', 'Surfactant', 'Component (Other)']
-    property string componentType: 'Component (Other)'
+    // The library class names a component is built as
+    readonly property var componentTypes: ['Lipid', 'Surfactant', 'Component']
+    property string componentType: 'Component'
 
-    // Generation flags (mirror the shapespyer getMolecule arguments):
-    //   cisDoubleBonds → dbcis = ['C'] (kink C=C double bonds to cis).
-    //   alignZ         → align the backbone to the Z axis.
-    //   flatXZ         → flatten into the XZ plane; only acts when alignZ is on.
-    property bool cisDoubleBonds: false
+    property bool cis: false
     property bool alignZ: false
-    property bool flatXZ: false
+    property bool flattenXz: false
 
-    // True once a name and a SMILES string are provided.
-    property bool ready: false
+    readonly property bool ready: name !== '' && smiles !== ''
 
-    onMoleculeNameChanged: _recompute()
-    onSmilesChanged: _recompute()
+    // Whether the sample already holds a component of the draft's
+    // name. MockBackend calls refresh() on a change of the components
+    // list, as Backend does
+    property bool nameTaken: false
+    onNameChanged: refresh()
 
-    function generate() {
-        if (!ready) return false
-        console.debug('SmilesGenerator.generate:',
-                      'formula=' + formula, 'name=' + moleculeName,
-                      'smiles=' + smiles,
-                      'box=[' + boxX + ',' + boxY + ',' + boxZ + ']',
-                      'format=' + format)
-        return true
+    function refresh() {
+        const loaded = components.loaded
+        let taken = false
+        for (let i = 0; i < loaded.count; ++i)
+            if (loaded.get(i).name === name) taken = true
+        nameTaken = taken
     }
 
-    function _recompute() {
-        ready = (moleculeName || '').trim() !== '' && (smiles || '').trim() !== ''
+    // Python builds the component's structure file from the SMILES
+    // string and refuses one it can't build through the error dialog;
+    // the mock builds nothing
+    function generate() {
+        console.debug('SmilesGenerator.generate:', componentType, name, smiles,
+                      'box:', [boxX, boxY, boxZ], extension,
+                      'cis:', cis, 'alignZ:', alignZ, 'flattenXz:', flattenXz)
+        externalComponentCreated(componentType, name)
     }
 }

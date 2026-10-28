@@ -65,6 +65,15 @@ Rectangle {
                         componentSelector.currentIndex = root.components.count - 1
                 }
             }
+            // A pick in Components Files, a generated component among them,
+            // shows here too
+            Connections {
+                target: Globals.BackendWrapper
+                function onComponentsFilesSelectedComponentChanged() {
+                    const i = componentSelector.find(Globals.BackendWrapper.componentsFilesSelectedComponent)
+                    if (i >= 0) componentSelector.currentIndex = i
+                }
+            }
         }
     }
 

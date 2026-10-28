@@ -31,6 +31,7 @@ from .real_py.project import Project
 from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
+from .real_py.smiles_generator import SmilesGenerator
 from .real_py.vesicle_structure import VesicleStructure
 
 
@@ -88,6 +89,7 @@ class Backend(QObject):
         self._buffer = None
         self._components = Components(self._session)
         self._components_files = ComponentsFiles(self._session)
+        self._smiles_generator = SmilesGenerator(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -112,12 +114,23 @@ class Backend(QObject):
         # sample through the components list, which opens the row
         self._components_files.externalComponentCreated.connect(self._components.loaded.append)
 
+        # Generate in the SMILES generator: the component joins the
+        # sample, and Components Files shows it
+        self._smiles_generator.externalComponentCreated.connect(self._add_component)
+
         # The component Components Files shows may be renamed, removed,
         # or gone with its sample model
         loaded = self._components.loaded
         loaded.rowsRemoved.connect(self._components_files.refresh)
         loaded.dataChanged.connect(self._components_files.refresh)
         loaded.modelReset.connect(self._components_files.refresh)
+
+        # A component added, renamed or removed, or a new sample model,
+        # may take or free the name the SMILES generator holds
+        loaded.rowsInserted.connect(self._smiles_generator.refresh)
+        loaded.rowsRemoved.connect(self._smiles_generator.refresh)
+        loaded.dataChanged.connect(self._smiles_generator.refresh)
+        loaded.modelReset.connect(self._smiles_generator.refresh)
 
     @Property('QVariant', constant=True)
     def project(self):
@@ -194,6 +207,15 @@ class Backend(QObject):
     @Property('QVariant', notify=bufferChanged)
     def buffer(self):
         return self._buffer
+
+    @Property('QVariant', constant=True)
+    def smilesGenerator(self):
+        return self._smiles_generator
+
+    def _add_component(self, component):
+        # A name the sample holds is refused here, before the pick
+        self._components.loaded.append(component)
+        self._components_files.selectComponent(component.name)
 
     def _adapt_structure(self):
         sample_model = self._session.sample_model

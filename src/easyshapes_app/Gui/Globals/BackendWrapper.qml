@@ -323,35 +323,39 @@ QtObject {
     function libraryAssetsExportTaken(folder, row) { return activeBackend.libraryAssets.exportTaken(folder, row) }
     function libraryAssetsExportTo(folder, row, overwrite) { activeBackend.libraryAssets.exportTo(folder, row, overwrite) }
 
-    // SMILES generator (Advanced sidebar). Builds a 3D molecular configuration
-    // from a SMILES string. `smilesReady` is true once a name and SMILES string
-    // are provided.
-    readonly property string smilesMoleculeName: activeBackend.smilesGenerator.moleculeName
+    // SMILES generator (Advanced sidebar): a draft of the arguments of
+    // shapespyer's Component.from_smiles. Generate adds the component
+    // to the sample and picks it in Components Files. smilesString is
+    // the SMILES string
+    readonly property string smilesName: activeBackend.smilesGenerator.name
     readonly property string smilesFormula: activeBackend.smilesGenerator.formula
     readonly property string smilesString: activeBackend.smilesGenerator.smiles
     readonly property real smilesBoxX: activeBackend.smilesGenerator.boxX
     readonly property real smilesBoxY: activeBackend.smilesGenerator.boxY
     readonly property real smilesBoxZ: activeBackend.smilesGenerator.boxZ
-    readonly property var smilesFormatOptions: activeBackend.smilesGenerator.formatOptions
-    readonly property string smilesFormat: activeBackend.smilesGenerator.format
-    readonly property var smilesComponentTypeOptions: activeBackend.smilesGenerator.componentTypeOptions
+    readonly property var smilesExtensions: activeBackend.smilesGenerator.extensions
+    readonly property string smilesExtension: activeBackend.smilesGenerator.extension
+    readonly property var smilesComponentTypes: activeBackend.smilesGenerator.componentTypes
     readonly property string smilesComponentType: activeBackend.smilesGenerator.componentType
-    readonly property bool smilesCisDoubleBonds: activeBackend.smilesGenerator.cisDoubleBonds
+    readonly property bool smilesCis: activeBackend.smilesGenerator.cis
     readonly property bool smilesAlignZ: activeBackend.smilesGenerator.alignZ
-    readonly property bool smilesFlatXZ: activeBackend.smilesGenerator.flatXZ
+    readonly property bool smilesFlattenXz: activeBackend.smilesGenerator.flattenXz
     readonly property bool smilesReady: activeBackend.smilesGenerator.ready
+    // The sample already holds a component of this name; Generate is
+    // then refused in the error dialog
+    readonly property bool smilesNameTaken: activeBackend.smilesGenerator.nameTaken
 
-    function smilesSetMoleculeName(value) { activeBackend.smilesGenerator.moleculeName = value }
+    function smilesSetName(value) { activeBackend.smilesGenerator.name = value }
     function smilesSetFormula(value) { activeBackend.smilesGenerator.formula = value }
     function smilesSetString(value) { activeBackend.smilesGenerator.smiles = value }
     function smilesSetBoxX(value) { activeBackend.smilesGenerator.boxX = value }
     function smilesSetBoxY(value) { activeBackend.smilesGenerator.boxY = value }
     function smilesSetBoxZ(value) { activeBackend.smilesGenerator.boxZ = value }
-    function smilesSetFormat(value) { activeBackend.smilesGenerator.format = value }
+    function smilesSetExtension(value) { activeBackend.smilesGenerator.extension = value }
     function smilesSetComponentType(value) { activeBackend.smilesGenerator.componentType = value }
-    function smilesSetCisDoubleBonds(value) { activeBackend.smilesGenerator.cisDoubleBonds = value }
+    function smilesSetCis(value) { activeBackend.smilesGenerator.cis = value }
     function smilesSetAlignZ(value) { activeBackend.smilesGenerator.alignZ = value }
-    function smilesSetFlatXZ(value) { activeBackend.smilesGenerator.flatXZ = value }
+    function smilesSetFlattenXz(value) { activeBackend.smilesGenerator.flattenXz = value }
     function smilesGenerate() { activeBackend.smilesGenerator.generate() }
 
     ////////////////

@@ -12,7 +12,6 @@ from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Component
 from shapes.project import Ion
-from shapes.project import Lattice
 from shapes.project import Lipid
 from shapes.project import Surfactant
 from shapes.project.files.records import read_ser_data
@@ -68,12 +67,12 @@ class ComponentsModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
-        return 0 if parent.isValid() else len(self._components())
+        return 0 if parent.isValid() else len(self._session.components)
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return None
-        component = self._components()[index.row()]
+        component = self._session.components[index.row()]
         match role:
             case self.NameRole:
                 return component.name
@@ -93,7 +92,7 @@ class ComponentsModel(QAbstractListModel):
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return False
-        component = self._components()[index.row()]
+        component = self._session.components[index.row()]
         match role:
             case self.NameRole:
                 return self._set_name(index, component, value)
@@ -133,7 +132,7 @@ class ComponentsModel(QAbstractListModel):
         """
         return '\n'.join(
             f'Row {row + 1}: {self._name_errors[component]}'
-            for row, component in enumerate(self._components())
+            for row, component in enumerate(self._session.components)
             if component in self._name_errors
         )
 
@@ -153,7 +152,7 @@ class ComponentsModel(QAbstractListModel):
         """
         Add a component as a new row; a held name is refused first.
         """
-        components = self._components()
+        components = self._session.components
         # The library refuses a held name only inside append, after the
         # model has opened the new row: refuse before
         if component.name in components:
@@ -168,7 +167,7 @@ class ComponentsModel(QAbstractListModel):
         """
         Remove the component in a row, and its refusals.
         """
-        components = self._components()
+        components = self._session.components
         component = components[row]
         self.beginRemoveRows(QModelIndex(), row, row)
         components.remove(row)
@@ -185,8 +184,8 @@ class ComponentsModel(QAbstractListModel):
         """
         # Another editor's rename: the name cell's checks and signals,
         # but the refusal is the caller's to show, not this list's
-        row = self._components().names.index(name)
-        component = self._components()[row]
+        row = self._session.components.names.index(name)
+        component = self._session.components[row]
         held = component.name
         error = self._rename(component, new_name)
         if not error and new_name != held:
@@ -235,7 +234,7 @@ class ComponentsModel(QAbstractListModel):
         """
         if name == component.name:
             return ''
-        if name in self._components().names:
+        if name in self._session.components.names:
             # The library would rename first and refuse after, keeping
             # the clash: refuse here instead
             return f'Another component is already named {name}'
@@ -245,13 +244,6 @@ class ComponentsModel(QAbstractListModel):
             # A folder clash; the library keeps the old name
             return str(err)
         return ''
-
-    def _components(self):
-        sample_model = self._session.sample_model
-        if sample_model is None:
-            return ()
-        current = sample_model.structure
-        return (current.unit if isinstance(current, Lattice) else current).components
 
 
 class Components(QObject):

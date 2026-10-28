@@ -10,7 +10,6 @@ from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QDesktopServices
 from shapes.project import Component
-from shapes.project import Lattice
 from shapes.project import Library
 
 from .library_assets import FilesModel
@@ -70,7 +69,7 @@ class ComponentsFiles(QObject):
         """
         Pick the sample's component of that name.
         """
-        self._select(self._components()[name])
+        self._select(self._session.components[name])
 
     @Slot(str)
     def appendFile(self, path):
@@ -157,7 +156,7 @@ class ComponentsFiles(QObject):
         # The pick stays while the structure holds it, and a rename
         # shows its new name; a removal or a new sample model drops it
         if self._component is not None and not any(
-            component is self._component for component in self._components()
+            component is self._component for component in self._session.components
         ):
             self._select(None)
         elif self.selectedComponent != self._shown_name:
@@ -169,10 +168,3 @@ class ComponentsFiles(QObject):
         self._shown_name = self.selectedComponent
         self._files.reset(component.paths if component else ())
         self.selectedComponentChanged.emit()
-
-    def _components(self):
-        sample_model = self._session.sample_model
-        if sample_model is None:
-            return ()
-        current = sample_model.structure
-        return (current.unit if isinstance(current, Lattice) else current).components
