@@ -70,6 +70,19 @@ QtObject {
         // A sample model save writes the library index, as Backend wires
         // the catalogs
         sampleModel.library = library
+        // As Backend wires them: a component the SMILES generator makes
+        // joins the components list, Components Files shows it, and the
+        // generator notes it. Python refuses a held name through the
+        // error dialog; the mock skips it
+        smilesGenerator.components = components
+        components.loaded.countChanged.connect(smilesGenerator.refresh)
+        components.loaded.dataChanged.connect(smilesGenerator.refresh)
+        smilesGenerator.externalComponentCreated.connect((type, name) => {
+            if (smilesGenerator.nameTaken) return
+            components.append(type, name)
+            componentsFiles.selectComponent(name)
+            smilesGenerator.generated = true
+        })
     }
 
 }

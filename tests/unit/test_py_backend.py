@@ -21,14 +21,19 @@ from tests.unit.factories import FakeSampleModel
 
 class ByName(list):
     """
-    The library's collection as both lists read it: by row, by name, and
-    its names.
+    The library's collection as the parts read it: by row or by name,
+    whether it holds a name, and its names.
     """
 
     def __getitem__(self, key):
         if isinstance(key, str):
             return next(item for item in self if item.name == key)
         return super().__getitem__(key)
+
+    def __contains__(self, key):
+        if isinstance(key, str):
+            return key in self.names
+        return super().__contains__(key)
 
     @property
     def names(self):
@@ -226,3 +231,50 @@ def test_components_list_changes_refresh_components_files(qcore_application):
     loaded.beginResetModel()
     loaded.endResetModel()
     assert (group.selectedComponent, spy.count()) == ('', 4)
+
+
+def test_generated_component_joins_the_list_and_components_files(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=ByName())
+    backend = Backend(Session(sample_model=sample_model))
+
+    backend.smilesGenerator.externalComponentCreated.emit(SimpleNamespace(name='SDS', paths=()))
+
+    assert sample_model.structure.components.names == ('SDS',)
+    assert backend.componentsFiles.selectedComponent == 'SDS'
+    assert backend.smilesGenerator.generated
+
+
+def test_generated_component_of_a_taken_name_goes_to_the_error_dialog(qcore_application):
+    sds = SimpleNamespace(name='SDS', paths=())
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=ByName([sds]))
+    backend = Backend(Session(sample_model=sample_model))
+
+    # A slot's exception goes to the hook; the emit goes on
+    backend.smilesGenerator.externalComponentCreated.emit(SimpleNamespace(name='SDS', paths=()))
+
+    assert backend.error.message == 'ValueError: The structure already holds SDS'
+    assert sample_model.structure.components == [sds]
+    assert backend.componentsFiles.selectedComponent == ''
+    assert not backend.smilesGenerator.generated
+
+
+def test_components_list_changes_refresh_the_smiles_name_check(qcore_application):
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(components=ByName([SimpleNamespace(name='SDS')]))
+    backend = Backend(Session(sample_model=sample_model))
+    loaded = backend.components.loaded
+    spy = QSignalSpy(backend.smilesGenerator.nameTakenChanged)
+
+    # Private signals: sent the way an append, an edit, a remove and a
+    # reset send them
+    loaded.beginInsertRows(QModelIndex(), 1, 1)
+    loaded.endInsertRows()
+    loaded.dataChanged.emit(QModelIndex(), QModelIndex(), [])
+    loaded.beginRemoveRows(QModelIndex(), 0, 0)
+    loaded.endRemoveRows()
+    loaded.beginResetModel()
+    loaded.endResetModel()
+
+    assert spy.count() == 4

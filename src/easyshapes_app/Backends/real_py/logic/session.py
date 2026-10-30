@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 
+from shapes.project import Lattice
 from shapes.project import Project
 from shapes.project import SampleModel
 from shapes.project.analysis import Analysis
@@ -23,3 +24,14 @@ class Session:
     project: Project | None = None
     sample_model: SampleModel | None = None
     analysis: Analysis | None = None
+
+    @property
+    def components(self):
+        """
+        The components of the current structure, a lattice's from its
+        unit; empty before the first sample model.
+        """
+        if self.sample_model is None:
+            return ()
+        structure = self.sample_model.structure
+        return (structure.unit if isinstance(structure, Lattice) else structure).components
