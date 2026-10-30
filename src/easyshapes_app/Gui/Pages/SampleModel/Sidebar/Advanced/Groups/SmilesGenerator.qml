@@ -27,13 +27,15 @@ EaElements.GroupColumn {
             }
             // The residue name in the structure file: at most 5 letters
             // or digits. A name the sample holds turns red but Generate
-            // stays on; adding the component refuses it
+            // stays on; adding the component refuses it. Right after
+            // Generate the name is the new component's own: no red
             EaElements.TextField {
                 width: root.halfWidth
                 horizontalAlignment: TextInput.AlignLeft
                 placeholderText: qsTr("e.g. SDS, 5 characters max")
                 validator: RegularExpressionValidator { regularExpression: /[A-Za-z0-9]{0,5}/ }
                 warned: Globals.BackendWrapper.smilesNameTaken
+                        && !Globals.BackendWrapper.smilesGenerated
                 text: Globals.BackendWrapper.smilesName
                 onEditingFinished: Globals.BackendWrapper.smilesSetName(text)
             }
@@ -55,12 +57,16 @@ EaElements.GroupColumn {
         }
     }
 
+    // The sample holds the name: the component Generate just added, or
+    // a clash
     EaElements.Label {
         width: parent.width
         visible: Globals.BackendWrapper.smilesNameTaken
         wrapMode: Text.Wrap
-        color: EaStyle.Colors.red
-        text: qsTr("The sample already holds a component named %1.")
+        color: Globals.BackendWrapper.smilesGenerated ? EaStyle.Colors.green : EaStyle.Colors.red
+        text: (Globals.BackendWrapper.smilesGenerated
+               ? qsTr("%1 was generated and added to the sample.")
+               : qsTr("The sample already holds a component named %1."))
               .arg(Globals.BackendWrapper.smilesName)
     }
 

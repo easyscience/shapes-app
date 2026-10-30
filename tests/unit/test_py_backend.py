@@ -242,6 +242,7 @@ def test_generated_component_joins_the_list_and_components_files(qcore_applicati
 
     assert sample_model.structure.components.names == ('SDS',)
     assert backend.componentsFiles.selectedComponent == 'SDS'
+    assert backend.smilesGenerator.generated
 
 
 def test_generated_component_of_a_taken_name_goes_to_the_error_dialog(qcore_application):
@@ -256,6 +257,7 @@ def test_generated_component_of_a_taken_name_goes_to_the_error_dialog(qcore_appl
     assert backend.error.message == 'ValueError: The structure already holds SDS'
     assert sample_model.structure.components == [sds]
     assert backend.componentsFiles.selectedComponent == ''
+    assert not backend.smilesGenerator.generated
 
 
 def test_components_list_changes_refresh_the_smiles_name_check(qcore_application):

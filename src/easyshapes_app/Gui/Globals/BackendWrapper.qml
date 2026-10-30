@@ -344,6 +344,9 @@ QtObject {
     // The sample already holds a component of this name; Generate is
     // then refused in the error dialog
     readonly property bool smilesNameTaken: activeBackend.smilesGenerator.nameTaken
+    // The last Generate added the component of this name: the name is
+    // its own, not a clash
+    readonly property bool smilesGenerated: activeBackend.smilesGenerator.generated
 
     function smilesSetName(value) { activeBackend.smilesGenerator.name = value }
     function smilesSetFormula(value) { activeBackend.smilesGenerator.formula = value }

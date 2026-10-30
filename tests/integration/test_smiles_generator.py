@@ -43,6 +43,7 @@ def test_generated_surfactant_joins_the_sample_with_its_structure_file(
     assert backend.componentsFiles.selectedComponent == 'SDS'
     assert [Path(path).name for path in backend.componentsFiles.files.paths] == ['SDS.gro']
     assert generator.nameTaken
+    assert generator.generated
 
     # A string the library can't build is refused; nothing is added
     generator.name = 'BAD'

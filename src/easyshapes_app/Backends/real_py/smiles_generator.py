@@ -21,7 +21,9 @@ class SmilesGenerator(QObject):
     The draft keeps plain fields; the component is built only on
     Generate. A name the sample holds shows in nameTaken but does not
     stop Generate: adding the component then refuses it, and so does a
-    SMILES string the library can't build, in the error dialog.
+    SMILES string the library can't build, in the error dialog. Right
+    after the root adds the component, generated tells the page the name
+    is its own; a change to the draft or Generate again drops it.
     """
 
     nameChanged = Signal()
@@ -37,6 +39,7 @@ class SmilesGenerator(QObject):
     flattenXzChanged = Signal()
     readyChanged = Signal()
     nameTakenChanged = Signal()
+    generatedChanged = Signal()
     # A component Generate built, for the root to add to the sample
     externalComponentCreated = Signal(object)
 
@@ -59,10 +62,27 @@ class SmilesGenerator(QObject):
         self._cis = False
         self._align_z = False
         self._flatten_xz = False
+        # Set once the root adds the component of the last Generate
+        self._generated = False
         # ready reads the name and the SMILES string; nameTaken the name
         self.nameChanged.connect(self.readyChanged)
         self.smilesChanged.connect(self.readyChanged)
         self.nameChanged.connect(self.nameTakenChanged)
+        # Any change to the draft drops the generated note
+        for changed in (
+            self.nameChanged,
+            self.formulaChanged,
+            self.smilesChanged,
+            self.boxXChanged,
+            self.boxYChanged,
+            self.boxZChanged,
+            self.extensionChanged,
+            self.componentTypeChanged,
+            self.cisChanged,
+            self.alignZChanged,
+            self.flattenXzChanged,
+        ):
+            changed.connect(self._forget_generated)
 
     @Property(str, notify=nameChanged)
     def name(self):
@@ -214,12 +234,22 @@ class SmilesGenerator(QObject):
         """
         return self._name in self._session.components
 
+    @Property(bool, notify=generatedChanged)
+    def generated(self):
+        """
+        Whether the root added the component of the last Generate, so
+        the name the sample holds is its own.
+        """
+        return self._generated
+
     @Slot()
     def generate(self):
         """
         Build a component of the draft and hand it to the root for the
         sample.
         """
+        # Generate again starts over: only an added component sets it
+        self._forget_generated()
         component = self._types[self._component_type].from_smiles(
             self._name,
             self._smiles,
@@ -238,3 +268,16 @@ class SmilesGenerator(QObject):
         removed may take or free the draft's name.
         """
         self.nameTakenChanged.emit()
+
+    def mark_generated(self):
+        """
+        Note that the root added the component of the last Generate.
+        """
+        self._generated = True
+        self.generatedChanged.emit()
+
+    def _forget_generated(self):
+        if not self._generated:
+            return
+        self._generated = False
+        self.generatedChanged.emit()

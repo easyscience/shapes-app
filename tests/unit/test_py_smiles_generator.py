@@ -126,3 +126,28 @@ def test_generate_builds_the_draft_and_hands_it_to_the_root():
         (2.0, 3.0, 4.0),
         {'formula': None, 'cis': True, 'align_z': True, 'flatten_xz': True, 'extension': '.pdb'},
     )
+
+
+@pytest.mark.parametrize(('field', 'value'), FIELDS, ids=[field for field, _ in FIELDS])
+def test_a_draft_change_drops_the_generated_note(field, value):
+    part = part_with()
+    part.mark_generated()
+    spy = QSignalSpy(part.generatedChanged)
+
+    setattr(part, field, value)
+
+    assert not part.generated
+    assert spy.count() == 1
+
+
+def test_generate_again_drops_the_generated_note():
+    part = part_with()
+    part.name = 'SDS'
+    part.smiles = 'CCO'
+    part.componentType = 'Surfactant'
+    part.mark_generated()
+
+    # No root adds the component, as when the sample refuses its name
+    part.generate()
+
+    assert not part.generated

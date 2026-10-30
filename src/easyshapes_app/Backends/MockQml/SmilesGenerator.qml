@@ -51,6 +51,18 @@ QtObject {
     property bool nameTaken: false
     onNameChanged: refresh()
 
+    // Whether MockBackend added the component of the last Generate, as
+    // Backend marks Python's; a change to the draft or Generate again
+    // drops it
+    property bool generated: false
+    Component.onCompleted: {
+        for (const changed of [root.nameChanged, root.formulaChanged, root.smilesChanged,
+                               root.boxXChanged, root.boxYChanged, root.boxZChanged,
+                               root.extensionChanged, root.componentTypeChanged,
+                               root.cisChanged, root.alignZChanged, root.flattenXzChanged])
+            changed.connect(() => root.generated = false)
+    }
+
     function refresh() {
         const loaded = components.loaded
         let taken = false
@@ -63,6 +75,7 @@ QtObject {
     // string and refuses one it can't build through the error dialog;
     // the mock builds nothing
     function generate() {
+        generated = false
         console.debug('SmilesGenerator.generate:', componentType, name, smiles,
                       'box:', [boxX, boxY, boxZ], extension,
                       'cis:', cis, 'alignZ:', alignZ, 'flattenXz:', flattenXz)

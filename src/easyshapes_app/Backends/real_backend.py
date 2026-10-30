@@ -213,9 +213,11 @@ class Backend(QObject):
         return self._smiles_generator
 
     def _add_component(self, component):
-        # A name the sample holds is refused here, before the pick
+        # A name the sample holds is refused here, before the pick and
+        # the generated note
         self._components.loaded.append(component)
         self._components_files.selectComponent(component.name)
+        self._smiles_generator.mark_generated()
 
     def _adapt_structure(self):
         sample_model = self._session.sample_model
