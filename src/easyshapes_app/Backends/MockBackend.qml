@@ -76,6 +76,12 @@ QtObject {
         // A sample model save writes the library index, as Backend wires
         // the catalogs
         sampleModel.library = library
+        // Assemble without components goes to the error dialog. As
+        // Backend wires them: project create and load wait for an
+        // assembly to stop
+        sampleModel.components = components
+        sampleModel.error = error
+        project.externalReplacing.connect(replace => sampleModel.afterAssembly(replace))
         // As Backend wires them: a component the SMILES generator makes
         // joins the components list, Components Files shows it, and the
         // generator notes it. Python refuses a held name through the

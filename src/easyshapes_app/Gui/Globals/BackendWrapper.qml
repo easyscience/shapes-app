@@ -87,13 +87,20 @@ QtObject {
     readonly property bool sampleModelLattice: activeBackend.sampleModel.lattice
     // The model's own files: Assemble outputs and files added by hand
     readonly property var sampleModelFiles: activeBackend.sampleModel.files
+    // An assembly runs; Cancel may stop it only a while after it starts
+    readonly property bool sampleModelFilesLocked: activeBackend.sampleModel.filesLocked
+    readonly property bool sampleModelCancelable: activeBackend.sampleModel.cancelable
 
     function sampleModelSetName(value) { activeBackend.sampleModel.name = value }
     function sampleModelSetShape(value) { activeBackend.sampleModel.shape = value }
     function sampleModelSetLattice(value) { activeBackend.sampleModel.lattice = value }
     function sampleModelCreate() { activeBackend.sampleModel.create() }
+    // A failed check before the start and a failed run go to the error
+    // dialog; a cancel shows nothing
+    function sampleModelAssemble() { activeBackend.sampleModel.assemble() }
+    function sampleModelCancel() { activeBackend.sampleModel.cancel() }
     // A model from the library by name, or from an export folder; it
-    // replaces the current one
+    // replaces the current one, once an assembly is cancelled
     function sampleModelLoad(name) { activeBackend.sampleModel.load(name) }
     function sampleModelImportFrom(folder) { activeBackend.sampleModel.importFrom(folder) }
     function sampleModelAppendFile(path) { activeBackend.sampleModel.appendFile(path) }

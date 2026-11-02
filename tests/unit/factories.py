@@ -88,11 +88,30 @@ class FakeAsset:
         self.calls.append(('export_to', folder, overwrite))
 
 
+class FakeJob:
+    """
+    Stands in for the library's Job: runs until a test ends it, or a
+    cancel does.
+    """
+
+    def __init__(self):
+        self.running = True
+        self.error = None
+
+    def end(self, error=None):
+        self.running = False
+        self.error = error
+
+    def cancel(self):
+        if self.running:
+            self.end('Cancelled')
+
+
 class FakeSampleModel(FakeAsset):
     """
     Stands in for shapes.project.SampleModel, a library asset. It holds
     a real structure, a ring unless given, for the real structure logic
-    to read and switch.
+    to read and switch. Assemble starts a FakeJob.
     """
 
     def __init__(self, structure=None):
@@ -101,6 +120,14 @@ class FakeSampleModel(FakeAsset):
         # Empty; the real Buffer is a library asset, which needs the
         # AppFileManager
         self.buffer = SimpleNamespace(solvent=None, components=[])
+        self.job = None
+
+    @property
+    def files_locked(self):
+        return self.job is not None and self.job.running
+
+    def assemble(self, *, background=False):
+        self.job = FakeJob()
 
     @classmethod
     def load(cls, name):

@@ -9,6 +9,11 @@ import QtCore
 
 // Mirrors shapes.project.Project. `created` is GUI state.
 QtObject {
+    id: root
+
+    // Create or load would replace the sample model: MockBackend calls
+    // the function once no assembly runs, as Backend does
+    signal externalReplacing(var replace)
 
     property bool created: false
 
@@ -30,11 +35,13 @@ QtObject {
     // A new project in `newPath`, or in the library default folder Projects/<name>-<uid>
     // when it is empty.
     function create(newName, newDescription, newPath) {
-        name = newName
-        description = newDescription
-        _path = newPath ? newPath : `~/Projects/${newName}-0001`
-        _modified = ''
-        created = true
+        externalReplacing(() => {
+            root.name = newName
+            root.description = newDescription
+            root._path = newPath ? newPath : `~/Projects/${newName}-0001`
+            root._modified = ''
+            root.created = true
+        })
     }
 
     function save() {
@@ -42,11 +49,13 @@ QtObject {
     }
 
     function load(folder) {
-        name = folder.split(/[\\/]/).pop()
-        description = 'Loaded in the mock'
-        _path = folder
-        _modified = '01 Oct 2026 12:00'
-        created = true
+        externalReplacing(() => {
+            root.name = folder.split(/[\\/]/).pop()
+            root.description = 'Loaded in the mock'
+            root._path = folder
+            root._modified = '01 Oct 2026 12:00'
+            root.created = true
+        })
     }
 
 }

@@ -15,12 +15,23 @@ from tests.unit.factories import FakeProject
 pytestmark = pytest.mark.usefixtures('qcore_application')
 
 
-class OfflineProject(Project):
+class WaitingProject(Project):
     """
-    Builds and loads FakeProjects, not library ones.
+    Builds and loads FakeProjects, not library ones. Replaces only when
+    something calls what externalReplacing carries.
     """
 
     _project_class = FakeProject
+
+
+class OfflineProject(WaitingProject):
+    """
+    Replaces at once, as the root does while no assembly runs.
+    """
+
+    def __init__(self, session):
+        super().__init__(session)
+        self.externalReplacing.connect(lambda replace: replace())
 
 
 def local_text(moment):
@@ -141,6 +152,24 @@ def test_create_and_load_emit_every_signal_once(action):
         part.load(str(Path.home() / 'Projects' / 'ring1'))
 
     assert [spy.count() for spy in spies] == [1, 1, 1, 1, 1, 1]
+
+
+@pytest.mark.parametrize('action', ['create', 'load'])
+def test_create_and_load_replace_when_called_back(action):
+    session = Session()
+    part = WaitingProject(session)
+    waiting = []
+    part.externalReplacing.connect(waiting.append)
+
+    if action == 'create':
+        part.create('ring', '', '')
+    else:
+        part.load(str(Path.home() / 'Projects' / 'ring1'))
+    held = session.project
+    waiting[0]()
+
+    assert held is None
+    assert session.sample_model is session.project.sample_model
 
 
 def test_load_replaces_project_sample_model_and_analysis():

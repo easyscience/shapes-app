@@ -6,8 +6,9 @@ pragma Singleton
 
 import QtQuick
 
-// Mirrors the Python error part. The mock never raises: type a message
-// here to see the dialog in Qt Creator.
+// Mirrors the Python error part. The mock never raises, but Assemble
+// without components writes here; or type a message here to see the
+// dialog in Qt Creator.
 QtObject {
 
     property string message: ''

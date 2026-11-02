@@ -19,8 +19,9 @@ class Project(QObject):
 
     Fields read '' while there is no project. Create and load put the
     new project into the session together with its sample model and
-    analysis. Errors are not caught here; they go to the global error
-    dialog (PROXY_LAYER.md section 2.7).
+    analysis, once no assembly writes the old model. Errors are not
+    caught here; they go to the global error dialog (PROXY_LAYER.md
+    section 2.7).
     """
 
     createdChanged = Signal()
@@ -31,6 +32,9 @@ class Project(QObject):
 
     # Created, loaded or saved: the root tells the parts that may care
     externalProjectChanged = Signal()
+    # Create or load would replace the sample model an assembly may be
+    # writing: the root calls the function it carries once none runs
+    externalReplacing = Signal(object)
 
     # The library class create builds and load reads; tests swap in a
     # fake
@@ -122,26 +126,35 @@ class Project(QObject):
     @Slot(str, str, str)
     def create(self, name, description, path):
         """
-        Make a new project. The first one takes in the session's sample
-        model and analysis.
+        Make a new project, once no assembly runs. The first one takes
+        in the session's sample model and analysis.
 
         Empty name and path go to the library as None: it names the
         project by its uid and puts it in Projects/<full_name>.
         """
-        first = self._session.project is None
-        self._set_session_project(
-            self._project_class(
-                name=name or None,
-                description=description,
-                sample_model=self._session.sample_model if first else None,
-                analysis=self._session.analysis if first else None,
-                path=path or None,
+
+        def replace():
+            first = self._session.project is None
+            self._set_session_project(
+                self._project_class(
+                    name=name or None,
+                    description=description,
+                    sample_model=self._session.sample_model if first else None,
+                    analysis=self._session.analysis if first else None,
+                    path=path or None,
+                )
             )
-        )
+
+        self.externalReplacing.emit(replace)
 
     @Slot(str)
     def load(self, path):
-        self._set_session_project(self._project_class.load(path))
+        """
+        Load the project in a folder, once no assembly runs.
+        """
+        self.externalReplacing.emit(
+            lambda: self._set_session_project(self._project_class.load(path))
+        )
 
     @Slot()
     def save(self):

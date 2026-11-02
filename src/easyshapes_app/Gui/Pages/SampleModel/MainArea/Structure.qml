@@ -143,6 +143,15 @@ Rectangle {
         onZoomed: (factor) => root._zoom *= factor
     }
 
+    // While an assembly runs, the placeholder covers the structure it
+    // replaces. A cover, not a hidden view: a Model shown in the frame
+    // its table comes up in is drawn a frame late
+    Rectangle {
+        anchors.fill: view
+        visible: Globals.BackendWrapper.sampleModelFilesLocked
+        color: view.environment.clearColor
+    }
+
     // What the view can't show, in its middle, and which way to move
     // the slider when the slab is the reason
     EaElements.Label {
@@ -151,8 +160,12 @@ Rectangle {
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
         color: Globals.BackendWrapper.structureViewError
+               && !Globals.BackendWrapper.sampleModelFilesLocked
                ? EaStyle.Colors.red : EaStyle.Colors.themeForegroundMinor
-        text: !Globals.BackendWrapper.structureViewHasStructure
+        // The structure is read again when the assembly ends
+        text: Globals.BackendWrapper.sampleModelFilesLocked
+              ? qsTr("Assembling…")
+              : !Globals.BackendWrapper.structureViewHasStructure
               ? qsTr("Assemble the model to see its structure")
               : Globals.BackendWrapper.structureViewLoading
                 ? qsTr("Loading…")
@@ -170,7 +183,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.margins: EaStyle.Sizes.fontPixelSize
-        visible: root.instancing.atomCount > 0
+        visible: root.instancing.atomCount > 0 && !Globals.BackendWrapper.sampleModelFilesLocked
         color: EaStyle.Colors.themeForegroundMinor
         text: qsTr("%1 of %2 atoms are shown")
               .arg(root.instancing.shownCount.toLocaleString(Qt.locale(), 'f', 0))

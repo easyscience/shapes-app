@@ -4,6 +4,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.VectorImage
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
@@ -107,7 +108,8 @@ EaComponents.SideBarColumn {
         Loader { source: "Groups/Buffer.qml" }
     }
 
-    // Centered "Assemble" call-to-action below the groups.
+    // Centered "Assemble" call-to-action below the groups. While an
+    // assembly runs, the logo, a note and Cancel take its place.
     Item {
         width: parent.width
         height: assembleButton.height + EaStyle.Sizes.fontPixelSize
@@ -115,10 +117,56 @@ EaComponents.SideBarColumn {
         EaElements.SideBarButton {
             id: assembleButton
             anchors.centerIn: parent
+            visible: !Globals.BackendWrapper.sampleModelFilesLocked
             text: qsTr("Assemble")
             fontIcon: "cubes"
             width: EaStyle.Sizes.sideBarContentWidth
-            onClicked: console.debug("Assemble clicked")
+            onClicked: Globals.BackendWrapper.sampleModelAssemble()
+        }
+
+        Item {
+            anchors.centerIn: parent
+            width: EaStyle.Sizes.sideBarContentWidth
+            height: assembleButton.height
+            visible: Globals.BackendWrapper.sampleModelFilesLocked
+
+            // Centred in the three quarters left of Cancel
+            Row {
+                anchors.centerIn: parent
+                anchors.horizontalCenterOffset: -cancelButton.width / 2
+                spacing: EaStyle.Sizes.fontPixelSize * 0.5
+
+                // The SVG spins by its own animation. A little larger
+                // than the Assemble button's icon
+                VectorImage {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: EaStyle.Sizes.fontPixelSize * 1.5
+                    height: width
+                    // Drawn at its own 660 px otherwise
+                    fillMode: VectorImage.PreserveAspectFit
+                    source: Qt.resolvedUrl("../../../../Resources/Logos/EasyShapes.svg")
+                    preferredRendererType: VectorImage.CurveRenderer
+                    animations.loops: Animation.Infinite
+                }
+
+                EaElements.Label {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: qsTr("Assembly in progress")
+                }
+            }
+
+            EaElements.SideBarButton {
+                id: cancelButton
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width / 4
+                // Off a while after the start: shapespyer hangs when a
+                // cancel meets its child process starting
+                enabled: Globals.BackendWrapper.sampleModelCancelable
+                text: qsTr("Cancel")
+                fontIcon: "times"
+                onClicked: Globals.BackendWrapper.sampleModelCancel()
+            }
         }
     }
 }
