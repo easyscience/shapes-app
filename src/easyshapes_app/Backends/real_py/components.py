@@ -10,12 +10,17 @@ from PySide6.QtCore import QObject
 from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
+from shapes.basics.mendeleyev import Chemistry
+from shapes.basics.options import InputOptions
+from shapes.basics.utils import ReaderHandler
+from shapes.ioports.ioframe import CellParameters
 from shapes.project import Component
 from shapes.project import Ion
 from shapes.project import Lipid
 from shapes.project import Surfactant
 from shapes.project.files.records import read_ser_data
 
+from .logic.itp import read_bonds
 from .logic.session import Session
 
 
@@ -203,6 +208,15 @@ class ComponentsModel(QAbstractListModel):
         self.countChanged.emit()
         self.errorsChanged.emit()
 
+    def refresh_files(self, component):
+        """
+        Show a component's row anew after its files changed: its atoms
+        and bonds may differ.
+        """
+        index = self.index(self._session.components.names.index(component.name))
+        # No roles: every role may have changed
+        self.dataChanged.emit(index, index, [])
+
     #########
     # Helpers
     #########
@@ -258,6 +272,7 @@ class Components(QObject):
 
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
+        self._session = session
         self._model = ComponentsModel(session, self)
 
     @Property('QVariant', constant=True)
@@ -298,9 +313,57 @@ class Components(QObject):
 
     @Slot(int, result='QVariant')
     def structureAtoms(self, row):
-        # ponytail: atoms for the component viewer come with the visuals
-        # phase; until then the viewer and vector lengths stay empty
-        return []
+        """
+        The atoms of a row's molecule for the component viewer: element
+        and position in Å, centred on their mean, in atom order. Empty
+        when the component has no structure file or nothing is read.
+        """
+        component = self._session.components[row]
+        path = component.structure_file_path
+        if path is None:
+            return []
+        # The molecule bone_length measures: the first one whose residue
+        # name is the component's name
+        molecule_sets = ReaderHandler().read_input(
+            CellParameters(), InputOptions(str(path)), (component.name,), ()
+        )
+        if not molecule_sets:
+            return []
+        atoms = molecule_sets[0].items[0].items
+        # nm -> Å
+        xyz = [[coordinate * 10.0 for coordinate in atom.getRvec()] for atom in atoms]
+        centre = [sum(axis) / len(xyz) for axis in zip(*xyz)]
+        return [
+            {
+                # The library's rule: the first two letters of the atom
+                # name if they name an element, else the first
+                'element': Chemistry.getElement(atom.getName()) or '',
+                'x': x - centre[0],
+                'y': y - centre[1],
+                'z': z - centre[2],
+            }
+            for atom, (x, y, z) in zip(atoms, xyz, strict=True)
+        ]
+
+    @Slot(int, result=float)
+    def boneLength(self, row):
+        """
+        A row's Mint to Mext distance in nm, as the library measures it;
+        0 when Mint equals Mext or no molecule is read.
+        """
+        return self._session.components[row].bone_length or 0.0
+
+    @Slot(int, result='QVariant')
+    def structureBonds(self, row):
+        """
+        The bonds of a row's molecule from its topology file, as pairs
+        of 0-based atom indices in structureAtoms' order. Empty when the
+        component has no topology file, no molecule type in it matches,
+        or it lists no bonds.
+        """
+        component = self._session.components[row]
+        path = component.topology_file_path
+        return read_bonds(path, component.name) if path else []
 
     def refresh(self):
         """

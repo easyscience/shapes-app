@@ -10,6 +10,22 @@ from shapes.project import Ring
 
 SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
+# Atom name and position in nm
+GRO_ATOMS = [('C1', 0.1, 0.2, 0.3), ('S1', -1.0, 0.0, 12.345), ('H1', 0.0, 0.0, 0.0)]
+
+
+def gro_text(newline='\n', atoms=GRO_ATOMS):
+    """
+    A GRO file of the atoms, written as the library writes them.
+    """
+    lines = ['title', f'{len(atoms):5d}']
+    lines += [
+        '{:>5}{:<5}{:>5}{:>5}'.format(1, 'SDS', name, number)
+        + '{:>8.3f}{:>8.3f}{:>8.3f}'.format(x, y, z)
+        for number, (name, x, y, z) in enumerate(atoms, start=1)
+    ]
+    lines.append('   1.00000   1.00000   1.00000')
+    return newline.join(lines) + newline
 
 
 class FakeProject:

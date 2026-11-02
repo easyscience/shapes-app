@@ -12,6 +12,10 @@ QtObject {
     // wiring makes the Python group follow it
     signal renamed(string name, string newName)
 
+    // Mock only: the mock ComponentsFiles, set by MockBackend. Its file
+    // lists say which components have an .itp
+    property var componentsFiles: null
+
     // Working set of components currently loaded into the sample model.
     // ListModel (not JS array) so EaComponents.ListView's ItemSelectionModel
     // can drive Ctrl/Shift multi-selection, and so role-based delegate
@@ -64,6 +68,18 @@ QtObject {
     function remove(index) {
         if (index < 0 || index >= loadedComponentsModel.count) return
         loadedComponentsModel.remove(index)
+    }
+
+    // As Python's refresh_files: the row of a component whose files
+    // changed is shown anew, no roles named
+    function refreshFiles(name) {
+        for (let i = 0; i < loadedComponentsModel.count; ++i) {
+            if (loadedComponentsModel.get(i).name === name) {
+                const index = loadedComponentsModel.index(i, 0)
+                loadedComponentsModel.dataChanged(index, index, [])
+                break
+            }
+        }
     }
 
     // Atomistic structure used to depict a component in the Components viewer.
@@ -214,7 +230,8 @@ ATOM    134 H16Z POPCA   1      -3.860   0.816 -14.503  1.00  0.00      A    H
     // centred on the centroid so the molecule sits around the scene origin.
     // Mock-only parser: this template PDB has one clean atom per ATOM line with
     // the element as the last whitespace token and x/y/z as tokens 5/6/7.
-    // The real backend will use the shapespyer readers instead.
+    // Python reads the component's own structure file with the shapespyer
+    // reader instead.
     function structureAtoms(index) {
         const lines = _moleculePdb.split('\n')
         const atoms = []
@@ -240,6 +257,45 @@ ATOM    134 H16Z POPCA   1      -3.860   0.816 -14.503  1.00  0.00      A    H
             atoms[j].x -= cx; atoms[j].y -= cy; atoms[j].z -= cz
         }
         return atoms
+    }
+
+    // Python gives the library's bone_length; the mock measures the row's
+    // Mint to Mext distance on the template atoms. In nm; 0 when Mint
+    // equals Mext or an index is out of range.
+    function boneLength(index) {
+        if (index < 0 || index >= loadedComponentsModel.count)
+            return 0
+        const row = loadedComponentsModel.get(index)
+        const atoms = structureAtoms(index)
+        if (row.mint === row.mext || row.mint < 0 || row.mext < 0
+                || row.mint >= atoms.length || row.mext >= atoms.length)
+            return 0
+        const a = atoms[row.mint], b = atoms[row.mext]
+        return Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) / 10.0   // Å -> nm
+    }
+
+    // Python reads the bonds from the component's topology file; the
+    // template's atom order differs from POPC_DLF.itp, so the mock guesses
+    // them by distance: closer than 1.3 Å with a hydrogen, else 1.9 Å.
+    // Pairs of 0-based atom indices, as Python gives them. None when
+    // Components Files lists the component's files without an .itp; a
+    // component it has no list for keeps them.
+    function structureBonds(index) {
+        if (index < 0 || index >= loadedComponentsModel.count)
+            return []
+        const files = componentsFiles?.filesByComponent[loadedComponentsModel.get(index).name]
+        if (files && !files.some(file => file.path.endsWith('.itp')))
+            return []
+        const atoms = structureAtoms(index)
+        const bonds = []
+        for (let i = 0; i < atoms.length; ++i)
+            for (let j = i + 1; j < atoms.length; ++j) {
+                const a = atoms[i], b = atoms[j]
+                const limit = a.element === 'H' || b.element === 'H' ? 1.3 : 1.9
+                if (Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z) < limit)
+                    bonds.push([i, j])
+            }
+        return bonds
     }
 
 }

@@ -36,6 +36,9 @@ class ComponentsFiles(QObject):
     # A save changed what the library holds: the root makes the
     # catalogs read it again
     externalAssetsChanged = Signal()
+    # A file was added to the pick or removed from it: the root makes
+    # the components list show the row anew, for its atoms and bonds
+    externalFilesChanged = Signal(object)
 
     # The class create() makes, and the library a name is checked in;
     # tests swap in fakes
@@ -78,6 +81,7 @@ class ComponentsFiles(QObject):
         """
         self._component.add_new_files([path])
         self._files.reset(self._component.paths)
+        self.externalFilesChanged.emit(self._component)
 
     @Slot(int)
     def removeFile(self, row):
@@ -86,6 +90,7 @@ class ComponentsFiles(QObject):
         """
         self._component.remove_files([self._files.paths[row]])
         self._files.reset(self._component.paths)
+        self.externalFilesChanged.emit(self._component)
 
     @Slot(int)
     def editFile(self, row):

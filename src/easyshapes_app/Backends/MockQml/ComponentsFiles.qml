@@ -17,6 +17,9 @@ QtObject {
     // MockBackend adds the named component to the components list, as
     // Backend adds Python's
     signal externalComponentCreated(string name)
+    // A file was added to the pick or removed from it: MockBackend makes
+    // the components list show the row anew, as Backend wires Python's
+    signal externalFilesChanged(string name)
 
     // Name of the picked component; '' for none
     property string selectedComponent: ''
@@ -124,5 +127,6 @@ QtObject {
             files.push({ path: row.path, size: row.size })
         }
         filesByComponent = Object.assign({}, filesByComponent, { [selectedComponent]: files })
+        externalFilesChanged(selectedComponent)
     }
 }

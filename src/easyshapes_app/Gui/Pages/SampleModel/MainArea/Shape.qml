@@ -3,9 +3,11 @@
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
 import QtQuick
+import QtCore
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Globals as EaGlobals
 
 import Gui.Globals as Globals
 
@@ -19,8 +21,8 @@ import Gui.Globals as Globals
 //   - Ball: one concentric ring per layer, alternating orientation.
 //   - Vesicle: one bilayer (two leaflet rings) per lamella, plus outer shell.
 //   - Rod: a single ring (like Ring) plus a rod-body capsule in the lower left.
-//   - Bilayer / Monolayer: two flat (uncurved) leaflets separated by zsep, drawn
-//     by FlatShapeView. Monolayer reverses the mint->mext direction.
+//   - Bilayer / Monolayer: two flat (uncurved) leaflets, zsep (or dmin) apart,
+//     drawn by FlatShapeView. Monolayer reverses the mint->mext direction.
 // Other types fall back to a placeholder.
 Rectangle {
     id: root
@@ -43,6 +45,7 @@ Rectangle {
 
         showComponentNames: namesCheck.checked
         showDimensions: dimsCheck.checked
+        showMolecules: moleculesCheck.checked
 
         // Single-ring parameters (Ring, and Rod which reuses the ring layout).
         dmin: root.isRod
@@ -79,6 +82,7 @@ Rectangle {
 
         showComponentNames: namesCheck.checked
         showDimensions: dimsCheck.checked
+        showMolecules: moleculesCheck.checked
 
         // Monolayer is the opposite of Bilayer.
         reversed: root.structureType === "Monolayer"
@@ -123,6 +127,21 @@ Rectangle {
             text: qsTr("Dimensions")
             checked: false
         }
+        EaElements.CheckBox {
+            id: moleculesCheck
+            text: qsTr("Molecules")
+            checked: false
+        }
+    }
+
+    // The toggles are kept between launches, in the app's settings file,
+    // as the project folder is
+    Settings {
+        location: EaGlobals.Vars.settingsFile
+        category: 'SampleModel.Shape'
+        property alias showComponentNames: namesCheck.checked
+        property alias showDimensions: dimsCheck.checked
+        property alias showMolecules: moleculesCheck.checked
     }
 
     // Placeholder for structure types whose Shape view is not implemented yet.

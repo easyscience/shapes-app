@@ -37,7 +37,7 @@ Rectangle {
         id: selectorBlock
 
         anchors.top: parent.top
-        anchors.left: parent.left
+        anchors.right: parent.right
         anchors.margins: EaStyle.Sizes.fontPixelSize * 1.5
 
         visible: root.components.count > 0
@@ -49,7 +49,7 @@ Rectangle {
 
         EaElements.ComboBox {
             id: componentSelector
-            width: EaStyle.Sizes.fontPixelSize * 20
+            width: EaStyle.Sizes.fontPixelSize * 14
             textRole: "name"
             model: root.components
 
@@ -79,6 +79,7 @@ Rectangle {
 
     // The selected component's depiction.
     ComponentView {
+        id: view
         anchors.top: selectorBlock.bottom
         anchors.left: parent.left
         anchors.right: parent.right
@@ -89,15 +90,28 @@ Rectangle {
 
         readonly property bool hasSelection: componentSelector.currentIndex >= 0
                                              && componentSelector.currentIndex < root.components.count
-        readonly property var selectedRow: hasSelection
-                                            ? root.components.get(componentSelector.currentIndex)
-                                            : null
+        readonly property var selectedRow: {
+            // Read for the dependency only: a changed row is read again
+            revision
+            return hasSelection ? root.components.get(componentSelector.currentIndex) : null
+        }
 
         componentIndex: componentSelector.currentIndex
         componentName: hasSelection ? selectedRow.name : ""
         // mint/mext are atom indices; the viewer draws an arrow atom[mint] -> atom[mext].
         componentMint: hasSelection ? selectedRow.mint : -1
         componentMext: hasSelection ? selectedRow.mext : -1
+    }
+
+    // The row on screen changed (its files, Mint, Mext): the view reads
+    // it again
+    Connections {
+        target: root.components
+        function onDataChanged(topLeft, bottomRight) {
+            const row = componentSelector.currentIndex
+            if (topLeft.row <= row && row <= bottomRight.row)
+                ++view.revision
+        }
     }
 
 }

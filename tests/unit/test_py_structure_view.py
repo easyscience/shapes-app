@@ -1,0 +1,177 @@
+# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-License-Identifier: BSD-3-Clause
+
+import os
+import time
+from types import SimpleNamespace
+
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtTest import QSignalSpy
+
+from easyshapes_app.Backends.real_py.logic.session import Session
+from easyshapes_app.Backends.real_py.structure_view import StructureView
+from tests.unit.factories import GRO_ATOMS
+from tests.unit.factories import FakeSampleModel
+from tests.unit.factories import gro_text
+
+# Long enough for a thread to read a three-atom file
+WAIT_S = 5
+
+
+def arrived(spy):
+    """
+    Process events until the spied signal comes, or WAIT_S pass.
+    QSignalSpy.wait keeps Python's lock, so the reading thread couldn't
+    run while it waits; sleeping lets it.
+    """
+    deadline = time.monotonic() + WAIT_S
+    while not spy.count() and time.monotonic() < deadline:
+        time.sleep(0.01)
+        QCoreApplication.processEvents()
+    return spy.count() > 0
+
+
+def viewer_of(tmp_path, text=None, itp=None):
+    """
+    A viewer of a sample model holding a .gro of the text, or none; with
+    an itp text, its structure holds an SDS of that topology file.
+    """
+    model = FakeSampleModel()
+    if itp is not None:
+        topology = tmp_path / 'SDS.itp'
+        topology.write_text(itp)
+        sds = SimpleNamespace(name='SDS', topology_file_path=topology)
+        model = FakeSampleModel(SimpleNamespace(components=[sds]))
+    gro = tmp_path / 'model.gro'
+    if text is not None:
+        gro.write_text(text)
+        model.add_new_files([gro])
+    return StructureView(Session(sample_model=model)), gro
+
+
+def test_atoms_are_read_only_while_the_tab_is_shown(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    atoms = QSignalSpy(view.instancing.atomsChanged)
+
+    view.refresh()
+    assert (view.hasStructure, view.loading, atoms.count()) == (True, False, 0)
+
+    view.setActive(True)
+    assert view.loading
+    assert arrived(atoms)
+    assert (view.instancing.atomCount, view.loading, view.error) == (3, False, '')
+
+
+def test_the_shown_file_is_read_again_only_once_rewritten(qcore_application, tmp_path):
+    view, gro = viewer_of(tmp_path, gro_text())
+    view.keepLoaded = True
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+
+    view.setActive(False)
+    view.setActive(True)
+    view.refresh()
+    assert not view.loading
+
+    gro.write_text(gro_text(atoms=GRO_ATOMS[:2]))
+    later = gro.stat().st_mtime_ns + 1_000_000_000
+    os.utime(gro, ns=(later, later))
+    atoms = QSignalSpy(view.instancing.atomsChanged)
+    view.refresh()
+    assert view.loading
+    assert arrived(atoms)
+    assert view.instancing.atomCount == 2
+
+
+def test_hiding_the_tab_drops_the_atoms_unless_kept(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+    view.instancing.slabFraction = 0.5
+
+    view.setActive(False)
+    assert (view.instancing.atomCount, view.instancing.slabFraction) == (0, 0.05)
+
+    atoms = QSignalSpy(view.instancing.atomsChanged)
+    view.setActive(True)
+    assert view.loading
+    assert arrived(atoms)
+    assert view.instancing.atomCount == 3
+
+
+def test_unticking_keep_loaded_while_hidden_drops_the_atoms(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    view.keepLoaded = True
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+
+    view.setActive(False)
+    assert view.instancing.atomCount == 3
+
+    view.keepLoaded = False
+    assert view.instancing.atomCount == 0
+
+
+def test_atoms_read_after_the_tab_hid_are_not_shown(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    view.setActive(True)
+    # The read's result waits in the event queue until arrived()
+    done = QSignalSpy(view.loadingChanged)
+    view.setActive(False)
+
+    assert arrived(done)
+    assert (view.loading, view.instancing.atomCount) == (False, 0)
+
+    atoms = QSignalSpy(view.instancing.atomsChanged)
+    view.setActive(True)
+    assert view.loading
+    assert arrived(atoms)
+
+
+def test_a_file_that_cant_be_read_says_why(qcore_application, tmp_path):
+    lines = gro_text().split('\n')
+    lines[3] += '  0.1000'
+    view, _ = viewer_of(tmp_path, '\n'.join(lines))
+    errors = QSignalSpy(view.errorChanged)
+
+    view.setActive(True)
+
+    assert arrived(errors)
+    assert 'atom lines differ in length' in view.error
+    assert (view.instancing.atomCount, view.loading) == (0, False)
+
+
+def test_show_bonds_reads_the_file_again_with_or_without_bonds(qcore_application, tmp_path):
+    # The factory's three atoms are one SDS: C1-S1, S1-H1
+    view, _ = viewer_of(tmp_path, gro_text(), '[ moleculetype ]\nSDS  3\n\n[ bonds ]\n1 2\n2 3\n')
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+    view.instancing.slabFraction = 1.0
+    bond_rows = view.instancing.bondInstancing.getInstanceBuffer
+
+    for show, halves in ((True, 4), (False, 0)):
+        atoms = QSignalSpy(view.instancing.atomsChanged)
+        view.showBonds = show
+        assert view.loading
+        assert arrived(atoms)
+        assert bond_rows()[1] == halves
+
+
+def test_a_topology_that_cant_be_read_says_why(qcore_application, tmp_path):
+    # A bond line of one field
+    view, _ = viewer_of(tmp_path, gro_text(), '[ moleculetype ]\nSDS  3\n\n[ bonds ]\n1\n')
+    view.showBonds = True
+    errors = QSignalSpy(view.errorChanged)
+
+    view.setActive(True)
+
+    assert arrived(errors)
+    assert (view.error, view.loading) == ('list index out of range', False)
+
+
+def test_a_model_without_a_gro_has_no_structure(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path)
+
+    view.setActive(True)
+
+    assert (view.hasStructure, view.loading, view.instancing.atomCount) == (False, False, 0)

@@ -22,6 +22,9 @@ class FakeComponent:
         self.counter_ion = counter_ion
         self.mint = 0
         self.mext = 1
+        self.bone_length = None
+        self.structure_file_path = None
+        self.topology_file_path = None
 
     @classmethod
     def load(cls, name):
@@ -284,6 +287,19 @@ def test_reset_drops_every_reason(built):
     assert reset.count() == 1
 
 
+def test_refresh_files_shows_the_components_row_anew(built):
+    model, components = built
+    emitted = []
+    model.dataChanged.connect(
+        lambda top, bottom, roles: emitted.append((top.row(), bottom.row(), list(roles)))
+    )
+
+    model.refresh_files(components[2])
+
+    # No roles: every role may have changed
+    assert emitted == [(2, 2, [])]
+
+
 def test_no_sample_model_has_no_rows(qcore_application):
     model = OfflineComponentsModel(Session())
 
@@ -303,7 +319,32 @@ def test_part_shows_rows_removes_and_refreshes(qcore_application):
     assert components.names == ('CHOL', 'POPC')
     assert part.loaded.count == 2
     assert reset.count() == 1
+    # No structure file: nothing to read
     assert part.structureAtoms(0) == []
+
+
+@pytest.mark.parametrize(('measured', 'shown'), [(1.5, 1.5), (None, 0.0)], ids=['set', 'unset'])
+def test_bone_length_is_the_librarys_or_zero(qcore_application, measured, shown):
+    session, components = session_with_components()
+    components[0].bone_length = measured
+
+    assert Components(session).boneLength(0) == shown
+
+
+def test_bonds_come_from_the_components_topology_file(qcore_application, tmp_path):
+    # The file's reading is test_logic_itp's
+    itp = tmp_path / 'topology.itp'
+    itp.write_text('[ moleculetype ]\nDPPC  3\n\n[ bonds ]\n1  2  1\n')
+    session, components = session_with_components()
+    components[0].topology_file_path = itp
+
+    assert Components(session).structureBonds(0) == [[0, 1]]
+
+
+def test_no_topology_file_has_no_bonds(qcore_application):
+    session, _ = session_with_components()
+
+    assert Components(session).structureBonds(0) == []
 
 
 def test_part_appends_a_library_component_as_a_new_row(qcore_application):

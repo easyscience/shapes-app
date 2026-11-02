@@ -30,13 +30,15 @@ import Gui.Globals as Globals
 //   - The baseline is an arc of radius `rmin`. It starts 0.5*dmin before the
 //     first vector and ends 0.5*dmin after the last, so its arc length is
 //     (N+1)*dmin.
-//   - Each vector is radial (perpendicular to the baseline). If NOT reversed,
-//     the mint end is tied to the baseline and the arrow points outward (mext
-//     outer). If reversed, the mext end is tied to the baseline and the arrow
-//     points inward toward it (mint outer).
-//   - The drawn length of each vector is the real molecular mint->mext distance:
-//     |atom[mext] - atom[mint]| in Ångström, converted to nm and shrunk by
-//     `lengthDivisor`. mint/mext are atom indices into the component's structure.
+//   - Each vector is radial and runs from the mint atom to the mext atom, as
+//     long as the component's real bone (componentBoneLength, nm). A
+//     component without one (Mint = Mext, or no structure) draws nothing:
+//     its slot stays empty. The library's ring generator lines the mext
+//     atoms up: on a ring that is not reversed, the arrows point out and
+//     every mext sits a longest bone (of all the structure's components)
+//     past rmin, where a thin arc runs through them; on a reversed ring,
+//     the arrows point in and every mext sits on rmin. A dot marks each
+//     vector's inner end.
 Item {
     id: root
 
@@ -53,17 +55,12 @@ Item {
 
     // Optional lamellae model (Vesicle). Rows: rmin, innerLeafletDmin,
     // outerLeafletDmin, shellThickness, symmetric. Each lamella becomes two
-    // leaflet rings (a bilayer): inner at `rmin`, outer at
-    // `rmin + shellThickness/2`, with opposite vector orientation. The shell
-    // thickness spans from the inner baseline (rmin) out to the outer shell
-    // (rmin + shellThickness). Takes precedence over `layers` when set.
+    // leaflet rings (a bilayer) with opposite vector orientation: inner at
+    // `rmin`, outer at the library's outer leaflet radius
+    // (_outerLeafletRmin). The shell thickness spans from the inner
+    // baseline (rmin) out to the outer shell (rmin + shellThickness). Takes
+    // precedence over `layers` when set.
     property var lamellae: null
-
-    // The real molecular mint->mext vector is long (POPC ~2.6 nm) versus the
-    // baseline spacing (dmin >= 0.5 nm), so drawn 1:1 the vectors swamp the arc.
-    // Shrink the schematic vector length by this divisor for legibility; the
-    // real length is unchanged in the 3D Components viewer.
-    property real lengthDivisor: 5
 
     // Rotate the whole schematic about its centre, degrees clockwise on screen.
     property real rotationDeg: 45
@@ -75,6 +72,7 @@ Item {
     // Toggles (driven by the Shape view's checkboxes). Off by default.
     property bool showComponentNames: false
     property bool showDimensions: false
+    property bool showMolecules: false
 
     // Theme colours pulled out as properties so a theme switch repaints.
     property color baselineColor: EaStyle.Colors.themeForegroundDisabled
@@ -90,11 +88,11 @@ Item {
     onRevChanged: canvas.requestPaint()
     onLayersChanged: canvas.requestPaint()
     onLamellaeChanged: canvas.requestPaint()
-    onLengthDivisorChanged: canvas.requestPaint()
     onRotationDegChanged: canvas.requestPaint()
     onRadiusLeaderNmChanged: canvas.requestPaint()
     onShowComponentNamesChanged: canvas.requestPaint()
     onShowDimensionsChanged: canvas.requestPaint()
+    onShowMoleculesChanged: canvas.requestPaint()
     on_WatchedFractionsChanged: canvas.requestPaint()
     onBaselineColorChanged: canvas.requestPaint()
     onVectorColorChanged: canvas.requestPaint()
@@ -127,8 +125,9 @@ Item {
     //   - Ring: a single ring from the plain properties.
     // `comps` is the list of present component indices for that ring (empty rings
     // are dropped). `showRmin` controls the rmin dimension; `shell` (> 0) requests
-    // the outer-shell arc + shell-thickness dimension.
-    function _ringDefs() {
+    // the outer-shell arc + shell-thickness dimension. `bones` holds every
+    // loaded component's bone length (_boneLengths).
+    function _ringDefs(bones) {
         if (lamellae && lamellae.count !== undefined) {
             const out = []
             for (let i = 0; i < lamellae.count; ++i) {
@@ -143,13 +142,15 @@ Item {
                 const outerComps = row.symmetric
                     ? innerComps
                     : _presentComps(Globals.BackendWrapper.lamellaeOuterLeafletCompositions[i])
-                // Inner leaflet on the lamella baseline; carries the rmin + shell
-                // annotations. Outer leaflet sits T/2 further out with reversed
-                // vectors (the two leaflets point toward the bilayer midplane).
-                out.push({ dmin: row.innerLeafletDmin, rmin: R, reversed: root.rev,
+                // The library builds the leaflets as ball layers with `rev`
+                // flipped: the inner one is reversed unless `rev` is set, the
+                // outer one the opposite. The inner leaflet carries the
+                // rmin + shell annotations.
+                out.push({ dmin: row.innerLeafletDmin, rmin: R, reversed: !root.rev,
                            showRmin: true, shell: T, comps: innerComps })
-                out.push({ dmin: row.outerLeafletDmin, rmin: R + T / 2, reversed: !root.rev,
-                           showRmin: false, comps: outerComps })
+                out.push({ dmin: row.outerLeafletDmin,
+                           rmin: _outerLeafletRmin(row, outerComps, bones),
+                           reversed: root.rev, showRmin: false, comps: outerComps })
             }
             return out
         }
@@ -186,25 +187,25 @@ Item {
         return out.filter(Boolean)
     }
 
-    // Schematic mint->mext length for a component, in nm. This is the real
-    // |atom[mext] - atom[mint]| distance (Å) shrunk by `lengthDivisor` for the
-    // schematic. Returns 0 if the component has no structure or no valid vector.
-    function _vectorLengthNm(compIndex) {
-        if (compIndex < 0 || compIndex >= components.count)
-            return 0
-        const row = components.get(compIndex)
-        if (!row || row.mint < 0 || row.mext < 0)
-            return 0
-        const atoms = Globals.BackendWrapper.componentStructureAtoms(compIndex)
-        const n = atoms ? atoms.length : 0
-        if (n === 0)
-            return 0
-        const mi = Math.max(0, Math.min(row.mint, n - 1))
-        const me = Math.max(0, Math.min(row.mext, n - 1))
-        const a = atoms[mi], b = atoms[me]
-        const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z
-        const div = root.lengthDivisor > 0 ? root.lengthDivisor : 1
-        return Math.sqrt(dx * dx + dy * dy + dz * dz) / 10.0 / div   // Å -> nm, shrunk
+    // Every loaded component's real mint->mext length, nm; 0 for none.
+    function _boneLengths() {
+        const out = []
+        for (let i = 0; i < components.count; ++i)
+            out.push(Globals.BackendWrapper.componentBoneLength(i))
+        return out
+    }
+
+    // The library's outer leaflet radius for a lamella row. With a shell:
+    // rmin + shell - the longest bone among the outer leaflet's components
+    // (half the shell when none has one). Without: rmin + the longest bone
+    // of all components + the inner leaflet dmin.
+    function _outerLeafletRmin(row, comps, bones) {
+        const T = row.shellThickness
+        if (T > 0) {
+            const outerMax = Math.max(0, ...comps.map(i => bones[i]))
+            return outerMax > 0 ? row.rmin + T - outerMax : row.rmin + T / 2
+        }
+        return row.rmin + Math.max(0, ...bones) + row.innerLeafletDmin
     }
 
     function _compName(compIndex) {
@@ -255,6 +256,8 @@ Item {
         }
     }
 
+    MoleculeSketch { id: sketch }
+
     Canvas {
         id: canvas
         anchors.fill: parent
@@ -270,9 +273,14 @@ Item {
             if (N <= 0)
                 return
 
-            const defs = root._ringDefs()
+            const bones = root._boneLengths()
+            const defs = root._ringDefs(bones)
             if (defs.length === 0)
                 return
+            // Shown molecules reach past their vectors: the fit makes room
+            const reaches = root.showMolecules
+                            ? bones.map((_, i) => sketch.reachOf(root.components, i))
+                            : null
 
             const rot = root.rotationDeg * Math.PI / 180
             const arcSamples = 80
@@ -288,6 +296,17 @@ Item {
                 if (p.x > maxX) maxX = p.x
                 if (p.y < minY) minY = p.y
                 if (p.y > maxY) maxY = p.y
+            }
+
+            // A ring's arc at a radius: from angle a0, over sweep radians
+            function arcAt(radius, a0, sweep) {
+                const pts = []
+                for (let i = 0; i <= arcSamples; ++i) {
+                    const o = outward(a0 + (i / arcSamples) * sweep)
+                    const p = Qt.point(radius * o.x, radius * o.y)
+                    pts.push(p); track(p)
+                }
+                return pts
             }
 
             const geos = []
@@ -310,32 +329,36 @@ Item {
                 // -L/r/2 centres the (drawn) arc midpoint at the up axis; +rot turns it.
                 const a0 = -(L / r) / 2 + rot
 
-                const arc = []
-                for (let i = 0; i <= arcSamples; ++i) {
-                    const o = outward(a0 + (i / arcSamples) * L / r)
-                    const p = Qt.point(r * o.x, r * o.y)
-                    arc.push(p); track(p)
-                }
+                const arc = arcAt(r, a0, L / r)
 
+                // Radius every mext sits on (see the header); only real
+                // bones count
+                const rExt = reversed ? r : r + Math.max(0, ...bones)
+                // Its arc; on the baseline when the ring is reversed
+                const extArc = rExt > r ? arcAt(rExt, a0, L / r) : null
+
+                // Every slot's point on the baseline, empty ones too: the
+                // dmin dimension measures the first two
+                const bases = []
                 const vecs = []
                 for (let k = 0; k <= m; ++k) {
                     const s = 0.5 * d + k * d
                     if (s > L)   // anchor past the cut-off baseline: not shown
                         continue
                     const o = outward(a0 + s / r)
+                    bases.push(Qt.point(r * o.x, r * o.y))
                     const compIndex = comps[k % m]
-                    let vlen = root._vectorLengthNm(compIndex)
-                    if (vlen <= 1e-3)
-                        vlen = d
-                    const base = Qt.point(r * o.x, r * o.y)                  // on baseline
-                    const free = Qt.point((r + vlen) * o.x, (r + vlen) * o.y) // outer end
-                    // Arrow goes mint -> mext. Anchored (baseline) end is mint
-                    // unless reversed, in which case it is mext.
-                    const from = reversed ? free : base   // mint
-                    const to = reversed ? base : free      // mext (arrowhead here)
-                    vecs.push({ from: from, to: to, base: base, free: free,
+                    const bone = bones[compIndex]
+                    if (bone <= 1e-3)   // no bone: the slot stays empty
+                        continue
+                    const rInt = reversed ? r + bone : rExt - bone
+                    const from = Qt.point(rInt * o.x, rInt * o.y)    // mint
+                    const to = Qt.point(rExt * o.x, rExt * o.y)      // mext (arrowhead here)
+                    vecs.push({ from: from, to: to, dot: reversed ? to : from,
                                 compIndex: compIndex })
-                    track(base); track(free)
+                    track(from); track(to)
+                    if (reaches)
+                        sketch.corners(from, to, reaches[compIndex]).forEach(track)
                 }
 
                 // Point on the arc 0.25*dmin before the first vector (for the
@@ -351,19 +374,15 @@ Item {
                 let shellArc = null, shellInner = null, shellOuter = null
                 if (shell > 0) {
                     const rs = r + shell
-                    shellArc = []
-                    for (let i = 0; i <= arcSamples; ++i) {
-                        const o = outward(a0 + (i / arcSamples) * L / r)
-                        const p = Qt.point(rs * o.x, rs * o.y)
-                        shellArc.push(p); track(p)
-                    }
+                    shellArc = arcAt(rs, a0, L / r)
                     const sShell = Math.min((N + 0.75) * d, L)
                     const om = outward(a0 + sShell / r)
                     shellInner = Qt.point(r * om.x, r * om.y)
                     shellOuter = Qt.point(rs * om.x, rs * om.y)
                 }
 
-                geos.push({ r: r, d: d, arc: arc, vecs: vecs, arcMid: arcMid,
+                geos.push({ r: r, d: d, arc: arc, extArc: extArc, bases: bases,
+                            vecs: vecs, arcMid: arcMid,
                             showRmin: showRmin, shell: shell,
                             shellArc: shellArc, shellInner: shellInner,
                             shellOuter: shellOuter })
@@ -423,19 +442,20 @@ Item {
                 ctx.strokeStyle = root.baselineColor
                 drawPolyline(geo.arc)
 
-                // outer shell boundary (Vesicle), drawn lighter as a reference.
-                if (geo.shellArc) {
-                    ctx.lineWidth = 1
-                    ctx.strokeStyle = root.dimColor
+                // outer shell boundary (Vesicle) and the arc of the mext
+                // ends, drawn lighter as references.
+                ctx.lineWidth = 1
+                ctx.strokeStyle = root.dimColor
+                if (geo.shellArc)
                     drawPolyline(geo.shellArc)
-                }
+                if (geo.extArc)
+                    drawPolyline(geo.extArc)
 
                 for (let k = 0; k < geo.vecs.length; ++k) {
                     const v = geo.vecs[k]
                     const a = S(v.from)
                     const b = S(v.to)
-                    const baseS = S(v.base)
-                    const freeS = S(v.free)
+                    const dotS = S(v.dot)
 
                     // arrowhead geometry at the mext end (b); size scales with shaft
                     const shaftLen = Math.hypot(b.x - a.x, b.y - a.y)
@@ -463,21 +483,21 @@ Item {
                     ctx.closePath()
                     ctx.fill()
 
-                    // dot marks the end tied to the baseline
+                    // dot marks the inner end
                     ctx.beginPath()
-                    ctx.arc(baseS.x, baseS.y, 3.5, 0, 2 * Math.PI)
+                    ctx.arc(dotS.x, dotS.y, 3.5, 0, 2 * Math.PI)
                     ctx.fill()
-
-                    // component name centred on the vector, parallel to it, on a
-                    // translucent white plate.
-                    if (root.showComponentNames) {
-                        const mx = (baseS.x + freeS.x) / 2
-                        const my = (baseS.y + freeS.y) / 2
-                        const vAng = Math.atan2(freeS.y - baseS.y, freeS.x - baseS.x)
-                        drawLabel(mx, my, vAng, root._compName(v.compIndex),
-                                  compFontPx, Qt.rgba(1, 1, 1, 0.5), root.labelColor)
-                    }
                 }
+            }
+
+            // component name centred on a vector, parallel to it, on the
+            // dimension labels' plate.
+            function drawName(v) {
+                const a = S(v.from)
+                const b = S(v.to)
+                drawLabel((a.x + b.x) / 2, (a.y + b.y) / 2, Math.atan2(b.y - a.y, b.x - a.x),
+                          root._compName(v.compIndex),
+                          compFontPx, root.clearColor, root.labelColor)
             }
 
             // ---- Blueprint-style dimension helpers ----
@@ -500,12 +520,12 @@ Item {
                 ctx.textAlign = "center"
                 ctx.textBaseline = "middle"
 
-                // dmin: between the baseline ends of the first two vectors,
-                // offset toward the centre (the clear zone). Needs both vectors
-                // to survive the cut-off.
-                if (geo.vecs.length >= 2) {
-                    const q1 = S(geo.vecs[0].base)
-                    const q2 = S(geo.vecs[1].base)
+                // dmin: between the first two slots on the baseline, offset
+                // toward the centre (the clear zone). Needs both slots to
+                // survive the cut-off.
+                if (geo.bases.length >= 2) {
+                    const q1 = S(geo.bases[0])
+                    const q2 = S(geo.bases[1])
                     const midD = Qt.point((q1.x + q2.x) / 2, (q1.y + q2.y) / 2)
                     let inx = centerS.x - midD.x, iny = centerS.y - midD.y
                     const inl = Math.max(Math.hypot(inx, iny), 1e-3)
@@ -563,8 +583,20 @@ Item {
                 }
             }
 
+            // Vectors, then molecules over them, then names over both.
             for (let g = 0; g < geos.length; ++g)
                 drawRing(geos[g])
+            if (root.showMolecules) {
+                const onScreen = []
+                for (const geo of geos)
+                    for (const v of geo.vecs)
+                        onScreen.push({ compIndex: v.compIndex, from: S(v.from), to: S(v.to) })
+                sketch.drawMolecules(ctx, root.components, onScreen, scale)
+            }
+            if (root.showComponentNames)
+                for (const geo of geos)
+                    for (const v of geo.vecs)
+                        drawName(v)
             if (root.showDimensions)
                 for (let g2 = 0; g2 < geos.length; ++g2)
                     drawDims(geos[g2])

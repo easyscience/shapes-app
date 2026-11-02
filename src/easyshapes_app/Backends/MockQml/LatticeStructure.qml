@@ -12,7 +12,8 @@ QtObject {
     property double theta: 0.0
     property double sbuff: 1.0
     property string latticeType: 'LCUB'
-    property int nlatx: 1
-    property int nlaty: 1
-    property int nlatz: 1
+    // 2 x 2 x 2 cells, so the Lattice view shows a lattice, not one unit
+    property int nlatx: 2
+    property int nlaty: 2
+    property int nlatz: 2
 }
