@@ -32,6 +32,7 @@ from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
 from .real_py.smiles_generator import SmilesGenerator
+from .real_py.structure_view import StructureView
 from .real_py.vesicle_structure import VesicleStructure
 
 
@@ -90,6 +91,7 @@ class Backend(QObject):
         self._components = Components(self._session)
         self._components_files = ComponentsFiles(self._session)
         self._smiles_generator = SmilesGenerator(self._session)
+        self._structure_view = StructureView(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -110,9 +112,17 @@ class Backend(QObject):
         # A new structure or sample model: adapt its shape anew
         self._sample_model.externalStructureChanged.connect(self._adapt_structure)
 
+        # A new structure or sample model: the structure viewer reads
+        # its .gro again, if the tab is shown
+        self._sample_model.externalStructureChanged.connect(self._structure_view.refresh)
+
         # Add new component in Components Files: the component joins the
         # sample through the components list, which opens the row
         self._components_files.externalComponentCreated.connect(self._components.loaded.append)
+
+        # A file added or removed in Components Files: the views read
+        # the component's atoms and bonds again
+        self._components_files.externalFilesChanged.connect(self._components.loaded.refresh_files)
 
         # Generate in the SMILES generator: the component joins the
         # sample, and Components Files shows it
@@ -211,6 +221,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def smilesGenerator(self):
         return self._smiles_generator
+
+    @Property('QVariant', constant=True)
+    def structureView(self):
+        return self._structure_view
 
     def _add_component(self, component):
         # A name the sample holds is refused here, before the pick and

@@ -1,9 +1,12 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+import math
+
 import pytest
 from shapes.project import Ion
 from shapes.project import Lipid
+from shapes.project import Surfactant
 from shapes.project.analysis import Analysis
 from shapes.project.analysis import Equilibration
 from shapes.project.analysis import ForceField
@@ -70,3 +73,28 @@ def test_loaded_and_imported_components_join_the_composition(qcore_application, 
     assert session.sample_model.structure.components.names == ('DPPC', 'POPC')
     composition = backend.composition
     assert [composition.get(row)['name'] for row in range(composition.count)] == ['DPPC', 'POPC']
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
+def test_viewer_reads_the_structure_file_the_bone_is_measured_on(qcore_application, tmp_path):
+    # A default analysis loads its force field from the library, empty
+    # offline: give the first project one, as bare_project does
+    session = Session(
+        analysis=Analysis(equilibration=Equilibration(force_field=ForceField(name='Field')))
+    )
+    backend = Backend(session)
+    backend.project.create('smiles', '', str(tmp_path / 'smiles'))
+    sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
+    backend.components.loaded.append(sds)
+
+    atoms = backend.components.structureAtoms(0)
+
+    assert len(atoms) == sds.number_of_atoms
+    assert {atom['element'] for atom in atoms} <= {'C', 'H', 'O', 'S'}
+    for axis in 'xyz':
+        assert sum(atom[axis] for atom in atoms) == pytest.approx(0, abs=1e-6)
+    # Å on screen, nm in the library
+    ends = [[atoms[row][axis] for axis in 'xyz'] for row in (sds.mint, sds.mext)]
+    assert math.dist(*ends) / 10 == pytest.approx(backend.components.boneLength(0))
+    assert backend.components.boneLength(0) > 0

@@ -40,4 +40,11 @@ EaComponents.SideBarColumn {
         Loader { source: "Groups/SmilesGenerator.qml" }
     }
 
+    EaElements.GroupBox {
+        title: qsTr("Structure viewer")
+        icon: "cube"
+
+        Loader { source: "Groups/StructureViewer.qml" }
+    }
+
 }

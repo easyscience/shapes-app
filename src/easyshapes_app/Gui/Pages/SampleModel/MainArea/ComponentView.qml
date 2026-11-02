@@ -26,14 +26,28 @@ Rectangle {
     // (arrow atom[mint] -> atom[mext]); -1 means "no vector".
     property int componentMint: -1
     property int componentMext: -1
+    // Goes up when the row changes (its files, Mint, Mext): the atoms
+    // and bonds are read again
+    property int revision: 0
 
     color: EaStyle.Colors.mainContentBackground
 
     BaseMol3dQuick {
         anchors.fill: parent
-        atoms: root.componentIndex >= 0
-               ? Globals.BackendWrapper.componentStructureAtoms(root.componentIndex)
-               : []
+        atoms: {
+            // Read for the dependency only
+            root.revision
+            return root.componentIndex >= 0
+                   ? Globals.BackendWrapper.componentStructureAtoms(root.componentIndex)
+                   : []
+        }
+        // From the topology file: none without one
+        bonds: {
+            root.revision
+            return root.componentIndex >= 0
+                   ? Globals.BackendWrapper.componentStructureBonds(root.componentIndex)
+                   : []
+        }
         vectorStart: root.componentMint
         vectorEnd: root.componentMext
     }

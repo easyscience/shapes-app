@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
+// Delegates reach this file's ids (root, sketch, camera, view) directly
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick3D
 
@@ -18,12 +21,18 @@ import EasyApplication.Gui.Style as EaStyle
 // Tap an atom to label it (index + element); tap empty space to clear.
 // Left-drag to orbit, right-drag to pan, wheel to zoom.
 //
-// Bonds (sticks) are not drawn yet — atoms only for now.
+// Bonds come from the caller in `bonds` (the component's topology file),
+// drawn as thin sticks, each half in its atom's colour; none are guessed
+// here.
 Rectangle {
     id: root
 
     // Parsed atoms: [{element: "C", x, y, z}] in Å, centred near the origin.
     property var atoms: []
+    // Bonds: [[i, j], ...] 0-based atom indices; pairs past the atoms are
+    // skipped.
+    property var bonds: []
+    property real bondRadius: sketch.bondRadius
     // Sphere radius = atomScale * vdW-radius(element), in scene units (= Å).
     property real atomScale: 0.4
     // Orientation vector: arrow atom[vectorStart] -> atom[vectorEnd] (0-based,
@@ -32,34 +41,13 @@ Rectangle {
     property int vectorEnd: -1
     property color vectorColor: EaStyle.Colors.themeForeground
     property real vectorRadius: 0.25
-    // Right-button pan sensitivity multiplier (1.0 = baseline).
-    property real panSpeed: 2.0
-    // Left-drag rotation sensitivity, in degrees per pixel (trackball).
-    property real rotateSpeed: 0.6
+    // The arrow is drawn over the atoms; this lets them show through it.
+    property real vectorOpacity: 0.6
 
     color: EaStyle.Colors.mainContentBackground
 
-    // CPK-ish colours and van der Waals radii (Å) for the common elements;
-    // anything else falls back to magenta / 1.6 Å so it stays visible.
-    readonly property var _cpk: ({
-        "H":  { c: "#ffffff", r: 1.20 },
-        "C":  { c: "#909090", r: 1.70 },
-        "N":  { c: "#3050f8", r: 1.55 },
-        "O":  { c: "#ff0d0d", r: 1.52 },
-        "P":  { c: "#ff8000", r: 1.80 },
-        "S":  { c: "#ffff30", r: 1.80 },
-        "F":  { c: "#90e050", r: 1.47 },
-        "Cl": { c: "#1ff01f", r: 1.75 },
-        "Br": { c: "#a62929", r: 1.85 },
-        "Na": { c: "#ab5cf2", r: 2.27 },
-        "K":  { c: "#8f40d4", r: 2.75 },
-        "Ca": { c: "#3dff00", r: 2.31 },
-        "Mg": { c: "#8aff00", r: 1.73 }
-    })
-
-    function _info(element) {
-        return _cpk[element] !== undefined ? _cpk[element] : { c: "#ff40ff", r: 1.6 }
-    }
+    // CPK colours and van der Waals radii (Å), shared with the Shape views.
+    MoleculeSketch { id: sketch }
 
     // --- View framing + derived geometry, recomputed when atoms change -------
 
@@ -113,23 +101,6 @@ Rectangle {
         const ang = Math.acos(c)
         const s = Math.sin(ang / 2)
         return Qt.quaternion(Math.cos(ang / 2), axis.x * s, axis.y * s, axis.z * s)
-    }
-
-    // Quaternion for a rotation of `deg` degrees about world axis `axis`.
-    function _axisAngle(axis, deg) {
-        const a = axis.normalized()
-        const r = deg * Math.PI / 180
-        const s = Math.sin(r / 2)
-        return Qt.quaternion(Math.cos(r / 2), a.x * s, a.y * s, a.z * s)
-    }
-
-    // Hamilton product a * b (applies b, then a).
-    function _qmul(a, b) {
-        return Qt.quaternion(
-            a.scalar * b.scalar - a.x * b.x - a.y * b.y - a.z * b.z,
-            a.scalar * b.x + a.x * b.scalar + a.y * b.z - a.z * b.y,
-            a.scalar * b.y - a.x * b.z + a.y * b.scalar + a.z * b.x,
-            a.scalar * b.z + a.x * b.y - a.y * b.x + a.z * b.scalar)
     }
 
     // Quaternion from an orthonormal basis given as the world directions of the
@@ -246,15 +217,13 @@ Rectangle {
                 // 2*dist*tan(fov/2), independent of the viewport aspect — this
                 // lets us zoom so the vector length matches the view width.
                 fieldOfViewOrientation: PerspectiveCamera.Horizontal
+
+                // One light from the screen, lifted 15° so it falls from
+                // slightly above. A child of the camera, so it stays fixed
+                // to the view while the molecule turns.
+                DirectionalLight { eulerRotation.x: -15; brightness: 1.0 }
             }
         }
-
-        // Three lights spread over the sphere: azimuths ~120° apart AND
-        // different elevations, so they don't share one plane (which produced
-        // the "melon" banding). Tune the angles to taste.
-        DirectionalLight { eulerRotation.x: -25; eulerRotation.y: -70; brightness: 0.6 }
-        DirectionalLight { eulerRotation.x: 30; eulerRotation.y: 50; brightness: 0.4 }
-        DirectionalLight { eulerRotation.x: -55; eulerRotation.y: 170; brightness: 0.2 }
 
         // Atoms.
         Node {
@@ -262,9 +231,10 @@ Rectangle {
             Repeater3D {
                 model: root.atoms
                 delegate: Model {
+                    id: atom
                     required property int index
                     required property var modelData
-                    readonly property var info: root._info(modelData.element)
+                    readonly property var info: sketch.info(modelData.element)
                     property int atomIndex: index
                     property string element: modelData.element
                     source: "#Sphere"
@@ -276,55 +246,56 @@ Rectangle {
                         return Qt.vector3d(s, s, s)
                     }
                     materials: PrincipledMaterial {
-                        baseColor: info.c
+                        baseColor: atom.info.c
                         roughness: 0.45
                         // 0.15 ambient floor: Qt Quick 3D has no global ambient
                         // term (that needs an IBL probe), so add a 15% self-lit
                         // emissive in the atom's own colour instead.
-                        property color _base: info.c
+                        property color _base: atom.info.c
                         emissiveFactor: Qt.vector3d(_base.r * 0.15, _base.g * 0.15, _base.b * 0.15)
                     }
                 }
             }
-        }
 
-        // Orientation arrow atom[vectorStart] -> atom[vectorEnd]: shaft + tip,
-        // built along local +Y then placed/rotated onto the vector.
-        Node {
-            id: arrowNode
-            visible: root._hasVector
-            position: root._vecPos
-            rotation: root._vecRot
+            // Bonds: a thin cylinder from atom centre to atom centre, each
+            // half in its atom's colour, lit like the atoms; not pickable,
+            // so hover and tap find atoms.
+            Repeater3D {
+                model: root.bonds.filter(pair => pair[0] < root.atoms.length
+                                                 && pair[1] < root.atoms.length)
+                delegate: Node {
+                    id: bond
+                    required property var modelData
+                    readonly property var a: root.atoms[modelData[0]]
+                    readonly property var b: root.atoms[modelData[1]]
+                    readonly property vector3d dir: Qt.vector3d(b.x - a.x, b.y - a.y, b.z - a.z)
+                    position: Qt.vector3d((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
+                    // Local +Y runs from a to b
+                    rotation: root._quatFromY(dir)
 
-            // Tip length as a fraction of the whole vector (0.3x the previous
-            // 0.075). The cone apex lands on the mext atom centre (total length
-            // == _vecLen); the shaft runs further into the tip by 0.5x the tip
-            // length so the rod reaches deeper towards mext.
-            readonly property real tipLen: root._vecLen * 0.0675
-
-            Model { // shaft
-                source: "#Cylinder"
-                readonly property real len: root._vecLen - arrowNode.tipLen * 0.5
-                position: Qt.vector3d(0, len / 2, 0)
-                // Shaft radius halved (vectorRadius / 2).
-                scale: Qt.vector3d(root.vectorRadius / 100, len / 100, root.vectorRadius / 100)
-                // Unlit/flat so the arrow reads as an annotation, not a shaded
-                // atom (it can otherwise be mistaken for an orange/yellow atom).
-                materials: PrincipledMaterial {
-                    baseColor: root.vectorColor
-                    lighting: PrincipledMaterial.NoLighting
-                }
-            }
-            Model { // tip cone
-                source: "#Cone"
-                readonly property real len: arrowNode.tipLen
-                // Elongated 3x; shifted towards mint by one pre-elongation
-                // length (= tipLen / 3).
-                position: Qt.vector3d(0, root._vecLen - len / 2 - arrowNode.tipLen / 3, 0)
-                scale: Qt.vector3d(root.vectorRadius * 2.4 / 50, len / 100, root.vectorRadius * 2.4 / 50)
-                materials: PrincipledMaterial {
-                    baseColor: root.vectorColor
-                    lighting: PrincipledMaterial.NoLighting
+                    // -1: the half at a, 1: the half at b
+                    Repeater3D {
+                        model: [-1, 1]
+                        delegate: Model {
+                            id: half
+                            required property var modelData
+                            readonly property color colour: sketch.info(
+                                (modelData < 0 ? bond.a : bond.b).element).c
+                            source: "#Cylinder"
+                            y: modelData * bond.dir.length() / 4
+                            // #Cylinder is 100 units across and 100 tall,
+                            // along +Y
+                            scale: Qt.vector3d(root.bondRadius / 50, bond.dir.length() / 200,
+                                               root.bondRadius / 50)
+                            materials: PrincipledMaterial {
+                                baseColor: half.colour
+                                roughness: 0.45
+                                emissiveFactor: Qt.vector3d(half.colour.r * 0.15,
+                                                            half.colour.g * 0.15,
+                                                            half.colour.b * 0.15)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -364,56 +335,84 @@ Rectangle {
             }
         }
 
-        // Left-drag trackball rotation. Each mouse delta rotates about the
-        // CURRENT screen axes (camera right/up, read as world-space basis from
-        // originNode) and is composed onto the current rotation. Because the
-        // axes always follow the view, left-right stays consistent at any
-        // orientation — no gimbal flip when tumbling past the poles.
-        DragHandler {
-            target: null
-            acceptedButtons: Qt.LeftButton
-            property real _lx: 0
-            property real _ly: 0
-            onActiveChanged: { _lx = 0; _ly = 0 }
-            onTranslationChanged: {
-                const dx = translation.x - _lx
-                const dy = translation.y - _ly
-                _lx = translation.x
-                _ly = translation.y
-                const qYaw = root._axisAngle(originNode.up, -dx * root.rotateSpeed)
-                const qPitch = root._axisAngle(originNode.right, -dy * root.rotateSpeed)
-                const dq = root._qmul(qYaw, qPitch)
-                originNode.rotation = root._qmul(dq, originNode.rotation)
-            }
+    }
+
+    // The arrow over the atoms: a transparent view of its own on top, its
+    // camera following the main one, so no atom hides the arrow. Takes no
+    // input; the main view's handlers below still get it.
+    View3D {
+        anchors.fill: view
+        camera: arrowCamera
+
+        environment: SceneEnvironment {
+            backgroundMode: SceneEnvironment.Transparent
+            antialiasingMode: SceneEnvironment.MSAA
+            antialiasingQuality: SceneEnvironment.High
         }
 
-        // Right-drag pan (panSpeed x baseline): move the rig in the view plane.
-        DragHandler {
-            target: null
-            acceptedButtons: Qt.RightButton
-            property real _lx: 0
-            property real _ly: 0
-            onActiveChanged: { _lx = 0; _ly = 0 }
-            onTranslationChanged: {
-                const dx = translation.x - _lx
-                const dy = translation.y - _ly
-                _lx = translation.x
-                _ly = translation.y
-                const k = root._camDist * 0.0022 * root.panSpeed
-                originNode.position = originNode.position
-                    .minus(originNode.right.times(dx * k))
-                    .plus(originNode.up.times(dy * k))
-            }
+        PerspectiveCamera {
+            id: arrowCamera
+            position: camera.scenePosition
+            rotation: camera.sceneRotation
+            fieldOfView: camera.fieldOfView
+            fieldOfViewOrientation: camera.fieldOfViewOrientation
+            clipNear: camera.clipNear
+            clipFar: camera.clipFar
         }
 
-        // Wheel zoom: change the camera distance (camera.z is bound to it).
-        WheelHandler {
-            acceptedDevices: PointerDevice.Mouse
-            onWheel: function (ev) {
-                const factor = ev.angleDelta.y > 0 ? 0.9 : 1.1
-                root._camDist = Math.max(2, root._camDist * factor)
+        // Orientation arrow atom[vectorStart] -> atom[vectorEnd]: shaft + tip,
+        // built along local +Y then placed/rotated onto the vector.
+        Node {
+            id: arrowNode
+            visible: root._hasVector
+            opacity: root.vectorOpacity
+            position: root._vecPos
+            rotation: root._vecRot
+
+            // The tip keeps one size: 80% of what it has on POPC's 0 -> 130
+            // vector (25.6 Å long, tip 0.0675 of it), so only the shaft
+            // follows the vector's length and a short vector's tip isn't
+            // squashed. The cone apex lands on the mext atom centre (total
+            // length == _vecLen); the shaft runs further into the tip by
+            // 0.5x the tip length so the rod reaches deeper towards mext.
+            readonly property real tipLen: 25.6 * 0.0675 * 0.8
+            readonly property real tipRadius: root.vectorRadius * 2.4 * 0.8
+
+            Model { // shaft
+                source: "#Cylinder"
+                readonly property real len: Math.max(0, root._vecLen - arrowNode.tipLen * 0.5)
+                position: Qt.vector3d(0, len / 2, 0)
+                // Shaft radius halved (vectorRadius / 2).
+                scale: Qt.vector3d(root.vectorRadius / 100, len / 100, root.vectorRadius / 100)
+                // Unlit/flat so the arrow reads as an annotation, not a shaded
+                // atom (it can otherwise be mistaken for an orange/yellow atom).
+                materials: PrincipledMaterial {
+                    baseColor: root.vectorColor
+                    lighting: PrincipledMaterial.NoLighting
+                }
+            }
+            Model { // tip cone
+                source: "#Cone"
+                readonly property real len: arrowNode.tipLen
+                // Elongated 3x; shifted towards mint by one pre-elongation
+                // length (= tipLen / 3).
+                position: Qt.vector3d(0, root._vecLen - len / 2 - arrowNode.tipLen / 3, 0)
+                scale: Qt.vector3d(arrowNode.tipRadius / 50, len / 100, arrowNode.tipRadius / 50)
+                materials: PrincipledMaterial {
+                    baseColor: root.vectorColor
+                    lighting: PrincipledMaterial.NoLighting
+                }
             }
         }
+    }
+
+    // Left-drag turns, right-drag pans, the wheel zooms the camera distance
+    // (camera.z is bound to it).
+    TrackballControl {
+        anchors.fill: view
+        origin: originNode
+        camera: camera
+        onZoomed: (factor) => root._camDist = Math.max(2, root._camDist * factor)
     }
 
     // Single clicked-atom label, projected so it follows the molecule as it

@@ -9,6 +9,7 @@ singleton Components Components.qml
 singleton ComponentsFiles ComponentsFiles.qml
 singleton LibraryAssetsEditor LibraryAssetsEditor.qml
 singleton SmilesGenerator SmilesGenerator.qml
+singleton StructureView StructureView.qml
 Fractions Fractions.qml
 singleton Layers Layers.qml
 singleton Lamellae Lamellae.qml

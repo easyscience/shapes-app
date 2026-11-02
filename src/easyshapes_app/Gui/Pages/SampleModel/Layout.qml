@@ -16,42 +16,54 @@ import Gui.Globals as Globals
 EaComponents.ContentPage {
     id: root
 
-    // Dynamic main-area tabs. The window set is built from backend state and fed
-    // to the TabBar/SwipeView through Repeaters, so the conditional window (Lattice)
-    // is genuinely INSERTED and REMOVED rather than hidden in place —
-    // no reserved empty slot/gap. The two Repeaters share `mainAreaModel`, so the
-    // tabs and views stay index-aligned. Rebuilds when the structure type or the
-    // model type changes.
-    //
-    // LIMITATION: EaComponents.MainContent doesn't expose its TabBar.currentIndex,
-    // so when a conditional window is inserted/removed the selected index can shift.
-    // Preserving the selection across edits needs a key-aware container —
-    // see the proposed framework component (a model-driven MainContent exposing
-    // `currentKey`). The `key` field below is carried for that future container.
-    readonly property var mainAreaModel: {
-        let list = []
-        list.push({ key: "shape", label: qsTr("Shape"), source: "MainArea/Shape.qml" })
-        list.push({ key: "components", label: qsTr("Components"), source: "MainArea/Components.qml" })
-        if (Globals.BackendWrapper.sampleModelLattice)
-            list.push({ key: "lattice", label: qsTr("Lattice"), source: "MainArea/Lattice.qml" })
-        return list
+    // Main-area tabs, fed to the TabBar and the SwipeView through two
+    // Repeaters on one model, so tabs and views stay index-aligned. The
+    // Lattice tab is appended and removed in place, while the model is a
+    // lattice: the other tabs stay built, and the tab in front stays,
+    // unless it is the Lattice tab being removed.
+    ListModel {
+        id: mainAreaModel
+        ListElement { label: QT_TR_NOOP("Shape"); file: "MainArea/Shape.qml" }
+        ListElement { label: QT_TR_NOOP("Components"); file: "MainArea/Components.qml" }
+        ListElement { label: QT_TR_NOOP("Structure"); file: "MainArea/Structure.qml" }
+    }
+    readonly property int _latticeTab: 3
+    // The main-area TabBar; MainContent doesn't expose it, its tabs do
+    property var _tabBar: null
+
+    function _syncLatticeTab() {
+        const shown = mainAreaModel.count > _latticeTab
+        if (Globals.BackendWrapper.sampleModelLattice && !shown) {
+            mainAreaModel.append({ label: QT_TR_NOOP("Lattice"), file: "MainArea/Lattice.qml" })
+        } else if (!Globals.BackendWrapper.sampleModelLattice && shown) {
+            // Leaving the Lattice tab itself: back to the first tab
+            if (_tabBar && _tabBar.currentIndex === _latticeTab)
+                _tabBar.currentIndex = 0
+            mainAreaModel.remove(_latticeTab)
+        }
+    }
+
+    Connections {
+        target: Globals.BackendWrapper
+        function onSampleModelLatticeChanged() { root._syncLatticeTab() }
     }
 
     mainView: EaComponents.MainContent {
         tabs: [
             Repeater {
-                model: root.mainAreaModel
+                model: mainAreaModel
                 EaElements.TabButton {
-                    text: root.mainAreaModel[index].label
+                    text: qsTr(model.label)
+                    Component.onCompleted: root._tabBar = TabBar.tabBar
                 }
             }
         ]
 
         items: [
             Repeater {
-                model: root.mainAreaModel
+                model: mainAreaModel
                 Loader {
-                    source: root.mainAreaModel[index].source
+                    source: model.file
                 }
             }
         ]
@@ -77,7 +89,10 @@ EaComponents.ContentPage {
         }
     }
 
-    Component.onCompleted: console.debug(`Sample model page loaded ::: ${this}`)
+    Component.onCompleted: {
+        _syncLatticeTab()
+        console.debug(`Sample model page loaded ::: ${this}`)
+    }
     Component.onDestruction: console.debug(`sample model page destroyed ::: ${this}`)
 
 }

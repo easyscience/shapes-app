@@ -233,6 +233,23 @@ def test_components_list_changes_refresh_components_files(qcore_application):
     assert (group.selectedComponent, spy.count()) == ('', 4)
 
 
+def test_file_changes_in_components_files_show_the_row_anew(qcore_application):
+    dppc = SimpleNamespace(name='DPPC', paths=())
+    sample_model = FakeSampleModel()
+    sample_model.structure = SimpleNamespace(
+        components=ByName([SimpleNamespace(name='POPC', paths=()), dppc])
+    )
+    backend = Backend(Session(sample_model=sample_model))
+    rows = []
+    backend.components.loaded.dataChanged.connect(
+        lambda top, bottom, roles: rows.append(top.row())
+    )
+
+    backend.componentsFiles.externalFilesChanged.emit(dppc)
+
+    assert rows == [1]
+
+
 def test_generated_component_joins_the_list_and_components_files(qcore_application):
     sample_model = FakeSampleModel()
     sample_model.structure = SimpleNamespace(components=ByName())

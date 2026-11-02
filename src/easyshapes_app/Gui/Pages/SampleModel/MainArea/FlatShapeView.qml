@@ -13,15 +13,21 @@ import Gui.Globals as Globals
 // Shape view for the flat structures (Bilayer / Monolayer). Like the layered
 // ring view but with NO curvature: the baselines are straight lines.
 //
-//   - Two leaflets, a bottom one (y = 0) and a top one (y = zsep). `zsep` plays
-//     the role the shell thickness plays for the vesicle.
-//   - Each leaflet has N+1 mint->mext vectors (N = present components; the first
-//     component owns two, mirroring the ring layout), spaced by `dmin`.
-//   - The top leaflet is offset to the right by 0.5*dmin, and the whole sketch is
-//     rotated by `rotationDeg`, so it reads like the other (radial) shapes.
-//   - Bilayer: vectors point INTO the gap (heads on the outer surfaces, tails in
-//     the middle). Monolayer: `reversed` flips them (heads in the middle).
-//   - Vector length is the real molecular mint->mext distance (Å) / lengthDivisor.
+//   - Two leaflets mirrored about the midplane (y = 0). Each has N+1
+//     mint->mext vectors (N = present components; the first component owns
+//     two, mirroring the ring layout), spaced by `dmin`, each as long as the
+//     component's real bone (componentBoneLength, nm). A component without
+//     one (Mint = Mext, or no structure) draws nothing: its slot stays
+//     empty.
+//   - The leaflets run level, left to right; the top one is offset to the
+//     right by 0.5*dmin.
+//   - Placement follows the library's layer generator. Each leaflet's
+//     baseline is the plane its reference atoms sit on, half a gap from the
+//     midplane; the gap is zsep, or dmin when zsep is 0.
+//       Bilayer, zsep 0:   mint on the baseline, arrows point out.
+//       Bilayer, zsep > 0: mext on the baseline, arrows point out.
+//       Monolayer (`reversed`): mext on the baseline, arrows point in.
+//     A dot marks the end on the baseline.
 Item {
     id: root
 
@@ -33,11 +39,9 @@ Item {
     property int nside: 1            // not used for the schematic vector count
     property bool reversed: false    // Monolayer flips the mint->mext direction
 
-    property real lengthDivisor: 5
-    property real rotationDeg: -45   // tilt the whole sketch clockwise, like the radial views
-
     property bool showComponentNames: false
     property bool showDimensions: false
+    property bool showMolecules: false
 
     property color baselineColor: EaStyle.Colors.themeForegroundDisabled
     property color vectorColor: EaStyle.Colors.themeForegroundDisabled
@@ -48,10 +52,9 @@ Item {
     onDminChanged: canvas.requestPaint()
     onZsepChanged: canvas.requestPaint()
     onReversedChanged: canvas.requestPaint()
-    onLengthDivisorChanged: canvas.requestPaint()
-    onRotationDegChanged: canvas.requestPaint()
     onShowComponentNamesChanged: canvas.requestPaint()
     onShowDimensionsChanged: canvas.requestPaint()
+    onShowMoleculesChanged: canvas.requestPaint()
     onFractionsChanged: canvas.requestPaint()
     onBaselineColorChanged: canvas.requestPaint()
     onVectorColorChanged: canvas.requestPaint()
@@ -76,24 +79,6 @@ Item {
         return out
     }
 
-    function _vectorLengthNm(compIndex) {
-        if (compIndex < 0 || compIndex >= components.count)
-            return 0
-        const row = components.get(compIndex)
-        if (!row || row.mint < 0 || row.mext < 0)
-            return 0
-        const atoms = Globals.BackendWrapper.componentStructureAtoms(compIndex)
-        const n = atoms ? atoms.length : 0
-        if (n === 0)
-            return 0
-        const mi = Math.max(0, Math.min(row.mint, n - 1))
-        const me = Math.max(0, Math.min(row.mext, n - 1))
-        const a = atoms[mi], b = atoms[me]
-        const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z
-        const div = root.lengthDivisor > 0 ? root.lengthDivisor : 1
-        return Math.sqrt(dx * dx + dy * dy + dz * dz) / 10.0 / div
-    }
-
     function _compName(compIndex) {
         if (compIndex >= 0 && compIndex < components.count) {
             const row = components.get(compIndex)
@@ -115,6 +100,8 @@ Item {
         function onDataChanged(topLeft, bottomRight, roles) { canvas.requestPaint() }
     }
 
+    MoleculeSketch { id: sketch }
+
     Canvas {
         id: canvas
         anchors.fill: parent
@@ -130,26 +117,35 @@ Item {
             const m = comps.length
             if (m === 0)
                 return
+            // Shown molecules reach past their vectors: the fit makes room
+            const reaches = {}
+            if (root.showMolecules)
+                for (const i of comps)
+                    reaches[i] = sketch.reachOf(root.components, i)
 
             const d = Math.max(root.dmin, 1e-3)
             const zsep = Math.max(0, root.zsep)
-            const phi = root.rotationDeg * Math.PI / 180
-            const cphi = Math.cos(phi), sphi = Math.sin(phi)
+
+            // Half the gap between the baselines, and the atom on them (see
+            // the header).
+            const zini = (zsep > 0 ? zsep : d) / 2
+            const refMext = zsep > 0 || root.reversed
+            // Arrow direction along a leaflet's outward normal.
+            const dir = root.reversed ? -1 : 1
 
             // N+1 vectors per leaflet (slot k -> comps[k % m]); centre the row.
             const halfSpan = m * d / 2
-            // Bottom leaflet points up (+y), top points down (-y) and is shifted
-            // right by half a dmin.
-            const leaflets = [{ y: 0, nrm: 1, xs: 0 }, { y: zsep, nrm: -1, xs: 0.5 * d }]
+            // Bottom leaflet faces out down (-y), top up (+y); the top one is
+            // shifted right by half a dmin.
+            const leaflets = [{ y: -zini, out: -1, xs: 0 }, { y: zini, out: 1, xs: 0.5 * d }]
 
-            // ---- bounds over rotated world points ----
+            // ---- bounds over world points ----
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
             function track(x, y) {
-                const rx = x * cphi - y * sphi, ry = x * sphi + y * cphi
-                if (rx < minX) minX = rx
-                if (rx > maxX) maxX = rx
-                if (ry < minY) minY = ry
-                if (ry > maxY) maxY = ry
+                if (x < minX) minX = x
+                if (x > maxX) maxX = x
+                if (y < minY) minY = y
+                if (y > maxY) maxY = y
             }
 
             const vecs = []
@@ -163,28 +159,33 @@ Item {
                 for (let k = 0; k <= m; ++k) {
                     const x = k * d - halfSpan + lf.xs
                     const compIndex = comps[k % m]
-                    let vlen = root._vectorLengthNm(compIndex)
-                    if (vlen <= 1e-3)
-                        vlen = d
-                    const baseY = lf.y
-                    const freeY = lf.y + lf.nrm * vlen
-                    const from = root.reversed ? { x: x, y: freeY } : { x: x, y: baseY }
-                    const to = root.reversed ? { x: x, y: baseY } : { x: x, y: freeY }
-                    vecs.push({ from: from, to: to, bx: x, by: baseY, fx: x, fy: freeY,
-                                compIndex: compIndex })
-                    track(x, baseY); track(x, freeY)
+                    const bone = Globals.BackendWrapper.componentBoneLength(compIndex)
+                    if (bone <= 1e-3)   // no bone: the slot stays empty
+                        continue
+                    const step = lf.out * dir * bone
+                    const mintY = refMext ? lf.y - step : lf.y
+                    const mextY = refMext ? lf.y : lf.y + step
+                    vecs.push({ from: { x: x, y: mintY }, to: { x: x, y: mextY },
+                                bx: x, by: lf.y, compIndex: compIndex })
+                    track(x, mintY); track(x, mextY)
+                    if (root.showMolecules)
+                        for (const c of sketch.corners(Qt.point(x, mintY), Qt.point(x, mextY),
+                                                       reaches[compIndex]))
+                            track(c.x, c.y)
                 }
             }
 
-            // dimension anchor points (so they are framed too)
+            // dimension anchor points (so they are framed too); dmin goes on
+            // the side of the bottom baseline its vectors leave clear
             const dOff = 0.4 * d
+            const dimY = -zini + (refMext ? -dir : dir) * dOff
             const showDmin = root.showDimensions
             const showZsep = root.showDimensions && zsep > 0
-            if (showDmin) { track(-halfSpan, -dOff); track(-halfSpan + d, -dOff) }
-            const zsepX = baselines[1].x1 + dOff   // right end (bottom after the CW rotation)
-            if (showZsep) { track(zsepX, 0); track(zsepX, zsep) }
+            if (showDmin) { track(-halfSpan, dimY); track(-halfSpan + d, dimY) }
+            const zsepX = baselines[1].x1 + dOff   // right end
+            if (showZsep) { track(zsepX, -zini); track(zsepX, zini) }
 
-            // ---- world -> screen (rotate, fit, flip Y) ----
+            // ---- world -> screen (fit, flip Y) ----
             const margin = 0.82
             const spanX = Math.max(maxX - minX, 1e-3)
             const spanY = Math.max(maxY - minY, 1e-3)
@@ -192,9 +193,7 @@ Item {
             const cx = (minX + maxX) / 2
             const cy = (minY + maxY) / 2
             function S(x, y) {
-                const rx = x * cphi - y * sphi, ry = x * sphi + y * cphi
-                return Qt.point((rx - cx) * scale + width / 2,
-                                height / 2 - (ry - cy) * scale)
+                return Qt.point((x - cx) * scale + width / 2, height / 2 - (y - cy) * scale)
             }
 
             const headAng = Math.PI / 7
@@ -271,13 +270,20 @@ Item {
                 ctx.beginPath()
                 ctx.arc(baseS.x, baseS.y, 3.5, 0, 2 * Math.PI)
                 ctx.fill()
+            }
 
-                if (root.showComponentNames) {
-                    const freeS = S(v.fx, v.fy)
-                    const vAng = Math.atan2(freeS.y - baseS.y, freeS.x - baseS.x)
-                    drawLabel((baseS.x + freeS.x) / 2, (baseS.y + freeS.y) / 2, vAng,
+            // ---- molecules over the vectors, then names over both ----
+            const onScreen = vecs.map(v => ({ compIndex: v.compIndex,
+                                              from: S(v.from.x, v.from.y),
+                                              to: S(v.to.x, v.to.y) }))
+            if (root.showMolecules)
+                sketch.drawMolecules(ctx, root.components, onScreen, scale)
+            if (root.showComponentNames) {
+                for (const v of onScreen) {
+                    const a = v.from, b = v.to
+                    drawLabel((a.x + b.x) / 2, (a.y + b.y) / 2, Math.atan2(b.y - a.y, b.x - a.x),
                               root._compName(v.compIndex),
-                              compFontPx, Qt.rgba(1, 1, 1, 0.5), root.labelColor)
+                              compFontPx, root.clearColor, root.labelColor)
                 }
             }
 
@@ -286,10 +292,10 @@ Item {
                 ctx.strokeStyle = root.dimColor
                 ctx.fillStyle = root.dimColor
                 ctx.lineWidth = 1
-                // dmin between the first two bottom-leaflet vectors, offset to the
-                // outer side (away from the gap the vectors point into).
-                const a0 = S(-halfSpan, 0), e0 = S(-halfSpan, -dOff)
-                const a1 = S(-halfSpan + d, 0), e1 = S(-halfSpan + d, -dOff)
+                // dmin between the first two bottom-leaflet vectors, offset to
+                // the side they leave clear.
+                const a0 = S(-halfSpan, -zini), e0 = S(-halfSpan, dimY)
+                const a1 = S(-halfSpan + d, -zini), e1 = S(-halfSpan + d, dimY)
                 ctx.beginPath()
                 ctx.moveTo(a0.x, a0.y); ctx.lineTo(e0.x, e0.y)
                 ctx.moveTo(a1.x, a1.y); ctx.lineTo(e1.x, e1.y)
@@ -308,8 +314,8 @@ Item {
                 ctx.lineWidth = 1
                 // zsep between the two baselines, off the right end.
                 const xz = zsepX
-                const b0 = S(baselines[0].x1, 0), w0 = S(xz, 0)
-                const b1 = S(baselines[1].x1, zsep), w1 = S(xz, zsep)
+                const b0 = S(baselines[0].x1, -zini), w0 = S(xz, -zini)
+                const b1 = S(baselines[1].x1, zini), w1 = S(xz, zini)
                 ctx.beginPath()
                 ctx.moveTo(b0.x, b0.y); ctx.lineTo(w0.x, w0.y)
                 ctx.moveTo(b1.x, b1.y); ctx.lineTo(w1.x, w1.y)

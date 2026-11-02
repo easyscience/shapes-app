@@ -88,6 +88,8 @@ def test_file_changes_go_to_the_live_component():
     dppc = FakeComponent('DPPC', 'DPPC.itp')
     part, _ = part_with(dppc)
     part.selectComponent('DPPC')
+    changed = []
+    part.externalFilesChanged.connect(changed.append)
 
     part.appendFile('DPPC.gro')
     part.appendFile('DPPC.gro')
@@ -96,6 +98,8 @@ def test_file_changes_go_to_the_live_component():
 
     assert dppc.paths == (Path('DPPC.gro'),)
     assert part.files.paths == dppc.paths
+    # Each change tells the root, with the live component
+    assert changed == [dppc] * 3
 
 
 def test_refresh_keeps_a_renamed_pick_and_drops_a_removed_one():

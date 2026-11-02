@@ -234,6 +234,11 @@ QtObject {
     // parsed [{element, x, y, z}] (Å) fed to the Qt Quick 3D viewer. The mock
     // returns one shared template molecule for every component.
     function componentStructureAtoms(index) { return activeBackend.components.structureAtoms(index) }
+    // Mint to Mext distance of a loaded component, in nm; 0 when unset
+    function componentBoneLength(index) { return activeBackend.components.boneLength(index) }
+    // Bonds of a loaded component from its topology file: pairs of atom
+    // indices into componentStructureAtoms; empty without one
+    function componentStructureBonds(index) { return activeBackend.components.structureBonds(index) }
 
     // Composition of the current ring, rod, bilayer or monolayer; null
     // in Python for a ball or a vesicle, whose layers and lamellae hold
@@ -360,6 +365,26 @@ QtObject {
     function smilesSetAlignZ(value) { activeBackend.smilesGenerator.alignZ = value }
     function smilesSetFlattenXz(value) { activeBackend.smilesGenerator.flattenXz = value }
     function smilesGenerate() { activeBackend.smilesGenerator.generate() }
+
+    // Structure viewer (Sample model main area): the sample model's
+    // atoms as an instance table, read while the tab is shown. The
+    // instancing holds atomCount, radius (Å), the slab: slabAxis
+    // (0, 1, 2 = X, Y, Z) and slabFraction (0..1), the atoms in it
+    // (slabCount, all sent to the GPU: shownCount), the GPU rows they
+    // and their bond halves take (slabRows, 80 bytes each), and the
+    // slab's bond halves as a table of their own (bondInstancing).
+    readonly property var structureViewInstancing: activeBackend.structureView.instancing
+    readonly property bool structureViewHasStructure: activeBackend.structureView.hasStructure
+    readonly property bool structureViewLoading: activeBackend.structureView.loading
+    readonly property string structureViewError: activeBackend.structureView.error
+
+    function structureViewSetActive(active) { activeBackend.structureView.setActive(active) }
+    // Off: hiding the tab drops the atoms and resets the slab. Set by
+    // Globals.Vars, which keeps it between launches
+    function structureViewSetKeepLoaded(value) { activeBackend.structureView.keepLoaded = value }
+    // Reads the file again with or without the components' bonds. Set
+    // by Globals.Vars, which keeps it between launches
+    function structureViewSetShowBonds(value) { activeBackend.structureView.showBonds = value }
 
     ////////////////
     // Analysis page
