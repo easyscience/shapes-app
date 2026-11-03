@@ -4597,6 +4597,7 @@ packages:
   requires_dist:
   - darkdetect
   - jupyterlab
+  - numpy
   - pandas
   - pixi-kernel
   - plotly

@@ -24,7 +24,10 @@ EaComponents.ApplicationWindow {
     appBarLeftButtons: [
 
         EaElements.ToolButton {
+            // The library refuses while an assembly writes the model's
+            // files
             enabled: Globals.BackendWrapper.projectCreated
+                     && !Globals.BackendWrapper.sampleModelFilesLocked
             highlighted: true
             fontIcon: 'save'
             ToolTip.text: qsTr('Save current state of the project')
@@ -142,6 +145,7 @@ EaComponents.ApplicationWindow {
     Shortcut {
         sequences: [StandardKey.Save]
         enabled: Globals.BackendWrapper.projectCreated
+                 && !Globals.BackendWrapper.sampleModelFilesLocked
         onActivated: {
             // A field still being edited sends its value when it loses focus
             contentItem.forceActiveFocus()

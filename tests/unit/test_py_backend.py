@@ -71,6 +71,37 @@ SHAPE_ADAPTERS = {
 ADAPTERS = [*SHAPE_ADAPTERS, 'latticeStructure']
 
 
+def test_project_replacement_waits_for_a_running_assembly(qcore_application):
+    backend = Backend(Session(sample_model=FakeSampleModel()))
+    replaced = []
+
+    backend.project.externalReplacing.emit(lambda: replaced.append('idle'))
+    backend.sampleModel.assemble()
+    backend.project.externalReplacing.emit(lambda: replaced.append('running'))
+
+    assert replaced == ['idle']
+
+
+@pytest.mark.parametrize(
+    ('error', 'message'), [('gmx failed', 'Assembly failed: gmx failed'), ('', '')]
+)
+def test_assembly_end_shows_its_error(qcore_application, error, message):
+    backend = Backend(Session())
+
+    backend.sampleModel.externalAssembled.emit(error)
+
+    assert backend.error.message == message
+
+
+def test_assembly_start_and_end_refresh_the_structure_viewer(qcore_application):
+    backend = Backend(Session())
+    viewer = QSignalSpy(backend.structureView.hasStructureChanged)
+
+    backend.sampleModel.filesLockedChanged.emit()
+
+    assert viewer.count() == 1
+
+
 def test_project_change_refreshes_sample_model_components_and_adapters(qcore_application):
     backend = Backend(Session())
     name = QSignalSpy(backend.sampleModel.nameChanged)

@@ -50,6 +50,9 @@ EaElements.GroupColumn {
 
         delegate: EaComponents.ListViewDelegate {
             EaComponents.ListViewTextInput {
+                // The library refuses a rename while an assembly writes
+                // the files
+                enabled: !Globals.BackendWrapper.sampleModelFilesLocked
                 text: Globals.BackendWrapper.sampleModelName
                 onEditingFinished: {
                     try { Globals.BackendWrapper.sampleModelSetName(text) }

@@ -27,6 +27,7 @@ EaComponents.ContentPage {
         ListElement { label: QT_TR_NOOP("Components"); file: "MainArea/Components.qml" }
         ListElement { label: QT_TR_NOOP("Structure"); file: "MainArea/Structure.qml" }
     }
+    readonly property int _structureTab: 2
     readonly property int _latticeTab: 3
     // The main-area TabBar; MainContent doesn't expose it, its tabs do
     property var _tabBar: null
@@ -46,6 +47,11 @@ EaComponents.ContentPage {
     Connections {
         target: Globals.BackendWrapper
         function onSampleModelLatticeChanged() { root._syncLatticeTab() }
+        // An assembly started: its progress shows in the Structure tab
+        function onSampleModelFilesLockedChanged() {
+            if (Globals.BackendWrapper.sampleModelFilesLocked && root._tabBar)
+                root._tabBar.currentIndex = root._structureTab
+        }
     }
 
     mainView: EaComponents.MainContent {

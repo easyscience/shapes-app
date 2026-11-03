@@ -7,6 +7,7 @@ pragma Singleton
 import QtQuick
 
 QtObject {
+    id: root
 
     // The Model Definition row: name, shape, and whether a lattice
     // repeats the structure. Same names as the Python part.
@@ -15,9 +16,31 @@ QtObject {
     property string shape: 'Ring'
     property bool lattice: false
 
+    // An assembly runs: the mock's ends by itself after 10 s. Cancel may
+    // stop it 3 s after the start, as in Python
+    readonly property bool filesLocked: _run.running
+    readonly property bool cancelable: filesLocked && !_delay.running
+
     // Mock only: the mock Library, set by MockBackend. A save adds to its
     // index, as a library save does
     property var library: null
+    // Mock only: the mock components and error, set by MockBackend.
+    // Assemble fails into the error dialog without components, as a
+    // check before the start does in Python
+    property var components: null
+    property var error: null
+
+    // A replacement of the model, waiting for the run to stop
+    property var _pending: null
+
+    property Timer _run: Timer {
+        interval: 10000
+        onTriggered: root._end()
+    }
+    property Timer _delay: Timer {
+        interval: 3000
+        onTriggered: if (root._pending) root.cancel()
+    }
 
     // The model's own files. Roles: path, size. A size is a fake label:
     // the mock never touches the disk
@@ -34,18 +57,54 @@ QtObject {
     // The mock always holds a model, so there is nothing to create
     function create() {}
 
+    function assemble() {
+        if (components.loaded.count === 0) {
+            error.message = `ValueError: ${shape} has no components`
+            return
+        }
+        _run.start()
+        _delay.start()
+    }
+
+    function cancel() {
+        _run.stop()
+        _end()
+    }
+
+    // Calls then once no assembly runs: at once, or after cancelling the
+    // running one as soon as Cancel may
+    function afterAssembly(then) {
+        if (!filesLocked) {
+            then()
+            return
+        }
+        _pending = then
+        if (cancelable) cancel()
+    }
+
+    function _end() {
+        _delay.stop()
+        const then = _pending
+        _pending = null
+        if (then) then()
+    }
+
     // The mock knows only names: a new model keeps the shape, and brings
     // no files
     function load(modelName) {
-        console.debug('SampleModel.load:', modelName)
-        name = modelName
-        filesModel.clear()
+        afterAssembly(() => {
+            console.debug('SampleModel.load:', modelName)
+            root.name = modelName
+            filesModel.clear()
+        })
     }
 
     function importFrom(folder) {
-        console.debug('SampleModel.importFrom:', folder)
-        name = folder.split(/[\\/]/).pop()
-        filesModel.clear()
+        afterAssembly(() => {
+            console.debug('SampleModel.importFrom:', folder)
+            root.name = folder.split(/[\\/]/).pop()
+            filesModel.clear()
+        })
     }
 
     function appendFile(path) {

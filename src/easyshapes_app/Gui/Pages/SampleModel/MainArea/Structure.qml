@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick3D
 import QtQuick3D.Helpers
+import QtQuick.VectorImage
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
@@ -20,11 +21,12 @@ import Gui.Globals as Globals
 // reads the model's .gro while this tab is in front and sends the GPU only
 // the slab's atoms; the mock gives a small SDS micelle. Every atom is one
 // square (2 triangles) that the shaders (StructureSlab.vert/.frag) turn to
-// the camera, cut to a circle and shade as a sphere lit from the screen.
-// With Show bonds, a second table (bondInstancing) gives each bond as two
-// halves, squares that StructureBond.vert/.frag stretch to sticks. The
-// background, the slab, the bonds and whether the atoms stay loaded are
-// set in Advanced controls, Structure viewer.
+// the camera, cut to a circle and shade as a sphere. With Show bonds, a
+// second table (bondInstancing) gives each bond as two halves, squares
+// that StructureBond.vert stretches to sticks and StructureSlab.frag
+// shades as cylinders. The background, the slab, the lighting, the bonds
+// and whether the atoms stay loaded are set in Advanced controls,
+// Structure viewer.
 Rectangle {
     id: root
 
@@ -43,7 +45,10 @@ Rectangle {
                 return false
         return true
     }
-    on_ShownChanged: Globals.BackendWrapper.structureViewSetActive(_shown)
+    on_ShownChanged: {
+        Globals.BackendWrapper.structureViewSetActive(_shown)
+        _framesLeft = 2
+    }
     Component.onCompleted: Globals.BackendWrapper.structureViewSetActive(_shown)
     Component.onDestruction: Globals.BackendWrapper.structureViewSetActive(false)
 
@@ -60,6 +65,41 @@ Rectangle {
     readonly property bool _sticks: instancing.shownCount > 0
                                     && instancing.slabRows > instancing.slabCount
                                     && Globals.Vars.structureShowBonds
+    // Qt draws a new table a frame late, and draws no further frame when
+    // nothing else moves: the atoms stayed away until a drag. So the two
+    // frames after a new table, or the tab coming in front, change
+    // _frame, a uniform no shader reads, and each change asks Qt for one
+    // more frame
+    property int _frame: 0
+    property int _framesLeft: 0
+
+    Connections {
+        target: root.instancing
+        // The mock's table never changes
+        ignoreUnknownSignals: true
+        function onSlabChanged() {
+            root._framesLeft = 2
+            lateFrames.restart()
+        }
+    }
+
+    // Once more, a while after a new table: the view may not have been
+    // ready to draw in the first frames, as when opened during a load.
+    // ponytail: a fixed wait; find the real order of events if it fails
+    Timer {
+        id: lateFrames
+        interval: 500
+        onTriggered: root._framesLeft = 2
+    }
+
+    Connections {
+        target: root.Window.window
+        enabled: root._framesLeft > 0
+        function onFrameSwapped() {
+            root._framesLeft--
+            root._frame++
+        }
+    }
 
     View3D {
         id: view
@@ -73,8 +113,8 @@ Rectangle {
             antialiasingQuality: SceneEnvironment.High
         }
 
-        // Camera orbits this node, at the structure's centre. No scene
-        // light: the shader lights the atoms itself.
+        // Camera orbits this node, at the structure's centre. The shader
+        // lights the atoms itself; the scene's lights only cast shadows.
         Node {
             id: originNode
             PerspectiveCamera {
@@ -83,15 +123,49 @@ Rectangle {
                 z: root._radius * 3.5 * root._zoom
                 clipNear: 1
                 clipFar: root._radius * 20
+
+                // Along the shader's key light, from the upper left, 55°
+                // to the side and 45° up from the view, turning with the
+                // camera. Lengths in Å
+                DirectionalLight {
+                    eulerRotation: Qt.vector3d(-45.26, -55, 0)
+                    castsShadow: Globals.Vars.structureLighting === 1
+                                 || Globals.Vars.structureLighting === 2
+                    shadowMapQuality: Light.ShadowMapQualityVeryHigh
+                    softShadowQuality: Light.PCF8
+                    pcfFactor: 0.5
+                    // 30% lighter than Qt's 75
+                    shadowFactor: 52.5
+                    // An atom's radius: an atom doesn't shade itself
+                    shadowBias: 1.0
+                    // Past the far side of the structure
+                    shadowMapFar: camera.z + root._radius * 2
+                }
             }
         }
 
+        // Hygge's light, at the structure's centre: a cube of 6 shadow
+        // maps, 1024² each. As the DirectionalLight
+        PointLight {
+            castsShadow: Globals.Vars.structureLighting === 3
+            shadowMapQuality: Light.ShadowMapQualityHigh
+            softShadowQuality: Light.PCF8
+            pcfFactor: 0.5
+            shadowFactor: 52.5
+            shadowBias: 1.0
+            // Past the farthest atom
+            shadowMapFar: root._radius + 2
+        }
+
         // One square per atom or bond half, -1..1; the vertex shaders
-        // turn it to the camera and size it
+        // turn it to the camera and size it. Normals, which a shaded
+        // material reads; the shaders turn them to the camera
         ProceduralMesh {
             id: square
             positions: [Qt.vector3d(-1, -1, 0), Qt.vector3d(1, -1, 0),
                         Qt.vector3d(1, 1, 0), Qt.vector3d(-1, 1, 0)]
+            normals: [Qt.vector3d(0, 0, 1), Qt.vector3d(0, 0, 1),
+                      Qt.vector3d(0, 0, 1), Qt.vector3d(0, 0, 1)]
             indexes: [0, 1, 2, 0, 2, 3]
         }
 
@@ -102,7 +176,8 @@ Rectangle {
             geometry: square
             instancing: root.instancing
             materials: CustomMaterial {
-                shadingMode: CustomMaterial.Unshaded
+                // Shaded for the shadows only
+                shadingMode: CustomMaterial.Shaded
                 cullMode: Material.NoCulling
                 vertexShader: "StructureSlab.vert"
                 fragmentShader: "StructureSlab.frag"
@@ -110,10 +185,13 @@ Rectangle {
                 property vector3d slabAxis: root._axes[root.instancing.slabAxis]
                 property real slabHalf: root._radius * root.instancing.slabFraction
                 property real brightness: root.brightness
+                property int lighting: Globals.Vars.structureLighting
+                property real structureRadius: root._radius
                 // Ball and stick while sticks are drawn: atoms at 0.25 x
                 // the van der Waals radius, not 0.4, or they would cover
                 // the sticks
                 property real radiusScale: root._sticks ? 0.625 : 1.0
+                property int frame: root._frame
             }
         }
 
@@ -122,14 +200,17 @@ Rectangle {
             geometry: square
             instancing: root.instancing.bondInstancing
             materials: CustomMaterial {
-                shadingMode: CustomMaterial.Unshaded
+                shadingMode: CustomMaterial.Shaded
                 cullMode: Material.NoCulling
                 vertexShader: "StructureBond.vert"
-                fragmentShader: "StructureBond.frag"
+                // The atoms' light, on a cylinder
+                fragmentShader: "StructureSlab.frag"
                 // Uniforms of the shaders
                 property vector3d slabAxis: root._axes[root.instancing.slabAxis]
                 property real slabHalf: root._radius * root.instancing.slabFraction
                 property real brightness: root.brightness
+                property int lighting: Globals.Vars.structureLighting
+                property real structureRadius: root._radius
             }
         }
     }
@@ -143,6 +224,45 @@ Rectangle {
         onZoomed: (factor) => root._zoom *= factor
     }
 
+    // While an assembly runs, a cover hides the structure it replaces.
+    // A cover, not a hidden view: a Model shown in the frame its table
+    // comes up in is drawn a frame late
+    Rectangle {
+        anchors.fill: view
+        visible: Globals.BackendWrapper.sampleModelFilesLocked
+        color: view.environment.clearColor
+    }
+
+    // While an assembly runs or the file is read: the spinning logo,
+    // and which of the two under it
+    Column {
+        anchors.centerIn: view
+        visible: Globals.BackendWrapper.sampleModelFilesLocked
+                 || Globals.BackendWrapper.structureViewLoading
+        spacing: EaStyle.Sizes.fontPixelSize
+
+        // The SVG spins by its own animation. As large as the Home
+        // page's logo
+        VectorImage {
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: EaStyle.Sizes.fontPixelSize * 5
+            height: width
+            // Drawn at its own 660 px otherwise
+            fillMode: VectorImage.PreserveAspectFit
+            source: Qt.resolvedUrl("../../../Resources/Logos/EasyShapes.svg")
+            preferredRendererType: VectorImage.CurveRenderer
+            animations.loops: Animation.Infinite
+        }
+
+        EaElements.Label {
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: EaStyle.Colors.themeForegroundMinor
+            // The structure is read again when the assembly ends
+            text: Globals.BackendWrapper.sampleModelFilesLocked
+                  ? qsTr("Assembling…") : qsTr("Loading…")
+        }
+    }
+
     // What the view can't show, in its middle, and which way to move
     // the slider when the slab is the reason
     EaElements.Label {
@@ -152,10 +272,12 @@ Rectangle {
         horizontalAlignment: Text.AlignHCenter
         color: Globals.BackendWrapper.structureViewError
                ? EaStyle.Colors.red : EaStyle.Colors.themeForegroundMinor
-        text: !Globals.BackendWrapper.structureViewHasStructure
-              ? qsTr("Assemble the model to see its structure")
-              : Globals.BackendWrapper.structureViewLoading
-                ? qsTr("Loading…")
+        // None while the logo shows
+        text: Globals.BackendWrapper.sampleModelFilesLocked
+              || Globals.BackendWrapper.structureViewLoading
+              ? ""
+              : !Globals.BackendWrapper.structureViewHasStructure
+                ? qsTr("Assemble the model to see its structure")
                 : Globals.BackendWrapper.structureViewError
                   ? Globals.BackendWrapper.structureViewError
                   : root.instancing.atomCount === 0
@@ -170,7 +292,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.margins: EaStyle.Sizes.fontPixelSize
-        visible: root.instancing.atomCount > 0
+        visible: root.instancing.atomCount > 0 && !Globals.BackendWrapper.sampleModelFilesLocked
         color: EaStyle.Colors.themeForegroundMinor
         text: qsTr("%1 of %2 atoms are shown")
               .arg(root.instancing.shownCount.toLocaleString(Qt.locale(), 'f', 0))

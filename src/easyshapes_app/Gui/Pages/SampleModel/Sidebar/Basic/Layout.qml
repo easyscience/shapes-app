@@ -107,7 +107,8 @@ EaComponents.SideBarColumn {
         Loader { source: "Groups/Buffer.qml" }
     }
 
-    // Centered "Assemble" call-to-action below the groups.
+    // Centered "Assemble" call-to-action below the groups. While an
+    // assembly runs, Cancel assembly takes its place.
     Item {
         width: parent.width
         height: assembleButton.height + EaStyle.Sizes.fontPixelSize
@@ -115,10 +116,23 @@ EaComponents.SideBarColumn {
         EaElements.SideBarButton {
             id: assembleButton
             anchors.centerIn: parent
+            visible: !Globals.BackendWrapper.sampleModelFilesLocked
             text: qsTr("Assemble")
             fontIcon: "cubes"
-            width: EaStyle.Sizes.sideBarContentWidth
-            onClicked: console.debug("Assemble clicked")
+            width: EaStyle.Sizes.sideBarContentWidth / 2
+            onClicked: Globals.BackendWrapper.sampleModelAssemble()
+        }
+
+        EaElements.SideBarButton {
+            anchors.centerIn: parent
+            visible: Globals.BackendWrapper.sampleModelFilesLocked
+            width: assembleButton.width
+            // Off a while after the start: shapespyer hangs when a
+            // cancel meets its child process starting
+            enabled: Globals.BackendWrapper.sampleModelCancelable
+            text: qsTr("Cancel assembly")
+            fontIcon: "times"
+            onClicked: Globals.BackendWrapper.sampleModelCancel()
         }
     }
 }

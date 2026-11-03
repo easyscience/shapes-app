@@ -108,7 +108,8 @@ EaElements.GroupColumn {
             text: qsTr("Save to lib")
             width: root.thirdWidth
             ToolTip.text: qsTr("Save this sample model, with its components and buffer, to the asset library")
-            enabled: root.hasModel
+            // The library refuses while an assembly writes the files
+            enabled: root.hasModel && !Globals.BackendWrapper.sampleModelFilesLocked
             // A name the library holds asks first
             onClicked: {
                 if (Globals.BackendWrapper.sampleModelNameTaken())
@@ -123,7 +124,7 @@ EaElements.GroupColumn {
             text: qsTr("Export")
             width: root.thirdWidth
             ToolTip.text: qsTr("Export this sample model, with its components and buffer, to a folder")
-            enabled: root.hasModel
+            enabled: root.hasModel && !Globals.BackendWrapper.sampleModelFilesLocked
             onClicked: exportDestinationDialog.open()
         }
     }

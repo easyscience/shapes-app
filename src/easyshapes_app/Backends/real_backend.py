@@ -102,8 +102,17 @@ class Backend(QObject):
         self._components_files.externalAssetsChanged.connect(self._library.availableAssetsChanged)
         self._sample_model.externalAssetsChanged.connect(self._library.availableAssetsChanged)
 
-        # Create and load bring their own sample model
+        # Create and load bring their own sample model, once an
+        # assembly writing the old one has stopped
+        self._project.externalReplacing.connect(self._sample_model.after_assembly)
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
+
+        # An assembly ended: its error goes to the dialog
+        self._sample_model.externalAssembled.connect(self._assembled)
+
+        # An assembly started or ended: the structure viewer drops the
+        # old atoms, then reads the new .gro
+        self._sample_model.filesLockedChanged.connect(self._structure_view.refresh)
 
         # A new structure or sample model: the components list reads it
         # again
@@ -225,6 +234,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def structureView(self):
         return self._structure_view
+
+    def _assembled(self, error):
+        if error:
+            self._error.message = f'Assembly failed: {error}'
 
     def _add_component(self, component):
         # A name the sample holds is refused here, before the pick and
