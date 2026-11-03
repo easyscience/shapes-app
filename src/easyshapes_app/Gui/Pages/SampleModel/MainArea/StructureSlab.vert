@@ -10,7 +10,7 @@
 // slabAxis and slabHalf are the material's properties. Python sends only
 // the slab's atoms already; this cut hides the mock's. outward is the
 // atom's place from the structure's centre (the world's origin), in view
-// space, for the Artistic modes' light.
+// space, for the Volumetric and Hygge lights.
 
 VARYING vec2 corner;
 VARYING vec4 atomColor;

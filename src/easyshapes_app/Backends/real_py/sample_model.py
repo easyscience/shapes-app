@@ -337,6 +337,9 @@ class SampleModel(QObject):
         self._watch.stop()
         self._delay.stop()
         self._cancelable = False
+        # The read above took the run's outputs in: they, and its log,
+        # are the model's files now, after a failure or cancel too
+        self._files.reset(sample_model.paths)
         then, self._pending = self._pending, None
         self.filesLockedChanged.emit()
         self.cancelableChanged.emit()

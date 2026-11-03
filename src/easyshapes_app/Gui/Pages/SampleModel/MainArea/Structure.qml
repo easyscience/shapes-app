@@ -33,15 +33,6 @@ Rectangle {
     readonly property var instancing: Globals.BackendWrapper.structureViewInstancing
     // Strength of the shader's light (1 = full colour where it faces it)
     property real brightness: 1.0
-    // Artistic-free keeps the lights on the structure: it turns them
-    // against the camera, which the trackball turns by turning originNode.
-    // The other modes keep them on the camera
-    readonly property quaternion _lightTurn: Globals.Vars.structureLighting === 1
-                                             ? originNode.rotation.inverted()
-                                             : Qt.quaternion(1, 0, 0, 0)
-    // The key light, in view space: from the upper left, 45° in front as
-    // the view starts
-    readonly property vector3d _keyLight: _lightTurn.times(Qt.vector3d(-0.57735, 0.57735, 0.57735))
 
     color: EaStyle.Colors.mainContentBackground
 
@@ -54,7 +45,10 @@ Rectangle {
                 return false
         return true
     }
-    on_ShownChanged: Globals.BackendWrapper.structureViewSetActive(_shown)
+    on_ShownChanged: {
+        Globals.BackendWrapper.structureViewSetActive(_shown)
+        _framesLeft = 2
+    }
     Component.onCompleted: Globals.BackendWrapper.structureViewSetActive(_shown)
     Component.onDestruction: Globals.BackendWrapper.structureViewSetActive(false)
 
@@ -73,8 +67,9 @@ Rectangle {
                                     && Globals.Vars.structureShowBonds
     // Qt draws a new table a frame late, and draws no further frame when
     // nothing else moves: the atoms stayed away until a drag. So the two
-    // frames after a new table change _frame, a uniform no shader reads,
-    // and each change asks Qt for one more frame
+    // frames after a new table, or the tab coming in front, change
+    // _frame, a uniform no shader reads, and each change asks Qt for one
+    // more frame
     property int _frame: 0
     property int _framesLeft: 0
 
@@ -82,7 +77,19 @@ Rectangle {
         target: root.instancing
         // The mock's table never changes
         ignoreUnknownSignals: true
-        function onSlabChanged() { root._framesLeft = 2 }
+        function onSlabChanged() {
+            root._framesLeft = 2
+            lateFrames.restart()
+        }
+    }
+
+    // Once more, a while after a new table: the view may not have been
+    // ready to draw in the first frames, as when opened during a load.
+    // ponytail: a fixed wait; find the real order of events if it fails
+    Timer {
+        id: lateFrames
+        interval: 500
+        onTriggered: root._framesLeft = 2
     }
 
     Connections {
@@ -107,8 +114,7 @@ Rectangle {
         }
 
         // Camera orbits this node, at the structure's centre. The shader
-        // lights the atoms itself; the scene's one light only casts the
-        // Artistic modes' shadows.
+        // lights the atoms itself; the scene's lights only cast shadows.
         Node {
             id: originNode
             PerspectiveCamera {
@@ -118,24 +124,37 @@ Rectangle {
                 clipNear: 1
                 clipFar: root._radius * 20
 
-                // Along the shader's key light (_keyLight), turned as it
-                Node {
-                    rotation: root._lightTurn
-                    // From the upper left, 45° in front. Lengths in Å
-                    DirectionalLight {
-                        eulerRotation: Qt.vector3d(-35.26, -45, 0)
-                        castsShadow: Globals.Vars.structureLighting === 1
-                                     || Globals.Vars.structureLighting === 2
-                        shadowMapQuality: Light.ShadowMapQualityVeryHigh
-                        softShadowQuality: Light.PCF8
-                        pcfFactor: 0.5
-                        // An atom's radius: an atom doesn't shade itself
-                        shadowBias: 1.0
-                        // Past the far side of the structure
-                        shadowMapFar: camera.z + root._radius * 2
-                    }
+                // Along the shader's key light, from the upper left, 55°
+                // to the side and 45° up from the view, turning with the
+                // camera. Lengths in Å
+                DirectionalLight {
+                    eulerRotation: Qt.vector3d(-45.26, -55, 0)
+                    castsShadow: Globals.Vars.structureLighting === 1
+                                 || Globals.Vars.structureLighting === 2
+                    shadowMapQuality: Light.ShadowMapQualityVeryHigh
+                    softShadowQuality: Light.PCF8
+                    pcfFactor: 0.5
+                    // 30% lighter than Qt's 75
+                    shadowFactor: 52.5
+                    // An atom's radius: an atom doesn't shade itself
+                    shadowBias: 1.0
+                    // Past the far side of the structure
+                    shadowMapFar: camera.z + root._radius * 2
                 }
             }
+        }
+
+        // Hygge's light, at the structure's centre: a cube of 6 shadow
+        // maps, 1024² each. As the DirectionalLight
+        PointLight {
+            castsShadow: Globals.Vars.structureLighting === 3
+            shadowMapQuality: Light.ShadowMapQualityHigh
+            softShadowQuality: Light.PCF8
+            pcfFactor: 0.5
+            shadowFactor: 52.5
+            shadowBias: 1.0
+            // Past the farthest atom
+            shadowMapFar: root._radius + 2
         }
 
         // One square per atom or bond half, -1..1; the vertex shaders
@@ -167,7 +186,7 @@ Rectangle {
                 property real slabHalf: root._radius * root.instancing.slabFraction
                 property real brightness: root.brightness
                 property int lighting: Globals.Vars.structureLighting
-                property vector3d keyLight: root._keyLight
+                property real structureRadius: root._radius
                 // Ball and stick while sticks are drawn: atoms at 0.25 x
                 // the van der Waals radius, not 0.4, or they would cover
                 // the sticks
@@ -191,7 +210,7 @@ Rectangle {
                 property real slabHalf: root._radius * root.instancing.slabFraction
                 property real brightness: root.brightness
                 property int lighting: Globals.Vars.structureLighting
-                property vector3d keyLight: root._keyLight
+                property real structureRadius: root._radius
             }
         }
     }

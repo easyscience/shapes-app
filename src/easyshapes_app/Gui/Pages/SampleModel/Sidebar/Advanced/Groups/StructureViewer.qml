@@ -57,7 +57,7 @@ EaElements.GroupColumn {
             }
             EaElements.ComboBox {
                 width: root.thirdWidth
-                model: [qsTr("Default"), qsTr("Artistic-free"), qsTr("Artistic-fixed"), qsTr("Outline")]
+                model: [qsTr("Default"), qsTr("Volumetric"), qsTr("Vol-tint"), qsTr("Hygge"), qsTr("Outline")]
                 currentIndex: Globals.Vars.structureLighting
                 onActivated: (index) => Globals.Vars.structureLighting = index
             }

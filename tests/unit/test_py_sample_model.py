@@ -224,6 +224,8 @@ def test_assembly_runs_until_its_job_ends_and_reports_an_error(error, shown):
 
     part.assemble()
     running = part.filesLocked
+    # As the library registers the run's output and log
+    sample_model.add_new_files(['uid0002.gro', 'assembly.log'])
     sample_model.job.end(error)
     assembled.wait(1000)
 
@@ -231,6 +233,8 @@ def test_assembly_runs_until_its_job_ends_and_reports_an_error(error, shown):
     assert not part.filesLocked
     assert locked.count() == 2
     assert assembled.at(0) == [shown]
+    # Rows are sorted: assembly.log, then uid0002.gro
+    assert part.files.paths == (Path('assembly.log'), Path('uid0002.gro'))
 
 
 def test_a_check_failing_before_the_start_starts_no_run():
