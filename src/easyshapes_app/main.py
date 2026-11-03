@@ -43,4 +43,8 @@ if __name__ == '__main__':
     console.debug('Application event loop is about to start')
     if not engine.rootObjects():
         sys.exit(-1)
-    sys.exit(app.exec())
+    exit_code = app.exec()
+    # The window goes before the backend singleton: the other way
+    # round, on Python's exit, QML bindings read a deleted backend
+    del engine
+    sys.exit(exit_code)

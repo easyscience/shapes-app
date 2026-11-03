@@ -11,11 +11,11 @@ import EasyApplication.Gui.Elements as EaElements
 import Gui.Globals as Globals
 
 
-// The Structure tab's controls: background, slab, and whether the
-// atoms stay loaded while the tab is hidden.
+// The Structure tab's controls: background, slab, lighting, and whether
+// the atoms stay loaded while the tab is hidden.
 EaElements.GroupColumn {
     id: root
-    property double halfWidth: (EaStyle.Sizes.sideBarContentWidth - EaStyle.Sizes.fontPixelSize) / 2
+    property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
     readonly property var instancing: Globals.BackendWrapper.structureViewInstancing
 
@@ -28,7 +28,7 @@ EaElements.GroupColumn {
                 text: qsTr("Background")
             }
             EaElements.ComboBox {
-                width: root.halfWidth
+                width: root.thirdWidth
                 model: [qsTr("Theme"), qsTr("Black"), qsTr("White"), qsTr("Grey 50%")]
                 currentIndex: Globals.Vars.structureBackground
                 onActivated: (index) => Globals.Vars.structureBackground = index
@@ -43,10 +43,23 @@ EaElements.GroupColumn {
             // By the plane the slab lies in; the index is the axis it is
             // cut across (0, 1, 2 = X, Y, Z)
             EaElements.ComboBox {
-                width: root.halfWidth
+                width: root.thirdWidth
                 model: [qsTr("YZ plane"), qsTr("XZ plane"), qsTr("XY plane")]
                 currentIndex: root.instancing.slabAxis
                 onActivated: (index) => root.instancing.slabAxis = index
+            }
+        }
+
+        Column {
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Lighting")
+            }
+            EaElements.ComboBox {
+                width: root.thirdWidth
+                model: [qsTr("Default"), qsTr("Artistic-free"), qsTr("Artistic-fixed"), qsTr("Outline")]
+                currentIndex: Globals.Vars.structureLighting
+                onActivated: (index) => Globals.Vars.structureLighting = index
             }
         }
     }

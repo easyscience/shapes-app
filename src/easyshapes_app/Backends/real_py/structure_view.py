@@ -23,9 +23,10 @@ class StructureView(QObject):
 
     A file is read again when its path or modification time changed, or
     after the tab was hidden with keepLoaded off: hiding then drops the
-    atoms and sets the slab back to its starting width. An error of the
-    reading thread can't reach the error dialog, which catches calls
-    from QML only: it goes to error, for the tab to show.
+    atoms and sets the slab back to its starting width. A read drops the
+    old atoms as it starts, and an assembly drops them until it ends. An
+    error of the reading thread can't reach the error dialog, which
+    catches calls from QML only: it goes to error, for the tab to show.
 
     With showBonds, the bonds of the components' topology files are read
     with the file: ticking or unticking it reads the file again.
@@ -63,7 +64,8 @@ class StructureView(QObject):
     @Property(bool, notify=hasStructureChanged)
     def hasStructure(self):
         """
-        Whether the sample model holds a .gro to show.
+        Whether the sample model holds a .gro to show: none while an
+        assembly runs.
         """
         return self._key() is not None
 
@@ -133,7 +135,8 @@ class StructureView(QObject):
         bonds are shown, or None.
         """
         model = self._session.sample_model
-        paths = model.paths if model else ()
+        # None while an assembly writes the model's files
+        paths = model.paths if model and not model.files_locked else ()
         path = next((path for path in paths if path.suffix == '.gro'), None)
         return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
 
@@ -149,6 +152,8 @@ class StructureView(QObject):
             self._show(None, np.zeros(0, 'S5'), np.zeros((0, 3), np.float32), None, '')
             return
         self._set_loading(True)
+        # The old atoms go at once, and their table with them
+        self._instancing.set_atoms(np.zeros(0, 'S5'), np.zeros((0, 3), np.float32))
         # Taken here: the reading thread touches no library object
         topologies = {
             component.name: component.topology_file_path
@@ -184,8 +189,7 @@ class StructureView(QObject):
 
     def _show(self, key, names, xyz, bonds, error):
         """
-        Show a file's atoms and bonds, or keep the shown ones and say
-        why not.
+        Show a file's atoms and bonds, or say why not.
         """
         self._shown = key
         if not error:

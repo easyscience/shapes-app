@@ -107,9 +107,12 @@ class Backend(QObject):
         self._project.externalReplacing.connect(self._sample_model.after_assembly)
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # An assembly ended: its error goes to the dialog, and the
-        # structure viewer reads the new .gro
+        # An assembly ended: its error goes to the dialog
         self._sample_model.externalAssembled.connect(self._assembled)
+
+        # An assembly started or ended: the structure viewer drops the
+        # old atoms, then reads the new .gro
+        self._sample_model.filesLockedChanged.connect(self._structure_view.refresh)
 
         # A new structure or sample model: the components list reads it
         # again
@@ -235,7 +238,6 @@ class Backend(QObject):
     def _assembled(self, error):
         if error:
             self._error.message = f'Assembly failed: {error}'
-        self._structure_view.refresh()
 
     def _add_component(self, component):
         # A name the sample holds is refused here, before the pick and

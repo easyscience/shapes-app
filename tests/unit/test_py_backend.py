@@ -85,13 +85,20 @@ def test_project_replacement_waits_for_a_running_assembly(qcore_application):
 @pytest.mark.parametrize(
     ('error', 'message'), [('gmx failed', 'Assembly failed: gmx failed'), ('', '')]
 )
-def test_assembly_end_shows_its_error_and_the_new_structure(qcore_application, error, message):
+def test_assembly_end_shows_its_error(qcore_application, error, message):
     backend = Backend(Session())
-    viewer = QSignalSpy(backend.structureView.hasStructureChanged)
 
     backend.sampleModel.externalAssembled.emit(error)
 
     assert backend.error.message == message
+
+
+def test_assembly_start_and_end_refresh_the_structure_viewer(qcore_application):
+    backend = Backend(Session())
+    viewer = QSignalSpy(backend.structureView.hasStructureChanged)
+
+    backend.sampleModel.filesLockedChanged.emit()
+
     assert viewer.count() == 1
 
 

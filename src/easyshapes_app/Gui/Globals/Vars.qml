@@ -19,6 +19,9 @@ QtObject {
     // Structure viewer: the 3D view's background, by the picker's
     // index (Theme, Black, White, Grey 50%)
     property int structureBackground: 0
+    // Structure viewer: the light on the atoms, by the picker's index
+    // (Default, Artistic-free, Artistic-fixed, Outline)
+    property int structureLighting: 0
     // Structure viewer: the slab follows the slider while it is
     // dragged, not on release only
     property bool structureContinuousUpdate: false

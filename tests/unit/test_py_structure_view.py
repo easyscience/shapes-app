@@ -58,7 +58,7 @@ def test_atoms_are_read_only_while_the_tab_is_shown(qcore_application, tmp_path)
 
     view.setActive(True)
     assert view.loading
-    assert arrived(atoms)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
     assert (view.instancing.atomCount, view.loading, view.error) == (3, False, '')
 
 
@@ -76,10 +76,9 @@ def test_the_shown_file_is_read_again_only_once_rewritten(qcore_application, tmp
     gro.write_text(gro_text(atoms=GRO_ATOMS[:2]))
     later = gro.stat().st_mtime_ns + 1_000_000_000
     os.utime(gro, ns=(later, later))
-    atoms = QSignalSpy(view.instancing.atomsChanged)
     view.refresh()
     assert view.loading
-    assert arrived(atoms)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
     assert view.instancing.atomCount == 2
 
 
@@ -92,10 +91,9 @@ def test_hiding_the_tab_drops_the_atoms_unless_kept(qcore_application, tmp_path)
     view.setActive(False)
     assert (view.instancing.atomCount, view.instancing.slabFraction) == (0, 0.05)
 
-    atoms = QSignalSpy(view.instancing.atomsChanged)
     view.setActive(True)
     assert view.loading
-    assert arrived(atoms)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
     assert view.instancing.atomCount == 3
 
 
@@ -122,10 +120,9 @@ def test_atoms_read_after_the_tab_hid_are_not_shown(qcore_application, tmp_path)
     assert arrived(done)
     assert (view.loading, view.instancing.atomCount) == (False, 0)
 
-    atoms = QSignalSpy(view.instancing.atomsChanged)
     view.setActive(True)
     assert view.loading
-    assert arrived(atoms)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
 
 
 def test_a_file_that_cant_be_read_says_why(qcore_application, tmp_path):
@@ -150,10 +147,9 @@ def test_show_bonds_reads_the_file_again_with_or_without_bonds(qcore_application
     bond_rows = view.instancing.bondInstancing.getInstanceBuffer
 
     for show, halves in ((True, 4), (False, 0)):
-        atoms = QSignalSpy(view.instancing.atomsChanged)
         view.showBonds = show
         assert view.loading
-        assert arrived(atoms)
+        assert arrived(QSignalSpy(view.instancing.atomsChanged))
         assert bond_rows()[1] == halves
 
 
@@ -175,3 +171,40 @@ def test_a_model_without_a_gro_has_no_structure(qcore_application, tmp_path):
     view.setActive(True)
 
     assert (view.hasStructure, view.loading, view.instancing.atomCount) == (False, False, 0)
+
+
+def test_a_read_drops_the_old_atoms_and_keeps_the_slab(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+    view.instancing.slabFraction = 0.5
+
+    view.showBonds = True
+
+    assert (view.loading, view.instancing.atomCount, view.instancing.slabFraction) == (
+        True,
+        0,
+        0.5,
+    )
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+    assert view.instancing.atomCount == 3
+
+
+def test_an_assembly_drops_the_atoms_until_it_ends(qcore_application, tmp_path):
+    model = FakeSampleModel()
+    gro = tmp_path / 'model.gro'
+    gro.write_text(gro_text())
+    model.add_new_files([gro])
+    view = StructureView(Session(sample_model=model))
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+
+    model.assemble()
+    view.refresh()
+    assert (view.hasStructure, view.loading, view.instancing.atomCount) == (False, False, 0)
+
+    model.job.end()
+    view.refresh()
+    assert view.loading
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+    assert view.instancing.atomCount == 3
