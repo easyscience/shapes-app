@@ -21,7 +21,6 @@ singleton BilayerStructure BilayerStructure.qml
 singleton MonolayerStructure MonolayerStructure.qml
 singleton LatticeStructure LatticeStructure.qml
 singleton Buffer Buffer.qml
-singleton Analysis Analysis.qml
-singleton AnalysisConfig AnalysisConfig.qml
-singleton EquilibrationOutputs EquilibrationOutputs.qml
+singleton Equilibration Equilibration.qml
+AssetFiles AssetFiles.qml
 singleton Report Report.qml

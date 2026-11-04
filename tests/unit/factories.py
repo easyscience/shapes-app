@@ -44,7 +44,7 @@ class FakeProject:
         self.name = name if name is not None else 'uid0001'
         self.description = description
         self.sample_model = sample_model or object()
-        self.analysis = analysis or object()
+        self.analysis = analysis or FakeAnalysis(self.sample_model)
         self.path = Path(path) if path else Path.home() / 'Projects' / f'{self.name}-uid0001'
         self.modified = None
         self.save_calls = 0
@@ -86,6 +86,52 @@ class FakeAsset:
 
     def export_to(self, folder, *, overwrite=False):
         self.calls.append(('export_to', folder, overwrite))
+
+
+class FakeEquilibration(FakeAsset):
+    """
+    Stands in for shapes.project.analysis.Equilibration, a library
+    asset: its setup, a configuration holding the given .mdp files, a
+    force field holding CHARMM36.itp, and the stages run so far as
+    FakeAssets. run starts a FakeJob whose log is the given file; stage
+    is what a test sets.
+    """
+
+    def __init__(self, *mdp_names, log='equilibration.log'):
+        super().__init__('Equilibration')
+        self.configuration = FakeAsset('CHARMM36', *mdp_names)
+        self.force_field = FakeAsset('CHARMM36', 'CHARMM36.itp')
+        self.first_stage = 0
+        self.last_stage = None
+        self.threads = None
+        self.restrain_to_box_center = False
+        self.stages = []
+        self.stage = None
+        self.job = None
+        self.log = log
+        # Each run's sample model and background flag
+        self.runs = []
+
+    @property
+    def files_locked(self):
+        return self.job is not None and self.job.running
+
+    def run(self, sample_model, *, background=False):
+        self.runs.append((sample_model, background))
+        self.job = FakeJob()
+        self.job.log = self.log
+
+
+class FakeAnalysis:
+    """
+    Stands in for shapes.project.analysis.Analysis: a sample model, and
+    a FakeEquilibration whose configuration holds equil0.mdp, or nothing
+    when empty.
+    """
+
+    def __init__(self, sample_model=None, *, empty=False):
+        self.sample_model = sample_model
+        self.equilibration = FakeEquilibration(*(() if empty else ('equil0.mdp',)))
 
 
 class FakeJob:

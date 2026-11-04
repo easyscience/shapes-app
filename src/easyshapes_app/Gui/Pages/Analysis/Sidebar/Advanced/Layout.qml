@@ -12,11 +12,27 @@ import EasyApplication.Gui.Components as EaComponents
 EaComponents.SideBarColumn {
 
     EaElements.GroupBox {
-        title: qsTr("Equilibration outputs")
+        title: qsTr("Configuration Files")
+        icon: "file-alt"
+        collapsed: false
+
+        Loader { source: "Groups/ConfigurationFiles.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Force Field Files")
+        icon: "atom"
+        collapsed: false
+
+        Loader { source: "Groups/ForceFieldFiles.qml" }
+    }
+
+    EaElements.GroupBox {
+        title: qsTr("Equilibration Files")
         icon: "folder-open"
         collapsed: false
 
-        Loader { source: "Groups/EquilibrationOutputs.qml" }
+        Loader { source: "Groups/EquilibrationFiles.qml" }
     }
 
 }

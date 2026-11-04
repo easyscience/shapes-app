@@ -11,13 +11,17 @@ import Gui.Globals as Globals
 
 
 // Main-area window: scattering data. The tab is always present, but stays empty
-// until equilibration is finished, then shows the scattering image.
-// DRAFT CONTAINER — the image is a static mockup asset for now.
-// Drop the picture at Gui/Resources/Images/scattering.png to display it here.
+// until a stage has run, then shows the scattering image.
+// DRAFT CONTAINER — the image is a static mockup asset for now, until the
+// SANS unit. Drop the picture at Gui/Resources/Images/scattering.png to
+// display it here.
 Rectangle {
     id: root
 
-    readonly property bool equilibrated: Globals.BackendWrapper.activeBackend.analysis.equilibrated === true
+    // A stage was run: the entries hold more than the equilibration
+    readonly property bool equilibrated: Globals.BackendWrapper.equilibrationEntries
+                                         ? Globals.BackendWrapper.equilibrationEntries.count > 1
+                                         : false
 
     color: EaStyle.Colors.mainContentBackground
     clip: true  // crop the image overflow from PreserveAspectCrop

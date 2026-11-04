@@ -14,13 +14,29 @@ import Gui.Globals as Globals
 
 
 EaComponents.ContentPage {
+    id: root
 
-    // Two static main-area windows. Both are always shown; their content stays
-    // empty until equilibration is finished (gated on the backend's
-    // `analysis.equilibrated` flag, set by the sidebar's Equilibrate button).
+    readonly property int _engineOutputTab: 0
+    // The main-area TabBar; MainContent doesn't expose it, its tabs do
+    property var _tabBar: null
+
+    Connections {
+        target: Globals.BackendWrapper
+        // A run started: its log shows in the Engine output tab
+        function onEquilibrationFilesLockedChanged() {
+            if (Globals.BackendWrapper.equilibrationFilesLocked && root._tabBar)
+                root._tabBar.currentIndex = root._engineOutputTab
+        }
+    }
+
+    // Two static main-area windows: the run's log, and the scattering
+    // placeholder until the SANS unit
     mainView: EaComponents.MainContent {
         tabs: [
-            EaElements.TabButton { text: qsTr("Engine output") },
+            EaElements.TabButton {
+                text: qsTr("Engine output")
+                Component.onCompleted: root._tabBar = TabBar.tabBar
+            },
             EaElements.TabButton { text: qsTr("Scattering") }
         ]
 
@@ -43,7 +59,7 @@ EaComponents.ContentPage {
 
         continueButton.text: qsTr("Continue")
 
-        continueButton.onClicked: {            
+        continueButton.onClicked: {
             console.debug(`Clicking '${continueButton.text}' button ::: ${this}`)
             Globals.References.applicationWindow.appBarCentralTabs.summaryButton.enabled = true
             Globals.References.applicationWindow.appBarCentralTabs.summaryButton.toggle()

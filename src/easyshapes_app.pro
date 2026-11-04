@@ -9,7 +9,7 @@ CONFIG += c++17
 # Qt modules linked into the binary. On WebAssembly everything is linked
 # statically, so a module missing here is simply absent at runtime:
 #   quick3d - Gui/Pages/SampleModel/MainArea/BaseMol3dQuick.qml
-#   graphs  - Gui/Pages/Analysis/MainArea/Chart.qml, GraphsView.qml
+#   graphs  - Gui/Pages/SampleModel/MainArea/GraphsView.qml
 QT += core quick qml quick3d graphs
 
 # Opt-in QtWebEngine support, needed by the EaCharts.Plotly* and

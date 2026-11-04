@@ -4,10 +4,8 @@
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QTimer
-from PySide6.QtCore import QUrl
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QDesktopServices
 from shapes.project import Ball
 from shapes.project import Bilayer
 from shapes.project import Lattice
@@ -17,8 +15,11 @@ from shapes.project import Ring
 from shapes.project import Rod
 from shapes.project import SampleModel as SampleModelLib
 from shapes.project import Vesicle
+from shapes.project.analysis import Analysis
 
 from .library_assets import FilesModel
+from .library_assets import open_file
+from .logic.analysis import fill_configuration
 from .logic.files import export_taken
 from .logic.session import Session
 
@@ -69,6 +70,8 @@ class SampleModel(QObject):
     # tests swap in fakes
     _sample_model_class = SampleModelLib
     _library_class = Library
+    # The analysis the first sample model brings; tests swap in a fake
+    _analysis_class = Analysis
     # Cancel waits this long after Assemble, ms: shapespyer hangs when a
     # cancel meets its child process starting. Tests shorten it.
     # ponytail: fixed wait; drop it once shapespyer's spawn is fixed
@@ -254,9 +257,7 @@ class SampleModel(QObject):
         Open the file in a row in the system's default app for its type.
         """
         # Opened where it lies, as in Components Files
-        path = self._files.paths[row]
-        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
-            raise RuntimeError(f'No app on this system opens {path}')
+        open_file(self._files.paths[row])
 
     @Slot(result=bool)
     def nameTaken(self):
@@ -351,10 +352,17 @@ class SampleModel(QObject):
 
     def _replace(self, sample_model):
         # The analysis and the project save the model they hold: all
-        # three must hold the same one
-        self._session.sample_model = sample_model
-        if self._session.analysis is not None:
+        # three must hold the same one. The first model brings the
+        # session its analysis, which the first project takes in. Built
+        # first: a library that can't give it leaves the session as it
+        # was, for the error dialog
+        if self._session.analysis is None:
+            analysis = self._analysis_class(sample_model)
+            fill_configuration(analysis)
+            self._session.analysis = analysis
+        else:
             self._session.analysis.sample_model = sample_model
+        self._session.sample_model = sample_model
         if self._session.project is not None:
             self._session.project.sample_model = sample_model
         self.refresh()

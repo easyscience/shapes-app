@@ -9,6 +9,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Project as ProjectLib
 
+from .logic.analysis import fill_configuration
 from .logic.session import Session
 
 
@@ -171,6 +172,10 @@ class Project(QObject):
         Put a project into the session with its sample model and
         analysis, and tell QML.
         """
+        # A later project builds its own analysis, with an empty
+        # configuration; a loaded one may hold none either. First: a
+        # library that can't give one leaves the session as it was
+        fill_configuration(project.analysis)
         self._session.project = project
         self._session.sample_model = project.sample_model
         self._session.analysis = project.analysis

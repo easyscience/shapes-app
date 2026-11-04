@@ -10,6 +10,7 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.error import Error
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.sample_model import SampleModel
+from tests.unit.factories import FakeAnalysis
 from tests.unit.factories import FakeProject
 from tests.unit.factories import FakeSampleModel
 
@@ -27,12 +28,30 @@ class FakeLibrary:
 
 class OfflineSampleModel(SampleModel):
     """
-    Creates FakeSampleModels and checks names in FakeLibrary, not in the
-    library.
+    Creates FakeSampleModels and FakeAnalyses, and checks names in
+    FakeLibrary, not in the library.
     """
 
     _sample_model_class = FakeSampleModel
     _library_class = FakeLibrary
+    _analysis_class = FakeAnalysis
+
+
+class NoAnalysis:
+    """
+    An analysis the library can't give, as without CHARMM36.
+    """
+
+    def __init__(self, sample_model):
+        raise ValueError('The library holds no ForceField CHARMM36')
+
+
+class UnanalysableSampleModel(OfflineSampleModel):
+    """
+    Builds analyses the library can't give.
+    """
+
+    _analysis_class = NoAnalysis
 
 
 def all_signals(part):
@@ -73,6 +92,27 @@ def test_create_makes_a_sample_model_only_when_there_is_none():
     assert session.analysis.sample_model is first
     assert (part.name, part.shape, part.lattice) == ('uid0002', 'Ring', False)
     assert [spy.count() for spy in spies] == [1, 1, 1, 1]
+
+
+def test_the_first_model_brings_the_session_its_analysis():
+    session = Session()
+
+    OfflineSampleModel(session).create()
+
+    assert isinstance(session.analysis, FakeAnalysis)
+    assert session.analysis.sample_model is session.sample_model
+
+
+def test_an_analysis_the_library_cant_give_leaves_the_session_as_it_was():
+    session = Session()
+    part = UnanalysableSampleModel(session)
+    spies = all_signals(part)
+
+    with pytest.raises(ValueError, match='CHARMM36'):
+        part.create()
+
+    assert (session.sample_model, session.analysis) == (None, None)
+    assert [spy.count() for spy in spies] == [0, 0, 0, 0]
 
 
 @pytest.mark.parametrize(

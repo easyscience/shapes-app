@@ -18,10 +18,12 @@ EaComponents.SideBarColumn {
         icon: "sliders-h"
         collapsed: false
 
-        Loader { source: "Groups/AnalysisConfig.qml" }
+        Loader { source: "Groups/EquilibrationSetup.qml" }
     }
 
-    // Centered "Equilibrate" call-to-action below the groups.
+    // Centered "Equilibrate" call-to-action below the groups. While a run
+    // goes on, Cancel equilibration takes its place; its progress shows
+    // in the Engine output tab.
     Item {
         width: parent.width
         height: equilibrateButton.height + EaStyle.Sizes.fontPixelSize
@@ -29,18 +31,27 @@ EaComponents.SideBarColumn {
         EaElements.SideBarButton {
             id: equilibrateButton
             anchors.centerIn: parent
+            visible: !Globals.BackendWrapper.equilibrationFilesLocked
             text: qsTr("Equilibrate")
             fontIcon: "magic"
-            width: EaStyle.Sizes.sideBarContentWidth
-            enabled: Globals.BackendWrapper.analysisConfigFiles
-                     ? Globals.BackendWrapper.analysisConfigFiles.count > 0
-                     : false
-            onClicked: {
-                console.debug("Equilibrate clicked")
-                // Runs the engine and generates the per-step output
-                // directories consumed by the Advanced tab.
-                Globals.BackendWrapper.analysisEquilibrate()
-            }
+            width: EaStyle.Sizes.sideBarContentWidth / 2
+            // The run starts from the model's files, which an assembly
+            // writes; and it needs GROMACS
+            enabled: Globals.BackendWrapper.sampleModelShape !== ""
+                     && !Globals.BackendWrapper.sampleModelFilesLocked
+                     && Globals.BackendWrapper.configGmxProblem === ""
+            onClicked: Globals.BackendWrapper.equilibrationRun()
+        }
+
+        EaElements.SideBarButton {
+            anchors.centerIn: parent
+            visible: Globals.BackendWrapper.equilibrationFilesLocked
+            width: equilibrateButton.width
+            // Off a while after the start, as Cancel assembly
+            enabled: Globals.BackendWrapper.equilibrationCancelable
+            text: qsTr("Cancel equilibration")
+            fontIcon: "times"
+            onClicked: Globals.BackendWrapper.equilibrationCancel()
         }
     }
 }

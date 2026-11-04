@@ -10,6 +10,7 @@ from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.project import Project
 from tests.unit.factories import LOADED_AT
 from tests.unit.factories import SAVED_AT
+from tests.unit.factories import FakeAnalysis
 from tests.unit.factories import FakeProject
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -86,7 +87,8 @@ def test_description_setter_emits_only_on_change():
 
 
 def test_first_create_takes_in_session_sample_model_and_analysis():
-    sample_model, analysis = object(), object()
+    sample_model = object()
+    analysis = FakeAnalysis(sample_model)
     session = Session(sample_model=sample_model, analysis=analysis)
 
     OfflineProject(session).create('ring', 'a ring', '')
@@ -170,6 +172,25 @@ def test_create_and_load_replace_when_called_back(action):
 
     assert held is None
     assert session.sample_model is session.project.sample_model
+
+
+@pytest.mark.parametrize('action', ['create', 'load'])
+def test_create_and_load_fill_the_configuration_before_the_session_changes(monkeypatch, action):
+    session = Session()
+    part = OfflineProject(session)
+    # Each call's analysis, and the project the session held then
+    calls = []
+    monkeypatch.setattr(
+        'easyshapes_app.Backends.real_py.project.fill_configuration',
+        lambda analysis: calls.append((analysis, session.project)),
+    )
+
+    if action == 'create':
+        part.create('ring', '', '')
+    else:
+        part.load(str(Path.home() / 'Projects' / 'ring1'))
+
+    assert calls == [(session.project.analysis, None)]
 
 
 def test_load_replaces_project_sample_model_and_analysis():
