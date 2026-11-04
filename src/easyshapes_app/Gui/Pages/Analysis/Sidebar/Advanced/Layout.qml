@@ -14,7 +14,6 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr("Configuration Files")
         icon: "file-alt"
-        collapsed: false
 
         Loader { source: "Groups/ConfigurationFiles.qml" }
     }
@@ -22,7 +21,6 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr("Force Field Files")
         icon: "atom"
-        collapsed: false
 
         Loader { source: "Groups/ForceFieldFiles.qml" }
     }
@@ -30,7 +28,6 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr("Equilibration Files")
         icon: "folder-open"
-        collapsed: false
 
         Loader { source: "Groups/EquilibrationFiles.qml" }
     }

@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 
 import EasyApplication.Gui.Style as EaStyle
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
 
@@ -41,6 +42,22 @@ EaComponents.SideBarColumn {
                      && !Globals.BackendWrapper.sampleModelFilesLocked
                      && Globals.BackendWrapper.configGmxProblem === ""
             onClicked: Globals.BackendWrapper.equilibrationRun()
+        }
+
+        // A disabled button gets no hover, so its own tooltip never
+        // shows: this area over it says why it is off. No clicks
+        MouseArea {
+            anchors.fill: equilibrateButton
+            visible: equilibrateButton.visible && !equilibrateButton.enabled
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+
+            EaElements.ToolTip {
+                text: Globals.BackendWrapper.configGmxProblem
+                      ? qsTr("GROMACS can't run: %1").arg(Globals.BackendWrapper.configGmxProblem)
+                      : ""
+                visible: parent.containsMouse && EaGlobals.Vars.showToolTips && text !== ""
+            }
         }
 
         EaElements.SideBarButton {
