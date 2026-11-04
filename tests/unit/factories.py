@@ -110,8 +110,8 @@ class FakeEquilibration(FakeAsset):
     Stands in for shapes.project.analysis.Equilibration, a library
     asset: its setup, a configuration holding the given .mdp files, a
     force field holding CHARMM36.itp, and the stages run so far as
-    FakeAssets. run starts a FakeJob whose log is the given file; stage
-    is what a test sets.
+    FakeAssets. run starts a FakeJob and, as the library's job does,
+    registers the given log among the files; stage is what a test sets.
     """
 
     def __init__(self, *mdp_names, log='equilibration.log'):
@@ -136,7 +136,7 @@ class FakeEquilibration(FakeAsset):
     def run(self, sample_model, *, background=False):
         self.runs.append((sample_model, background))
         self.job = FakeJob()
-        self.job.log = self.log
+        self.add_new_files([self.log])
 
 
 class FakeAnalysis:

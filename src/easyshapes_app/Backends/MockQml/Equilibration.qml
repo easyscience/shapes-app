@@ -44,9 +44,18 @@ QtObject {
     readonly property bool cancelable: filesLocked && !_delay.running
     // The stage the run is on; -1 without a run
     property int stage: -1
-    // The run's log, as Python shows equilibration.log: mdrun -v rewrites
-    // its progress line with \r, and the line updates in place
-    readonly property string log: _logDone + _progress
+    // The log Engine output shows, picked by row of entries. Row 0 is the
+    // run's, as Python shows equilibration.log: mdrun -v rewrites its
+    // progress line with \r, and the line updates in place. A finished
+    // stage shows its mdrun log, <model>-eq<k>.log; a stage running or
+    // not run shows ''
+    property int selectedLog: 0
+    readonly property string log: {
+        _statusRevision
+        if (selectedLog === 0)
+            return _logDone + _progress
+        return _finished(entriesModel.get(selectedLog).status) ? _stageLog(selectedLog - 1) : ''
+    }
 
     // A picker of whose files to show: the equilibration first, then
     // each stage run so far. Roles: name, status ('' for the
@@ -76,6 +85,9 @@ QtObject {
     property string _statusBefore: ''
     // The equilibration holds its copies once a run has started
     property bool _staged: false
+    // Counts status changes: a binding doesn't follow a row's
+    // setProperty
+    property int _statusRevision: 0
     readonly property string _model: sampleModel && sampleModel.name ? sampleModel.name : 'model'
 
     // Each stage of a run takes an equal share of the 10 s
@@ -139,6 +151,8 @@ QtObject {
         _staged = true
         _logDone = ''
         _progress = ''
+        // The run's log shows from its start
+        selectedLog = 0
         _run.interval = 10000 / (lastStage - firstStage + 1)
         _startStage(firstStage)
         _run.start()
@@ -168,6 +182,10 @@ QtObject {
     function selectEntry(index) {
         selectedEntry = index
         _fillFiles()
+    }
+
+    function selectLog(index) {
+        selectedLog = index
     }
 
     function editFile(index) {
@@ -258,6 +276,7 @@ QtObject {
 
     function _setStatus(k, status) {
         entriesModel.setProperty(k + 1, 'status', status)
+        _statusRevision++
         _updateStartable()
         if (selectedEntry === k + 1)
             _fillFiles()
@@ -275,6 +294,20 @@ QtObject {
 
     function _finished(status) {
         return status === 'done' || status === 'outdated'
+    }
+
+    // A fake mdrun log of stage k: its head, one energy frame, its end
+    function _stageLog(k) {
+        return `Log file opened on Wed Nov  4 15:30:00 2026\n`
+               + `GROMACS:      gmx mdrun, version 2025.3\n`
+               + `Command line:\n  gmx mdrun -v -deffnm ${_model}-eq${k}\n\n`
+               + `   integrator  = ${k === 0 ? 'steep' : 'md'}\n\n`
+               + '           Step           Time\n'
+               + '              0        0.00000\n\n'
+               + '   Energies (kJ/mol)\n'
+               + '      Potential    Kinetic En.   Total Energy    Temperature\n'
+               + '   -1.20345e+06    2.12345e+05   -9.91105e+05    3.10000e+02\n\n'
+               + 'Finished mdrun on rank 0 Wed Nov  4 15:42:10 2026\n'
     }
 
     function _fillFiles() {

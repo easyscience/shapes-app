@@ -32,9 +32,10 @@ FINISHED = ('done', 'outdated')
 
 class EntriesModel(QAbstractListModel):
     """
-    Whose files the Equilibration Files group shows, as rows of its
-    picker: the equilibration, then each stage run so far, each with a
-    name and a status ('' for the equilibration).
+    Whose files the Equilibration Files group shows, and whose log
+    Engine output shows, as rows of their pickers: the equilibration,
+    then each stage run so far, each with a name and a status ('' for
+    the equilibration).
     """
 
     NameRole = Qt.UserRole + 1
@@ -137,8 +138,9 @@ class EquilibrationFilesModel(FilesModel):
 
 class Equilibration(QObject):
     """
-    The session's equilibration for QML: its setup, and the files of the
-    equilibration and of each stage run so far.
+    The session's equilibration for QML: its setup, the files of the
+    equilibration and of each stage run so far, and a log: the run's, or
+    a finished stage's mdrun log.
 
     Stage k runs the configuration's equil<k>.mdp. Fields read their
     defaults and the lists are empty while the session holds no
@@ -158,6 +160,7 @@ class Equilibration(QObject):
     # have changed
     stagesChanged = Signal()
     selectedEntryChanged = Signal()
+    selectedLogChanged = Signal()
     filesLockedChanged = Signal()
     cancelableChanged = Signal()
     stageChanged = Signal()
@@ -180,12 +183,14 @@ class Equilibration(QObject):
         self._files = EquilibrationFilesModel(self)
         # Row of entries whose files show: 0 is the equilibration
         self._selected_entry = 0
+        # Row of entries whose log shows: 0 is the run's
+        self._selected_log = 0
         # The statuses the entries show, None to read them anew
         self._shown_statuses = None
         # The stage a run is on, -1 without a run
         self._stage = -1
         self._log = ''
-        # Reads the log of the run, or of the last one; None without
+        # Reads the picked log; None without one
         self._reader = None
         self._cancelable = False
         # A replacement of the project, waiting for the run to stop
@@ -317,8 +322,16 @@ class Equilibration(QObject):
     def stage(self):
         return self._stage
 
+    @Property(int, notify=selectedLogChanged)
+    def selectedLog(self):
+        return self._selected_log
+
     @Property(str, notify=logChanged)
     def log(self):
+        """
+        The picked log as a terminal shows it; '' for a stage running or
+        not run.
+        """
         return self._log
 
     ##########################
@@ -331,12 +344,13 @@ class Equilibration(QObject):
         Run the stages from the first to the last in the background. A
         check that fails before the start raises, for the error dialog.
         """
-        equilibration = self._equilibration()
-        equilibration.run(self._session.sample_model, background=True)
-        self._reader = LogReader(equilibration.job.log)
+        self._equilibration().run(self._session.sample_model, background=True)
         self._watch.start()
         self._delay.start()
         self.filesLockedChanged.emit()
+        # The run emptied its log and writes it anew: shown from its
+        # start
+        self.selectLog(0)
         # The run's stages and the one it is on show at once
         self._check()
 
@@ -358,6 +372,17 @@ class Equilibration(QObject):
         self._selected_entry = index
         self._show_files()
         self.selectedEntryChanged.emit()
+
+    @Slot(int)
+    def selectLog(self, index):
+        """
+        Show the log of the entry in a row: 0 for the run's, which grows
+        while a run goes on; k + 1 for stage k's mdrun log, once the
+        stage has finished.
+        """
+        self._selected_log = index
+        self._open_log()
+        self.selectedLogChanged.emit()
 
     @Slot(int)
     def editFile(self, row):
@@ -386,14 +411,14 @@ class Equilibration(QObject):
             # replacing its namesake
             shutil.copy(self._files.paths[row], folder)
         else:
-            self._picked().export_to(folder, overwrite=overwrite)
+            self._picked(self._selected_entry).export_to(folder, overwrite=overwrite)
 
     @Slot()
     def openFolder(self):
         """
         Open the folder of the picked entry in the system file browser.
         """
-        open_file(AppFileManager().locate_asset_dir(self._picked()))
+        open_file(AppFileManager().locate_asset_dir(self._picked(self._selected_entry)))
 
     #########
     # Helpers
@@ -404,16 +429,8 @@ class Equilibration(QObject):
         Read everything again: the session holds another analysis, or
         the configuration's files changed.
         """
-        equilibration = self._equilibration()
-        # The log of the analysis's last run, if it holds one
-        log = (
-            next((path for path in equilibration.paths if path.name == 'equilibration.log'), None)
-            if equilibration
-            else None
-        )
-        self._reader = LogReader(log) if log else None
-        self._show_log()
-        # _show_stages emits stagesChanged: no statuses are shown now
+        # _show_stages emits stagesChanged and reads the picked log: no
+        # statuses are shown now
         self._shown_statuses = None
         self._show_stages()
         self.firstStageChanged.emit()
@@ -421,6 +438,7 @@ class Equilibration(QObject):
         self.threadsChanged.emit()
         self.restrainToBoxCenterChanged.emit()
         self.selectedEntryChanged.emit()
+        self.selectedLogChanged.emit()
 
     def after_equilibration(self, then):
         """
@@ -491,9 +509,13 @@ class Equilibration(QObject):
         if self._selected_entry >= self._entries.rowCount():
             self._selected_entry = 0
             self.selectedEntryChanged.emit()
-        # A finished stage now holds its files; a run's start brings the
-        # equilibration its copies
+        if self._selected_log >= self._entries.rowCount():
+            self._selected_log = 0
+            self.selectedLogChanged.emit()
+        # A finished stage now holds its files and its log; a run's
+        # start brings the equilibration its copies
         self._show_files()
+        self._open_log()
         self.stagesChanged.emit()
 
     def _equilibration(self):
@@ -506,13 +528,41 @@ class Equilibration(QObject):
             return []
         return stage_statuses([stage.paths for stage in equilibration.stages], equilibration.stage)
 
-    def _picked(self):
+    def _picked(self, row):
+        """
+        The equilibration (row 0) or stage row - 1 of entries; None
+        without analysis.
+        """
         equilibration = self._equilibration()
-        if equilibration is None or self._selected_entry == 0:
+        if equilibration is None or row == 0:
             return equilibration
-        return equilibration.stages[self._selected_entry - 1]
+        return equilibration.stages[row - 1]
 
     def _show_files(self):
-        picked = self._picked()
+        picked = self._picked(self._selected_entry)
         text = EQUILIBRATION_TEXT if self._selected_entry == 0 else STAGE_TEXT
         self._files.show(picked.paths if picked else (), text)
+
+    def _open_log(self):
+        """
+        Read the picked log from its start: the run's equilibration.log,
+        or a finished stage's mdrun log. A stage running or not run
+        shows none: it holds an earlier run's files, or none.
+        """
+        k = self._selected_log - 1
+        statuses = self._shown_statuses or []
+        finished = k < 0 or (k < len(statuses) and statuses[k] in FINISHED)
+        picked = self._picked(self._selected_log) if finished else None
+        # The run's log by its name; a stage holds one .log, mdrun's.
+        # ponytail: a stage's whole log goes to the text area; if a long
+        # run's MBs lag, show its tail
+        log = next(
+            (
+                path
+                for path in (picked.paths if picked else ())
+                if (path.name == 'equilibration.log' if k < 0 else path.suffix == '.log')
+            ),
+            None,
+        )
+        self._reader = LogReader(log) if log else None
+        self._show_log()

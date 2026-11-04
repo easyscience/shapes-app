@@ -38,14 +38,16 @@ class Unrunnable(FakeEquilibration):
 def stage(folder, k, time):
     """
     Stage eq<k> as the library holds it once finished: its files, the
-    final .gro written at a time.
+    final .gro written at a time, and mdrun's log.
     """
     folder = folder / f'eq{k}'
     folder.mkdir()
     gro = folder / f'model-eq{k}.gro'
     gro.write_text('')
     os.utime(gro, (time, time))
-    return FakeAsset(f'eq{k}', gro, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
+    log = folder / f'model-eq{k}.log'
+    log.write_text(f'eq{k} mdrun log\n')
+    return FakeAsset(f'eq{k}', gro, log, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
 
 
 def part_on(equilibration):
@@ -180,10 +182,54 @@ def test_picked_files_show_with_the_pencil_on_text_files_only(tmp_path):
     assert copies == {'SDS.itp': False, 'model.top': False, 'equilibration.log': True}
     assert editable_files(part) == {
         'model-eq0.gro': True,
+        'model-eq0.log': True,
         'model-eq0.mdp': True,
         'model-eq0.tpr': False,
     }
     assert (part.selectedEntry, picked.count()) == (1, 1)
+
+
+def test_a_stages_log_shows_once_the_stage_has_finished(tmp_path):
+    run_log = tmp_path / 'equilibration.log'
+    run_log.write_text('$ gmx mdrun\n')
+    equilibration = three_stages()
+    equilibration.add_new_files([run_log])
+    # eq1 runs again: its files are the last run's
+    equilibration.stages = [stage(tmp_path, 0, 100), stage(tmp_path, 1, 200)]
+    equilibration.stage = 1
+    part = part_on(equilibration)
+    picked = QSignalSpy(part.selectedLogChanged)
+
+    run = part.log
+    part.selectLog(1)
+    finished = part.log
+    part.selectLog(2)
+    running = part.log
+    selects = picked.count()
+    # eq1 finishes
+    equilibration.stage = None
+    part.refresh()
+
+    assert (run, finished, running) == ('$ gmx mdrun\n', 'eq0 mdrun log\n', '')
+    assert selects == 2
+    assert (part.selectedLog, part.log) == (2, 'eq1 mdrun log\n')
+
+
+def test_a_run_shows_its_own_log_from_the_start(tmp_path):
+    log = tmp_path / 'equilibration.log'
+    log.write_text('$ gmx mdrun -deffnm model-eq0\n')
+    equilibration = FakeEquilibration('equil0.mdp', 'equil1.mdp', log=log)
+    equilibration.add_new_files([log])
+    equilibration.stages = [stage(tmp_path, 0, 100)]
+    part = part_on(equilibration)
+    part.selectLog(1)
+
+    # The library empties the log as the run starts, then writes anew
+    log.write_text('$ gmx grompp\n')
+    equilibration.first_stage = 1
+    part.run()
+
+    assert (part.selectedLog, part.log) == (0, '$ gmx grompp\n')
 
 
 def test_export_copies_a_row_or_exports_the_whole_entry(tmp_path):

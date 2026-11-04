@@ -414,11 +414,14 @@ QtObject {
     readonly property var equilibrationAvailableStages: activeBackend.equilibration.availableStages
     readonly property var equilibrationStartableStages: activeBackend.equilibration.startableStages
     // A run goes on; Cancel may stop it only a while after it starts.
-    // stage is the one it is on, -1 without a run; log is its
-    // equilibration.log
+    // stage is the one it is on, -1 without a run
     readonly property bool equilibrationFilesLocked: activeBackend.equilibration.filesLocked
     readonly property bool equilibrationCancelable: activeBackend.equilibration.cancelable
     readonly property int equilibrationStage: activeBackend.equilibration.stage
+    // The log Engine output shows, by row of entries: 0 the run's
+    // equilibration.log, a finished stage its mdrun log; '' for a stage
+    // running or not run. A run picks row 0
+    readonly property int equilibrationSelectedLog: activeBackend.equilibration.selectedLog
     readonly property string equilibrationLog: activeBackend.equilibration.log
     // Whose files show: the equilibration, then each stage run so far
     // (roles: name, status), and the picked one's files (roles: path,
@@ -436,6 +439,7 @@ QtObject {
     function equilibrationRun() { activeBackend.equilibration.run() }
     function equilibrationCancel() { activeBackend.equilibration.cancel() }
     function equilibrationSelectEntry(index) { activeBackend.equilibration.selectEntry(index) }
+    function equilibrationSelectLog(index) { activeBackend.equilibration.selectLog(index) }
     function equilibrationEditFile(index) { activeBackend.equilibration.editFile(index) }
     // Row -1 is the whole picked entry. Export asks first when the folder
     // is taken; OK exports with overwrite
