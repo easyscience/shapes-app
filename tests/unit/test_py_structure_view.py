@@ -45,6 +45,21 @@ def test_atoms_are_read_only_while_the_tab_is_shown(qcore_application, tmp_path)
     assert (view.instancing.atomCount, view.loading, view.error) == (3, False, '')
 
 
+def test_the_residues_of_the_file_are_listed(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    residues = view.instancing.residues
+
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+
+    first = residues.index(0)
+    assert residues.count == 1
+    assert (residues.data(first, residues.NameRole), residues.data(first, residues.CountRole)) == (
+        'SDS',
+        3,
+    )
+
+
 def test_the_shown_file_is_read_again_only_once_rewritten(qcore_application, tmp_path):
     view, gro = viewer_of(tmp_path, gro_text())
     view.keepLoaded = True

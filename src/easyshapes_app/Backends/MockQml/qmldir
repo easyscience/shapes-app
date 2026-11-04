@@ -12,6 +12,7 @@ singleton SmilesGenerator SmilesGenerator.qml
 singleton StructureView StructureView.qml
 singleton StageView StageView.qml
 Fractions Fractions.qml
+Residues Residues.qml
 singleton Layers Layers.qml
 singleton Lamellae Lamellae.qml
 singleton RingStructure RingStructure.qml

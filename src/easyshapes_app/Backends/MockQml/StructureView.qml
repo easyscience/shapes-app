@@ -49,6 +49,9 @@ QtObject {
         readonly property var bondInstancing: FileInstancing {
             source: Qt.resolvedUrl('../../Gui/Resources/sdsmicelle_bonds.xml')
         }
+        // The residue names of the file shown, each drawn while ticked;
+        // the mock only lists them
+        readonly property var residues: Residues {}
     }
 
     property bool _active: false

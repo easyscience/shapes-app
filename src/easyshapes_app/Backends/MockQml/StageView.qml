@@ -42,6 +42,8 @@ QtObject {
         readonly property var bondInstancing: FileInstancing {
             source: Qt.resolvedUrl('../../Gui/Resources/sdsmicelle_bonds.xml')
         }
+        // As the StructureView mock's: listed only
+        readonly property var residues: Residues {}
     }
 
     // What the picker lists: 'Initial' (status ''), the equilibration's

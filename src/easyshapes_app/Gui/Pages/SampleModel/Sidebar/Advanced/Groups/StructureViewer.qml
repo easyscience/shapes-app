@@ -7,19 +7,30 @@ import QtQuick.Controls
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
+import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
 
-// The Structure tab's controls: background, slab, lighting, and whether
-// the atoms stay loaded while the tab is hidden. The slab is the
-// viewer's own, on its instancing; the Analysis page sets its viewer's.
-// The rest is Globals.Vars, shared by both viewers.
+// The Structure tab's controls: background, slab, lighting, whether the
+// atoms stay loaded while the tab is hidden, and which residues are
+// drawn. The slab and the residues are the viewer's own, on its
+// instancing; the Analysis page sets its viewer's. The rest is
+// Globals.Vars, shared by both viewers.
 EaElements.GroupColumn {
     id: root
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
     property var instancing: Globals.BackendWrapper.structureViewInstancing
+    readonly property var residues: instancing.residues
+
+    // The header's box: ticked with every residue drawn, unticked with
+    // none, partly ticked otherwise
+    function allState() {
+        if (!residues || residues.shownCount === 0)
+            return Qt.Unchecked
+        return residues.shownCount === residues.count ? Qt.Checked : Qt.PartiallyChecked
+    }
 
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
@@ -136,6 +147,69 @@ EaElements.GroupColumn {
             ToolTip.text: qsTr("Sticks between bonded atoms, from the components' .itp files: about three times the VRAM of the atoms alone")
             checked: Globals.Vars.structureShowBonds
             onToggled: Globals.Vars.structureShowBonds = checked
+        }
+    }
+
+    // The residue names of the file shown: an unticked one's atoms are
+    // not drawn
+    EaComponents.ListView {
+        defaultInfoText: qsTr("No structure read")
+        selectionActive: false
+
+        columnWidths: [
+            EaStyle.Sizes.fontPixelSize * 3,
+            -1,
+            EaStyle.Sizes.fontPixelSize * 7
+        ]
+
+        header: EaComponents.ListViewHeader {
+            // Ticks every residue, or unticks every one when all are
+            // ticked
+            EaComponents.TableViewCheckBox {
+                id: allBox
+                tristate: true
+                checkState: root.allState()
+                nextCheckState: function() { return checkState === Qt.Checked ? Qt.Unchecked : Qt.Checked }
+                ToolTip.text: qsTr("Show all residues, or none")
+                onClicked: {
+                    root.residues.setAllShown(checkState === Qt.Checked)
+                    // A click sets the state by hand: follow the rows again
+                    checkState = Qt.binding(() => root.allState())
+                }
+            }
+            EaComponents.TableViewLabel {
+                text: qsTr("Residue")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+            EaComponents.TableViewLabel {
+                horizontalAlignment: Text.AlignRight
+                text: qsTr("Atoms")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
+        }
+
+        model: root.residues
+
+        delegateModelAccess: DelegateModel.ReadWrite
+
+        delegate: EaComponents.ListViewDelegate {
+            required property int index
+            required property string name
+            required property int count
+            required property bool shown
+
+            EaComponents.TableViewCheckBox {
+                checked: shown
+                onToggled: shown = checked
+            }
+            EaComponents.TableViewLabel {
+                text: name
+            }
+            EaComponents.TableViewLabel {
+                horizontalAlignment: Text.AlignRight
+                enabled: false
+                text: count.toLocaleString(Qt.locale(), 'f', 0)
+            }
         }
     }
 }
