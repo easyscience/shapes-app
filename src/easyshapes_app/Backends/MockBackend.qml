@@ -67,6 +67,9 @@ QtObject {
         name: 'CHARMM36'
         filesByName: ({ 'CHARMM36': [{ path: 'forcefield/CHARMM36.itp', size: '1.2 MB' }] })
     }
+    // The Analysis page's structure viewer: the picked stage's final
+    // .gro, as Backend.stageView
+    property var stageView: MockLogic.StageView
     property var report: MockLogic.Report
 
     Component.onCompleted: {
@@ -102,6 +105,8 @@ QtObject {
         equilibration.configuration = configuration
         equilibration.sampleModel = sampleModel
         equilibration.error = error
+        // The stage viewer lists the equilibration's finished stages
+        stageView.equilibration = equilibration
         // As Backend wires them: a component the SMILES generator makes
         // joins the components list, Components Files shows it, and the
         // generator notes it. Python refuses a held name through the

@@ -489,6 +489,32 @@ QtObject {
     function forceFieldExportTaken(folder) { return activeBackend.forceField.exportTaken(folder) }
     function forceFieldExportTo(folder, overwrite) { activeBackend.forceField.exportTo(folder, overwrite) }
 
+    ////////////
+    // StageView
+    ////////////
+
+    // The Analysis page's structure viewer: the initial structure or a
+    // finished stage's final .gro, read while its tab is shown. The
+    // instancing is as the Structure viewer's. stages lists Initial (the
+    // equilibration's copy of the model, status '') and the finished
+    // stages (roles: name, status); selectedStage is the row shown, -1
+    // with none
+    readonly property var stageViewInstancing: activeBackend.stageView.instancing
+    readonly property bool stageViewHasStructure: activeBackend.stageView.hasStructure
+    readonly property bool stageViewLoading: activeBackend.stageView.loading
+    readonly property string stageViewError: activeBackend.stageView.error
+    readonly property var stageViewStages: activeBackend.stageView.stages
+    readonly property int stageViewSelectedStage: activeBackend.stageView.selectedStage
+
+    function stageViewSetActive(active) { activeBackend.stageView.setActive(active) }
+    // A pick stays until its stage leaves the list; until then the
+    // newest finished stage shows
+    function stageViewSelectStage(index) { activeBackend.stageView.selectStage(index) }
+    // Set by Globals.Vars, which keeps them between launches, as for the
+    // Structure viewer
+    function stageViewSetKeepLoaded(value) { activeBackend.stageView.keepLoaded = value }
+    function stageViewSetShowBonds(value) { activeBackend.stageView.showBonds = value }
+
     ///////////////
     // Summary page
     ///////////////

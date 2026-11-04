@@ -1,17 +1,34 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+import time
 from datetime import UTC
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 
+from PySide6.QtCore import QCoreApplication
 from shapes.project import Ring
 
+# Long enough for a thread to read a three-atom file
+WAIT_S = 5
 SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
 # Atom name and position in nm
 GRO_ATOMS = [('C1', 0.1, 0.2, 0.3), ('S1', -1.0, 0.0, 12.345), ('H1', 0.0, 0.0, 0.0)]
+
+
+def arrived(spy):
+    """
+    Process events until the spied signal comes, or WAIT_S pass.
+    QSignalSpy.wait keeps Python's lock, so a reading thread couldn't
+    run while it waits; sleeping lets it.
+    """
+    deadline = time.monotonic() + WAIT_S
+    while not spy.count() and time.monotonic() < deadline:
+        time.sleep(0.01)
+        QCoreApplication.processEvents()
+    return spy.count() > 0
 
 
 def gro_text(newline='\n', atoms=GRO_ATOMS):

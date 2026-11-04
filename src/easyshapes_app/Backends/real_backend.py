@@ -36,6 +36,7 @@ from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
 from .real_py.smiles_generator import SmilesGenerator
+from .real_py.stage_view import StageView
 from .real_py.structure_view import StructureView
 from .real_py.vesicle_structure import VesicleStructure
 
@@ -103,6 +104,9 @@ class Backend(QObject):
         # The analysis's equilibration: its setup and the files of it
         # and of its stages
         self._equilibration = Equilibration(self._session)
+        # The Analysis page's structure viewer: the initial or a
+        # finished stage's structure
+        self._stage_view = StageView(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -137,6 +141,10 @@ class Backend(QObject):
         # dialog
         self._sample_model.externalAssembled.connect(self._assembled)
         self._equilibration.externalEquilibrated.connect(self._equilibrated)
+
+        # A new analysis, a run's start (its copies) or a finished
+        # stage: the stage viewer lists them again
+        self._equilibration.stagesChanged.connect(self._stage_view.refresh)
 
         # An assembly started or ended: the structure viewer drops the
         # old atoms, then reads the new .gro
@@ -274,6 +282,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def equilibration(self):
         return self._equilibration
+
+    @Property('QVariant', constant=True)
+    def stageView(self):
+        return self._stage_view
 
     def _assembled(self, error):
         if error:

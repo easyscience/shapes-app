@@ -12,12 +12,14 @@ import Gui.Globals as Globals
 
 
 // The Structure tab's controls: background, slab, lighting, and whether
-// the atoms stay loaded while the tab is hidden.
+// the atoms stay loaded while the tab is hidden. The slab is the
+// viewer's own, on its instancing; the Analysis page sets its viewer's.
+// The rest is Globals.Vars, shared by both viewers.
 EaElements.GroupColumn {
     id: root
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
 
-    readonly property var instancing: Globals.BackendWrapper.structureViewInstancing
+    property var instancing: Globals.BackendWrapper.structureViewInstancing
 
     Row {
         spacing: EaStyle.Sizes.fontPixelSize

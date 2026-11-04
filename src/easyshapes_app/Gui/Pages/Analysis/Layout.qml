@@ -29,19 +29,21 @@ EaComponents.ContentPage {
         }
     }
 
-    // Two static main-area windows: the run's log, and the scattering
-    // placeholder until the SANS unit
+    // Three static main-area windows: the run's log, a finished stage's
+    // structure, and the scattering placeholder until the SANS unit
     mainView: EaComponents.MainContent {
         tabs: [
             EaElements.TabButton {
                 text: qsTr("Engine output")
                 Component.onCompleted: root._tabBar = TabBar.tabBar
             },
+            EaElements.TabButton { text: qsTr("Structure") },
             EaElements.TabButton { text: qsTr("Scattering") }
         ]
 
         items: [
             Loader { source: "MainArea/EngineOutput.qml" },
+            Loader { source: "MainArea/Structure.qml" },
             Loader { source: "MainArea/Scattering.qml" }
         ]
     }

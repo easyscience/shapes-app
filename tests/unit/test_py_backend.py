@@ -134,6 +134,15 @@ def test_project_replacement_waits_for_a_running_equilibration(qcore_application
     assert replaced == []
 
 
+def test_stage_changes_refresh_the_stage_viewer(qcore_application):
+    backend = Backend(Session())
+    picked = QSignalSpy(backend.stageView.selectedStageChanged)
+
+    backend.equilibration.stagesChanged.emit()
+
+    assert picked.count() == 1
+
+
 def test_new_structure_or_configuration_files_refresh_the_equilibration(qcore_application):
     backend = Backend(Session())
     read = QSignalSpy(backend.equilibration.firstStageChanged)

@@ -32,8 +32,15 @@ QtObject {
     // backend
     property bool structureShowBonds: false
 
-    onStructureKeepLoadedChanged: BackendWrapper.structureViewSetKeepLoaded(structureKeepLoaded)
-    onStructureShowBondsChanged: BackendWrapper.structureViewSetShowBonds(structureShowBonds)
+    // Both viewers, the Sample model's and the Analysis page's, take them
+    onStructureKeepLoadedChanged: {
+        BackendWrapper.structureViewSetKeepLoaded(structureKeepLoaded)
+        BackendWrapper.stageViewSetKeepLoaded(structureKeepLoaded)
+    }
+    onStructureShowBondsChanged: {
+        BackendWrapper.structureViewSetShowBonds(structureShowBonds)
+        BackendWrapper.stageViewSetShowBonds(structureShowBonds)
+    }
 
     // The checkboxes are kept between launches, in the app's settings
     // file, as the Shape view's are

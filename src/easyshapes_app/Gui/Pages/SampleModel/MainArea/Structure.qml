@@ -27,10 +27,24 @@ import Gui.Globals as Globals
 // shades as cylinders. The background, the slab, the lighting, the bonds
 // and whether the atoms stay loaded are set in Advanced controls,
 // Structure viewer.
+//
+// The sources are properties, set to the sample model's: the Analysis
+// page's Structure tab shows a stage's .gro through the same view.
 Rectangle {
     id: root
 
-    readonly property var instancing: Globals.BackendWrapper.structureViewInstancing
+    property var instancing: Globals.BackendWrapper.structureViewInstancing
+    property bool hasStructure: Globals.BackendWrapper.structureViewHasStructure
+    property bool loading: Globals.BackendWrapper.structureViewLoading
+    property string error: Globals.BackendWrapper.structureViewError
+    // Tells the backend whether the tab is in front
+    property var setActive: (active) => Globals.BackendWrapper.structureViewSetActive(active)
+    // A run replacing the structure: a cover hides it, with the logo
+    // and busyText
+    property bool busy: Globals.BackendWrapper.sampleModelFilesLocked
+    property string busyText: qsTr("Assembling…")
+    // Shown while there is no structure
+    property string emptyText: qsTr("Assemble the model to see its structure")
     // Strength of the shader's light (1 = full colour where it faces it)
     property real brightness: 1.0
 
@@ -46,11 +60,11 @@ Rectangle {
         return true
     }
     on_ShownChanged: {
-        Globals.BackendWrapper.structureViewSetActive(_shown)
+        root.setActive(_shown)
         _framesLeft = 2
     }
-    Component.onCompleted: Globals.BackendWrapper.structureViewSetActive(_shown)
-    Component.onDestruction: Globals.BackendWrapper.structureViewSetActive(false)
+    Component.onCompleted: root.setActive(_shown)
+    Component.onDestruction: root.setActive(false)
 
     // The background picker's choices: the theme's, black, white, 50% grey
     readonly property var _backgrounds: [root.color, "#000000", "#ffffff", "#808080"]
@@ -224,21 +238,20 @@ Rectangle {
         onZoomed: (factor) => root._zoom *= factor
     }
 
-    // While an assembly runs, a cover hides the structure it replaces.
-    // A cover, not a hidden view: a Model shown in the frame its table
+    // While a run is busy, a cover hides the structure it replaces. A
+    // cover, not a hidden view: a Model shown in the frame its table
     // comes up in is drawn a frame late
     Rectangle {
         anchors.fill: view
-        visible: Globals.BackendWrapper.sampleModelFilesLocked
+        visible: root.busy
         color: view.environment.clearColor
     }
 
-    // While an assembly runs or the file is read: the spinning logo,
-    // and which of the two under it
+    // While a run is busy or the file is read: the spinning logo, and
+    // which of the two under it
     Column {
         anchors.centerIn: view
-        visible: Globals.BackendWrapper.sampleModelFilesLocked
-                 || Globals.BackendWrapper.structureViewLoading
+        visible: root.busy || root.loading
         spacing: EaStyle.Sizes.fontPixelSize
 
         // The SVG spins by its own animation. As large as the Home
@@ -257,9 +270,8 @@ Rectangle {
         EaElements.Label {
             anchors.horizontalCenter: parent.horizontalCenter
             color: EaStyle.Colors.themeForegroundMinor
-            // The structure is read again when the assembly ends
-            text: Globals.BackendWrapper.sampleModelFilesLocked
-                  ? qsTr("Assembling…") : qsTr("Loading…")
+            // The structure is read again when the run ends
+            text: root.busy ? root.busyText : qsTr("Loading…")
         }
     }
 
@@ -270,16 +282,14 @@ Rectangle {
         width: Math.min(implicitWidth, view.width - 2 * EaStyle.Sizes.fontPixelSize)
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
-        color: Globals.BackendWrapper.structureViewError
-               ? EaStyle.Colors.red : EaStyle.Colors.themeForegroundMinor
+        color: root.error ? EaStyle.Colors.red : EaStyle.Colors.themeForegroundMinor
         // None while the logo shows
-        text: Globals.BackendWrapper.sampleModelFilesLocked
-              || Globals.BackendWrapper.structureViewLoading
+        text: root.busy || root.loading
               ? ""
-              : !Globals.BackendWrapper.structureViewHasStructure
-                ? qsTr("Assemble the model to see its structure")
-                : Globals.BackendWrapper.structureViewError
-                  ? Globals.BackendWrapper.structureViewError
+              : !root.hasStructure
+                ? root.emptyText
+                : root.error
+                  ? root.error
                   : root.instancing.atomCount === 0
                     ? ""
                     : root.instancing.slabCount === 0
@@ -292,7 +302,7 @@ Rectangle {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.margins: EaStyle.Sizes.fontPixelSize
-        visible: root.instancing.atomCount > 0 && !Globals.BackendWrapper.sampleModelFilesLocked
+        visible: root.instancing.atomCount > 0 && !root.busy
         color: EaStyle.Colors.themeForegroundMinor
         text: qsTr("%1 of %2 atoms are shown")
               .arg(root.instancing.shownCount.toLocaleString(Qt.locale(), 'f', 0))

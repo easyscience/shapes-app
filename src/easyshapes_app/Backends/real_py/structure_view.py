@@ -134,11 +134,18 @@ class StructureView(QObject):
         The sample model's .gro, its modification time and whether the
         bonds are shown, or None.
         """
+        path = self._gro()
+        return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
+
+    def _gro(self):
+        """
+        The .gro to show, or None: the sample model's, none while an
+        assembly writes its files.
+        """
         model = self._session.sample_model
         # None while an assembly writes the model's files
         paths = model.paths if model and not model.files_locked else ()
-        path = next((path for path in paths if path.suffix == '.gro'), None)
-        return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
+        return next((path for path in paths if path.suffix == '.gro'), None)
 
     def _load(self):
         """

@@ -2,33 +2,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
-import time
 from types import SimpleNamespace
 
-from PySide6.QtCore import QCoreApplication
 from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.structure_view import StructureView
 from tests.unit.factories import GRO_ATOMS
 from tests.unit.factories import FakeSampleModel
+from tests.unit.factories import arrived
 from tests.unit.factories import gro_text
-
-# Long enough for a thread to read a three-atom file
-WAIT_S = 5
-
-
-def arrived(spy):
-    """
-    Process events until the spied signal comes, or WAIT_S pass.
-    QSignalSpy.wait keeps Python's lock, so the reading thread couldn't
-    run while it waits; sleeping lets it.
-    """
-    deadline = time.monotonic() + WAIT_S
-    while not spy.count() and time.monotonic() < deadline:
-        time.sleep(0.01)
-        QCoreApplication.processEvents()
-    return spy.count() > 0
 
 
 def viewer_of(tmp_path, text=None, itp=None):
