@@ -78,9 +78,11 @@ EaComponents.ApplicationWindow {
         // Project page
 
         // Sample model page
+        // Open at once for a loaded project; Continue sets enabled = true,
+        // which then stays
         EaElements.AppBarTabButton {
             id: sampleModelButton
-            enabled: false
+            enabled: Globals.BackendWrapper.projectLoaded
             fontIcon: 'vial' // 'layer-group'  'vials' 'vial'
             text: qsTr('Sample Model') // qsTr('Model')
             ToolTip.text: qsTr('Sample Model definition page')
@@ -92,9 +94,10 @@ EaComponents.ApplicationWindow {
 
 
         // Analysis page
+        // As the Sample Model tab
         EaElements.AppBarTabButton {
             id: analysisButton
-            enabled: false
+            enabled: Globals.BackendWrapper.projectLoaded
             fontIcon: 'microscope'
             text: qsTr('Analysis')
             ToolTip.text: qsTr('Calculation and fitting page')

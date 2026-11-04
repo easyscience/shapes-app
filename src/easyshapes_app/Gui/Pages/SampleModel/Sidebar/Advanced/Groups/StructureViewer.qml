@@ -72,7 +72,13 @@ EaElements.GroupColumn {
                 width: root.thirdWidth
                 model: [qsTr("Default"), qsTr("Volumetric"), qsTr("Vol-tint"), qsTr("Hygge"), qsTr("Outline")]
                 currentIndex: Globals.Vars.structureLighting
-                onActivated: (index) => Globals.Vars.structureLighting = index
+                onActivated: (index) => {
+                    Globals.Vars.structureLighting = index
+                    // Hygge's light shows best on black: switched to it,
+                    // and the background picker stays free
+                    if (index === 3)
+                        Globals.Vars.structureBackground = 1
+                }
             }
         }
     }

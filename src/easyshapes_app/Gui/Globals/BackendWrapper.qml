@@ -34,6 +34,9 @@ QtObject {
     //////////
 
     readonly property bool projectCreated: activeBackend.project.created
+    // Loaded, not created: the Sample Model and Analysis tabs open at
+    // once; a created project unlocks them with Continue
+    readonly property bool projectLoaded: activeBackend.project.loaded
     readonly property string projectName: activeBackend.project.name
     readonly property string projectDescription: activeBackend.project.description
     readonly property string projectPath: activeBackend.project.path

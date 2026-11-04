@@ -193,6 +193,17 @@ def test_create_and_load_fill_the_configuration_before_the_session_changes(monke
     assert calls == [(session.project.analysis, None)]
 
 
+def test_loaded_tells_a_loaded_project_from_a_created_one():
+    part = OfflineProject(Session())
+    before = part.loaded
+
+    part.load(str(Path.home() / 'Projects' / 'ring1'))
+    loaded = part.loaded
+    part.create('ring', '', '')
+
+    assert (before, loaded, part.loaded) == (False, True, False)
+
+
 def test_load_replaces_project_sample_model_and_analysis():
     session = Session(sample_model=object(), analysis=object())
     part = OfflineProject(session)
