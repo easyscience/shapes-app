@@ -43,6 +43,22 @@ def test_a_later_project_fills_its_own_analysis_too(qcore_application, tmp_path)
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
+def test_the_summary_outlines_a_library_project(qcore_application, tmp_path):
+    session = Session()
+    backend = Backend(session)
+    backend.sampleModel.create()
+    backend.project.create('ring1', '', str(tmp_path / 'ring1'))
+
+    backend.report.refresh()
+    lines = backend.report.text.split('\n')
+
+    assert lines[:2] == ['Project', '  name: ring1']
+    assert '  sample_model: SampleModel' in lines
+    assert '  analysis: Analysis' in lines
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
 def test_configuration_saved_under_a_new_name_joins_the_catalog_and_loads_back(
     qcore_application, tmp_path
 ):

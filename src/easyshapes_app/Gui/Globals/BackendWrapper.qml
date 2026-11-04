@@ -526,8 +526,11 @@ QtObject {
     // Summary page
     ///////////////
 
-    readonly property string reportAsHtml: activeBackend.report.asHtml
+    // The Summary page's text: the project as an outline of what its
+    // save writes; error says why it can't be, '' when it can. refresh
+    // reads it again
+    readonly property string reportText: activeBackend.report.text
+    readonly property string reportError: activeBackend.report.error
 
-    property bool reportCreated: activeBackend.report.created
-    onReportCreatedChanged: activeBackend.report.created = reportCreated
+    function reportRefresh() { activeBackend.report.refresh() }
 }

@@ -32,6 +32,7 @@ from .real_py.library_assets import LibraryAssets
 from .real_py.logic.session import Session
 from .real_py.monolayer_structure import MonolayerStructure
 from .real_py.project import Project
+from .real_py.report import Report
 from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
@@ -107,6 +108,8 @@ class Backend(QObject):
         # The Analysis page's structure viewer: the initial or a
         # finished stage's structure
         self._stage_view = StageView(self._session)
+        # The Summary page's text
+        self._report = Report(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -286,6 +289,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def stageView(self):
         return self._stage_view
+
+    @Property('QVariant', constant=True)
+    def report(self):
+        return self._report
 
     def _assembled(self, error):
         if error:
