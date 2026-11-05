@@ -95,6 +95,17 @@ def test_hiding_the_tab_drops_the_atoms_unless_kept(qcore_application, tmp_path)
     assert view.instancing.atomCount == 3
 
 
+def test_keep_loaded_and_show_bonds_read_back_and_emit_only_on_change(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path)
+    kept = QSignalSpy(view.keepLoadedChanged)
+
+    view.keepLoaded = True
+    view.keepLoaded = True
+    view.showBonds = True
+
+    assert (view.keepLoaded, view.showBonds, kept.count()) == (True, True, 1)
+
+
 def test_unticking_keep_loaded_while_hidden_drops_the_atoms(qcore_application, tmp_path):
     view, _ = viewer_of(tmp_path, gro_text())
     view.keepLoaded = True

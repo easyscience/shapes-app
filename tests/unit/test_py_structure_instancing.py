@@ -6,6 +6,8 @@ import pytest
 
 from easyshapes_app.Backends.real_py.structure_instancing import StructureInstancing
 from easyshapes_app.Backends.real_py.structure_instancing import _linear
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 
 def instancing(xyz, names=None):
@@ -132,6 +134,29 @@ def test_an_unticked_residue_is_not_drawn_and_the_rest_is_framed(qcore_applicati
     assert (count, shown.radius, residues.shownCount) == (2, pytest.approx(1), 1)
     assert table[:, 3] == pytest.approx([-1, 1])
     assert (rows(shown.bondInstancing)[0], shown.slabRows) == (2, 4)
+
+
+def test_a_residue_ticked_again_is_drawn_again(qcore_application):
+    shown = residue_instancing()
+    residues = shown.residues
+
+    residues.setData(residues.index(1), False, residues.ShownRole)
+    residues.setData(residues.index(1), True, residues.ShownRole)
+
+    assert (shown.shownCount, residues.shownCount) == (2, 2)
+
+
+def test_residue_rows_refuse_an_invalid_index_or_an_unknown_role(qcore_application):
+    # Kept: the residues go with their instancing
+    shown = residue_instancing()
+    residues = shown.residues
+
+    assert residues.roleNames() == {
+        residues.NameRole: b'name',
+        residues.CountRole: b'count',
+        residues.ShownRole: b'shown',
+    }
+    assert refusals(residues, False) == REFUSED
 
 
 def test_select_all_shows_or_hides_every_residue(qcore_application):

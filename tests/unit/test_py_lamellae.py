@@ -6,6 +6,8 @@ from PySide6.QtTest import QSignalSpy
 from shapes.project import Vesicle
 
 from easyshapes_app.Backends.real_py.lamellae import LamellaeModel
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 Model = LamellaeModel
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -24,6 +26,10 @@ def test_rows_read_the_lamellae():
     }
     assert len(model.innerLeafletCompositions) == 1
     assert model.outerLeafletCompositions == [None]
+
+
+def test_rows_refuse_an_invalid_index_or_an_unknown_role():
+    assert refusals(Model(Vesicle().lamellae), 0.4) == REFUSED
 
 
 @pytest.mark.parametrize(

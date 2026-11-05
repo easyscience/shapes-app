@@ -108,11 +108,22 @@ def test_file_changes_go_to_the_asset(attribute, file):
     part, asset = part_and_asset(attribute)
 
     part.appendFile('added.dat')
-    # Rows are sorted: added.dat, then the asset's own file
-    part.removeFile(1)
+    # By its row: sorted paths put CHARMM36.itp first on Linux, last on
+    # Windows, which ignores case
+    part.removeFile(part.files.paths.index(Path(file)))
 
     assert asset.paths == (Path('added.dat'),)
     assert part.files.paths == asset.paths
+
+
+@pytest.mark.parametrize(('attribute', 'file'), ATTRIBUTES)
+def test_edit_file_opens_the_rows_file(opened, attribute, file):
+    part, _ = part_and_asset(attribute)
+    part.refresh()
+
+    part.editFile(0)
+
+    assert opened == [Path(file)]
 
 
 @pytest.mark.parametrize(('attribute', 'file'), ATTRIBUTES)

@@ -10,8 +10,10 @@ from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.equilibration import Equilibration
 from easyshapes_app.Backends.real_py.logic.session import Session
+from tests.unit.factories import REFUSED
 from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
+from tests.unit.factories import refusals
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
 
@@ -111,6 +113,30 @@ def test_the_last_stage_shows_the_configurations_last_and_follows_the_first():
     assert (equilibration.first_stage, equilibration.last_stage) == (1, 1)
 
 
+def test_the_last_stage_emits_only_on_change():
+    part = part_on(three_stages())
+    changed = QSignalSpy(part.lastStageChanged)
+
+    part.lastStage = 1
+    part.lastStage = 1
+
+    assert changed.count() == 1
+
+
+def test_entry_and_file_rows_read_through_their_roles():
+    part = part_on(three_stages())
+    entries = part.entries
+    first = entries.index(0)
+
+    assert entries.roleNames() == {entries.NameRole: b'name', entries.StatusRole: b'status'}
+    assert (entries.data(first, entries.NameRole), entries.data(first, entries.StatusRole)) == (
+        'Equilibration',
+        '',
+    )
+    assert refusals(entries) == REFUSED
+    assert part.files.roleNames()[part.files.EditableRole] == b'editable'
+
+
 def test_empty_threads_are_auto():
     equilibration = three_stages()
     part = part_on(equilibration)
@@ -187,6 +213,30 @@ def test_picked_files_show_with_the_pencil_on_text_files_only(tmp_path):
         'model-eq0.tpr': False,
     }
     assert (part.selectedEntry, picked.count()) == (1, 1)
+
+
+def test_edit_file_opens_the_rows_file(opened):
+    equilibration = three_stages()
+    equilibration.add_new_files(['equilibration.log'])
+    part = part_on(equilibration)
+
+    part.editFile(0)
+
+    assert opened == [Path('equilibration.log')]
+
+
+def test_picks_go_back_to_the_equilibration_when_their_stage_is_gone(tmp_path):
+    equilibration = three_stages()
+    equilibration.stages = [stage(tmp_path, 0, 100), stage(tmp_path, 1, 200)]
+    part = part_on(equilibration)
+    part.selectEntry(2)
+    part.selectLog(2)
+
+    # Another analysis, with one stage run
+    equilibration.stages = equilibration.stages[:1]
+    part.refresh()
+
+    assert (part.selectedEntry, part.selectedLog) == (0, 0)
 
 
 def test_a_stages_log_shows_once_the_stage_has_finished(tmp_path):
@@ -305,6 +355,20 @@ def test_cancel_comes_in_after_the_delay_and_ends_the_run_at_once():
     assert equilibration.job.error == 'Cancelled'
     assert (part.filesLocked, part.cancelable) == (False, False)
     assert ended.at(0) == ['']
+
+
+def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
+    equilibration = FakeEquilibration('equil0.mdp')
+    part = part_on(equilibration)
+    cancelable = QSignalSpy(part.cancelableChanged)
+    replaced = []
+
+    part.run()
+    cancelable.wait(1000)
+    part.after_equilibration(lambda: replaced.append('replaced'))
+
+    assert replaced == ['replaced']
+    assert equilibration.job.error == 'Cancelled'
 
 
 def test_a_replacement_waits_for_the_run_then_cancels_it():

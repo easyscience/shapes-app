@@ -8,6 +8,8 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import Qt
 from shapes.project import Ring
 
 # Long enough for a thread to read a three-atom file
@@ -16,6 +18,24 @@ SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
 # Atom name and position in nm
 GRO_ATOMS = [('C1', 0.1, 0.2, 0.3), ('S1', -1.0, 0.0, 12.345), ('H1', 0.0, 0.0, 0.0)]
+# What refusals gives for a model that refuses both
+REFUSED = (None, None, False, False)
+# A role no model of the app has
+UNKNOWN_ROLE = Qt.UserRole + 99
+
+
+def refusals(model, value=None):
+    """
+    What a list model of one row or more gives for an invalid index and
+    for an unknown role: data's two answers, then setData's.
+    """
+    row = model.index(0)
+    return (
+        model.data(QModelIndex()),
+        model.data(row, UNKNOWN_ROLE),
+        model.setData(QModelIndex(), value, UNKNOWN_ROLE),
+        model.setData(row, value, UNKNOWN_ROLE),
+    )
 
 
 def arrived(spy):

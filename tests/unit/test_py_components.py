@@ -10,7 +10,9 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.components import Components
 from easyshapes_app.Backends.real_py.components import ComponentsModel
 from easyshapes_app.Backends.real_py.logic.session import Session
+from tests.unit.factories import REFUSED
 from tests.unit.factories import FakeSampleModel
+from tests.unit.factories import refusals
 
 Model = ComponentsModel
 IONS = ('NA', 'CL')
@@ -134,6 +136,12 @@ def emitted_roles(model):
     emitted = []
     model.dataChanged.connect(lambda top, bottom, roles: emitted.append(list(roles)))
     return emitted
+
+
+def test_rows_refuse_an_invalid_index_or_an_unknown_role(built):
+    model, _ = built
+
+    assert refusals(model, 'DOPC') == REFUSED
 
 
 def test_rows_read_the_library_components(built):

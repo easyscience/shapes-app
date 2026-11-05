@@ -9,6 +9,8 @@ from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.buffer import Buffer
 from easyshapes_app.Backends.real_py.buffer import BufferComponentsModel
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 Model = BufferComponentsModel
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -73,6 +75,12 @@ def test_rows_read_the_concentrations_in_mm():
         {'name': 'NaCl', 'concentration': 150.0},
         {'name': 'KCl', 'concentration': 3.5},
     ]
+
+
+def test_rows_refuse_an_invalid_index_or_an_unknown_role():
+    part = OfflineBuffer(buffer_with(FakeAsset('NaCl', 0.15)))
+
+    assert refusals(part.components, 150.0) == REFUSED
 
 
 def test_concentration_writes_mol_per_litre_and_emits_only_on_change():

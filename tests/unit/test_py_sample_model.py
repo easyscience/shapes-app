@@ -169,6 +169,26 @@ def test_file_changes_go_to_the_sample_model():
     assert part.files.paths == sample_model.paths
 
 
+def test_edit_file_opens_the_rows_file(opened):
+    part = SampleModel(Session(sample_model=FakeSampleModel()))
+    part.appendFile('model.gro')
+
+    part.editFile(0)
+
+    assert opened == [Path('model.gro')]
+
+
+def test_shapes_are_the_libraries_shape_names():
+    assert SampleModel(Session()).shapes == [
+        'Ring',
+        'Ball',
+        'Vesicle',
+        'Rod',
+        'Bilayer',
+        'Monolayer',
+    ]
+
+
 def test_rename_reads_the_files_again():
     sample_model = FakeSampleModel()
     part = SampleModel(Session(sample_model=sample_model))
@@ -305,6 +325,20 @@ def test_cancel_comes_in_after_the_delay_and_ends_the_run_at_once():
     assert not part.filesLocked
     assert not part.cancelable
     assert assembled.at(0) == ['']
+
+
+def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
+    sample_model = FakeSampleModel()
+    part = QuickSampleModel(Session(sample_model=sample_model))
+    cancelable = QSignalSpy(part.cancelableChanged)
+    replaced = []
+
+    part.assemble()
+    cancelable.wait(1000)
+    part.after_assembly(lambda: replaced.append('replaced'))
+
+    assert replaced == ['replaced']
+    assert sample_model.job.error == 'Cancelled'
 
 
 @pytest.mark.parametrize('slot', ['load', 'importFrom'])

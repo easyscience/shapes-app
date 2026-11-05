@@ -15,7 +15,9 @@ from shapes.project import Rod
 from shapes.project import Vesicle
 
 from easyshapes_app.Backends.real_backend import Backend
+from easyshapes_app.Backends.real_py.config import Config
 from easyshapes_app.Backends.real_py.logic.session import Session
+from easyshapes_app.Backends.real_py.report import Report
 from tests.unit.factories import FakeEquilibration
 from tests.unit.factories import FakeSampleModel
 
@@ -39,6 +41,13 @@ class ByName(list):
     @property
     def names(self):
         return tuple(item.name for item in self)
+
+
+def test_config_and_report_are_parts_of_the_root(qcore_application):
+    backend = Backend(Session())
+
+    assert isinstance(backend.config, Config)
+    assert isinstance(backend.report, Report)
 
 
 def test_project_change_refreshes_recent(qcore_application):

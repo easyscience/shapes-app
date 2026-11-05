@@ -230,6 +230,15 @@ def test_save_updates_modified_and_tells_the_root():
     assert (modified.count(), external.count()) == (1, 1)
 
 
+def test_an_unreadable_folder_counts_as_taken(tmp_path, monkeypatch):
+    def refuse(self):
+        raise PermissionError('Access is denied')
+
+    monkeypatch.setattr(Path, 'iterdir', refuse)
+
+    assert OfflineProject(Session()).locationTaken(str(tmp_path))
+
+
 def test_location_is_taken_only_when_something_is_there(tmp_path):
     part = OfflineProject(Session())
     empty = tmp_path / 'empty'

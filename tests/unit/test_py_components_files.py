@@ -66,6 +66,15 @@ def part_with(*components):
     )
 
 
+def test_edit_file_opens_the_rows_file(opened):
+    part, _ = part_with(FakeComponent('DPPC', 'DPPC.itp'))
+    part.selectComponent('DPPC')
+
+    part.editFile(0)
+
+    assert opened == [Path('DPPC.itp')]
+
+
 def test_select_shows_the_components_name_and_files():
     part, _ = part_with(FakeComponent('DPPC', 'DPPC.itp', 'DPPC.gro'))
     spy = QSignalSpy(part.selectedComponentChanged)

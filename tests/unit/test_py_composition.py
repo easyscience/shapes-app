@@ -7,6 +7,8 @@ import pytest
 from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.composition import CompositionModel
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 Model = CompositionModel
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -56,6 +58,10 @@ def test_rows_read_the_composition():
 
     assert model.count == 2
     assert model.get(1) == {'name': 'CHOL', 'present': True, 'molRatio': 1.0}
+
+
+def test_rows_refuse_an_invalid_index_or_an_unknown_role():
+    assert refusals(Model(FakeComposition('DPPC')), 1.0) == REFUSED
 
 
 @pytest.mark.parametrize(
