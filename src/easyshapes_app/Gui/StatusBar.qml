@@ -57,7 +57,7 @@ EaElements.StatusBar {
     EaElements.StatusBarItem {
         keyIcon: "bezier-curve"
         keyText: qsTr("Force field")
-        valueText: Globals.BackendWrapper.analysisConfigForceField
+        valueText: Globals.BackendWrapper.forceFieldName
         ToolTip.text: qsTr("Force field selected on the Analysis page")
     }
 }

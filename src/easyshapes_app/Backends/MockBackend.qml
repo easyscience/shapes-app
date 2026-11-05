@@ -49,13 +49,27 @@ QtObject {
     property var latticeStructure: MockLogic.LatticeStructure
     // The sample model's buffer, as Backend.buffer
     property var buffer: MockLogic.Buffer
-    property var analysis: MockLogic.Analysis
-    // Analysis page — equilibration configuration (config files + force
-    // field + step range), driving the Equilibrate action.
-    property var analysisConfig: MockLogic.AnalysisConfig
-    // Analysis page (Advanced sidebar) — one output directory per
-    // equilibration step, generated from the configured step range.
-    property var equilibrationOutputs: MockLogic.EquilibrationOutputs
+    // The analysis's equilibration: setup, run and files, as
+    // Backend.equilibration
+    property var equilibration: MockLogic.Equilibration
+    // The equilibration's configuration (.mdp files), as
+    // Backend.configuration
+    property var configuration: MockLogic.AssetFiles {
+        type: 'AnalysisConfiguration'
+        name: 'CHARMM36'
+        filesByName: ({
+            'CHARMM36': [0, 1, 2, 3, 4, 5, 6].map(k => ({ path: `configuration/equil${k}.mdp`, size: '2 kB' }))
+        })
+    }
+    // The equilibration's force field (.itp), as Backend.forceField
+    property var forceField: MockLogic.AssetFiles {
+        type: 'ForceField'
+        name: 'CHARMM36'
+        filesByName: ({ 'CHARMM36': [{ path: 'forcefield/CHARMM36.itp', size: '1.2 MB' }] })
+    }
+    // The Analysis page's structure viewer: the picked stage's final
+    // .gro, as Backend.stageView
+    property var stageView: MockLogic.StageView
     property var report: MockLogic.Report
 
     Component.onCompleted: {
@@ -78,10 +92,21 @@ QtObject {
         sampleModel.library = library
         // Assemble without components goes to the error dialog. As
         // Backend wires them: project create and load wait for an
-        // assembly to stop
+        // assembly, then an equilibration, to stop
         sampleModel.components = components
         sampleModel.error = error
-        project.externalReplacing.connect(replace => sampleModel.afterAssembly(replace))
+        project.externalReplacing.connect(
+            replace => sampleModel.afterAssembly(() => equilibration.afterEquilibration(replace)))
+        // Configuration and force field saves write the library index.
+        // The stages follow the configuration's .mdp files; Equilibrate
+        // without the model's .gro and .top goes to the error dialog
+        configuration.library = library
+        forceField.library = library
+        equilibration.configuration = configuration
+        equilibration.sampleModel = sampleModel
+        equilibration.error = error
+        // The stage viewer lists the equilibration's finished stages
+        stageView.equilibration = equilibration
         // As Backend wires them: a component the SMILES generator makes
         // joins the components list, Components Files shows it, and the
         // generator notes it. Python refuses a held name through the

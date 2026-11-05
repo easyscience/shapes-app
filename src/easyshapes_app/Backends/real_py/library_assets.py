@@ -25,6 +25,15 @@ from shapes.project.species import Surfactant
 from .logic.files import export_taken
 
 
+def open_file(path):
+    """
+    Open a file, or a folder, where it lies, in the system's default app
+    for its type. Every files group's pencil comes here.
+    """
+    if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
+        raise RuntimeError(f'No app on this system opens {path}')
+
+
 class FilesModel(QAbstractListModel):
     """
     An asset's files as rows of a ListView: a path and a size each.
@@ -378,9 +387,7 @@ class LibraryAssets(QObject):
         """
         # Opened where it lies: saving in the editor is the user's
         # choice. A loaded asset's file is the library's own copy
-        path = self._paths.paths[row]
-        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
-            raise RuntimeError(f'No app on this system opens {path}')
+        open_file(self._paths.paths[row])
 
     @Slot(str, str)
     def load(self, asset_type, name):

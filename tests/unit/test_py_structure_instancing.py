@@ -6,6 +6,8 @@ import pytest
 
 from easyshapes_app.Backends.real_py.structure_instancing import StructureInstancing
 from easyshapes_app.Backends.real_py.structure_instancing import _linear
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 
 def instancing(xyz, names=None):
@@ -79,6 +81,108 @@ def test_bonds_in_the_slab_come_as_two_halves_in_their_atoms_colours(qcore_appli
     shown.set_atoms(names, xyz)
 
     assert (shown.slabRows, shown.shownCount, rows(shown.bondInstancing)[0]) == (2, 2, 0)
+
+
+# In Å: SDS at x 0 and 2 on the centre plane, water 10 off it either
+# side along z
+MIXED = [[0, 0, 0], [0.2, 0, 0], [0, 0, -1], [0, 0, 1]]
+RESIDUES = [b'SDS', b'SDS', b'TIP3', b'TIP3']
+
+
+def residue_instancing(xyz=MIXED, residues=RESIDUES, bonds=None):
+    """
+    Carbons at positions in nm, each of a residue.
+    """
+    shown = StructureInstancing()
+    shown.set_atoms(
+        np.array([b'    C'] * len(xyz), 'S5'),
+        np.array(xyz, np.float32),
+        None if bonds is None else np.array(bonds, np.int32),
+        np.array(residues, 'S5'),
+    )
+    return shown
+
+
+def residue_rows(shown):
+    residues = shown.residues
+    roles = (residues.NameRole, residues.CountRole, residues.ShownRole)
+    return [
+        tuple(residues.data(residues.index(row), role) for role in roles)
+        for row in range(residues.count)
+    ]
+
+
+def test_residues_are_listed_with_their_atom_counts_all_shown(qcore_application):
+    assert residue_rows(residue_instancing()) == [('SDS', 2, True), ('TIP3', 2, True)]
+    # Without residue names: no rows, every atom drawn
+    unnamed = instancing(ALONG_Z)
+    assert (unnamed.residues.count, unnamed.slabCount) == (0, 2)
+
+
+def test_an_unticked_residue_is_not_drawn_and_the_rest_is_framed(qcore_application):
+    shown = residue_instancing(bonds=[[0, 1], [0, 2]])
+    shown.slabFraction = 1.0
+    # Centred on all four: the waters 10 Å from the centre, sideways 1
+    before = (shown.shownCount, shown.radius, shown.slabRows)
+
+    residues = shown.residues
+    residues.setData(residues.index(1), False, residues.ShownRole)
+    count, table = rows(shown)
+
+    assert before == (4, pytest.approx(101**0.5), 8)
+    # Centred on the SDS: 1 Å either side, and only their bond
+    assert (count, shown.radius, residues.shownCount) == (2, pytest.approx(1), 1)
+    assert table[:, 3] == pytest.approx([-1, 1])
+    assert (rows(shown.bondInstancing)[0], shown.slabRows) == (2, 4)
+
+
+def test_a_residue_ticked_again_is_drawn_again(qcore_application):
+    shown = residue_instancing()
+    residues = shown.residues
+
+    residues.setData(residues.index(1), False, residues.ShownRole)
+    residues.setData(residues.index(1), True, residues.ShownRole)
+
+    assert (shown.shownCount, residues.shownCount) == (2, 2)
+
+
+def test_residue_rows_refuse_an_invalid_index_or_an_unknown_role(qcore_application):
+    # Kept: the residues go with their instancing
+    shown = residue_instancing()
+    residues = shown.residues
+
+    assert residues.roleNames() == {
+        residues.NameRole: b'name',
+        residues.CountRole: b'count',
+        residues.ShownRole: b'shown',
+    }
+    assert refusals(residues, False) == REFUSED
+
+
+def test_select_all_shows_or_hides_every_residue(qcore_application):
+    shown = residue_instancing()
+
+    shown.residues.setAllShown(False)
+    none = (shown.shownCount, shown.residues.shownCount)
+    shown.residues.setAllShown(True)
+
+    assert none == (0, 0)
+    assert (shown.shownCount, shown.residues.shownCount) == (2, 2)
+
+
+def test_a_hidden_residue_stays_hidden_in_the_next_file(qcore_application):
+    shown = residue_instancing()
+    residues = shown.residues
+    residues.setData(residues.index(1), False, residues.ShownRole)
+
+    shown.set_atoms(
+        np.array([b'   NA', b'   OW'], 'S5'),
+        np.array([[0, 0, 0], [0.1, 0, 0]], np.float32),
+        residues=np.array([b'SOD', b'TIP3'], 'S5'),
+    )
+
+    assert residue_rows(shown) == [('SOD', 1, True), ('TIP3', 1, False)]
+    assert shown.shownCount == 1
 
 
 def test_clear_drops_the_atoms_and_resets_the_slab_width(qcore_application):

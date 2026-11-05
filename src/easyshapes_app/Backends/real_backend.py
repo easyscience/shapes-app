@@ -11,7 +11,10 @@ from shapes.project import Monolayer
 from shapes.project import Ring
 from shapes.project import Rod
 from shapes.project import Vesicle
+from shapes.project.analysis import AnalysisConfiguration
+from shapes.project.analysis import ForceField
 
+from .real_py.asset_files import AssetFiles
 from .real_py.ball_structure import BallStructure
 from .real_py.bilayer_structure import BilayerStructure
 from .real_py.buffer import Buffer
@@ -19,6 +22,7 @@ from .real_py.components import Components
 from .real_py.components_files import ComponentsFiles
 from .real_py.composition import CompositionModel
 from .real_py.config import Config
+from .real_py.equilibration import Equilibration
 from .real_py.error import Error
 from .real_py.lamellae import LamellaeModel
 from .real_py.lattice_structure import LatticeStructure
@@ -28,10 +32,12 @@ from .real_py.library_assets import LibraryAssets
 from .real_py.logic.session import Session
 from .real_py.monolayer_structure import MonolayerStructure
 from .real_py.project import Project
+from .real_py.report import Report
 from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
 from .real_py.smiles_generator import SmilesGenerator
+from .real_py.stage_view import StageView
 from .real_py.structure_view import StructureView
 from .real_py.vesicle_structure import VesicleStructure
 
@@ -92,6 +98,18 @@ class Backend(QObject):
         self._components_files = ComponentsFiles(self._session)
         self._smiles_generator = SmilesGenerator(self._session)
         self._structure_view = StructureView(self._session)
+        # The equilibration's configuration and force field, each a
+        # library asset with its files
+        self._configuration = AssetFiles(self._session, 'configuration', AnalysisConfiguration)
+        self._force_field = AssetFiles(self._session, 'force_field', ForceField)
+        # The analysis's equilibration: its setup and the files of it
+        # and of its stages
+        self._equilibration = Equilibration(self._session)
+        # The Analysis page's structure viewer: the initial or a
+        # finished stage's structure
+        self._stage_view = StageView(self._session)
+        # The Summary page's text
+        self._report = Report(self._session)
 
         # Recent reads the project index, which create, load and save
         # change.
@@ -101,14 +119,35 @@ class Backend(QObject):
         self._library_assets.externalAssetsChanged.connect(self._library.availableAssetsChanged)
         self._components_files.externalAssetsChanged.connect(self._library.availableAssetsChanged)
         self._sample_model.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+        self._configuration.externalAssetsChanged.connect(self._library.availableAssetsChanged)
+        self._force_field.externalAssetsChanged.connect(self._library.availableAssetsChanged)
 
-        # Create and load bring their own sample model, once an
-        # assembly writing the old one has stopped
-        self._project.externalReplacing.connect(self._sample_model.after_assembly)
+        # A new sample model may bring another analysis: the first one,
+        # or a project's, which a create or load hands over through
+        # SampleModel.refresh. The configuration and force field read it
+        self._sample_model.externalStructureChanged.connect(self._configuration.refresh)
+        self._sample_model.externalStructureChanged.connect(self._force_field.refresh)
+
+        # The configuration's .mdp files decide the stages: a load, an
+        # added or a removed file makes the equilibration read them. A
+        # new analysis comes this way too: the configuration's refresh
+        # above resets its files list
+        self._configuration.files.countChanged.connect(self._equilibration.refresh)
+
+        # Create and load bring their own sample model and analysis,
+        # once an assembly writing the old model, then an equilibration
+        # of the old analysis, has stopped
+        self._project.externalReplacing.connect(self._replace_when_idle)
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # An assembly ended: its error goes to the dialog
+        # An assembly or an equilibration ended: its error goes to the
+        # dialog
         self._sample_model.externalAssembled.connect(self._assembled)
+        self._equilibration.externalEquilibrated.connect(self._equilibrated)
+
+        # A new analysis, a run's start (its copies) or a finished
+        # stage: the stage viewer lists them again
+        self._equilibration.stagesChanged.connect(self._stage_view.refresh)
 
         # An assembly started or ended: the structure viewer drops the
         # old atoms, then reads the new .gro
@@ -235,9 +274,36 @@ class Backend(QObject):
     def structureView(self):
         return self._structure_view
 
+    @Property('QVariant', constant=True)
+    def configuration(self):
+        return self._configuration
+
+    @Property('QVariant', constant=True)
+    def forceField(self):
+        return self._force_field
+
+    @Property('QVariant', constant=True)
+    def equilibration(self):
+        return self._equilibration
+
+    @Property('QVariant', constant=True)
+    def stageView(self):
+        return self._stage_view
+
+    @Property('QVariant', constant=True)
+    def report(self):
+        return self._report
+
     def _assembled(self, error):
         if error:
             self._error.message = f'Assembly failed: {error}'
+
+    def _equilibrated(self, error):
+        if error:
+            self._error.message = f'Equilibration failed: {error}'
+
+    def _replace_when_idle(self, replace):
+        self._sample_model.after_assembly(lambda: self._equilibration.after_equilibration(replace))
 
     def _add_component(self, component):
         # A name the sample holds is refused here, before the pick and

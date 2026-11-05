@@ -10,7 +10,9 @@ singleton ComponentsFiles ComponentsFiles.qml
 singleton LibraryAssetsEditor LibraryAssetsEditor.qml
 singleton SmilesGenerator SmilesGenerator.qml
 singleton StructureView StructureView.qml
+singleton StageView StageView.qml
 Fractions Fractions.qml
+Residues Residues.qml
 singleton Layers Layers.qml
 singleton Lamellae Lamellae.qml
 singleton RingStructure RingStructure.qml
@@ -21,7 +23,6 @@ singleton BilayerStructure BilayerStructure.qml
 singleton MonolayerStructure MonolayerStructure.qml
 singleton LatticeStructure LatticeStructure.qml
 singleton Buffer Buffer.qml
-singleton Analysis Analysis.qml
-singleton AnalysisConfig AnalysisConfig.qml
-singleton EquilibrationOutputs EquilibrationOutputs.qml
+singleton Equilibration Equilibration.qml
+AssetFiles AssetFiles.qml
 singleton Report Report.qml

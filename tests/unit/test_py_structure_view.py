@@ -2,33 +2,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
-import time
 from types import SimpleNamespace
 
-from PySide6.QtCore import QCoreApplication
 from PySide6.QtTest import QSignalSpy
 
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.structure_view import StructureView
 from tests.unit.factories import GRO_ATOMS
 from tests.unit.factories import FakeSampleModel
+from tests.unit.factories import arrived
 from tests.unit.factories import gro_text
-
-# Long enough for a thread to read a three-atom file
-WAIT_S = 5
-
-
-def arrived(spy):
-    """
-    Process events until the spied signal comes, or WAIT_S pass.
-    QSignalSpy.wait keeps Python's lock, so the reading thread couldn't
-    run while it waits; sleeping lets it.
-    """
-    deadline = time.monotonic() + WAIT_S
-    while not spy.count() and time.monotonic() < deadline:
-        time.sleep(0.01)
-        QCoreApplication.processEvents()
-    return spy.count() > 0
 
 
 def viewer_of(tmp_path, text=None, itp=None):
@@ -60,6 +43,21 @@ def test_atoms_are_read_only_while_the_tab_is_shown(qcore_application, tmp_path)
     assert view.loading
     assert arrived(QSignalSpy(view.instancing.atomsChanged))
     assert (view.instancing.atomCount, view.loading, view.error) == (3, False, '')
+
+
+def test_the_residues_of_the_file_are_listed(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path, gro_text())
+    residues = view.instancing.residues
+
+    view.setActive(True)
+    assert arrived(QSignalSpy(view.instancing.atomsChanged))
+
+    first = residues.index(0)
+    assert residues.count == 1
+    assert (residues.data(first, residues.NameRole), residues.data(first, residues.CountRole)) == (
+        'SDS',
+        3,
+    )
 
 
 def test_the_shown_file_is_read_again_only_once_rewritten(qcore_application, tmp_path):
@@ -95,6 +93,17 @@ def test_hiding_the_tab_drops_the_atoms_unless_kept(qcore_application, tmp_path)
     assert view.loading
     assert arrived(QSignalSpy(view.instancing.atomsChanged))
     assert view.instancing.atomCount == 3
+
+
+def test_keep_loaded_and_show_bonds_read_back_and_emit_only_on_change(qcore_application, tmp_path):
+    view, _ = viewer_of(tmp_path)
+    kept = QSignalSpy(view.keepLoadedChanged)
+
+    view.keepLoaded = True
+    view.keepLoaded = True
+    view.showBonds = True
+
+    assert (view.keepLoaded, view.showBonds, kept.count()) == (True, True, 1)
 
 
 def test_unticking_keep_loaded_while_hidden_drops_the_atoms(qcore_application, tmp_path):

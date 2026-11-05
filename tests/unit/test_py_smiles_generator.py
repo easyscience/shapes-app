@@ -70,6 +70,12 @@ def test_setters_keep_the_draft_and_emit_only_on_change(field, value):
     assert spy.count() == 1
 
 
+def test_the_pickers_offer_the_written_formats_and_the_component_types():
+    part = OfflineSmilesGenerator(Session())
+
+    assert (part.extensions, part.componentTypes) == (['.gro', '.pdb'], ['Surfactant'])
+
+
 def test_ready_needs_a_name_and_a_smiles_string():
     part = part_with()
     spy = QSignalSpy(part.readyChanged)

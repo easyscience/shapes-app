@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 
 import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
 
@@ -77,9 +78,11 @@ EaComponents.ApplicationWindow {
         // Project page
 
         // Sample model page
+        // Open at once for a loaded project; Continue sets enabled = true,
+        // which then stays
         EaElements.AppBarTabButton {
             id: sampleModelButton
-            enabled: false
+            enabled: Globals.BackendWrapper.projectLoaded
             fontIcon: 'vial' // 'layer-group'  'vials' 'vial'
             text: qsTr('Sample Model') // qsTr('Model')
             ToolTip.text: qsTr('Sample Model definition page')
@@ -91,9 +94,10 @@ EaComponents.ApplicationWindow {
 
 
         // Analysis page
+        // As the Sample Model tab
         EaElements.AppBarTabButton {
             id: analysisButton
-            enabled: false
+            enabled: Globals.BackendWrapper.projectLoaded
             fontIcon: 'microscope'
             text: qsTr('Analysis')
             ToolTip.text: qsTr('Calculation and fitting page')
@@ -169,7 +173,18 @@ EaComponents.ApplicationWindow {
         // In a Column: a bare item under a titled dialog loops its
         // implicitWidth whenever the message changes
         Column {
-            EaElements.Label { text: errorDialog.message }
+            // A Label can't be selected: a read-only TextEdit can, for
+            // copying the message
+            TextEdit {
+                text: errorDialog.message
+                readOnly: true
+                selectByMouse: true
+                font.family: EaStyle.Fonts.fontFamily
+                font.pixelSize: EaStyle.Sizes.fontPixelSize
+                color: EaStyle.Colors.themeForeground
+                selectionColor: EaStyle.Colors.themeAccent
+                selectedTextColor: EaStyle.Colors.themeBackground
+            }
         }
     }
 

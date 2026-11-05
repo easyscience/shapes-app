@@ -71,3 +71,20 @@ class Library(QObject):
         held locally. A name the Load buffer components popup offers.
         """
         return LibraryLib().available_assets.get('Salt', [])
+
+    @Property('QVariant', notify=availableAssetsChanged)
+    def availableAnalysisConfigurations(self):
+        """
+        Names of the library's equilibration configurations, local
+        first, then remote ones not held locally. A name the
+        Configuration picker offers.
+        """
+        return LibraryLib().available_assets.get('AnalysisConfiguration', [])
+
+    @Property('QVariant', notify=availableAssetsChanged)
+    def availableForceFields(self):
+        """
+        Names of the library's force fields, local first, then remote
+        ones not held locally. A name the Force field picker offers.
+        """
+        return LibraryLib().available_assets.get('ForceField', [])

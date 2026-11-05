@@ -23,6 +23,7 @@ import pytest
 from shapes.project import Project
 from shapes.project import SampleModel
 from shapes.project.analysis import Analysis
+from shapes.project.analysis import AnalysisConfiguration
 from shapes.project.analysis import Equilibration
 from shapes.project.analysis import ForceField
 from shapes.project.files import AppFileManager
@@ -65,12 +66,23 @@ def config_file(tmp_path: Path) -> Path:
 def fresh_file_manager(config_file: Path, offline_library: Library) -> Iterator[AppFileManager]:
     """
     A fresh AppFileManager in tmp_path / 'app', with the offline library
-    live.
+    live. The library holds a CHARMM36 force field and configuration,
+    one small file each, as the remote one does: a default analysis and
+    the app's session load both.
     """
     del offline_library  # requested for building it, which makes it the live library
     if hasattr(AppFileManager, '_instance'):
         del AppFileManager._instance
-    yield AppFileManager(config_file)
+    manager = AppFileManager(config_file)
+    charmm36 = config_file.parent / 'charmm36'
+    charmm36.mkdir()
+    itp = charmm36 / 'CHARMM36.itp'
+    itp.write_text('; CHARMM36\n', encoding='utf-8')
+    mdp = charmm36 / 'equil0.mdp'
+    mdp.write_text('integrator = md\n', encoding='utf-8')
+    ForceField(name='CHARMM36', paths=[itp]).save()
+    AnalysisConfiguration(name='CHARMM36', paths=[mdp]).save()
+    yield manager
     if hasattr(AppFileManager, '_instance'):
         del AppFileManager._instance
 

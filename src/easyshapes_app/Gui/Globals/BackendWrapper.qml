@@ -34,6 +34,9 @@ QtObject {
     //////////
 
     readonly property bool projectCreated: activeBackend.project.created
+    // Loaded, not created: the Sample Model and Analysis tabs open at
+    // once; a created project unlocks them with Continue
+    readonly property bool projectLoaded: activeBackend.project.loaded
     readonly property string projectName: activeBackend.project.name
     readonly property string projectDescription: activeBackend.project.description
     readonly property string projectPath: activeBackend.project.path
@@ -57,6 +60,8 @@ QtObject {
     readonly property var libraryAvailableIons: activeBackend.library.availableIons
     readonly property var libraryAvailableSolvents: activeBackend.library.availableSolvents
     readonly property var libraryAvailableSalts: activeBackend.library.availableSalts
+    readonly property var libraryAvailableAnalysisConfigurations: activeBackend.library.availableAnalysisConfigurations
+    readonly property var libraryAvailableForceFields: activeBackend.library.availableForceFields
 
     /////////
     // Config
@@ -397,52 +402,135 @@ QtObject {
     // Analysis page
     ////////////////
 
-    // All the properties and methods related to the analysis page
-    // are defined directly in the Backends/MockQml/Analysis.qml !!!
+    ////////////////
+    // Equilibration
+    ////////////////
 
-    // Analysis configuration group — equilibration .mdp files, the chosen
-    // force field, and the inclusive [start, stop] step range.
-    readonly property var analysisConfigFiles: activeBackend.analysisConfig.configFiles
-    readonly property var analysisConfigForceFields: activeBackend.analysisConfig.forceFields
-    readonly property string analysisConfigForceField: activeBackend.analysisConfig.forceField
-    readonly property int analysisConfigStartStep: activeBackend.analysisConfig.startStep
-    readonly property int analysisConfigStopStep: activeBackend.analysisConfig.stopStep
+    // The setup. Stage k runs the configuration's equil<k>.mdp. Threads
+    // '' is Auto: mdrun picks
+    readonly property int equilibrationFirstStage: activeBackend.equilibration.firstStage
+    readonly property int equilibrationLastStage: activeBackend.equilibration.lastStage
+    readonly property string equilibrationThreads: activeBackend.equilibration.threads
+    readonly property bool equilibrationRestrainToBoxCenter: activeBackend.equilibration.restrainToBoxCenter
+    // Stages the configuration holds; stages a run can start from: eq0,
+    // and each after a finished one
+    readonly property var equilibrationAvailableStages: activeBackend.equilibration.availableStages
+    readonly property var equilibrationStartableStages: activeBackend.equilibration.startableStages
+    // A run goes on; Cancel may stop it only a while after it starts.
+    // stage is the one it is on, -1 without a run
+    readonly property bool equilibrationFilesLocked: activeBackend.equilibration.filesLocked
+    readonly property bool equilibrationCancelable: activeBackend.equilibration.cancelable
+    readonly property int equilibrationStage: activeBackend.equilibration.stage
+    // The log Engine output shows, by row of entries: 0 the run's
+    // equilibration.log, a finished stage its mdrun log; '' for a stage
+    // running or not run. A run picks row 0
+    readonly property int equilibrationSelectedLog: activeBackend.equilibration.selectedLog
+    readonly property string equilibrationLog: activeBackend.equilibration.log
+    // Whose files show: the equilibration, then each stage run so far
+    // (roles: name, status), and the picked one's files (roles: path,
+    // size, editable)
+    readonly property var equilibrationEntries: activeBackend.equilibration.entries
+    readonly property int equilibrationSelectedEntry: activeBackend.equilibration.selectedEntry
+    readonly property var equilibrationFiles: activeBackend.equilibration.files
 
-    function analysisConfigAppendPath(path) { activeBackend.analysisConfig.appendPath(path) }
-    function analysisConfigRemoveFile(index) { activeBackend.analysisConfig.removeFile(index) }
-    function analysisConfigEditFile(index) { activeBackend.analysisConfig.editFile(index) }
-    function analysisConfigSetForceField(value) { activeBackend.analysisConfig.setForceField(value) }
-    function analysisConfigSetStartStep(value) { activeBackend.analysisConfig.setStartStep(value) }
-    function analysisConfigSetStopStep(value) { activeBackend.analysisConfig.setStopStep(value) }
+    function equilibrationSetFirstStage(value) { activeBackend.equilibration.firstStage = value }
+    function equilibrationSetLastStage(value) { activeBackend.equilibration.lastStage = value }
+    function equilibrationSetThreads(value) { activeBackend.equilibration.threads = value }
+    function equilibrationSetRestrainToBoxCenter(value) { activeBackend.equilibration.restrainToBoxCenter = value }
+    // A failed check before the start and a failed run go to the error
+    // dialog; a cancel shows nothing
+    function equilibrationRun() { activeBackend.equilibration.run() }
+    function equilibrationCancel() { activeBackend.equilibration.cancel() }
+    function equilibrationSelectEntry(index) { activeBackend.equilibration.selectEntry(index) }
+    function equilibrationSelectLog(index) { activeBackend.equilibration.selectLog(index) }
+    function equilibrationEditFile(index) { activeBackend.equilibration.editFile(index) }
+    // Row -1 is the whole picked entry. Export asks first when the folder
+    // is taken; OK exports with overwrite
+    function equilibrationExportTaken(folder, row) { return activeBackend.equilibration.exportTaken(folder, row) }
+    function equilibrationExportTo(folder, row, overwrite) { activeBackend.equilibration.exportTo(folder, row, overwrite) }
+    function equilibrationOpenFolder() { activeBackend.equilibration.openFolder() }
 
-    // Run the engine, then materialise one output directory per step in the
-    // configured [startStep, stopStep] range for the Advanced sidebar.
-    function analysisEquilibrate() {
-        activeBackend.analysis.equilibrate()
-        activeBackend.equilibrationOutputs.generate(
-            activeBackend.analysisConfig.startStep,
-            activeBackend.analysisConfig.stopStep)
-    }
+    ////////////////
+    // Configuration
+    ////////////////
 
-    // Equilibration outputs group (Analysis Advanced sidebar). `steps` lists
-    // the per-step output directories; `files` holds the contents of the one
-    // currently selected. Both are empty until equilibration has run.
-    readonly property var equilOutputsSteps: activeBackend.equilibrationOutputs.steps
-    readonly property var equilOutputsFiles: activeBackend.equilibrationOutputs.files
-    readonly property int equilOutputsSelectedIndex: activeBackend.equilibrationOutputs.selectedIndex
-    readonly property string equilOutputsSelectedDir: activeBackend.equilibrationOutputs.selectedDir
+    // The equilibration's .mdp files
+    readonly property string configurationName: activeBackend.configuration.name
+    readonly property var configurationFiles: activeBackend.configuration.files
 
-    function equilOutputsSelect(index) { activeBackend.equilibrationOutputs.selectStep(index) }
-    function equilOutputsExportFile(index, destination) { activeBackend.equilibrationOutputs.exportFile(index, destination) }
-    function equilOutputsExportStep(destination) { activeBackend.equilibrationOutputs.exportStep(destination) }
-    function equilOutputsOpenDir() { activeBackend.equilibrationOutputs.openDir() }
+    function configurationSetName(value) { activeBackend.configuration.name = value }
+    // Replaces the configuration with the library's of that name
+    function configurationLoad(name) { activeBackend.configuration.load(name) }
+    function configurationAppendFile(path) { activeBackend.configuration.appendFile(path) }
+    function configurationRemoveFile(index) { activeBackend.configuration.removeFile(index) }
+    function configurationEditFile(index) { activeBackend.configuration.editFile(index) }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function configurationNameTaken() { return activeBackend.configuration.nameTaken() }
+    function configurationSave(overwrite) { activeBackend.configuration.save(overwrite) }
+    // Export asks first when the folder is taken; OK exports with
+    // overwrite
+    function configurationExportTaken(folder) { return activeBackend.configuration.exportTaken(folder) }
+    function configurationExportTo(folder, overwrite) { activeBackend.configuration.exportTo(folder, overwrite) }
+
+    /////////////
+    // ForceField
+    /////////////
+
+    // The equilibration's force field (.itp)
+    readonly property string forceFieldName: activeBackend.forceField.name
+    readonly property var forceFieldFiles: activeBackend.forceField.files
+
+    function forceFieldSetName(value) { activeBackend.forceField.name = value }
+    // Replaces the force field with the library's of that name
+    function forceFieldLoad(name) { activeBackend.forceField.load(name) }
+    function forceFieldAppendFile(path) { activeBackend.forceField.appendFile(path) }
+    function forceFieldRemoveFile(index) { activeBackend.forceField.removeFile(index) }
+    function forceFieldEditFile(index) { activeBackend.forceField.editFile(index) }
+    // Save asks first when the library holds the name; OK saves with
+    // overwrite
+    function forceFieldNameTaken() { return activeBackend.forceField.nameTaken() }
+    function forceFieldSave(overwrite) { activeBackend.forceField.save(overwrite) }
+    // Export asks first when the folder is taken; OK exports with
+    // overwrite
+    function forceFieldExportTaken(folder) { return activeBackend.forceField.exportTaken(folder) }
+    function forceFieldExportTo(folder, overwrite) { activeBackend.forceField.exportTo(folder, overwrite) }
+
+    ////////////
+    // StageView
+    ////////////
+
+    // The Analysis page's structure viewer: the initial structure or a
+    // finished stage's final .gro, read while its tab is shown. The
+    // instancing is as the Structure viewer's. stages lists Initial (the
+    // equilibration's copy of the model, status '') and the finished
+    // stages (roles: name, status); selectedStage is the row shown, -1
+    // with none
+    readonly property var stageViewInstancing: activeBackend.stageView.instancing
+    readonly property bool stageViewHasStructure: activeBackend.stageView.hasStructure
+    readonly property bool stageViewLoading: activeBackend.stageView.loading
+    readonly property string stageViewError: activeBackend.stageView.error
+    readonly property var stageViewStages: activeBackend.stageView.stages
+    readonly property int stageViewSelectedStage: activeBackend.stageView.selectedStage
+
+    function stageViewSetActive(active) { activeBackend.stageView.setActive(active) }
+    // A pick stays until its stage leaves the list; until then the
+    // newest finished stage shows
+    function stageViewSelectStage(index) { activeBackend.stageView.selectStage(index) }
+    // Set by Globals.Vars, which keeps them between launches, as for the
+    // Structure viewer
+    function stageViewSetKeepLoaded(value) { activeBackend.stageView.keepLoaded = value }
+    function stageViewSetShowBonds(value) { activeBackend.stageView.showBonds = value }
 
     ///////////////
     // Summary page
     ///////////////
 
-    readonly property string reportAsHtml: activeBackend.report.asHtml
+    // The Summary page's text: the project as an outline of what its
+    // save writes; error says why it can't be, '' when it can. refresh
+    // reads it again
+    readonly property string reportText: activeBackend.report.text
+    readonly property string reportError: activeBackend.report.error
 
-    property bool reportCreated: activeBackend.report.created
-    onReportCreatedChanged: activeBackend.report.created = reportCreated
+    function reportRefresh() { activeBackend.report.refresh() }
 }

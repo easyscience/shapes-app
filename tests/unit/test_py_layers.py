@@ -6,6 +6,8 @@ from PySide6.QtTest import QSignalSpy
 from shapes.project import Ball
 
 from easyshapes_app.Backends.real_py.layers import LayersModel
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 Model = LayersModel
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -17,6 +19,10 @@ def test_rows_read_the_layers():
     assert model.count == 1
     assert model.get(0) == {'dmin': 0.5, 'rmin': 0.25}
     assert len(model.compositions) == 1
+
+
+def test_rows_refuse_an_invalid_index_or_an_unknown_role():
+    assert refusals(Model(Ball().layers), 0.7) == REFUSED
 
 
 @pytest.mark.parametrize(

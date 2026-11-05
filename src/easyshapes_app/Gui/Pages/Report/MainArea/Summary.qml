@@ -6,51 +6,51 @@ import QtQuick
 import QtQuick.Controls
 
 import EasyApplication.Gui.Style as EaStyle
-import EasyApplication.Gui.Animations as EaAnimations
 import EasyApplication.Gui.Elements as EaElements
 
 import Gui.Globals as Globals
 
 
+// Main-area window: the project as an outline of what its save writes,
+// a text wall as in Engine output. Read again each time the page comes
+// to the front, so it holds the latest changes. When the project can't
+// be outlined, the reason shows in its place, in red.
 Rectangle {
+    id: root
 
-    color: EaStyle.Colors.textViewBackground
-    Behavior on color { EaAnimations.ThemeChange {} }
+    color: EaStyle.Colors.mainContentBackground
 
-    // Flickable
+    // In front: the current item of every SwipeView it sits in, as in
+    // the Structure tab
+    readonly property bool _shown: {
+        for (let item = parent; item; item = item.parent)
+            if (item.SwipeView.view && !item.SwipeView.isCurrentItem)
+                return false
+        return true
+    }
+    on_ShownChanged: if (_shown) Globals.BackendWrapper.reportRefresh()
+    Component.onCompleted: if (_shown) Globals.BackendWrapper.reportRefresh()
+
+    // A Flickable with EasyApp's scroll bars, as in Engine output
     Flickable {
-        id: flick
-
         anchors.fill: parent
-
-        contentWidth: textArea.contentWidth
-        contentHeight: textArea.contentHeight
-
+        anchors.margins: EaStyle.Sizes.fontPixelSize
         clip: true
-        flickableDirection: Flickable.VerticalFlick
+
+        TextArea.flickable: EaElements.TextArea {
+            readOnly: true
+            wrapMode: TextEdit.NoWrap
+            font.family: EaStyle.Fonts.monoFontFamily
+            // Selectable either way, so an error can be copied
+            text: Globals.BackendWrapper.reportError || Globals.BackendWrapper.reportText
+            color: Globals.BackendWrapper.reportError ? EaStyle.Colors.red : EaStyle.Colors.textViewForeground
+        }
 
         ScrollBar.vertical: EaElements.ScrollBar {
-            policy: ScrollBar.AsNeeded
-            interactive: false
+            policy: size < 1.0 ? ScrollBar.AlwaysOn : ScrollBar.AsNeeded
         }
-
-        // Main text area
-        EaElements.TextArea {
-            id: textArea
-
-            readOnly: true
-
-            width: flick.width
-            topPadding: 0
-            bottomPadding: 0
-            padding: 2.5 * EaStyle.Sizes.fontPixelSize
-
-            textFormat: TextEdit.RichText
-            text: Globals.BackendWrapper.reportAsHtml
+        ScrollBar.horizontal: EaElements.ScrollBar {
+            policy: size < 1.0 ? ScrollBar.AlwaysOn : ScrollBar.AsNeeded
         }
-        // Main text area
-
     }
-    // Flickable
-
 }

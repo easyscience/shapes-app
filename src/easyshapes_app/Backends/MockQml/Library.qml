@@ -32,7 +32,9 @@ QtObject {
         ],
         'Solvent': ['TIP3', 'Ethanol'],
         'Salt': ['NaCl', 'KCl', 'Tris', 'HEPES', 'MgCl₂', 'CaCl₂', 'Phosphate', 'EDTA'],
-        'SampleModel': ['Sample1_aluv', 'Sample2_nanodisc', 'Sample3_cubosome', 'Samplewithareallylongname']
+        'SampleModel': ['Sample1_aluv', 'Sample2_nanodisc', 'Sample3_cubosome', 'Samplewithareallylongname'],
+        'AnalysisConfiguration': ['CHARMM36'],
+        'ForceField': ['CHARMM36']
     })
 
     // Library.available_assets['Ion']
@@ -43,6 +45,12 @@ QtObject {
 
     // Library.available_assets['Salt']
     readonly property var availableSalts: availableAssets['Salt'] ?? []
+
+    // Library.available_assets['AnalysisConfiguration']
+    readonly property var availableAnalysisConfigurations: availableAssets['AnalysisConfiguration'] ?? []
+
+    // Library.available_assets['ForceField']
+    readonly property var availableForceFields: availableAssets['ForceField'] ?? []
 
     // Mock only: what a save writes to the library index
     function addAsset(type, name) {

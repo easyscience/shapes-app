@@ -15,10 +15,6 @@ import Gui.Globals as Globals
 
 EaComponents.ContentPage {
 
-    defaultInfo: Globals.BackendWrapper.reportCreated ?
-                     '' :
-                     qsTr('No Summary Generated')
-
     mainView: EaComponents.MainContent {
         tabs: [
             EaElements.TabButton { text: qsTr('Summary') }

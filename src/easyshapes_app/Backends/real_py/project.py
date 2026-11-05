@@ -9,6 +9,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Project as ProjectLib
 
+from .logic.analysis import fill_configuration
 from .logic.session import Session
 
 
@@ -43,6 +44,8 @@ class Project(QObject):
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
         self._session = session
+        # Whether the session's project came from load, not create
+        self._loaded = False
 
     ##########################
     # GUI accessible variables
@@ -51,6 +54,15 @@ class Project(QObject):
     @Property(bool, notify=createdChanged)
     def created(self):
         return self._session.project is not None
+
+    @Property(bool, notify=createdChanged)
+    def loaded(self):
+        """
+        Whether the session's project was loaded: its Sample Model and
+        Analysis tabs open at once; a created one unlocks them with
+        Continue.
+        """
+        return self._loaded
 
     @Property(str, notify=nameChanged)
     def name(self):
@@ -142,7 +154,8 @@ class Project(QObject):
                     sample_model=self._session.sample_model if first else None,
                     analysis=self._session.analysis if first else None,
                     path=path or None,
-                )
+                ),
+                loaded=False,
             )
 
         self.externalReplacing.emit(replace)
@@ -153,7 +166,7 @@ class Project(QObject):
         Load the project in a folder, once no assembly runs.
         """
         self.externalReplacing.emit(
-            lambda: self._set_session_project(self._project_class.load(path))
+            lambda: self._set_session_project(self._project_class.load(path), loaded=True)
         )
 
     @Slot()
@@ -166,11 +179,17 @@ class Project(QObject):
     # Helpers
     #########
 
-    def _set_session_project(self, project):
+    def _set_session_project(self, project, *, loaded):
         """
         Put a project into the session with its sample model and
-        analysis, and tell QML.
+        analysis, and tell QML; loaded tells a loaded project from a
+        created one.
         """
+        # A later project builds its own analysis, with an empty
+        # configuration; a loaded one may hold none either. First: a
+        # library that can't give one leaves the session as it was
+        fill_configuration(project.analysis)
+        self._loaded = loaded
         self._session.project = project
         self._session.sample_model = project.sample_model
         self._session.analysis = project.analysis

@@ -14,7 +14,6 @@ EaComponents.SideBarColumn {
     EaElements.GroupBox {
         title: qsTr("Library assets")
         icon: "book"
-        collapsed: false
 
         Loader { source: "Groups/LibraryAssetsFiles.qml" }
     }

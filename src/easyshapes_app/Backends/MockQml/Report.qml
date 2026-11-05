@@ -6,77 +6,42 @@ pragma Singleton
 
 import QtQuick
 
+// Mirrors Backend.report: the Summary page's text, the project as an
+// outline of what its save writes, read again by refresh. The mock's is
+// a fixed example, and it never fails.
 QtObject {
-    property bool created: false
+    // Why the project can't be outlined; '' when it can
+    readonly property string error: ''
 
-    readonly property string asHtml: '
-<!DOCTYPE html>
-<html>
-<style>
-    th, td { padding-right: 18px; }
-    th { text-align: left; }
-</style>
-<body>
-    <table>
-    <tr></tr>
-    <tr>
-        <td><h1>Summary</h1></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td><h3>Project information</h3></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <th>Name</th>
-        <th>La0.5Ba0.5CoO3</th>
-    </tr>
-    <tr>
-        <td>Description</td>
-        <td>neutrons, powder, constant wavelength</td>
-    </tr>
-    <tr>
-        <td>No. of phases</td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td>No. of experiments</td>
-        <td>1</td>
-    </tr>
-    <tr></tr>
-        <tr>
-            <td><h3>Crystal data</h3></td>
-        </tr>
-        <tr></tr>
-    <tr>
-        <th>Phase datablock</th>
-        <th>lbco</th>
-    </tr>
-    <tr>
-        <td>Crystal system, space group</td>
-        <td>cubic,&nbsp;&nbsp;<i>P m -3 m</i></td>
-    </tr>
-    <tr></tr>
-        <tr>
-            <td><h3>Data collection</h3></td>
-        </tr>
-        <tr></tr>
-    <tr>
-        <th>Experiment datablock</th>
-        <th>hrpt</th>
-    </tr>
-    <tr>
-        <td>Radiation probe</td>
-        <td>neutron</td>
-    </tr>
-    <tr>
-        <td>Measured range: min, max, inc (&deg;)</td>
-        <td>10.0,&nbsp;&nbsp;164.85,&nbsp;&nbsp;0.05</td>
-    </tr>
-    <tr></tr>
-    </table>
-</body>
-</html>
-'
+    readonly property string text: 'Project
+  name: ring1
+  description: An SDS ring
+  sample_model: SampleModel
+    name: ring1
+    structure: Ring
+      name: None
+      components: Components
+        name: None
+        items:
+          - Component
+            name: SDS
+            mint: 38
+            mext: 4
+            paths:
+              - /home/user/Projects/ring1/Component/SDS/SDS.itp
+              - /home/user/Projects/ring1/Component/SDS/SDS.gro
+      count: 12
+      radius: 2.5
+    buffer: Buffer
+      solvent: Solvent
+        name: TIP3
+      components: []
+  analysis: Analysis
+    equilibration: Equilibration
+      first_stage: 0
+      last_stage: None
+      threads: None
+      restrain_to_box_center: False'
 
+    function refresh() {}
 }

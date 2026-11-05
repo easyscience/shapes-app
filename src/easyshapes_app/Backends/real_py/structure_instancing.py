@@ -3,8 +3,12 @@
 
 import numpy as np
 from PySide6.QtCore import Property
+from PySide6.QtCore import QAbstractListModel
 from PySide6.QtCore import QByteArray
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
+from PySide6.QtCore import Slot
 from PySide6.QtQuick3D import QQuick3DInstancing
 from shapes.basics.mendeleyev import Chemistry
 
@@ -60,17 +64,133 @@ class _Table(QQuick3DInstancing):
         return self._table, self._count
 
 
+class ResiduesModel(QAbstractListModel):
+    """
+    The residue names of the structure shown, as rows of the Structure
+    viewer's table: a name, its atom count, and whether its atoms are
+    drawn. A name hidden stays hidden while new files bring it again,
+    until it is shown.
+    """
+
+    NameRole = Qt.UserRole + 1
+    CountRole = Qt.UserRole + 2
+    ShownRole = Qt.UserRole + 3
+
+    countChanged = Signal()
+    shownCountChanged = Signal()
+    # A row was ticked or unticked: the instancing draws anew
+    shownChanged = Signal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._names = []
+        self._counts = []
+        # Names hidden, kept across files
+        self._hidden = set()
+
+    ####################
+    # Qt model overrides
+    ####################
+
+    def roleNames(self):
+        return {self.NameRole: b'name', self.CountRole: b'count', self.ShownRole: b'shown'}
+
+    def rowCount(self, parent=QModelIndex()):
+        return 0 if parent.isValid() else len(self._names)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid():
+            return None
+        name = self._names[index.row()]
+        match role:
+            case self.NameRole:
+                return name
+            case self.CountRole:
+                return self._counts[index.row()]
+            case self.ShownRole:
+                return name not in self._hidden
+            case _:
+                return None
+
+    def setData(self, index, value, role=Qt.EditRole):
+        if role != self.ShownRole or not index.isValid():
+            return False
+        name = self._names[index.row()]
+        if value:
+            self._hidden.discard(name)
+        else:
+            self._hidden.add(name)
+        self.dataChanged.emit(index, index, [self.ShownRole])
+        self.shownCountChanged.emit()
+        self.shownChanged.emit()
+        return True
+
+    ############
+    # QML access
+    ############
+
+    @Property(int, notify=countChanged)
+    def count(self):
+        return self.rowCount()
+
+    @Property(int, notify=shownCountChanged)
+    def shownCount(self):
+        """
+        The rows ticked: the table's header box reads all, none or some.
+        """
+        return sum(name not in self._hidden for name in self._names)
+
+    @Slot(bool)
+    def setAllShown(self, shown):
+        """
+        Tick every row, or untick every one.
+        """
+        if shown:
+            self._hidden.difference_update(self._names)
+        else:
+            self._hidden.update(self._names)
+        if self._names:
+            self.dataChanged.emit(
+                self.index(0), self.index(len(self._names) - 1), [self.ShownRole]
+            )
+        self.shownCountChanged.emit()
+        self.shownChanged.emit()
+
+    #########
+    # Changes
+    #########
+
+    def reset(self, names, counts):
+        """
+        List the residue names of a new structure and their atom counts.
+        """
+        self.beginResetModel()
+        self._names = list(names)
+        self._counts = list(counts)
+        self.endResetModel()
+        self.countChanged.emit()
+        self.shownCountChanged.emit()
+
+    def shown_rows(self):
+        """
+        Whether each row is shown, in row order.
+        """
+        return np.array([name not in self._hidden for name in self._names], bool)
+
+
 class StructureInstancing(QQuick3DInstancing):
     """
     A structure's atoms as the instance table of the structure viewer:
     one row per atom in the slab, the atoms within half its width of the
-    centre plane across an axis.
+    centre plane across an axis, of the residues shown.
 
     Only the slab reaches the GPU: its atoms and, with bonds, those with
     both atoms in it, each as two halves in its atom's colour
     (bondInstancing); slabRows says how many rows they take. Keeps the
     atoms as positions and one style row per distinct atom name, not as
-    table rows, so millions of atoms take little memory.
+    table rows, so millions of atoms take little memory. The atoms are
+    centred, and the slab measured, on the residues shown: hiding the
+    water frames the solute.
     """
 
     atomsChanged = Signal()
@@ -78,8 +198,15 @@ class StructureInstancing(QQuick3DInstancing):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        # Å, centred on the bounds
+        # Å, as read
+        self._raw = np.zeros((0, 3), np.float32)
+        # Å, centred on the shown atoms' bounds
         self._xyz = np.zeros((0, 3), np.float32)
+        # Each atom's row in residues; None without residue names: every
+        # atom is drawn
+        self._residue = None
+        self._residues = ResiduesModel(self)
+        self._residues.shownChanged.connect(self._place)
         # Each atom's row in _style
         self._kind = np.zeros(0, np.intp)
         # Per distinct atom name: linear RGBA, radius
@@ -96,10 +223,12 @@ class StructureInstancing(QQuick3DInstancing):
         # this reference keeps it alive
         self._bond_table = _Table()
 
-    def set_atoms(self, names, xyz, bonds=None):
+    def set_atoms(self, names, xyz, bonds=None, residues=None):
         """
-        Show atoms by GRO name (5-byte strings) and position in nm, and
-        the bonds between them as pairs of atom indices.
+        Show atoms by GRO name (5-byte strings) and position in nm, the
+        bonds between them as pairs of atom indices, and each atom's
+        residue name (5-byte strings), for the residues table. Without
+        residue names, every atom is drawn.
         """
         # One element lookup per distinct name: POPC has 134
         unique, self._kind = np.unique(names, return_inverse=True)
@@ -110,13 +239,17 @@ class StructureInstancing(QQuick3DInstancing):
             [[*_linear(colour), 1.0, _ATOM_SCALE * radius] for colour, radius in styles],
             np.float32,
         ).reshape(-1, 5)
-        xyz = xyz * 10.0  # nm -> Å
-        if len(xyz):
-            xyz = xyz - (xyz.max(axis=0) + xyz.min(axis=0)) / 2
-        self._xyz = xyz
+        self._raw = xyz * 10.0  # nm -> Å
+        if residues is None:
+            self._residue = None
+            self._residues.reset([], [])
+        else:
+            unique, self._residue, counts = np.unique(
+                residues, return_inverse=True, return_counts=True
+            )
+            self._residues.reset([name.decode().strip() for name in unique], counts.tolist())
         self._bonds = np.zeros((0, 2), np.int32) if bonds is None else bonds
-        self.atomsChanged.emit()
-        self._update()
+        self._place()
 
     def clear(self):
         """
@@ -132,9 +265,17 @@ class StructureInstancing(QQuick3DInstancing):
     @Property(float, notify=atomsChanged)
     def radius(self):
         """
-        The farthest atom centre from the centre, Å: the camera fits it.
+        The farthest shown atom centre from the centre, Å: the camera
+        fits it.
         """
-        return float(np.linalg.norm(self._xyz, axis=1).max(initial=0.0))
+        return float(np.linalg.norm(self._xyz[self._drawn()], axis=1).max(initial=0.0))
+
+    @Property('QVariant', constant=True)
+    def residues(self):
+        """
+        The residue names, each drawn while ticked, as the table's rows.
+        """
+        return self._residues
 
     @Property('QVariant', constant=True)
     def bondInstancing(self):
@@ -201,8 +342,9 @@ class StructureInstancing(QQuick3DInstancing):
         Pick the slab's atoms and pack them as Qt's instance table.
         """
         across = np.abs(self._xyz[:, self._axis])
-        half = self._fraction * across.max(initial=0.0)
-        shown = np.flatnonzero(across <= half)
+        drawn = self._drawn()
+        half = self._fraction * across[drawn].max(initial=0.0)
+        shown = np.flatnonzero((across <= half) & drawn)
         # The bonds with both atoms in the slab
         inside = np.zeros(len(self._xyz), bool)
         inside[shown] = True
@@ -222,6 +364,29 @@ class StructureInstancing(QQuick3DInstancing):
         self._bond_table.set(self._bond_rows(bonds))
         self.slabChanged.emit()
         self.markDirty()
+
+    def _place(self):
+        """
+        Centre the atoms on the shown ones' bounds, for the camera to
+        fit them, and draw the slab anew: after new atoms, or a residue
+        ticked or unticked.
+        """
+        shown = self._raw[self._drawn()]
+        if len(shown):
+            self._xyz = self._raw - (shown.max(axis=0) + shown.min(axis=0)) / 2
+        else:
+            self._xyz = self._raw
+        self.atomsChanged.emit()
+        self._update()
+
+    def _drawn(self):
+        """
+        Whether each atom's residue is shown: every atom without residue
+        names.
+        """
+        if self._residue is None:
+            return np.ones(len(self._raw), bool)
+        return self._residues.shown_rows()[self._residue]
 
     def _bond_rows(self, bonds):
         """

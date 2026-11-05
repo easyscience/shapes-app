@@ -38,9 +38,9 @@ class StructureView(QObject):
     loadingChanged = Signal()
     errorChanged = Signal()
     # From the reading thread back to the GUI thread: the file's key,
-    # names, positions, bonds (None without), and the error ('' when
-    # read)
-    _read = Signal(object, object, object, object, str)
+    # names, positions, bonds (None without), residue names, and the
+    # error ('' when read)
+    _read = Signal(object, object, object, object, object, str)
 
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
@@ -134,11 +134,18 @@ class StructureView(QObject):
         The sample model's .gro, its modification time and whether the
         bonds are shown, or None.
         """
+        path = self._gro()
+        return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
+
+    def _gro(self):
+        """
+        The .gro to show, or None: the sample model's, none while an
+        assembly writes its files.
+        """
         model = self._session.sample_model
         # None while an assembly writes the model's files
         paths = model.paths if model and not model.files_locked else ()
-        path = next((path for path in paths if path.suffix == '.gro'), None)
-        return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
+        return next((path for path in paths if path.suffix == '.gro'), None)
 
     def _load(self):
         """
@@ -149,7 +156,9 @@ class StructureView(QObject):
         if not self._active or self._loading or key == self._shown:
             return
         if key is None:
-            self._show(None, np.zeros(0, 'S5'), np.zeros((0, 3), np.float32), None, '')
+            self._show(
+                None, np.zeros(0, 'S5'), np.zeros((0, 3), np.float32), None, np.zeros(0, 'S5'), ''
+            )
             return
         self._set_loading(True)
         # The old atoms go at once, and their table with them
@@ -174,26 +183,28 @@ class StructureView(QObject):
                 if topologies
                 else None
             )
-            self._read.emit(key, names, xyz, bonds, '')
+            # The name half of each atom's residue; GRO keeps 5 letters
+            residue_names = np.char.strip(residues.view('S5')[1::2])
+            self._read.emit(key, names, xyz, bonds, residue_names, '')
         # IndexError: a bond line of one field
         except (OSError, ValueError, IndexError) as err:
-            self._read.emit(key, None, None, None, str(err))
+            self._read.emit(key, None, None, None, None, str(err))
 
-    def _on_read(self, key, names, xyz, bonds, error):
+    def _on_read(self, key, names, xyz, bonds, residue_names, error):
         self._set_loading(False)
         # Hidden while read, and not kept: dropped unshown
         if self._active or self._keep:
-            self._show(key, names, xyz, bonds, error)
+            self._show(key, names, xyz, bonds, residue_names, error)
         # The model may have moved on while the file was read
         self._load()
 
-    def _show(self, key, names, xyz, bonds, error):
+    def _show(self, key, names, xyz, bonds, residue_names, error):
         """
-        Show a file's atoms and bonds, or say why not.
+        Show a file's atoms, bonds and residues, or say why not.
         """
         self._shown = key
         if not error:
-            self._instancing.set_atoms(names, xyz, bonds)
+            self._instancing.set_atoms(names, xyz, bonds, residue_names)
         if self._error != error:
             self._error = error
             self.errorChanged.emit()

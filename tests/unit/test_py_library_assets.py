@@ -10,8 +10,48 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.library_assets import FilesModel
 from easyshapes_app.Backends.real_py.library_assets import LibraryAssets
 from easyshapes_app.Backends.real_py.library_assets import SaltCompositionModel
+from easyshapes_app.Backends.real_py.library_assets import open_file
+from tests.unit.factories import REFUSED
+from tests.unit.factories import refusals
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
+
+
+def test_open_file_raises_when_no_app_opens_it(monkeypatch):
+    monkeypatch.setattr(
+        'easyshapes_app.Backends.real_py.library_assets.QDesktopServices',
+        SimpleNamespace(openUrl=lambda url: False),
+    )
+
+    with pytest.raises(RuntimeError, match='No app on this system opens'):
+        open_file(Path('DPPC.itp'))
+
+
+def test_edit_path_opens_the_rows_file(opened):
+    part = LibraryAssets()
+    part.appendPath('DPPC.itp')
+
+    part.editPath(0)
+
+    assert opened == [Path('DPPC.itp')]
+
+
+def test_files_rows_refuse_an_invalid_index_or_an_unknown_role():
+    model = FilesModel()
+    model.reset(['DPPC.itp'])
+
+    assert model.roleNames() == {FilesModel.PathRole: b'path', FilesModel.SizeRole: b'size'}
+    assert refusals(model) == REFUSED
+
+
+def test_salt_rows_refuse_an_invalid_index_or_an_unknown_role():
+    model = SaltCompositionModel()
+
+    assert model.roleNames() == {
+        SaltCompositionModel.IonRole: b'ion',
+        SaltCompositionModel.CountRole: b'count',
+    }
+    assert refusals(model, 'NA') == REFUSED
 
 
 def test_rows_read_the_path_and_the_size_on_disk(tmp_path):

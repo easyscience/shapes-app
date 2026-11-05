@@ -5,14 +5,13 @@ import shutil
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
-from PySide6.QtCore import QUrl
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
-from PySide6.QtGui import QDesktopServices
 from shapes.project import Component
 from shapes.project import Library
 
 from .library_assets import FilesModel
+from .library_assets import open_file
 from .logic.files import export_taken
 from .logic.session import Session
 
@@ -98,9 +97,7 @@ class ComponentsFiles(QObject):
         Open the file in a row in the system's default app for its type.
         """
         # Opened where it lies, as in Library assets
-        path = self._files.paths[row]
-        if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
-            raise RuntimeError(f'No app on this system opens {path}')
+        open_file(self._files.paths[row])
 
     @Slot()
     def create(self):

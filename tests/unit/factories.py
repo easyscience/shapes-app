@@ -1,17 +1,54 @@
 # SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+import time
 from datetime import UTC
 from datetime import datetime
 from pathlib import Path
 from types import SimpleNamespace
 
+from PySide6.QtCore import QCoreApplication
+from PySide6.QtCore import QModelIndex
+from PySide6.QtCore import Qt
 from shapes.project import Ring
 
+# Long enough for a thread to read a three-atom file
+WAIT_S = 5
 SAVED_AT = datetime(2026, 10, 13, 9, 30, tzinfo=UTC)
 LOADED_AT = datetime(2026, 10, 1, 12, 0, tzinfo=UTC)
 # Atom name and position in nm
 GRO_ATOMS = [('C1', 0.1, 0.2, 0.3), ('S1', -1.0, 0.0, 12.345), ('H1', 0.0, 0.0, 0.0)]
+# What refusals gives for a model that refuses both
+REFUSED = (None, None, False, False)
+# A role no model of the app has
+UNKNOWN_ROLE = Qt.UserRole + 99
+
+
+def refusals(model, value=None):
+    """
+    What a list model of one row or more gives for an invalid index and
+    for an unknown role: data's two answers, then setData's.
+    """
+    row = model.index(0)
+    return (
+        model.data(QModelIndex()),
+        model.data(row, UNKNOWN_ROLE),
+        model.setData(QModelIndex(), value, UNKNOWN_ROLE),
+        model.setData(row, value, UNKNOWN_ROLE),
+    )
+
+
+def arrived(spy):
+    """
+    Process events until the spied signal comes, or WAIT_S pass.
+    QSignalSpy.wait keeps Python's lock, so a reading thread couldn't
+    run while it waits; sleeping lets it.
+    """
+    deadline = time.monotonic() + WAIT_S
+    while not spy.count() and time.monotonic() < deadline:
+        time.sleep(0.01)
+        QCoreApplication.processEvents()
+    return spy.count() > 0
 
 
 def gro_text(newline='\n', atoms=GRO_ATOMS):
@@ -44,7 +81,7 @@ class FakeProject:
         self.name = name if name is not None else 'uid0001'
         self.description = description
         self.sample_model = sample_model or object()
-        self.analysis = analysis or object()
+        self.analysis = analysis or FakeAnalysis(self.sample_model)
         self.path = Path(path) if path else Path.home() / 'Projects' / f'{self.name}-uid0001'
         self.modified = None
         self.save_calls = 0
@@ -86,6 +123,52 @@ class FakeAsset:
 
     def export_to(self, folder, *, overwrite=False):
         self.calls.append(('export_to', folder, overwrite))
+
+
+class FakeEquilibration(FakeAsset):
+    """
+    Stands in for shapes.project.analysis.Equilibration, a library
+    asset: its setup, a configuration holding the given .mdp files, a
+    force field holding CHARMM36.itp, and the stages run so far as
+    FakeAssets. run starts a FakeJob and, as the library's job does,
+    registers the given log among the files; stage is what a test sets.
+    """
+
+    def __init__(self, *mdp_names, log='equilibration.log'):
+        super().__init__('Equilibration')
+        self.configuration = FakeAsset('CHARMM36', *mdp_names)
+        self.force_field = FakeAsset('CHARMM36', 'CHARMM36.itp')
+        self.first_stage = 0
+        self.last_stage = None
+        self.threads = None
+        self.restrain_to_box_center = False
+        self.stages = []
+        self.stage = None
+        self.job = None
+        self.log = log
+        # Each run's sample model and background flag
+        self.runs = []
+
+    @property
+    def files_locked(self):
+        return self.job is not None and self.job.running
+
+    def run(self, sample_model, *, background=False):
+        self.runs.append((sample_model, background))
+        self.job = FakeJob()
+        self.add_new_files([self.log])
+
+
+class FakeAnalysis:
+    """
+    Stands in for shapes.project.analysis.Analysis: a sample model, and
+    a FakeEquilibration whose configuration holds equil0.mdp, or nothing
+    when empty.
+    """
+
+    def __init__(self, sample_model=None, *, empty=False):
+        self.sample_model = sample_model
+        self.equilibration = FakeEquilibration(*(() if empty else ('equil0.mdp',)))
 
 
 class FakeJob:

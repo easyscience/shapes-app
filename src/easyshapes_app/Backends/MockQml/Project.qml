@@ -16,6 +16,9 @@ QtObject {
     signal externalReplacing(var replace)
 
     property bool created: false
+    // Whether the project was loaded, not created: its Sample Model and
+    // Analysis tabs open at once
+    property bool loaded: false
 
     property string name: ''
     property string description: ''
@@ -40,6 +43,7 @@ QtObject {
             root.description = newDescription
             root._path = newPath ? newPath : `~/Projects/${newName}-0001`
             root._modified = ''
+            root.loaded = false
             root.created = true
         })
     }
@@ -54,6 +58,7 @@ QtObject {
             root.description = 'Loaded in the mock'
             root._path = folder
             root._modified = '01 Oct 2026 12:00'
+            root.loaded = true
             root.created = true
         })
     }

@@ -15,7 +15,10 @@ from shapes.project import Rod
 from shapes.project import Vesicle
 
 from easyshapes_app.Backends.real_backend import Backend
+from easyshapes_app.Backends.real_py.config import Config
 from easyshapes_app.Backends.real_py.logic.session import Session
+from easyshapes_app.Backends.real_py.report import Report
+from tests.unit.factories import FakeEquilibration
 from tests.unit.factories import FakeSampleModel
 
 
@@ -40,6 +43,13 @@ class ByName(list):
         return tuple(item.name for item in self)
 
 
+def test_config_and_report_are_parts_of_the_root(qcore_application):
+    backend = Backend(Session())
+
+    assert isinstance(backend.config, Config)
+    assert isinstance(backend.report, Report)
+
+
 def test_project_change_refreshes_recent(qcore_application):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableProjectsChanged)
@@ -49,7 +59,9 @@ def test_project_change_refreshes_recent(qcore_application):
     assert spy.count() == 1
 
 
-@pytest.mark.parametrize('part', ['libraryAssets', 'componentsFiles', 'sampleModel'])
+@pytest.mark.parametrize(
+    'part', ['libraryAssets', 'componentsFiles', 'sampleModel', 'configuration', 'forceField']
+)
 def test_asset_save_refreshes_the_catalogs(qcore_application, part):
     backend = Backend(Session())
     spy = QSignalSpy(backend.library.availableAssetsChanged)
@@ -69,6 +81,22 @@ SHAPE_ADAPTERS = {
     'monolayerStructure': Monolayer,
 }
 ADAPTERS = [*SHAPE_ADAPTERS, 'latticeStructure']
+
+
+@pytest.mark.parametrize(
+    ('part', 'signal'),
+    [('project', 'externalProjectChanged'), ('sampleModel', 'externalStructureChanged')],
+)
+def test_another_analysis_refreshes_configuration_and_force_field(qcore_application, part, signal):
+    backend = Backend(Session())
+    named = [
+        QSignalSpy(backend.configuration.nameChanged),
+        QSignalSpy(backend.forceField.nameChanged),
+    ]
+
+    getattr(getattr(backend, part), signal).emit()
+
+    assert [spy.count() for spy in named] == [1, 1]
 
 
 def test_project_replacement_waits_for_a_running_assembly(qcore_application):
@@ -91,6 +119,47 @@ def test_assembly_end_shows_its_error(qcore_application, error, message):
     backend.sampleModel.externalAssembled.emit(error)
 
     assert backend.error.message == message
+
+
+@pytest.mark.parametrize(
+    ('error', 'message'), [('gmx failed', 'Equilibration failed: gmx failed'), ('', '')]
+)
+def test_equilibration_end_shows_its_error(qcore_application, error, message):
+    backend = Backend(Session())
+
+    backend.equilibration.externalEquilibrated.emit(error)
+
+    assert backend.error.message == message
+
+
+def test_project_replacement_waits_for_a_running_equilibration(qcore_application):
+    analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'))
+    backend = Backend(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    replaced = []
+
+    backend.equilibration.run()
+    backend.project.externalReplacing.emit(lambda: replaced.append('running'))
+
+    assert replaced == []
+
+
+def test_stage_changes_refresh_the_stage_viewer(qcore_application):
+    backend = Backend(Session())
+    picked = QSignalSpy(backend.stageView.selectedStageChanged)
+
+    backend.equilibration.stagesChanged.emit()
+
+    assert picked.count() == 1
+
+
+def test_new_structure_or_configuration_files_refresh_the_equilibration(qcore_application):
+    backend = Backend(Session())
+    read = QSignalSpy(backend.equilibration.firstStageChanged)
+
+    backend.sampleModel.externalStructureChanged.emit()
+    backend.configuration.files.countChanged.emit()
+
+    assert read.count() == 2
 
 
 def test_assembly_start_and_end_refresh_the_structure_viewer(qcore_application):
