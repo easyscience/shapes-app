@@ -70,6 +70,9 @@ QtObject {
     // The Analysis page's structure viewer: the picked stage's final
     // .gro, as Backend.stageView
     property var stageView: MockLogic.StageView
+    // The analysis's SANS curves: setup, run and list, as
+    // Backend.scattering
+    property var scattering: MockLogic.Scattering
     property var report: MockLogic.Report
 
     Component.onCompleted: {
@@ -107,6 +110,13 @@ QtObject {
         equilibration.error = error
         // The stage viewer lists the equilibration's finished stages
         stageView.equilibration = equilibration
+        // Scattering lists Initial once the model holds a .gro, then the
+        // finished stages; its components are the model's, and a failed
+        // run goes to the error dialog
+        scattering.sampleModel = sampleModel
+        scattering.equilibration = equilibration
+        scattering.loadedComponents = components.loaded
+        scattering.error = error
         // As Backend wires them: a component the SMILES generator makes
         // joins the components list, Components Files shows it, and the
         // generator notes it. Python refuses a held name through the

@@ -11,11 +11,13 @@ import EasyApplication.Gui.Elements as EaElements
 // A title over a dropdown of rows, as the Components viewer's component
 // selector. Each row shows its name with its status in the minor colour,
 // as in Equilibration Files; a row without a status shows its name only.
-// The Structure tab picks its stage with it, Engine output its log.
+// The Structure tab picks its stage with it, Engine output its log, the
+// Scattering group its structure.
 Column {
     id: root
 
     property alias title: titleLabel.text
+    property alias pickerWidth: picker.width
     // Rows with the roles name and status, and a get(row)
     property var model: null
     property int currentIndex: -1

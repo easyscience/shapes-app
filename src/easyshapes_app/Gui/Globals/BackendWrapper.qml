@@ -29,6 +29,12 @@ QtObject {
         }
     }
 
+    // A run writes the session's files: the Project tab, Save, and the
+    // Sample model's Load and Import are off meanwhile, as a project or
+    // model swap would replace what the run writes for
+    readonly property bool runLocked: sampleModelFilesLocked || equilibrationFilesLocked
+                                      || scatteringFilesLocked
+
     //////////
     // Project
     //////////
@@ -521,6 +527,61 @@ QtObject {
     // Structure viewer
     function stageViewSetKeepLoaded(value) { activeBackend.stageView.keepLoaded = value }
     function stageViewSetShowBonds(value) { activeBackend.stageView.showBonds = value }
+
+    /////////////
+    // Scattering
+    /////////////
+
+    // The analysis's SANS curves. The Python backend gets this part with
+    // its Scattering proxy; until then each name falls back to an empty
+    // value. structures lists the sample model, named after it (status
+    // ''), and the finished stages (roles: name, status); selectedStructure is the
+    // row picked by name while it is listed, else the newest, -1 with none
+    readonly property var scatteringStructures: activeBackend.scattering?.structures ?? null
+    readonly property int scatteringSelectedStructure: activeBackend.scattering?.selectedStructure ?? -1
+    // The setup: SLD in 10⁻⁶ Å⁻², q in Å⁻¹, kernel 'auto' (Exact) or
+    // 'average' (Fast). components are the ones that can be deuterated,
+    // deuterated the ticked ones
+    readonly property real scatteringSolventSld: activeBackend.scattering?.solventSld ?? 0
+    readonly property var scatteringComponents: activeBackend.scattering?.components ?? []
+    readonly property var scatteringDeuterated: activeBackend.scattering?.deuterated ?? []
+    readonly property real scatteringQMin: activeBackend.scattering?.qMin ?? 0
+    readonly property real scatteringQMax: activeBackend.scattering?.qMax ?? 0
+    readonly property int scatteringQPoints: activeBackend.scattering?.qPoints ?? 0
+    readonly property real scatteringSizeSpread: activeBackend.scattering?.sizeSpread ?? 0
+    readonly property string scatteringKernel: activeBackend.scattering?.kernel ?? ''
+    // The curves with data (roles: name, settings, status, rg, shown):
+    // settings is the hover text
+    readonly property var scatteringCurves: activeBackend.scattering?.curves ?? null
+    // A calculation runs; Cancel may stop it at any time. The running
+    // curve's name, '' without a run: a new curve joins curves only once
+    // its run succeeds
+    readonly property bool scatteringFilesLocked: activeBackend.scattering?.filesLocked ?? false
+    readonly property string scatteringRunningCurve: activeBackend.scattering?.runningCurve ?? ''
+    // {xmin, xmax, ymin, ymax}: log10 of q and I over the shown curves
+    readonly property var scatteringRanges: activeBackend.scattering?.ranges ?? null
+
+    function scatteringSelectStructure(index) { activeBackend.scattering?.selectStructure(index) }
+    function scatteringSetSolventSld(value) { if (activeBackend.scattering) activeBackend.scattering.solventSld = value }
+    function scatteringSetQMin(value) { if (activeBackend.scattering) activeBackend.scattering.qMin = value }
+    function scatteringSetQMax(value) { if (activeBackend.scattering) activeBackend.scattering.qMax = value }
+    function scatteringSetQPoints(value) { if (activeBackend.scattering) activeBackend.scattering.qPoints = value }
+    function scatteringSetSizeSpread(value) { if (activeBackend.scattering) activeBackend.scattering.sizeSpread = value }
+    function scatteringSetKernel(value) { if (activeBackend.scattering) activeBackend.scattering.kernel = value }
+    function scatteringSetDeuterated(name, on) { activeBackend.scattering?.setDeuterated(name, on) }
+    // A failed check before the start and a failed run go to the error
+    // dialog; a cancel shows nothing
+    function scatteringCalculate() { activeBackend.scattering?.calculate() }
+    function scatteringCancel() { activeBackend.scattering?.cancel() }
+    function scatteringSetCurveShown(row, on) { activeBackend.scattering?.setCurveShown(row, on) }
+    // Removes the curve and its files; the page asks first
+    function scatteringRemoveCurve(row) { activeBackend.scattering?.removeCurve(row) }
+    // The curve as points, log10 of q and I, for LineSeries.replace
+    function scatteringCurvePoints(row) { return activeBackend.scattering?.curvePoints(row) ?? [] }
+    // The .dat of every curve ticked Show. Export asks first when the
+    // folder is taken; OK exports with overwrite
+    function scatteringExportTaken(folder) { return activeBackend.scattering?.exportTaken(folder) ?? false }
+    function scatteringExportTo(folder, overwrite) { activeBackend.scattering?.exportTo(folder, overwrite) }
 
     ///////////////
     // Summary page
