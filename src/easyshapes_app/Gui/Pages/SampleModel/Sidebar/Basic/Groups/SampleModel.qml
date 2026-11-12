@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Dialogs
 
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
@@ -75,22 +76,45 @@ EaElements.GroupColumn {
         }
     }
 
-    Grid {
-        columns: 2
-        spacing: EaStyle.Sizes.fontPixelSize
+    // Load and Import are off while a run goes on: another model would
+    // replace the one the run writes for
+    Item {
+        width: loadImportButtons.width
+        height: loadImportButtons.height
 
-        EaElements.SideBarButton {
-            fontIcon: "file-import"
-            text: qsTr("Load model")
-            width: root.halfWidth
-            onClicked: loadExistingModelLoader.item.open()
+        Grid {
+            id: loadImportButtons
+            columns: 2
+            spacing: EaStyle.Sizes.fontPixelSize
+            enabled: !Globals.BackendWrapper.runLocked
+
+            EaElements.SideBarButton {
+                fontIcon: "file-import"
+                text: qsTr("Load model")
+                width: root.halfWidth
+                onClicked: loadExistingModelLoader.item.open()
+            }
+
+            EaElements.SideBarButton {
+                fontIcon: "upload"
+                text: qsTr("Import model")
+                width: root.halfWidth
+                onClicked: importModelFolderDialog.open()
+            }
         }
 
-        EaElements.SideBarButton {
-            fontIcon: "upload"
-            text: qsTr("Import model")
-            width: root.halfWidth
-            onClicked: importModelFolderDialog.open()
+        // A disabled button gets no hover, so its own tooltip never
+        // shows: this area over both says why they are off. No clicks
+        MouseArea {
+            anchors.fill: loadImportButtons
+            visible: !loadImportButtons.enabled
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+
+            EaElements.ToolTip {
+                text: qsTr("Wait for the run to end, or cancel it")
+                visible: parent.containsMouse && EaGlobals.Vars.showToolTips
+            }
         }
     }
 

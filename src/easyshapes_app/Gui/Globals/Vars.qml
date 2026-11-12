@@ -8,6 +8,7 @@ import QtQuick
 import QtCore
 
 import EasyApplication.Gui.Globals as EaGlobals
+import EasyApplication.Gui.Style as EaStyle
 
 
 // GUI state shared by files that can't reach each other (a sidebar
@@ -31,6 +32,25 @@ QtObject {
     // Structure viewer: bonds drawn between the atoms; passed on to the
     // backend
     property bool structureShowBonds: false
+
+    // Scattering: each curve's colour, by its row in Scattering view, for
+    // the list's swatches and the chart's lines. A categorical palette
+    // checked for colour-blind separation, with its own steps for the dark
+    // theme. Rows past the 8th draw in grey: a 9th hue would not stay
+    // apart from the others
+    readonly property var scatteringColors: EaStyle.Colors.isDarkPalette
+        ? ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767']
+        : ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
+    function scatteringColor(row) {
+        return row < scatteringColors.length ? scatteringColors[row] : '#898781'
+    }
+    // Scattering view: each further shown curve is drawn this many decades
+    // lower, on the chart only. Off at first, not kept between launches
+    property bool scatteringStaggered: false
+    property real scatteringStaggerDecades: 1.0
+    // Scattering view's Export as PNG: the Scattering tab saves its chart
+    // and legend to path, once the page has switched to it
+    signal scatteringPngRequested(string path)
 
     // Both viewers, the Sample model's and the Analysis page's, take them
     onStructureKeepLoadedChanged: {

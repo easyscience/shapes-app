@@ -24,5 +24,6 @@ singleton MonolayerStructure MonolayerStructure.qml
 singleton LatticeStructure LatticeStructure.qml
 singleton Buffer Buffer.qml
 singleton Equilibration Equilibration.qml
+singleton Scattering Scattering.qml
 AssetFiles AssetFiles.qml
 singleton Report Report.qml

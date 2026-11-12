@@ -77,7 +77,7 @@ Item {
             text: qsTr('Start')
             onClicked: {
                 console.debug(`Clicking '${text}' button ::: ${this}`)
-                Globals.References.applicationWindow.appBarCentralTabs.projectButton.enabled = true
+                Globals.References.applicationWindow.appBarCentralTabs.projectButton.opened = true
                 Globals.References.applicationWindow.appBarCentralTabs.projectButton.toggle()
             }
         }

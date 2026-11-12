@@ -39,4 +39,13 @@ EaComponents.SideBarColumn {
         Loader { source: "Groups/StructureViewer.qml" }
     }
 
+    // Drives the Scattering tab, as Structure viewer drives the Structure
+    // tab
+    EaElements.GroupBox {
+        title: qsTr("Scattering view")
+        icon: "list"
+
+        Loader { source: "Groups/ScatteringView.qml" }
+    }
+
 }

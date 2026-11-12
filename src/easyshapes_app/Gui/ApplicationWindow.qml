@@ -25,10 +25,9 @@ EaComponents.ApplicationWindow {
     appBarLeftButtons: [
 
         EaElements.ToolButton {
-            // The library refuses while an assembly writes the model's
-            // files
+            // The library refuses while a run writes the session's files
             enabled: Globals.BackendWrapper.projectCreated
-                     && !Globals.BackendWrapper.sampleModelFilesLocked
+                     && !Globals.BackendWrapper.runLocked
             highlighted: true
             fontIcon: 'save'
             ToolTip.text: qsTr('Save current state of the project')
@@ -65,9 +64,12 @@ EaComponents.ApplicationWindow {
         // Home page
 
         // Project page
+        // Home's Start sets opened, which then stays. Off while a run goes
+        // on: every Create, Open, Recent and Examples is on this page
         EaElements.AppBarTabButton {
             id: projectButton
-            enabled: false
+            property bool opened: false
+            enabled: opened && !Globals.BackendWrapper.runLocked
             fontIcon: 'archive'
             text: qsTr('Project')
             ToolTip.text: qsTr('Project description page')
@@ -149,11 +151,30 @@ EaComponents.ApplicationWindow {
     Shortcut {
         sequences: [StandardKey.Save]
         enabled: Globals.BackendWrapper.projectCreated
-                 && !Globals.BackendWrapper.sampleModelFilesLocked
+                 && !Globals.BackendWrapper.runLocked
         onActivated: {
             // A field still being edited sends its value when it loses focus
             contentItem.forceActiveFocus()
             Globals.BackendWrapper.projectSave()
+        }
+    }
+
+    // A disabled tab gets no hover, and the tab bar makes each of its
+    // children a tab: this area joins the Project tab's parent from out
+    // here and says why the tab is off. No clicks
+    MouseArea {
+        parent: projectButton.parent
+        x: projectButton.x
+        y: projectButton.y
+        width: projectButton.width
+        height: projectButton.height
+        visible: projectButton.opened && Globals.BackendWrapper.runLocked
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+
+        EaElements.ToolTip {
+            text: qsTr("Wait for the run to end, or cancel it")
+            visible: parent.containsMouse && EaGlobals.Vars.showToolTips
         }
     }
 

@@ -17,6 +17,7 @@ EaComponents.ContentPage {
     id: root
 
     readonly property int _engineOutputTab: 0
+    readonly property int _scatteringTab: 2
     // The main-area TabBar; MainContent doesn't expose it, its tabs do
     property var _tabBar: null
 
@@ -27,10 +28,23 @@ EaComponents.ContentPage {
             if (Globals.BackendWrapper.equilibrationFilesLocked && root._tabBar)
                 root._tabBar.currentIndex = root._engineOutputTab
         }
+        // A calculation started: the Scattering tab shows it
+        function onScatteringFilesLockedChanged() {
+            if (Globals.BackendWrapper.scatteringFilesLocked && root._tabBar)
+                root._tabBar.currentIndex = root._scatteringTab
+        }
+    }
+    // A hidden chart renders nothing: Export as PNG shows the tab first
+    Connections {
+        target: Globals.Vars
+        function onScatteringPngRequested() {
+            if (root._tabBar)
+                root._tabBar.currentIndex = root._scatteringTab
+        }
     }
 
     // Three static main-area windows: the run's log, a finished stage's
-    // structure, and the scattering placeholder until the SANS unit
+    // structure, and the SANS curves
     mainView: EaComponents.MainContent {
         tabs: [
             EaElements.TabButton {
