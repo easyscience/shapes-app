@@ -7,7 +7,6 @@ from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
-from shapes.basics.defaults import Defaults
 
 from .composition import CompositionModel
 
@@ -22,7 +21,8 @@ class LamellaeModel(QAbstractListModel):
     change. An outer leaflet model is None while its lamella is
     symmetric: both leaflets then hold the inner composition. The page
     has no scaling: a scaled rmin or dmin (None in the library) gets the
-    library default when the model is built and on add.
+    library default when the model is built, and so does an added
+    lamella's rmin that the library can't work out.
     """
 
     RminRole = Qt.UserRole + 1
@@ -42,11 +42,11 @@ class LamellaeModel(QAbstractListModel):
         # the library default; keep it once the page can show scaling
         for lamella in lamellae:
             if lamella.rmin is None:
-                lamella.rmin = Defaults.Shape.RMIN
+                lamella.rmin = lamellae.DEFAULT_RMIN
             if lamella.inner_leaflet_dmin is None:
-                lamella.inner_leaflet_dmin = Defaults.Shape.DMIN
+                lamella.inner_leaflet_dmin = lamellae.DEFAULT_DMIN
             if lamella.outer_leaflet_dmin is None:
-                lamella.outer_leaflet_dmin = Defaults.Shape.DMIN
+                lamella.outer_leaflet_dmin = lamellae.DEFAULT_DMIN
         # One per row, in row order; an outer one is None while the
         # lamella is symmetric, its outer leaflet holding the inner
         # composition
@@ -175,18 +175,19 @@ class LamellaeModel(QAbstractListModel):
     @Slot()
     def add(self):
         """
-        Add a symmetric lamella over the structure components, with the
-        default rmin and dmins and its inner composition model.
+        Add a symmetric lamella over the structure components, and its
+        inner composition model. The library stacks it on the lamella
+        before; a first lamella gets the defaults.
         """
         row = len(self._lamellae)
         self.beginInsertRows(QModelIndex(), row, row)
         self._lamellae.add()
-        # The library scales a later lamella; the page has no scaling,
-        # so every lamella gets the defaults a first one gets
+        # The library stacks a later lamella on the one before, but
+        # leaves its rmin unset when that lamella's shell is unknown;
+        # the page has no scaling to show that
         lamella = self._lamellae[row]
-        lamella.rmin = Defaults.Shape.RMIN
-        lamella.inner_leaflet_dmin = Defaults.Shape.DMIN
-        lamella.outer_leaflet_dmin = Defaults.Shape.DMIN
+        if lamella.rmin is None:
+            lamella.rmin = self._lamellae.DEFAULT_RMIN
         self.endInsertRows()
         self._inner_compositions.append(CompositionModel(lamella.inner_leaflet_composition, self))
         # A new lamella is symmetric

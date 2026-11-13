@@ -75,9 +75,39 @@ QtObject {
     // Counts curve changes: a binding doesn't follow a row's setProperty
     property int _revision: 0
 
+    // The run's end. A curve run again keeps its row, found by its name,
+    // and its Show: calculate is off during the run, so no curve can take
+    // a new curve's name meanwhile
     property Timer _run: Timer {
         interval: 2000
-        onTriggered: root._end()
+        onTriggered: {
+            root._finishedRuns++
+            const running = root._running
+            if (root._finishedRuns % 3 === 0) {
+                root.error.message = `ValueError: Residue ${root.components[0] ?? 'SDS'} has 42 atoms in `
+                                     + `${running.structure}, but its masses list 41`
+            } else {
+                const stage = running.stage ? parseInt(running.stage.slice(2)) : -1
+                const curve = Object.assign({}, running, {
+                    name: root.runningCurve,
+                    settings: `q ${running.qMin} to ${running.qMax} Å⁻¹, ${running.qPoints} points, `
+                              + `polydispersity ${running.sizeSpread}, ${running.kernel === 'auto' ? 'exact' : 'fast'}`,
+                    status: [4, 5, 6].includes(stage) ? 'outdated' : 'done',
+                    rg: Math.round((24.1 + 0.5 * (stage + 1)) * 10) / 10
+                })
+                let row = -1
+                for (let i = 0; i < curvesModel.count; ++i)
+                    if (curvesModel.get(i).name === root.runningCurve)
+                        row = i
+                if (row >= 0)
+                    curvesModel.set(row, curve)
+                else
+                    curvesModel.append(Object.assign(curve, { shown: true }))
+                root._revision++
+            }
+            root._running = null
+            root.runningCurve = ''
+        }
     }
 
     // A stage finishes or joins; the model's files change; a component
@@ -117,8 +147,8 @@ QtObject {
         deuterated = components.filter(n => n === name ? on : deuterated.includes(n))
     }
 
-    // A curve with these settings runs again; with none, a new one joins
-    // the list once its run succeeds
+    // A curve with these settings runs again under its name; with none, a
+    // new one joins the list once its run succeeds
     function calculate() {
         if (selectedStructure < 0) return
         const picked = structuresModel.get(selectedStructure)
@@ -130,16 +160,37 @@ QtObject {
             deuteratedKey: deuterated.join(','),
             qMin, qMax, qPoints, sizeSpread, kernel
         }
-        const row = _rowOf(settings)
+        let name = ''
+        const taken = []
+        for (let row = 0; row < curvesModel.count; ++row) {
+            const curve = curvesModel.get(row)
+            if (Object.keys(settings).every(key => curve[key] === settings[key]))
+                name = curve.name
+            taken.push(curve.name)
+        }
+        // As P3 makes it: the model's name, then the stage (none for the
+        // model itself), -sld and the SLD, -d and each deuterated
+        // component, -pd and the polydispersity; -2, -3 when a curve with
+        // other settings holds the name
+        if (!name) {
+            const base = (sampleModel?.name || 'model') + (settings.stage ? `-${settings.stage}` : '')
+                         + `-sld${Number(solventSld.toPrecision(6))}`
+                         + deuterated.map(n => `-d${n}`).join('')
+                         + `-pd${Number(sizeSpread.toPrecision(6))}`
+            name = base
+            for (let k = 2; taken.includes(name); ++k)
+                name = `${base}-${k}`
+        }
         _running = settings
-        runningCurve = row >= 0 ? curvesModel.get(row).name : _freeName(settings)
+        runningCurve = name
         _run.start()
     }
 
     // A new curve is not added; a curve run again keeps its data
     function cancel() {
         _run.stop()
-        _clearRun()
+        _running = null
+        runningCurve = ''
     }
 
     function setCurveShown(row, on) {
@@ -152,13 +203,30 @@ QtObject {
         _revision++
     }
 
-    // The curve as points, log10 of q and I, for LineSeries.replace
+    // The curve as points, log10 of q and I, for LineSeries.replace. A
+    // sphere of the curve's Rg over 7 sizes of its size spread, at the
+    // contrast of the aggregate (higher with each deuterated component)
+    // against the solvent; the floor keeps log10 finite at the zeros
     function curvePoints(row) {
         const curve = curvesModel.get(row)
+        const radius = curve.rg * Math.sqrt(5 / 3)
+        const deuteratedCount = curve.deuteratedKey ? curve.deuteratedKey.split(',').length : 0
+        const contrast = 0.3 + 2 * deuteratedCount - curve.sld
         const points = []
         for (let i = 0; i < curve.qPoints; ++i) {
             const q = curve.qMin * Math.pow(curve.qMax / curve.qMin, i / (curve.qPoints - 1))
-            points.push(Qt.point(Math.log10(q), Math.log10(_intensity(q, curve))))
+            let sum = 0
+            let volume = 0
+            for (let t = -3; t <= 3; ++t) {
+                const r = radius * (1 + curve.sizeSpread * t / 2)
+                if (r <= 0) continue
+                const weight = Math.exp(-t * t / 8)
+                const x = q * r
+                const amplitude = 3 * (Math.sin(x) - x * Math.cos(x)) / (x * x * x)
+                sum += weight * Math.pow(r, 6) * amplitude * amplitude
+                volume += weight * Math.pow(r, 3)
+            }
+            points.push(Qt.point(Math.log10(q), Math.log10(1e-4 * contrast * contrast * sum / volume + 1e-4)))
         }
         return points
     }
@@ -183,8 +251,15 @@ QtObject {
         for (let i = 0; i < structuresModel.count; ++i)
             listed.push(structuresModel.get(i).name)
         structuresModel.clear()
-        if (_holdsGro())
-            structuresModel.append({ name: _modelName(), status: '' })
+        // The model's row once its files hold a .gro, named as the
+        // Equilibration mock names an unnamed model
+        const files = sampleModel ? sampleModel.files : null
+        for (let i = 0; files && i < files.count; ++i) {
+            if (files.get(i).path.endsWith('.gro')) {
+                structuresModel.append({ name: sampleModel.name || 'model', status: '' })
+                break
+            }
+        }
         const entries = equilibration ? equilibration.entries : null
         // Row 0 is the equilibration itself
         for (let i = 1; entries && i < entries.count; ++i) {
@@ -201,19 +276,6 @@ QtObject {
         selectedStructure = row
     }
 
-    // As the Equilibration mock names an unnamed model
-    function _modelName() {
-        return sampleModel && sampleModel.name ? sampleModel.name : 'model'
-    }
-
-    function _holdsGro() {
-        const files = sampleModel ? sampleModel.files : null
-        for (let i = 0; files && i < files.count; ++i)
-            if (files.get(i).path.endsWith('.gro'))
-                return true
-        return false
-    }
-
     function _refreshComponents() {
         const names = []
         for (let i = 0; loadedComponents && i < loadedComponents.count; ++i)
@@ -221,87 +283,5 @@ QtObject {
         components = names
         // A ticked component that leaves the model is unticked
         deuterated = deuterated.filter(name => names.includes(name))
-    }
-
-    function _rowOf(settings) {
-        for (let row = 0; row < curvesModel.count; ++row) {
-            const curve = curvesModel.get(row)
-            if (Object.keys(settings).every(key => curve[key] === settings[key]))
-                return row
-        }
-        return -1
-    }
-
-    // As P1 makes it: the model's name, then the stage (none for the model
-    // itself), -sld and the SLD, -d and each deuterated component, -pd and
-    // the polydispersity; -2, -3 when a curve with other settings holds
-    // the name
-    function _freeName(settings) {
-        const base = _modelName() + (settings.stage ? `-${settings.stage}` : '')
-                     + `-sld${Number(settings.sld.toPrecision(6))}`
-                     + settings.deuteratedKey.split(',').filter(n => n).map(n => `-d${n}`).join('')
-                     + `-pd${Number(settings.sizeSpread.toPrecision(6))}`
-        const taken = []
-        for (let row = 0; row < curvesModel.count; ++row)
-            taken.push(curvesModel.get(row).name)
-        let name = base
-        for (let k = 2; taken.includes(name); ++k)
-            name = `${base}-${k}`
-        return name
-    }
-
-    function _settingsText(settings) {
-        return `q ${settings.qMin} to ${settings.qMax} Å⁻¹, ${settings.qPoints} points, `
-               + `polydispersity ${settings.sizeSpread}, ${settings.kernel === 'auto' ? 'exact' : 'fast'}`
-    }
-
-    function _end() {
-        _finishedRuns++
-        if (_finishedRuns % 3 === 0) {
-            error.message = `ValueError: Residue ${components[0] ?? 'SDS'} has 42 atoms in `
-                            + `${_running.structure}, but its masses list 41`
-        } else {
-            const stage = _running.stage ? parseInt(_running.stage.slice(2)) : -1
-            const curve = Object.assign({}, _running, {
-                name: runningCurve,
-                settings: _settingsText(_running),
-                status: [4, 5, 6].includes(stage) ? 'outdated' : 'done',
-                rg: Math.round((24.1 + 0.5 * (stage + 1)) * 10) / 10
-            })
-            const row = _rowOf(_running)
-            // A curve run again keeps its Show
-            if (row >= 0)
-                curvesModel.set(row, curve)
-            else
-                curvesModel.append(Object.assign(curve, { shown: true }))
-            _revision++
-        }
-        _clearRun()
-    }
-
-    function _clearRun() {
-        _running = null
-        runningCurve = ''
-    }
-
-    // A sphere of the curve's Rg over 7 sizes of its size spread, at the
-    // contrast of the aggregate (higher with each deuterated component)
-    // against the solvent; the floor keeps log10 finite at the zeros
-    function _intensity(q, curve) {
-        const radius = curve.rg * Math.sqrt(5 / 3)
-        const deuterated = curve.deuteratedKey ? curve.deuteratedKey.split(',').length : 0
-        const contrast = 0.3 + 2 * deuterated - curve.sld
-        let sum = 0
-        let volume = 0
-        for (let t = -3; t <= 3; ++t) {
-            const r = radius * (1 + curve.sizeSpread * t / 2)
-            if (r <= 0) continue
-            const weight = Math.exp(-t * t / 8)
-            const x = q * r
-            const amplitude = 3 * (Math.sin(x) - x * Math.cos(x)) / (x * x * x)
-            sum += weight * Math.pow(r, 6) * amplitude * amplitude
-            volume += weight * Math.pow(r, 3)
-        }
-        return 1e-4 * contrast * contrast * sum / volume + 1e-4
     }
 }

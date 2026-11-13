@@ -108,7 +108,7 @@ EaElements.GroupColumn {
                     width: parent.width
                     height: 3
                     radius: 1.5
-                    color: Globals.Vars.scatteringColor(index)
+                    color: Globals.Vars.scatteringColors[index] ?? '#898781'
                 }
             }
             // Hovering shows how the curve was calculated

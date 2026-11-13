@@ -5,6 +5,7 @@
 import QtQuick
 import QtQuick.Controls
 
+import EasyApplication.Gui.Globals as EaGlobals
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
@@ -69,7 +70,8 @@ EaElements.GroupColumn {
             required property double rmin
             required property double innerLeafletDmin
             required property double outerLeafletDmin
-            required property double shellThickness
+            // Set, or worked out from the leaflets' bones; null while unknown
+            required property var shellThickness
             required property bool symmetric
 
             EaComponents.TableViewLabel {
@@ -94,11 +96,20 @@ EaElements.GroupColumn {
                 onEditingFinished: outerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
+            // Empty while unknown, which is not a wrong input: red only for
+            // typed text. Cleared text sends nothing, as editingFinished
+            // waits for the validator, so the library's value comes back
             EaComponents.ListViewTextInput {
-                text: shellThickness
-                warned: !acceptableInput
+                text: typeof shellThickness === 'number' ? shellThickness : ""
+                placeholderText: qsTr("unknown")
+                warned: text !== "" && !acceptableInput
                 onEditingFinished: shellThickness = parseFloat(text)
                 validator: DoubleValidator { bottom: 0 }
+
+                EaElements.ToolTip {
+                    text: qsTr("Set or worked out from the leaflets' bones; 0 works it out")
+                    visible: parent.hovered && EaGlobals.Vars.showToolTips
+                }
             }
             EaComponents.TableViewCheckBox {
                 checked: symmetric

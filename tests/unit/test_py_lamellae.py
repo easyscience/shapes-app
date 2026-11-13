@@ -17,9 +17,10 @@ def test_rows_read_the_lamellae():
     model = Model(Vesicle().lamellae)
 
     assert model.count == 1
+    # No bone lengths to work the shell out from
     assert model.get(0) == {
-        'rmin': 0.25,
-        'shellThickness': 0.0,
+        'rmin': 1.2,
+        'shellThickness': None,
         'innerLeafletDmin': 0.5,
         'outerLeafletDmin': 0.5,
         'symmetric': True,
@@ -81,8 +82,10 @@ def test_sharing_drops_the_outer_leaflet_composition_model():
     assert outer.count() == 1
 
 
-def test_add_appends_a_symmetric_lamella_with_the_defaults():
+def test_add_appends_a_symmetric_lamella_keeping_the_library_dmins():
     model = Model(Vesicle().lamellae)
+    model.setData(model.index(0), 0.7, Model.InnerLeafletDminRole)
+    model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
     inserted = QSignalSpy(model.rowsInserted)
     count = QSignalSpy(model.countChanged)
     inner = QSignalSpy(model.innerLeafletCompositionsChanged)
@@ -90,11 +93,13 @@ def test_add_appends_a_symmetric_lamella_with_the_defaults():
 
     model.add()
 
+    # The library copies the dmins before; with no bone lengths it can't
+    # stack the rmin
     assert model.get(1) == {
-        'rmin': 0.25,
-        'shellThickness': 0.0,
-        'innerLeafletDmin': 0.5,
-        'outerLeafletDmin': 0.5,
+        'rmin': 1.2,
+        'shellThickness': None,
+        'innerLeafletDmin': 0.7,
+        'outerLeafletDmin': 0.6,
         'symmetric': True,
     }
     assert len(model.innerLeafletCompositions) == 2
@@ -104,14 +109,17 @@ def test_add_appends_a_symmetric_lamella_with_the_defaults():
 
 def test_scaled_values_become_the_defaults():
     lamellae = Vesicle().lamellae
-    # The library scales a later lamella
     lamellae.add()
+    lamella = lamellae[1]
+    # As a project saved with scaling holds them
+    lamella.rmin = None
+    lamella.inner_leaflet_dmin = None
+    lamella.outer_leaflet_dmin = None
 
     Model(lamellae)
 
-    lamella = lamellae[1]
     assert (lamella.rmin, lamella.inner_leaflet_dmin, lamella.outer_leaflet_dmin) == (
-        0.25,
+        1.2,
         0.5,
         0.5,
     )

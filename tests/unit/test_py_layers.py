@@ -14,15 +14,16 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 
 
 def test_rows_read_the_layers():
-    model = Model(Ball().layers)
+    model = Model(Ball())
 
     assert model.count == 1
-    assert model.get(0) == {'dmin': 0.5, 'rmin': 0.25}
+    # No components, so no bone to measure
+    assert model.get(0) == {'dmin': 0.5, 'rmin': 1.2, 'thickness': None}
     assert len(model.compositions) == 1
 
 
 def test_rows_refuse_an_invalid_index_or_an_unknown_role():
-    assert refusals(Model(Ball().layers), 0.7) == REFUSED
+    assert refusals(Model(Ball()), 0.7) == REFUSED
 
 
 @pytest.mark.parametrize(
@@ -31,8 +32,9 @@ def test_rows_refuse_an_invalid_index_or_an_unknown_role():
     ids=['dmin', 'rmin'],
 )
 def test_writes_reach_the_layer_and_emit_only_on_change(role, attribute, value):
-    layers = Ball().layers
-    model = Model(layers)
+    ball = Ball()
+    layers = ball.layers
+    model = Model(ball)
     spy = QSignalSpy(model.dataChanged)
 
     assert model.setData(model.index(0), value, role)
@@ -42,32 +44,39 @@ def test_writes_reach_the_layer_and_emit_only_on_change(role, attribute, value):
     assert spy.count() == 1
 
 
-def test_add_appends_a_layer_with_the_defaults_and_its_composition():
-    model = Model(Ball().layers)
+def test_add_keeps_the_library_dmin_and_fills_an_unknown_rmin():
+    model = Model(Ball())
+    model.setData(model.index(0), 0.7, Model.DminRole)
     inserted = QSignalSpy(model.rowsInserted)
     count = QSignalSpy(model.countChanged)
     compositions = QSignalSpy(model.compositionsChanged)
 
     model.add()
 
-    assert model.get(1) == {'dmin': 0.5, 'rmin': 0.25}
+    # The library copies the dmin before; with no bone lengths it can't
+    # stack the rmin
+    assert model.get(1) == {'dmin': 0.7, 'rmin': 1.2, 'thickness': None}
     assert len(model.compositions) == 2
     assert (inserted.count(), count.count(), compositions.count()) == (1, 1, 1)
 
 
 def test_scaled_values_become_the_defaults():
-    layers = Ball().layers
-    # The library scales a later layer
+    ball = Ball()
+    layers = ball.layers
     layers.add()
+    # As a project saved with scaling holds them
+    layers[1].dmin = None
+    layers[1].rmin = None
 
-    Model(layers)
+    Model(ball)
 
-    assert (layers[1].dmin, layers[1].rmin) == (0.5, 0.25)
+    assert (layers[1].dmin, layers[1].rmin) == (0.5, 1.2)
 
 
 def test_remove_drops_the_row_and_detaches_its_composition():
-    layers = Ball().layers
-    model = Model(layers)
+    ball = Ball()
+    layers = ball.layers
+    model = Model(ball)
     model.add()
     removed = layers[0]
     kept = model.compositions[1]
@@ -86,10 +95,39 @@ def test_remove_drops_the_row_and_detaches_its_composition():
 
 
 def test_refresh_resets_every_composition():
-    model = Model(Ball().layers)
+    model = Model(Ball())
     model.add()
     resets = [QSignalSpy(composition.modelReset) for composition in model.compositions]
 
     model.refresh()
 
     assert [reset.count() for reset in resets] == [1, 1]
+
+
+def test_rmin_add_and_remove_announce_the_full_radius():
+    model = Model(Ball())
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    # The full radius doesn't depend on dmin
+    model.setData(model.index(0), 0.7, Model.DminRole)
+    assert radius.count() == 0
+    model.setData(model.index(0), 1.5, Model.RminRole)
+    assert radius.count() == 1
+    model.add()
+    assert radius.count() == 2
+    model.remove(1)
+    assert radius.count() == 3
+
+
+def test_refresh_announces_the_thickness_and_the_full_radius():
+    model = Model(Ball())
+    model.add()
+    data = QSignalSpy(model.dataChanged)
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    model.refresh()
+
+    top_left, bottom_right, roles = data.at(0)
+    assert data.count() == 1
+    assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.ThicknessRole])
+    assert radius.count() == 1

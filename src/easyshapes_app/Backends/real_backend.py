@@ -348,7 +348,7 @@ class Backend(QObject):
         self._composition = (
             CompositionModel(composition, self) if composition is not None else None
         )
-        self._layers = LayersModel(unit.layers, self) if type(unit) is Ball else None
+        self._layers = LayersModel(unit, self) if type(unit) is Ball else None
         self._lamellae = LamellaeModel(unit.lamellae, self) if type(unit) is Vesicle else None
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too

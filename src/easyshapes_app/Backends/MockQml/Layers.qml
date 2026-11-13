@@ -19,14 +19,21 @@ ListModel {
     // One Fractions model per row, in row order
     readonly property var compositions: __fractions.map(fractions => fractions.model)
 
+    // The last row's rmin plus its thickness, as Ball.outer_radius; null
+    // without rows. Set where the rows change: a binding doesn't follow
+    // setProperty
+    property var fullRadius: null
+
     property var __fractions: []
     property var __fractionsComponent: Qt.createComponent(Qt.resolvedUrl("Fractions.qml"))
 
     Component.onCompleted: add()
 
-    // The library defaults for every layer: the page has no scaling
+    // A first layer's defaults on every row: the mock has no bone lengths
+    // to stack them as the library does. Its thickness stands in for a
+    // surfactant's length
     function add() {
-        append({ dmin: 0.5, rmin: 0.25 })
+        append({ dmin: 0.5, rmin: 1.2, thickness: 2.0 })
     }
 
     // The compositions follow the rows, however they were added or removed
@@ -39,11 +46,15 @@ ListModel {
             list.splice(row, 0, fractions)
         }
         __fractions = list
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).thickness : null
     }
     onRowsRemoved: (parent, first, last) => {
         const list = __fractions.slice()
         for (const fractions of list.splice(first, last - first + 1))
             fractions.destroy()
         __fractions = list
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).thickness : null
     }
+    // An rmin edit
+    onDataChanged: fullRadius = count ? get(count - 1).rmin + get(count - 1).thickness : null
 }

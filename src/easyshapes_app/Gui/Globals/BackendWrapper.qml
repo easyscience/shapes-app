@@ -268,6 +268,8 @@ QtObject {
     // Python while the current shape is not a ball
     readonly property var layersItems: activeBackend.layers ?? null
     readonly property var layersCompositions: activeBackend.layers?.compositions ?? []
+    // The ball's full radius in nm; null while unknown
+    readonly property var layersFullRadius: activeBackend.layers?.fullRadius ?? null
 
     function layersAdd() { if (activeBackend.layers) activeBackend.layers.add() }
     function layersRemove(index) { if (activeBackend.layers) activeBackend.layers.remove(index) }

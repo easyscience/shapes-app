@@ -27,6 +27,7 @@ EaElements.GroupColumn {
             EaStyle.Sizes.columnWidthFlex,    // filler
             EaStyle.Sizes.columnWidthAuto,    // Dmin, nm
             EaStyle.Sizes.columnWidthAuto,    // Rmin, nm
+            EaStyle.Sizes.columnWidthAuto,    // Thickness, nm
             EaStyle.Sizes.tableRowHeight      // delete button
         ]
 
@@ -44,6 +45,10 @@ EaElements.GroupColumn {
                 text: qsTr("Rmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
+            EaComponents.TableViewLabel {
+                text: qsTr("Thickness, nm")
+                color: EaStyle.Colors.themeForegroundMinor
+            }
             EaComponents.TableViewLabel {}
         }
 
@@ -55,6 +60,8 @@ EaElements.GroupColumn {
             required property int index
             required property double dmin
             required property double rmin
+            // null while no component the layer places has a bone length
+            required property var thickness
 
             EaComponents.TableViewLabel {
                 text: index + 1
@@ -73,12 +80,23 @@ EaElements.GroupColumn {
                 onEditingFinished: rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
+            // Greyed: the longest bone, worked out, not for editing
+            EaComponents.TableViewLabel {
+                text: typeof thickness === 'number' ? thickness.toFixed(2) : "—"
+                enabled: false
+            }
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this layer")
                 onClicked: Globals.BackendWrapper.layersRemove(index)
             }
         }
+    }
+
+    // The last layer's rmin plus its thickness
+    EaElements.Label {
+        readonly property var fullRadius: Globals.BackendWrapper.layersFullRadius
+        text: qsTr("Full radius, nm: %1").arg(typeof fullRadius === 'number' ? fullRadius.toFixed(2) : "—")
     }
 
     Grid {

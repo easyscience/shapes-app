@@ -27,9 +27,12 @@ ListModel {
 
     Component.onCompleted: add()
 
-    // The library defaults for every lamella: the page has no scaling
+    // A first lamella's defaults on every row: the mock has no bone
+    // lengths to stack them as the library does. The shell is one worked
+    // out from 2 nm bones, as Layers' thickness: inner bone 2.0 + outer
+    // leaflet dmin 0.5 + outer bone 2.0
     function add() {
-        append({ rmin: 0.25, shellThickness: 0.0, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5, symmetric: true })
+        append({ rmin: 1.2, shellThickness: 4.5, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5, symmetric: true })
     }
 
     // The compositions follow the rows, however they were added or removed
