@@ -14,7 +14,8 @@ from .composition import CompositionModel
 class LamellaeModel(QAbstractListModel):
     """
     The current vesicle's lamellae as rows of an editable ListView, with
-    one composition model per row and leaflet.
+    one composition model per row and leaflet, and the vesicle's full
+    radius.
 
     The root builds it while the current structure, or the unit its
     lattice repeats, is a vesicle, and drops it on the next structure
@@ -34,9 +35,13 @@ class LamellaeModel(QAbstractListModel):
     countChanged = Signal()
     innerLeafletCompositionsChanged = Signal()
     outerLeafletCompositionsChanged = Signal()
+    fullRadiusChanged = Signal()
 
-    def __init__(self, lamellae, parent=None):
+    def __init__(self, vesicle, parent=None):
         super().__init__(parent)
+        # The vesicle for its full radius, its lamellae for the rows
+        self._vesicle = vesicle
+        lamellae = vesicle.lamellae
         self._lamellae = lamellae
         # ponytail: the page has no scaling, so a scaled value becomes
         # the library default; keep it once the page can show scaling
@@ -59,6 +64,11 @@ class LamellaeModel(QAbstractListModel):
             else CompositionModel(lamella.outer_leaflet_composition, self)
             for lamella in lamellae
         ]
+        # A component ticked in a leaflet may change the longest bone,
+        # and so a worked-out shell
+        for composition in self._inner_compositions + self._outer_compositions:
+            if composition is not None:
+                composition.dataChanged.connect(self._shell_changed)
 
     ####################
     # Qt model overrides
@@ -104,11 +114,14 @@ class LamellaeModel(QAbstractListModel):
                 if lamella.rmin != value:
                     lamella.rmin = value
                     self.dataChanged.emit(index, index, [role])
+                    # Only the last lamella's counts, but a re-read is cheap
+                    self.fullRadiusChanged.emit()
                 return True
             case self.ShellThicknessRole:
                 if lamella.shell_thickness != value:
                     lamella.shell_thickness = value
                     self.dataChanged.emit(index, index, [role])
+                    self.fullRadiusChanged.emit()
                 return True
             case self.InnerLeafletDminRole:
                 if lamella.inner_leaflet_dmin != value:
@@ -118,7 +131,9 @@ class LamellaeModel(QAbstractListModel):
             case self.OuterLeafletDminRole:
                 if lamella.outer_leaflet_dmin != value:
                     lamella.outer_leaflet_dmin = value
-                    self.dataChanged.emit(index, index, [role])
+                    # A worked-out shell holds the outer dmin
+                    self.dataChanged.emit(index, index, [role, self.ShellThicknessRole])
+                    self.fullRadiusChanged.emit()
                 return True
             case self.SymmetricRole:
                 if lamella.symmetric != value:
@@ -130,9 +145,13 @@ class LamellaeModel(QAbstractListModel):
                         self._outer_compositions[row] = None
                     else:
                         outer = lamella.outer_leaflet_composition
-                        self._outer_compositions[row] = CompositionModel(outer, self)
-                    self.dataChanged.emit(index, index, [role])
+                        composition = CompositionModel(outer, self)
+                        composition.dataChanged.connect(self._shell_changed)
+                        self._outer_compositions[row] = composition
+                    # Shared, the outer leaflet takes the inner bones
+                    self.dataChanged.emit(index, index, [role, self.ShellThicknessRole])
                     self.outerLeafletCompositionsChanged.emit()
+                    self.fullRadiusChanged.emit()
                 return True
             case _:
                 return False
@@ -159,6 +178,14 @@ class LamellaeModel(QAbstractListModel):
         while the lamella is symmetric.
         """
         return self._outer_compositions
+
+    @Property('QVariant', notify=fullRadiusChanged)
+    def fullRadius(self):
+        """
+        The vesicle's full radius in nm: the last lamella's rmin plus its
+        shell, set or worked out; None while that shell is unknown.
+        """
+        return self._vesicle.outer_radius
 
     @Slot(int, result='QVariant')
     def get(self, row):
@@ -189,12 +216,16 @@ class LamellaeModel(QAbstractListModel):
         if lamella.rmin is None:
             lamella.rmin = self._lamellae.DEFAULT_RMIN
         self.endInsertRows()
-        self._inner_compositions.append(CompositionModel(lamella.inner_leaflet_composition, self))
+        composition = CompositionModel(lamella.inner_leaflet_composition, self)
+        composition.dataChanged.connect(self._shell_changed)
+        self._inner_compositions.append(composition)
         # A new lamella is symmetric
         self._outer_compositions.append(None)
         self.countChanged.emit()
         self.innerLeafletCompositionsChanged.emit()
         self.outerLeafletCompositionsChanged.emit()
+        # The new lamella is the last one now
+        self.fullRadiusChanged.emit()
 
     @Slot(int)
     def remove(self, row):
@@ -218,12 +249,26 @@ class LamellaeModel(QAbstractListModel):
         self.countChanged.emit()
         self.innerLeafletCompositionsChanged.emit()
         self.outerLeafletCompositionsChanged.emit()
+        # The last lamella may be another one now, or none
+        self.fullRadiusChanged.emit()
 
     def refresh(self):
         """
-        Show every leaflet's composition after the components changed:
-        the compositions follow them themselves, the views need telling.
+        Show every leaflet's composition and shell after the components
+        changed: the compositions follow them themselves, the views need
+        telling.
         """
         for composition in self._inner_compositions + self._outer_compositions:
             if composition is not None:
                 composition.refresh()
+        # A component's files or bone atoms may give it another bone
+        # length, and so a worked-out shell
+        self._shell_changed()
+
+    def _shell_changed(self):
+        # A bone length may have changed: any row's worked-out shell,
+        # and so the full radius
+        if self.rowCount():
+            last = self.index(self.rowCount() - 1)
+            self.dataChanged.emit(self.index(0), last, [self.ShellThicknessRole])
+        self.fullRadiusChanged.emit()

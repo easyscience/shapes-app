@@ -67,8 +67,6 @@ EaComponents.SideBarColumn {
                     anchors.centerIn: parent
                     visible: Globals.BackendWrapper.equilibrationFilesLocked
                     width: equilibrateButton.width
-                    // Off a while after the start, as Cancel assembly
-                    enabled: Globals.BackendWrapper.equilibrationCancelable
                     text: qsTr("Cancel equilibration")
                     fontIcon: "times"
                     onClicked: Globals.BackendWrapper.equilibrationCancel()

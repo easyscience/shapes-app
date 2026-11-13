@@ -24,12 +24,15 @@ import Gui.Globals as Globals
 //     (cos a cos t, sin a cos t, sin t); both 0 turn nothing. The library
 //     turns the line from the unit's lowest atom to its highest; plain Z
 //     here.
-// Unit shapes are typical, not worked out from the structure: they show
-// what the lattice holds, not its exact size (nm):
-//   Ring:                disc in XY, radius 3, 1 thick.
-//   Ball, Vesicle:       sphere, radius 3.
-//   Rod:                 pill along Z, radius 1.5, body 3.2 long.
-//   Bilayer, Monolayer:  box 6 x 6, 2 thick (one side a third).
+// Unit sizes are the library's where it knows them, from the components'
+// bones; typical ones otherwise (nm):
+//   Ring:                disc in XY, outer radius (3), 1 thick: the
+//                        library gives a ring no thickness, and leaves
+//                        its own Alpha/Theta tilt out of the radius.
+//   Ball, Vesicle:       sphere, full radius (3).
+//   Rod:                 pill along Z, outer radius (1.5), body the
+//                        length less both caps (3.2).
+//   Bilayer, Monolayer:  box width x width (6), thickness (2) thick.
 // The library's Z is up on screen. Scene units are 100 per nm, so a
 // built-in mesh (100 units across) takes its size in nm as its scale.
 Rectangle {
@@ -40,16 +43,24 @@ Rectangle {
 
     color: EaStyle.Colors.mainContentBackground
 
-    // The unit's typical shape and size in nm (see the header); null for
-    // a shape with no lattice view.
-    readonly property var _unit: ({
-        Ring: { kind: "disc", r: 3, h: 1 },
-        Ball: { kind: "sphere", r: 3 },
-        Vesicle: { kind: "sphere", r: 3 },
-        Rod: { kind: "rod", r: 1.5, h: 3.2 },
-        Bilayer: { kind: "box", side: 6, h: 2 },
-        Monolayer: { kind: "box", side: 6, h: 2 }
-    })[Globals.BackendWrapper.sampleModelShape] ?? null
+    // The unit's shape and size in nm (see the header); null for a shape
+    // with no lattice view. A size the library doesn't know is null and
+    // takes the typical one
+    readonly property var _unit: {
+        const W = Globals.BackendWrapper
+        const rodR = W.rodStructureOuterRadius ?? 1.5
+        const rodLength = W.rodStructureLength
+        return ({
+            Ring: { kind: "disc", r: W.ringStructureOuterRadius ?? 3, h: 1 },
+            Ball: { kind: "sphere", r: W.layersFullRadius ?? 3 },
+            Vesicle: { kind: "sphere", r: W.lamellaeFullRadius ?? 3 },
+            Rod: { kind: "rod", r: rodR, h: rodLength !== null ? rodLength - 2 * rodR : 3.2 },
+            Bilayer: { kind: "box", side: W.bilayerStructureWidth ?? 6,
+                       h: W.bilayerStructureThickness ?? 2 },
+            Monolayer: { kind: "box", side: W.monolayerStructureWidth ?? 6,
+                         h: W.monolayerStructureThickness ?? 2 }
+        })[W.sampleModelShape] ?? null
+    }
 
     // The unit's size per axis, which the cell is built from.
     readonly property var _extent: {

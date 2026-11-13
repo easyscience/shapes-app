@@ -14,7 +14,7 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 
 
 def test_rows_read_the_lamellae():
-    model = Model(Vesicle().lamellae)
+    model = Model(Vesicle())
 
     assert model.count == 1
     # No bone lengths to work the shell out from
@@ -30,7 +30,7 @@ def test_rows_read_the_lamellae():
 
 
 def test_rows_refuse_an_invalid_index_or_an_unknown_role():
-    assert refusals(Model(Vesicle().lamellae), 0.4) == REFUSED
+    assert refusals(Model(Vesicle()), 0.4) == REFUSED
 
 
 @pytest.mark.parametrize(
@@ -44,8 +44,9 @@ def test_rows_refuse_an_invalid_index_or_an_unknown_role():
     ids=['rmin', 'shellThickness', 'innerLeafletDmin', 'outerLeafletDmin'],
 )
 def test_writes_reach_the_lamella_and_emit_only_on_change(role, attribute, value):
-    lamellae = Vesicle().lamellae
-    model = Model(lamellae)
+    vesicle = Vesicle()
+    lamellae = vesicle.lamellae
+    model = Model(vesicle)
     spy = QSignalSpy(model.dataChanged)
 
     assert model.setData(model.index(0), value, role)
@@ -56,8 +57,9 @@ def test_writes_reach_the_lamella_and_emit_only_on_change(role, attribute, value
 
 
 def test_splitting_gives_the_outer_leaflet_its_own_composition_model():
-    lamellae = Vesicle().lamellae
-    model = Model(lamellae)
+    vesicle = Vesicle()
+    lamellae = vesicle.lamellae
+    model = Model(vesicle)
     data = QSignalSpy(model.dataChanged)
     outer = QSignalSpy(model.outerLeafletCompositionsChanged)
 
@@ -70,8 +72,9 @@ def test_splitting_gives_the_outer_leaflet_its_own_composition_model():
 
 
 def test_sharing_drops_the_outer_leaflet_composition_model():
-    lamellae = Vesicle().lamellae
-    model = Model(lamellae)
+    vesicle = Vesicle()
+    lamellae = vesicle.lamellae
+    model = Model(vesicle)
     model.setData(model.index(0), False, Model.SymmetricRole)
     outer = QSignalSpy(model.outerLeafletCompositionsChanged)
 
@@ -83,7 +86,7 @@ def test_sharing_drops_the_outer_leaflet_composition_model():
 
 
 def test_add_appends_a_symmetric_lamella_keeping_the_library_dmins():
-    model = Model(Vesicle().lamellae)
+    model = Model(Vesicle())
     model.setData(model.index(0), 0.7, Model.InnerLeafletDminRole)
     model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
     inserted = QSignalSpy(model.rowsInserted)
@@ -108,7 +111,8 @@ def test_add_appends_a_symmetric_lamella_keeping_the_library_dmins():
 
 
 def test_scaled_values_become_the_defaults():
-    lamellae = Vesicle().lamellae
+    vesicle = Vesicle()
+    lamellae = vesicle.lamellae
     lamellae.add()
     lamella = lamellae[1]
     # As a project saved with scaling holds them
@@ -116,7 +120,7 @@ def test_scaled_values_become_the_defaults():
     lamella.inner_leaflet_dmin = None
     lamella.outer_leaflet_dmin = None
 
-    Model(lamellae)
+    Model(vesicle)
 
     assert (lamella.rmin, lamella.inner_leaflet_dmin, lamella.outer_leaflet_dmin) == (
         1.2,
@@ -127,8 +131,9 @@ def test_scaled_values_become_the_defaults():
 
 @pytest.mark.parametrize('symmetric', [True, False], ids=['symmetric', 'split'])
 def test_remove_drops_the_row_and_detaches_its_compositions(symmetric):
-    lamellae = Vesicle().lamellae
-    model = Model(lamellae)
+    vesicle = Vesicle()
+    lamellae = vesicle.lamellae
+    model = Model(vesicle)
     model.add()
     model.setData(model.index(0), symmetric, Model.SymmetricRole)
     removed = lamellae[0]
@@ -152,7 +157,7 @@ def test_remove_drops_the_row_and_detaches_its_compositions(symmetric):
 
 
 def test_refresh_resets_every_leaflet_composition():
-    model = Model(Vesicle().lamellae)
+    model = Model(Vesicle())
     model.add()
     model.setData(model.index(0), False, Model.SymmetricRole)
     compositions = [*model.innerLeafletCompositions, model.outerLeafletCompositions[0]]
@@ -161,3 +166,54 @@ def test_refresh_resets_every_leaflet_composition():
     model.refresh()
 
     assert [reset.count() for reset in resets] == [1, 1, 1]
+
+
+def test_edits_add_and_remove_announce_the_full_radius():
+    model = Model(Vesicle())
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    # The full radius doesn't depend on the inner leaflet's dmin
+    model.setData(model.index(0), 0.7, Model.InnerLeafletDminRole)
+    assert radius.count() == 0
+    model.setData(model.index(0), 1.5, Model.RminRole)
+    model.setData(model.index(0), 2.0, Model.ShellThicknessRole)
+    model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
+    model.setData(model.index(0), False, Model.SymmetricRole)
+    model.add()
+    model.remove(1)
+    assert radius.count() == 6
+
+
+def test_outer_dmin_announces_the_shell_with_it():
+    model = Model(Vesicle())
+    data = QSignalSpy(model.dataChanged)
+
+    model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
+
+    # A worked-out shell holds the outer dmin
+    assert data.count() == 1
+    assert data.at(0)[2] == [Model.OuterLeafletDminRole, Model.ShellThicknessRole]
+
+
+def test_a_set_shell_gives_a_full_radius():
+    model = Model(Vesicle())
+    assert model.fullRadius is None
+
+    model.setData(model.index(0), 2.0, Model.ShellThicknessRole)
+
+    # Known without bones: rmin plus the shell set
+    assert model.fullRadius == pytest.approx(1.2 + 2.0)
+
+
+def test_refresh_announces_the_shell_and_the_full_radius():
+    model = Model(Vesicle())
+    model.add()
+    data = QSignalSpy(model.dataChanged)
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    model.refresh()
+
+    top_left, bottom_right, roles = data.at(0)
+    assert data.count() == 1
+    assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.ShellThicknessRole])
+    assert radius.count() == 1

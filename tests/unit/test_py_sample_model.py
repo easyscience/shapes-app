@@ -7,7 +7,6 @@ from types import SimpleNamespace
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from easyshapes_app.Backends.real_py.error import Error
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.sample_model import SampleModel
 from tests.unit.factories import FakeAnalysis
@@ -256,12 +255,10 @@ def test_export_to_exports_the_whole_model():
 
 class QuickSampleModel(OfflineSampleModel):
     """
-    Checks a running assembly every 10 ms and lets Cancel in after 50
-    ms.
+    Checks a running assembly every 10 ms.
     """
 
     _watch_interval = 10
-    _cancel_delay = 50
 
 
 class Unassemblable(FakeSampleModel):
@@ -308,33 +305,25 @@ def test_a_check_failing_before_the_start_starts_no_run():
     assert locked.count() == 0
 
 
-def test_cancel_comes_in_after_the_delay_and_ends_the_run_at_once():
+def test_cancel_ends_the_run_at_once():
     sample_model = FakeSampleModel()
     part = QuickSampleModel(Session(sample_model=sample_model))
-    cancelable = QSignalSpy(part.cancelableChanged)
     assembled = QSignalSpy(part.externalAssembled)
 
     part.assemble()
-    early = part.cancelable
-    cancelable.wait(1000)
-    late = part.cancelable
     part.cancel()
 
-    assert (early, late) == (False, True)
     assert sample_model.job.error == 'Cancelled'
     assert not part.filesLocked
-    assert not part.cancelable
     assert assembled.at(0) == ['']
 
 
-def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
+def test_a_replacement_cancels_the_run_at_once():
     sample_model = FakeSampleModel()
     part = QuickSampleModel(Session(sample_model=sample_model))
-    cancelable = QSignalSpy(part.cancelableChanged)
     replaced = []
 
     part.assemble()
-    cancelable.wait(1000)
     part.after_assembly(lambda: replaced.append('replaced'))
 
     assert replaced == ['replaced']
@@ -342,48 +331,28 @@ def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
 
 
 @pytest.mark.parametrize('slot', ['load', 'importFrom'])
-def test_load_and_import_wait_for_cancel_then_replace(slot):
+def test_load_and_import_cancel_the_run_then_replace(slot):
     old = FakeSampleModel()
     session = Session(sample_model=old)
     part = QuickSampleModel(session)
-    replaced = QSignalSpy(part.externalStructureChanged)
 
     part.assemble()
     getattr(part, slot)('DemoSavedModel')
-    held = session.sample_model
-    replaced.wait(1000)
 
-    assert held is old
     assert old.job.error == 'Cancelled'
     assert session.sample_model is not old
 
 
-def test_a_waiting_replacement_follows_a_run_that_ends_by_itself():
-    old = FakeSampleModel()
-    session = Session(sample_model=old)
-    part = QuickSampleModel(session)
-    replaced = QSignalSpy(part.externalStructureChanged)
-
-    part.assemble()
-    part.load('DemoSavedModel')
-    # Before Cancel may: the check sees the end first
-    old.job.end()
-    replaced.wait(1000)
-
-    assert old.job.error is None
-    assert session.sample_model is not old
-
-
-def test_a_waiting_replacement_that_raises_goes_to_the_error_dialog():
-    error = Error()
+def test_a_replacement_that_raises_still_ends_the_run():
     part = QuickSampleModel(Session(sample_model=FakeSampleModel()))
-    shown = QSignalSpy(error.messageChanged)
 
     def fail():
         raise KeyError('ring')
 
     part.assemble()
-    part.after_assembly(fail)
-    shown.wait(1000)
+    # Raised to the caller: from a slot, the app's hook shows it in the
+    # error dialog
+    with pytest.raises(KeyError):
+        part.after_assembly(fail)
 
-    assert error.message == "KeyError: 'ring'"
+    assert not part.filesLocked

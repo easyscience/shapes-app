@@ -14,4 +14,6 @@ QtObject {
     property double theta: 0.0
     property bool fxz: false
     property bool rev: false
+    // As the library's, with the mock's 2 nm bone, as Layers' thickness
+    readonly property real outerRadius: rmin + 2.0
 }

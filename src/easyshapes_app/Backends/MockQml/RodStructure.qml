@@ -13,4 +13,8 @@ QtObject {
     property int turns: 1
     property bool fxz: false
     property bool rev: false
+    // As the library's, with the mock's 2 nm bone, as Layers' thickness;
+    // the length runs from cap tip to cap tip
+    readonly property real outerRadius: rmin + 2.0
+    readonly property real length: (Math.max(turns, 1) - 1) * dmin + 2 * outerRadius
 }

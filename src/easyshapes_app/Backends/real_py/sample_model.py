@@ -46,15 +46,13 @@ class SampleModel(QObject):
     nameTaken or exportTaken.
 
     Assemble runs in the background. A replacement of the model, here or
-    by a project, waits for it: it cancels the run as soon as Cancel
-    may, then replaces.
+    by a project, waits for it: it cancels the run, then replaces.
     """
 
     nameChanged = Signal()
     shapeChanged = Signal()
     latticeChanged = Signal()
     filesLockedChanged = Signal()
-    cancelableChanged = Signal()
 
     # The structure was replaced: the root builds new structure adapters
     # and refreshes the components list
@@ -72,10 +70,6 @@ class SampleModel(QObject):
     _library_class = Library
     # The analysis the first sample model brings; tests swap in a fake
     _analysis_class = Analysis
-    # Cancel waits this long after Assemble, ms: shapespyer hangs when a
-    # cancel meets its child process starting. Tests shorten it.
-    # ponytail: fixed wait; drop it once shapespyer's spawn is fixed
-    _cancel_delay = 3000
     # How often a running assembly is checked, ms
     _watch_interval = 500
 
@@ -83,18 +77,12 @@ class SampleModel(QObject):
         super().__init__(parent)
         self._session = session
         self._files = FilesModel(self)
-        self._cancelable = False
         # A replacement of the sample model, waiting for the run to stop
         self._pending = None
         # Reads files_locked while an assembly runs
         self._watch = QTimer(self)
         self._watch.setInterval(self._watch_interval)
         self._watch.timeout.connect(self._check)
-        # Lets Cancel in, a while after Assemble
-        self._delay = QTimer(self)
-        self._delay.setSingleShot(True)
-        self._delay.setInterval(self._cancel_delay)
-        self._delay.timeout.connect(self._allow_cancel)
 
     ##########################
     # GUI accessible variables
@@ -181,10 +169,6 @@ class SampleModel(QObject):
         # True until the check takes the ended run in
         return self._watch.isActive()
 
-    @Property(bool, notify=cancelableChanged)
-    def cancelable(self):
-        return self._cancelable
-
     ##########################
     # GUI accessible functions
     ##########################
@@ -197,7 +181,6 @@ class SampleModel(QObject):
         """
         self._session.sample_model.assemble(background=True)
         self._watch.start()
-        self._delay.start()
         self.filesLockedChanged.emit()
 
     @Slot()
@@ -310,22 +293,15 @@ class SampleModel(QObject):
 
     def after_assembly(self, then):
         """
-        Call then once no assembly runs: at once, or after cancelling
-        the running one as soon as Cancel may.
+        Call then once no assembly runs: at once, or once the running
+        one is cancelled.
         """
         if not self._watch.isActive():
             then()
             return
         # A later request replaces an earlier one
         self._pending = then
-        if self._cancelable:
-            self.cancel()
-
-    def _allow_cancel(self):
-        self._cancelable = True
-        self.cancelableChanged.emit()
-        if self._pending:
-            self.cancel()
+        self.cancel()
 
     def _check(self):
         """
@@ -336,14 +312,11 @@ class SampleModel(QObject):
         if sample_model.files_locked:
             return
         self._watch.stop()
-        self._delay.stop()
-        self._cancelable = False
         # The read above took the run's outputs in: they, and its log,
         # are the model's files now, after a failure or cancel too
         self._files.reset(sample_model.paths)
         then, self._pending = self._pending, None
         self.filesLockedChanged.emit()
-        self.cancelableChanged.emit()
         error = sample_model.job.error
         # A cancel was the user's own: no dialog
         self.externalAssembled.emit('' if error in (None, 'Cancelled') else error)

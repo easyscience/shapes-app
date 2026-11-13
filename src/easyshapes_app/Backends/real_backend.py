@@ -349,7 +349,7 @@ class Backend(QObject):
             CompositionModel(composition, self) if composition is not None else None
         )
         self._layers = LayersModel(unit, self) if type(unit) is Ball else None
-        self._lamellae = LamellaeModel(unit.lamellae, self) if type(unit) is Vesicle else None
+        self._lamellae = LamellaeModel(unit, self) if type(unit) is Vesicle else None
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too
         self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
@@ -361,6 +361,20 @@ class Backend(QObject):
                 self._components.loaded.rowsInserted.connect(model.refresh)
                 self._components.loaded.rowsRemoved.connect(model.refresh)
                 self._components.loaded.dataChanged.connect(model.refresh)
+        # A component's rows, files or bone atoms, and the fractions,
+        # change the bones a unit's sizes are worked out from. These
+        # shapes all have a composition model
+        for shape in (
+            self._ring_structure,
+            self._rod_structure,
+            self._bilayer_structure,
+            self._monolayer_structure,
+        ):
+            if shape is not None:
+                self._components.loaded.rowsInserted.connect(shape.sizesChanged)
+                self._components.loaded.rowsRemoved.connect(shape.sizesChanged)
+                self._components.loaded.dataChanged.connect(shape.sizesChanged)
+                self._composition.dataChanged.connect(shape.sizesChanged)
         self.ringStructureChanged.emit()
         self.ballStructureChanged.emit()
         self.vesicleStructureChanged.emit()

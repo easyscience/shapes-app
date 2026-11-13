@@ -98,9 +98,8 @@ QtObject {
     readonly property bool sampleModelLattice: activeBackend.sampleModel.lattice
     // The model's own files: Assemble outputs and files added by hand
     readonly property var sampleModelFiles: activeBackend.sampleModel.files
-    // An assembly runs; Cancel may stop it only a while after it starts
+    // An assembly runs; Cancel stops it at once
     readonly property bool sampleModelFilesLocked: activeBackend.sampleModel.filesLocked
-    readonly property bool sampleModelCancelable: activeBackend.sampleModel.cancelable
 
     function sampleModelSetName(value) { activeBackend.sampleModel.name = value }
     function sampleModelSetShape(value) { activeBackend.sampleModel.shape = value }
@@ -137,6 +136,8 @@ QtObject {
     readonly property real ringStructureRmin: activeBackend.ringStructure?.rmin ?? 0
     readonly property bool ringStructureFxz: activeBackend.ringStructure?.fxz ?? false
     readonly property bool ringStructureRev: activeBackend.ringStructure?.rev ?? false
+    // In nm, read-only; null while no component has a bone length
+    readonly property var ringStructureOuterRadius: activeBackend.ringStructure?.outerRadius ?? null
 
     function ringStructureSetAlpha(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.alpha = value }
     function ringStructureSetTheta(value) { if (activeBackend.ringStructure) activeBackend.ringStructure.theta = value }
@@ -181,6 +182,10 @@ QtObject {
     readonly property real rodStructureRmin: activeBackend.rodStructure?.rmin ?? 0
     readonly property bool rodStructureFxz: activeBackend.rodStructure?.fxz ?? false
     readonly property bool rodStructureRev: activeBackend.rodStructure?.rev ?? false
+    // In nm, read-only; null while no component has a bone length. The
+    // length runs from cap tip to cap tip
+    readonly property var rodStructureOuterRadius: activeBackend.rodStructure?.outerRadius ?? null
+    readonly property var rodStructureLength: activeBackend.rodStructure?.length ?? null
 
     function rodStructureSetTurns(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.turns = value }
     function rodStructureSetDmin(value) { if (activeBackend.rodStructure) activeBackend.rodStructure.dmin = value }
@@ -196,6 +201,10 @@ QtObject {
     readonly property real bilayerStructureDmin: activeBackend.bilayerStructure?.dmin ?? 0
     readonly property real bilayerStructureZsep: activeBackend.bilayerStructure?.zsep ?? 0
     readonly property int bilayerStructureNside: activeBackend.bilayerStructure?.nside ?? 0
+    // In nm, read-only; the thickness is null while zsep is unset and no
+    // component has a bone length
+    readonly property var bilayerStructureWidth: activeBackend.bilayerStructure?.width ?? null
+    readonly property var bilayerStructureThickness: activeBackend.bilayerStructure?.thickness ?? null
 
     function bilayerStructureSetDmin(value) { if (activeBackend.bilayerStructure) activeBackend.bilayerStructure.dmin = value }
     function bilayerStructureSetZsep(value) { if (activeBackend.bilayerStructure) activeBackend.bilayerStructure.zsep = value }
@@ -209,6 +218,10 @@ QtObject {
     readonly property real monolayerStructureDmin: activeBackend.monolayerStructure?.dmin ?? 0
     readonly property real monolayerStructureZsep: activeBackend.monolayerStructure?.zsep ?? 0
     readonly property int monolayerStructureNside: activeBackend.monolayerStructure?.nside ?? 0
+    // In nm, read-only; the thickness is null while no component has a
+    // bone length
+    readonly property var monolayerStructureWidth: activeBackend.monolayerStructure?.width ?? null
+    readonly property var monolayerStructureThickness: activeBackend.monolayerStructure?.thickness ?? null
 
     function monolayerStructureSetDmin(value) { if (activeBackend.monolayerStructure) activeBackend.monolayerStructure.dmin = value }
     function monolayerStructureSetZsep(value) { if (activeBackend.monolayerStructure) activeBackend.monolayerStructure.zsep = value }
@@ -280,6 +293,8 @@ QtObject {
     readonly property var lamellaeItems: activeBackend.lamellae ?? null
     readonly property var lamellaeInnerLeafletCompositions: activeBackend.lamellae?.innerLeafletCompositions ?? []
     readonly property var lamellaeOuterLeafletCompositions: activeBackend.lamellae?.outerLeafletCompositions ?? []
+    // The vesicle's full radius in nm; null while unknown
+    readonly property var lamellaeFullRadius: activeBackend.lamellae?.fullRadius ?? null
 
     function lamellaeAdd() { if (activeBackend.lamellae) activeBackend.lamellae.add() }
     function lamellaeRemove(index) { if (activeBackend.lamellae) activeBackend.lamellae.remove(index) }
@@ -424,10 +439,9 @@ QtObject {
     // and each after a finished one
     readonly property var equilibrationAvailableStages: activeBackend.equilibration.availableStages
     readonly property var equilibrationStartableStages: activeBackend.equilibration.startableStages
-    // A run goes on; Cancel may stop it only a while after it starts.
-    // stage is the one it is on, -1 without a run
+    // A run goes on; Cancel stops it at once. stage is the one it is on,
+    // -1 without a run
     readonly property bool equilibrationFilesLocked: activeBackend.equilibration.filesLocked
-    readonly property bool equilibrationCancelable: activeBackend.equilibration.cancelable
     readonly property int equilibrationStage: activeBackend.equilibration.stage
     // The log Engine output shows, by row of entries: 0 the run's
     // equilibration.log, a finished stage its mdrun log; '' for a stage

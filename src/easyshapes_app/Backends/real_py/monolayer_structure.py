@@ -13,16 +13,21 @@ class MonolayerStructure(QObject):
 
     The root builds it while the current structure is a monolayer and
     drops it on the next structure change; for any other shape QML finds
-    none.
+    none. Its sizes are the library's, read-only: sizesChanged follows
+    the fields here, and the components and fractions through the root.
     """
 
     dminChanged = Signal()
     zsepChanged = Signal()
     nsideChanged = Signal()
+    sizesChanged = Signal()
 
     def __init__(self, monolayer, parent=None):
         super().__init__(parent)
         self._monolayer = monolayer
+        # The width is nside sites dmin apart; zsep changes no size
+        self.dminChanged.connect(self.sizesChanged)
+        self.nsideChanged.connect(self.sizesChanged)
 
     ##########################
     # GUI accessible variables
@@ -60,3 +65,13 @@ class MonolayerStructure(QObject):
             return
         self._monolayer.nside = value
         self.nsideChanged.emit()
+
+    @Property(float, notify=sizesChanged)
+    def width(self):
+        # nside sites dmin apart: always known
+        return self._monolayer.width
+
+    @Property('QVariant', notify=sizesChanged)
+    def thickness(self):
+        # The longest bone; None while no component has one
+        return self._monolayer.thickness

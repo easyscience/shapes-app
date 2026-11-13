@@ -21,6 +21,11 @@ ListModel {
     readonly property var innerLeafletCompositions: __inner.map(fractions => fractions.model)
     readonly property var outerLeafletCompositions: __outer.map(fractions => fractions ? fractions.model : null)
 
+    // The last row's rmin plus its shell, as VesicleStructure.outer_radius;
+    // null without rows. Set where the rows change: a binding doesn't
+    // follow setProperty
+    property var fullRadius: null
+
     property var __inner: []
     property var __outer: []
     property var __fractionsComponent: Qt.createComponent(Qt.resolvedUrl("Fractions.qml"))
@@ -49,6 +54,7 @@ ListModel {
         }
         __inner = inner
         __outer = outer
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
     }
     onRowsRemoved: (parent, first, last) => {
         const inner = __inner.slice()
@@ -59,6 +65,7 @@ ListModel {
                 fractions.destroy()
         __inner = inner
         __outer = outer
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
     }
 
     // Splitting gives the outer leaflet its own composition, sharing
@@ -77,5 +84,7 @@ ListModel {
             }
         }
         __outer = outer
+        // An rmin or shell edit
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
     }
 }

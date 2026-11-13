@@ -148,8 +148,8 @@ class Equilibration(QObject):
     page checks exportTaken.
 
     Equilibrate runs in the background, watched as Assemble is. A
-    replacement of the project waits for it: it cancels the run as soon
-    as Cancel may, then replaces.
+    replacement of the project waits for it: it cancels the run, then
+    replaces.
     """
 
     firstStageChanged = Signal()
@@ -162,7 +162,6 @@ class Equilibration(QObject):
     selectedEntryChanged = Signal()
     selectedLogChanged = Signal()
     filesLockedChanged = Signal()
-    cancelableChanged = Signal()
     stageChanged = Signal()
     logChanged = Signal()
 
@@ -170,9 +169,6 @@ class Equilibration(QObject):
     # root shows the error
     externalEquilibrated = Signal(str)
 
-    # Cancel waits this long after Equilibrate, ms, as for Assemble.
-    # Tests shorten it
-    _cancel_delay = 3000
     # How often a running equilibration is checked, ms
     _watch_interval = 500
 
@@ -192,18 +188,12 @@ class Equilibration(QObject):
         self._log = ''
         # Reads the picked log; None without one
         self._reader = None
-        self._cancelable = False
         # A replacement of the project, waiting for the run to stop
         self._pending = None
         # Reads files_locked while a run goes on
         self._watch = QTimer(self)
         self._watch.setInterval(self._watch_interval)
         self._watch.timeout.connect(self._check)
-        # Lets Cancel in, a while after Equilibrate
-        self._delay = QTimer(self)
-        self._delay.setSingleShot(True)
-        self._delay.setInterval(self._cancel_delay)
-        self._delay.timeout.connect(self._allow_cancel)
 
     ##########################
     # GUI accessible variables
@@ -314,10 +304,6 @@ class Equilibration(QObject):
         # True until the check takes the ended run in
         return self._watch.isActive()
 
-    @Property(bool, notify=cancelableChanged)
-    def cancelable(self):
-        return self._cancelable
-
     @Property(int, notify=stageChanged)
     def stage(self):
         return self._stage
@@ -346,7 +332,6 @@ class Equilibration(QObject):
         """
         self._equilibration().run(self._session.sample_model, background=True)
         self._watch.start()
-        self._delay.start()
         self.filesLockedChanged.emit()
         # The run emptied its log and writes it anew: shown from its
         # start
@@ -442,22 +427,15 @@ class Equilibration(QObject):
 
     def after_equilibration(self, then):
         """
-        Call then once no run goes on: at once, or after cancelling the
-        running one as soon as Cancel may.
+        Call then once no run goes on: at once, or once the running one
+        is cancelled.
         """
         if not self._watch.isActive():
             then()
             return
         # A later request replaces an earlier one
         self._pending = then
-        if self._cancelable:
-            self.cancel()
-
-    def _allow_cancel(self):
-        self._cancelable = True
-        self.cancelableChanged.emit()
-        if self._pending:
-            self.cancel()
+        self.cancel()
 
     def _check(self):
         """
@@ -473,11 +451,8 @@ class Equilibration(QObject):
         if locked:
             return
         self._watch.stop()
-        self._delay.stop()
-        self._cancelable = False
         then, self._pending = self._pending, None
         self.filesLockedChanged.emit()
-        self.cancelableChanged.emit()
         error = equilibration.job.error
         # A cancel was the user's own: no dialog
         self.externalEquilibrated.emit('' if error in (None, 'Cancelled') else error)

@@ -13,6 +13,8 @@ class RingStructure(QObject):
 
     The root builds it while the current structure is a ring and drops
     it on the next structure change; for any other shape QML finds none.
+    Its sizes are the library's, read-only: sizesChanged follows the
+    fields here, and the components and fractions through the root.
     """
 
     alphaChanged = Signal()
@@ -21,10 +23,13 @@ class RingStructure(QObject):
     rminChanged = Signal()
     fxzChanged = Signal()
     revChanged = Signal()
+    sizesChanged = Signal()
 
     def __init__(self, ring, parent=None):
         super().__init__(parent)
         self._ring = ring
+        # The outer radius is rmin plus the longest bone
+        self.rminChanged.connect(self.sizesChanged)
 
     ##########################
     # GUI accessible variables
@@ -95,3 +100,9 @@ class RingStructure(QObject):
             return
         self._ring.rev = value
         self.revChanged.emit()
+
+    @Property('QVariant', notify=sizesChanged)
+    def outerRadius(self):
+        # None while no component has a bone length; Alpha and Theta
+        # don't tilt it
+        return self._ring.outer_radius

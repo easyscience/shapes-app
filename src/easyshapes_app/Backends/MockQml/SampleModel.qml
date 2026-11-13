@@ -16,10 +16,9 @@ QtObject {
     property string shape: 'Ring'
     property bool lattice: false
 
-    // An assembly runs: the mock's ends by itself after 10 s. Cancel may
-    // stop it 3 s after the start, as in Python
+    // An assembly runs: the mock's ends by itself after 10 s. Cancel
+    // stops it at once, as in Python
     readonly property bool filesLocked: _run.running
-    readonly property bool cancelable: filesLocked && !_delay.running
 
     // Mock only: the mock Library, set by MockBackend. A save adds to its
     // index, as a library save does
@@ -36,10 +35,6 @@ QtObject {
     property Timer _run: Timer {
         interval: 10000
         onTriggered: root._end()
-    }
-    property Timer _delay: Timer {
-        interval: 3000
-        onTriggered: if (root._pending) root.cancel()
     }
 
     // The model's own files. Roles: path, size. A size is a fake label:
@@ -63,7 +58,6 @@ QtObject {
             return
         }
         _run.start()
-        _delay.start()
     }
 
     function cancel() {
@@ -71,19 +65,18 @@ QtObject {
         _end()
     }
 
-    // Calls then once no assembly runs: at once, or after cancelling the
-    // running one as soon as Cancel may
+    // Calls then once no assembly runs: at once, or once the running one
+    // is cancelled
     function afterAssembly(then) {
         if (!filesLocked) {
             then()
             return
         }
         _pending = then
-        if (cancelable) cancel()
+        cancel()
     }
 
     function _end() {
-        _delay.stop()
         const then = _pending
         _pending = null
         if (then) then()

@@ -13,16 +13,23 @@ class BilayerStructure(QObject):
 
     The root builds it while the current structure is a bilayer and
     drops it on the next structure change; for any other shape QML finds
-    none.
+    none. Its sizes are the library's, read-only: sizesChanged follows
+    the fields here, and the components and fractions through the root.
     """
 
     dminChanged = Signal()
     zsepChanged = Signal()
     nsideChanged = Signal()
+    sizesChanged = Signal()
 
     def __init__(self, bilayer, parent=None):
         super().__init__(parent)
         self._bilayer = bilayer
+        # The width is nside sites dmin apart; the thickness is zsep, or
+        # grows with dmin
+        self.dminChanged.connect(self.sizesChanged)
+        self.zsepChanged.connect(self.sizesChanged)
+        self.nsideChanged.connect(self.sizesChanged)
 
     ##########################
     # GUI accessible variables
@@ -60,3 +67,14 @@ class BilayerStructure(QObject):
             return
         self._bilayer.nside = value
         self.nsideChanged.emit()
+
+    @Property(float, notify=sizesChanged)
+    def width(self):
+        # nside sites dmin apart: always known
+        return self._bilayer.width
+
+    @Property('QVariant', notify=sizesChanged)
+    def thickness(self):
+        # zsep when set, else dmin plus a bone on each side; None while
+        # neither is known
+        return self._bilayer.thickness

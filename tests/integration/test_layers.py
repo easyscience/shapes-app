@@ -100,6 +100,49 @@ def test_thickness_and_full_radius_follow_bones_and_compositions(qcore_applicati
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
+def test_ring_outer_radius_follows_bones_and_compositions(qcore_application, tmp_path):
+    backend = shaped_backend('Ring', tmp_path / 'ring')
+    ring = backend.ringStructure
+    sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
+    sizes = QSignalSpy(ring.sizesChanged)
+
+    # SDS joins the ring: its bone is the only one measured
+    backend.components.loaded.append(sds)
+
+    assert ring.outerRadius == pytest.approx(ring.rmin + sds.bone_length)
+    assert sizes.count() > 0
+
+    # Unticked, SDS is not placed; DPPC and CHOL have no bones
+    composition = backend.composition
+    names = [composition.get(row)['name'] for row in range(composition.count)]
+    sizes = QSignalSpy(ring.sizesChanged)
+    sds_row = composition.index(names.index('SDS'))
+    assert composition.setData(sds_row, False, CompositionModel.PresentRole)
+
+    assert ring.outerRadius is None
+    assert sizes.count() > 0
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
+def test_vesicle_shell_and_full_radius_follow_bones(qcore_application, tmp_path):
+    backend = shaped_backend('Vesicle', tmp_path / 'vesicle')
+    lamellae = backend.lamellae
+    sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
+    radius = QSignalSpy(lamellae.fullRadiusChanged)
+
+    # SDS joins both leaflets: the shell is worked out from its bone
+    backend.components.loaded.append(sds)
+
+    first = lamellae.get(0)
+    shell = 2 * sds.bone_length + first['outerLeafletDmin']
+    assert first['shellThickness'] == pytest.approx(shell)
+    assert lamellae.fullRadius == pytest.approx(first['rmin'] + shell)
+    assert radius.count() > 0
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
 def test_split_lamella_survives_save_and_load_and_follows_removals(qcore_application, tmp_path):
     backend = shaped_backend('Vesicle', tmp_path / 'vesicle')
     lamellae = backend.lamellae

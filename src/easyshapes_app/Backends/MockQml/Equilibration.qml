@@ -10,8 +10,8 @@ import QtQuick
 // Mirrors Backend.equilibration: the setup, the run and the files of the
 // analysis's equilibration. Stage k runs the configuration's
 // equil<k>.mdp: eq0 from the assembled model, a later stage from the
-// stage before. The mock's run ends by itself after 10 s; Cancel may stop
-// it 3 s after the start, as in Python.
+// stage before. The mock's run ends by itself after 10 s; Cancel stops it
+// at once, as in Python.
 QtObject {
     id: root
 
@@ -41,7 +41,6 @@ QtObject {
 
     // The run
     readonly property bool filesLocked: _run.running
-    readonly property bool cancelable: filesLocked && !_delay.running
     // The stage the run is on; -1 without a run
     property int stage: -1
     // The log Engine output shows, picked by row of entries. Row 0 is the
@@ -94,10 +93,6 @@ QtObject {
     property Timer _run: Timer {
         repeat: true
         onTriggered: root._finishStage()
-    }
-    property Timer _delay: Timer {
-        interval: 3000
-        onTriggered: if (root._pending) root.cancel()
     }
 
     // The log's finished lines, and mdrun's progress line, which each
@@ -156,7 +151,6 @@ QtObject {
         _run.interval = 10000 / (lastStage - firstStage + 1)
         _startStage(firstStage)
         _run.start()
-        _delay.start()
         if (selectedEntry === 0)
             _fillFiles()
     }
@@ -168,15 +162,15 @@ QtObject {
         _end()
     }
 
-    // Calls then once no run goes on: at once, or after cancelling the
-    // running one as soon as Cancel may
+    // Calls then once no run goes on: at once, or once the running one is
+    // cancelled
     function afterEquilibration(then) {
         if (!filesLocked) {
             then()
             return
         }
         _pending = then
-        if (cancelable) cancel()
+        cancel()
     }
 
     function selectEntry(index) {
@@ -267,7 +261,6 @@ QtObject {
 
     function _end() {
         _run.stop()
-        _delay.stop()
         stage = -1
         const then = _pending
         _pending = null

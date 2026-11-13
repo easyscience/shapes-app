@@ -20,12 +20,10 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 
 class QuickEquilibration(Equilibration):
     """
-    Checks a running equilibration every 10 ms and lets Cancel in after
-    50 ms.
+    Checks a running equilibration every 10 ms.
     """
 
     _watch_interval = 10
-    _cancel_delay = 50
 
 
 class Unrunnable(FakeEquilibration):
@@ -339,49 +337,26 @@ def test_a_check_failing_before_the_start_starts_no_run():
     assert locked.count() == 0
 
 
-def test_cancel_comes_in_after_the_delay_and_ends_the_run_at_once():
+def test_cancel_ends_the_run_at_once():
     equilibration = FakeEquilibration('equil0.mdp')
     part = part_on(equilibration)
-    cancelable = QSignalSpy(part.cancelableChanged)
     ended = QSignalSpy(part.externalEquilibrated)
 
     part.run()
-    early = part.cancelable
-    cancelable.wait(1000)
-    late = part.cancelable
     part.cancel()
 
-    assert (early, late) == (False, True)
     assert equilibration.job.error == 'Cancelled'
-    assert (part.filesLocked, part.cancelable) == (False, False)
+    assert not part.filesLocked
     assert ended.at(0) == ['']
 
 
-def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
-    equilibration = FakeEquilibration('equil0.mdp')
-    part = part_on(equilibration)
-    cancelable = QSignalSpy(part.cancelableChanged)
-    replaced = []
-
-    part.run()
-    cancelable.wait(1000)
-    part.after_equilibration(lambda: replaced.append('replaced'))
-
-    assert replaced == ['replaced']
-    assert equilibration.job.error == 'Cancelled'
-
-
-def test_a_replacement_waits_for_the_run_then_cancels_it():
+def test_a_replacement_cancels_the_run_at_once():
     equilibration = FakeEquilibration('equil0.mdp')
     part = part_on(equilibration)
     replaced = []
-    ended = QSignalSpy(part.externalEquilibrated)
 
     part.run()
     part.after_equilibration(lambda: replaced.append('replaced'))
-    held = list(replaced)
-    ended.wait(1000)
 
-    assert held == []
     assert replaced == ['replaced']
     assert equilibration.job.error == 'Cancelled'

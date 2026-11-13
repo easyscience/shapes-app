@@ -99,15 +99,17 @@ def test_another_analysis_refreshes_configuration_and_force_field(qcore_applicat
     assert [spy.count() for spy in named] == [1, 1]
 
 
-def test_project_replacement_waits_for_a_running_assembly(qcore_application):
-    backend = Backend(Session(sample_model=FakeSampleModel()))
+def test_project_replacement_cancels_a_running_assembly_first(qcore_application):
+    sample_model = FakeSampleModel()
+    backend = Backend(Session(sample_model=sample_model))
     replaced = []
 
     backend.project.externalReplacing.emit(lambda: replaced.append('idle'))
     backend.sampleModel.assemble()
     backend.project.externalReplacing.emit(lambda: replaced.append('running'))
 
-    assert replaced == ['idle']
+    assert replaced == ['idle', 'running']
+    assert sample_model.job.error == 'Cancelled'
 
 
 @pytest.mark.parametrize(
@@ -132,7 +134,7 @@ def test_equilibration_end_shows_its_error(qcore_application, error, message):
     assert backend.error.message == message
 
 
-def test_project_replacement_waits_for_a_running_equilibration(qcore_application):
+def test_project_replacement_cancels_a_running_equilibration_first(qcore_application):
     analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'))
     backend = Backend(Session(sample_model=FakeSampleModel(), analysis=analysis))
     replaced = []
@@ -140,7 +142,8 @@ def test_project_replacement_waits_for_a_running_equilibration(qcore_application
     backend.equilibration.run()
     backend.project.externalReplacing.emit(lambda: replaced.append('running'))
 
-    assert replaced == []
+    assert replaced == ['running']
+    assert analysis.equilibration.job.error == 'Cancelled'
 
 
 def test_stage_changes_refresh_the_stage_viewer(qcore_application):

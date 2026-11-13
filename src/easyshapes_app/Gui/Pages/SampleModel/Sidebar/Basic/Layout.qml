@@ -127,9 +127,6 @@ EaComponents.SideBarColumn {
             anchors.centerIn: parent
             visible: Globals.BackendWrapper.sampleModelFilesLocked
             width: assembleButton.width
-            // Off a while after the start: shapespyer hangs when a
-            // cancel meets its child process starting
-            enabled: Globals.BackendWrapper.sampleModelCancelable
             text: qsTr("Cancel assembly")
             fontIcon: "times"
             onClicked: Globals.BackendWrapper.sampleModelCancel()
