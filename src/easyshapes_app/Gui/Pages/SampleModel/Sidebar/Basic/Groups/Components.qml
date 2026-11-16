@@ -104,15 +104,20 @@ EaElements.GroupColumn {
                 onActivated: (i) => counterIon = (i === 0 ? "" : model[i])
             }
 
+            // Mint and Mext show the bone the generator gets. Red and not
+            // sent when empty, wrong, or equal to the other end: equal
+            // ends would unset the bone
             EaComponents.ListViewTextInput {
                 text: mint
-                onEditingFinished: mint = parseInt(text)
+                warned: !acceptableInput || parseInt(text) === mext
+                onEditingFinished: if (parseInt(text) !== mext) mint = parseInt(text)
                 validator: IntValidator { bottom: 0 }
             }
 
             EaComponents.ListViewTextInput {
                 text: mext
-                onEditingFinished: mext = parseInt(text)
+                warned: !acceptableInput || parseInt(text) === mint
+                onEditingFinished: if (parseInt(text) !== mint) mext = parseInt(text)
                 validator: IntValidator { bottom: 0 }
             }
 

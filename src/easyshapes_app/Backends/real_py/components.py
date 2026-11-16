@@ -86,9 +86,14 @@ class ComponentsModel(QAbstractListModel):
             case self.CounterIonRole:
                 return component.counter_ion.name if component.counter_ion else ''
             case self.MintRole:
-                return component.mint
+                # The bone the generator gets (Structure._to_options):
+                # shapespyer works it out while mint equals mext; the
+                # stored value without a structure file
+                bone = component.bone
+                return bone[0] if bone else component.mint
             case self.MextRole:
-                return component.mext
+                bone = component.bone
+                return bone[1] if bone else component.mext
             case self.NameErrorRole:
                 return self._name_errors.get(component, '')
             case _:
@@ -109,15 +114,19 @@ class ComponentsModel(QAbstractListModel):
                     component.counter_ion = self._ion_class.load(value) if value else None
                     self.dataChanged.emit(index, index, [role])
                 return True
-            case self.MintRole:
-                if component.mint != value:
-                    component.mint = value
-                    self.dataChanged.emit(index, index, [role])
-                return True
-            case self.MextRole:
-                if component.mext != value:
-                    component.mext = value
-                    self.dataChanged.emit(index, index, [role])
+            case self.MintRole | self.MextRole:
+                # From the pair as shown, so the other end keeps its
+                # value. Equal ends would unset the bone: refused
+                mint, mext = component.bone or (component.mint, component.mext)
+                if role == self.MintRole:
+                    mint = value
+                else:
+                    mext = value
+                if mint == mext:
+                    return False
+                if (component.mint, component.mext) != (mint, mext):
+                    component.mint, component.mext = mint, mext
+                    self.dataChanged.emit(index, index, [self.MintRole, self.MextRole])
                 return True
             case _:
                 return False

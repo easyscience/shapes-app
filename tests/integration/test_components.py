@@ -98,3 +98,21 @@ def test_viewer_reads_the_structure_file_the_bone_is_measured_on(qcore_applicati
     ends = [[atoms[row][axis] for axis in 'xyz'] for row in (sds.mint, sds.mext)]
     assert math.dist(*ends) / 10 == pytest.approx(backend.components.boneLength(0))
     assert backend.components.boneLength(0) > 0
+
+
+@pytest.mark.fast
+@pytest.mark.usefixtures('fresh_file_manager')
+def test_an_unset_bone_shows_the_one_the_generator_gets(qcore_application, tmp_path):
+    session = Session(
+        analysis=Analysis(equilibration=Equilibration(force_field=ForceField(name='Field')))
+    )
+    backend = Backend(session)
+    backend.project.create('smiles', '', str(tmp_path / 'smiles'))
+    sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
+    backend.components.loaded.append(sds)
+    model = backend.components.loaded
+
+    # Unset, as a component not made from SMILES starts
+    sds.mint = sds.mext = 0
+
+    assert (model.get(0)['mint'], model.get(0)['mext']) == (sds.number_of_atoms - 1, 0)
