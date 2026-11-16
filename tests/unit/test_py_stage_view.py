@@ -9,9 +9,9 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.stage_view import StageView
 from tests.unit.factories import GRO_ATOMS
-from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
 from tests.unit.factories import FakeSampleModel
+from tests.unit.factories import FakeStage
 from tests.unit.factories import arrived
 from tests.unit.factories import gro_text
 
@@ -31,7 +31,7 @@ def stage(folder, k, time):
     Stage eq<k> as the library holds it once finished: its final .gro,
     of two atoms, written at a time.
     """
-    return FakeAsset(f'eq{k}', gro(folder / f'eq{k}' / f'model-eq{k}.gro', time, GRO_ATOMS[:2]))
+    return FakeStage(f'eq{k}', gro(folder / f'eq{k}' / f'model-eq{k}.gro', time, GRO_ATOMS[:2]))
 
 
 def equilibration_with_initial(folder):
@@ -60,7 +60,7 @@ def rows(view):
 
 def test_without_analysis_or_files_nothing_is_listed():
     empty = FakeEquilibration('equil0.mdp')
-    empty.stages = [FakeAsset('eq0')]
+    empty.stages = [FakeStage('eq0')]
 
     for view in (viewer_of(empty), StageView(Session())):
         view.refresh()
@@ -76,7 +76,7 @@ def test_rows_are_initial_then_the_finished_stages(tmp_path):
         stage(tmp_path, 1, 400),
         stage(tmp_path, 2, 300),
         stage(tmp_path, 3, 500),
-        FakeAsset('eq4'),
+        FakeStage('eq4'),
     ]
     equilibration.stage = 3
 

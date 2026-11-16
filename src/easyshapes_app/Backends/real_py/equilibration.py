@@ -501,7 +501,9 @@ class Equilibration(QObject):
         equilibration = self._equilibration()
         if equilibration is None:
             return []
-        return stage_statuses([stage.paths for stage in equilibration.stages], equilibration.stage)
+        return stage_statuses(
+            [stage.final_structure for stage in equilibration.stages], equilibration.stage
+        )
 
     def _picked(self, row):
         """

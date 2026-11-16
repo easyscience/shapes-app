@@ -61,34 +61,23 @@ def final_gro(folder, k, time):
 
 
 def test_finished_stages_are_done_and_the_others_not_run(tmp_path):
-    stages = [
-        [final_gro(tmp_path, 0, 100)],
-        [final_gro(tmp_path, 1, 200)],
-        [Path('model-eq2.mdp')],
-    ]
+    finals = [final_gro(tmp_path, 0, 100), final_gro(tmp_path, 1, 200), None]
 
-    assert stage_statuses(stages) == ['done', 'done', 'not run']
+    assert stage_statuses(finals) == ['done', 'done', 'not run']
 
 
 def test_a_stage_after_a_newer_one_is_outdated_and_so_are_the_stages_after_it(tmp_path):
     # eq1 ran again after eq2 and eq3
     times = [100, 400, 200, 300]
-    stages = [[final_gro(tmp_path, k, time)] for k, time in enumerate(times)]
+    finals = [final_gro(tmp_path, k, time) for k, time in enumerate(times)]
 
-    assert stage_statuses(stages) == ['done', 'done', 'outdated', 'outdated']
+    assert stage_statuses(finals) == ['done', 'done', 'outdated', 'outdated']
 
 
 def test_the_stage_a_run_is_on_is_running(tmp_path):
-    stages = [[final_gro(tmp_path, 0, 100)], [final_gro(tmp_path, 1, 200)]]
+    finals = [final_gro(tmp_path, 0, 100), final_gro(tmp_path, 1, 200)]
 
-    assert stage_statuses(stages, running=1) == ['done', 'running']
-
-
-def test_a_posres_gro_is_not_the_final_gro(tmp_path):
-    posres = tmp_path / 'model-eq0-posres.gro'
-    posres.write_text('')
-
-    assert stage_statuses([[posres]]) == ['not run']
+    assert stage_statuses(finals, running=1) == ['done', 'running']
 
 
 def test_log_reader_takes_in_new_text_and_keeps_the_last_progress(tmp_path):

@@ -21,23 +21,23 @@ def fill_configuration(analysis):
         equilibration.configuration = AnalysisConfiguration.load(DEFAULT_CONFIGURATION)
 
 
-def stage_statuses(stage_paths, running=None):
+def stage_statuses(finals, running=None):
     """
-    Each stage's status, from the files it holds: 'running' for the
-    stage a run is on, 'done' once it holds its final .gro, 'outdated'
-    when done but its stage before finished after it or is outdated
-    itself (it started from older files), else 'not run'.
+    Each stage's status, from its final .gro: 'running' for the stage a
+    run is on, 'done' once it holds its final .gro, 'outdated' when done
+    but its stage before finished after it or is outdated itself (it
+    started from older files), else 'not run'.
 
-    stage_paths holds each stage's files, stage k's final .gro ending in
-    -eq<k>.gro; running is the index of the stage a run is on.
+    finals holds each stage's final .gro, None while it holds none, as
+    Stage.final_structure gives it; running is the index of the stage a
+    run is on.
     """
     statuses = []
     # The stage before: its final .gro's time, None without one, and
     # whether it is outdated
     before = None
     stale = False
-    for k, paths in enumerate(stage_paths):
-        final = next((path for path in paths if path.name.endswith(f'-eq{k}.gro')), None)
+    for k, final in enumerate(finals):
         time = final.stat().st_mtime if final else None
         stale = time is not None and (stale or (before is not None and before > time))
         if k == running:

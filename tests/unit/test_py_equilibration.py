@@ -11,8 +11,8 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.equilibration import Equilibration
 from easyshapes_app.Backends.real_py.logic.session import Session
 from tests.unit.factories import REFUSED
-from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
+from tests.unit.factories import FakeStage
 from tests.unit.factories import refusals
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -47,7 +47,7 @@ def stage(folder, k, time):
     os.utime(gro, (time, time))
     log = folder / f'model-eq{k}.log'
     log.write_text(f'eq{k} mdrun log\n')
-    return FakeAsset(f'eq{k}', gro, log, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
+    return FakeStage(f'eq{k}', gro, log, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
 
 
 def part_on(equilibration):
@@ -311,7 +311,7 @@ def test_a_run_shows_its_stage_and_log_until_its_job_ends(tmp_path, error, shown
     ended = QSignalSpy(part.externalEquilibrated)
 
     # As the library does at the start: the stage joins, and runs
-    equilibration.stages = [FakeAsset('eq0')]
+    equilibration.stages = [FakeStage('eq0')]
     equilibration.stage = 0
     part.run()
     running = (part.filesLocked, part.stage, part.entries.get(1)['status'], part.log)

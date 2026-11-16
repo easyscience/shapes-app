@@ -125,6 +125,17 @@ class FakeAsset:
         self.calls.append(('export_to', folder, overwrite))
 
 
+class FakeStage(FakeAsset):
+    """
+    A finished or unfinished equilibration stage: its final .gro is the
+    file ending in -<name>.gro, as in shapespyer's Stage.
+    """
+
+    @property
+    def final_structure(self):
+        return next((path for path in self.paths if path.name.endswith(f'-{self.name}.gro')), None)
+
+
 class FakeEquilibration(FakeAsset):
     """
     Stands in for shapes.project.analysis.Equilibration, a library
