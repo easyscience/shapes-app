@@ -157,29 +157,33 @@ class FakeEquilibration(FakeAsset):
         self.stage = None
         self.job = None
         self.log = log
-        # Each run's sample model and background flag
+        # Each run's background flag
         self.runs = []
 
     @property
     def files_locked(self):
         return self.job is not None and self.job.running
 
-    def run(self, sample_model, *, background=False):
-        self.runs.append((sample_model, background))
+    def run(self, *, background=False):
+        self.runs.append(background)
         self.job = FakeJob()
         self.add_new_files([self.log])
 
 
 class FakeAnalysis:
     """
-    Stands in for shapes.project.analysis.Analysis: a sample model, and
-    a FakeEquilibration whose configuration holds equil0.mdp, or nothing
+    Stands in for shapes.project.analysis.Analysis: a linked sample
+    model, as in shapespyer only set by set_sample_model, and a
+    FakeEquilibration whose configuration holds equil0.mdp, or nothing
     when empty.
     """
 
     def __init__(self, sample_model=None, *, empty=False):
-        self.sample_model = sample_model
+        self._sample_model = sample_model
         self.equilibration = FakeEquilibration(*(() if empty else ('equil0.mdp',)))
+
+    def set_sample_model(self, sample_model):
+        self._sample_model = sample_model
 
 
 class FakeJob:

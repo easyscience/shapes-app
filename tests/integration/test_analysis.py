@@ -21,7 +21,8 @@ def test_the_first_model_brings_an_analysis_with_charmm36(qcore_application):
 
     backend.sampleModel.create()
 
-    assert session.analysis.sample_model is session.sample_model
+    # Linked down to the equilibration, which runs on it
+    assert session.analysis.equilibration._sample_model is session.sample_model
     assert session.analysis.equilibration.configuration.name == 'CHARMM36'
     assert mdp_names(session) == ['equil0.mdp']
 

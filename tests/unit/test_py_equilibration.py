@@ -31,7 +31,7 @@ class Unrunnable(FakeEquilibration):
     Fails the checks run makes before it starts.
     """
 
-    def run(self, sample_model, *, background=False):
+    def run(self, *, background=False):
         raise ValueError('model holds no assembled .gro and .top; assemble it with a buffer first')
 
 
@@ -320,7 +320,7 @@ def test_a_run_shows_its_stage_and_log_until_its_job_ends(tmp_path, error, shown
     ended.wait(1000)
 
     assert running == (True, 0, 'running', '$ gmx grompp\n')
-    assert [background for _, background in equilibration.runs] == [True]
+    assert equilibration.runs == [True]
     assert (part.filesLocked, part.stage) == (False, -1)
     assert locked.count() == 2
     assert ended.at(0) == [shown]

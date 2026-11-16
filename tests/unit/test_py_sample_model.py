@@ -79,7 +79,7 @@ def test_fields_are_empty_and_setters_do_nothing_without_sample_model():
 
 def test_create_makes_a_sample_model_only_when_there_is_none():
     # An analysis held before a project takes the new model too
-    session = Session(analysis=SimpleNamespace(sample_model=None))
+    session = Session(analysis=FakeAnalysis())
     part = OfflineSampleModel(session)
     spies = all_signals(part)
 
@@ -88,7 +88,7 @@ def test_create_makes_a_sample_model_only_when_there_is_none():
     part.create()
 
     assert session.sample_model is first
-    assert session.analysis.sample_model is first
+    assert session.analysis._sample_model is first
     assert (part.name, part.shape, part.lattice) == ('uid0002', 'Ring', False)
     assert [spy.count() for spy in spies] == [1, 1, 1, 1]
 
@@ -99,7 +99,7 @@ def test_the_first_model_brings_the_session_its_analysis():
     OfflineSampleModel(session).create()
 
     assert isinstance(session.analysis, FakeAnalysis)
-    assert session.analysis.sample_model is session.sample_model
+    assert session.analysis._sample_model is session.sample_model
 
 
 def test_an_analysis_the_library_cant_give_leaves_the_session_as_it_was():
@@ -120,7 +120,7 @@ def test_an_analysis_the_library_cant_give_leaves_the_session_as_it_was():
 )
 def test_load_and_import_give_session_analysis_and_project_one_new_model(slot, argument, name):
     old = FakeSampleModel()
-    analysis = SimpleNamespace(sample_model=old)
+    analysis = FakeAnalysis(old)
     session = Session(
         project=FakeProject(sample_model=old, analysis=analysis),
         sample_model=old,
@@ -134,7 +134,7 @@ def test_load_and_import_give_session_analysis_and_project_one_new_model(slot, a
     new = session.sample_model
     assert new is not old
     assert session.project.sample_model is new
-    assert session.analysis.sample_model is new
+    assert session.analysis._sample_model is new
     assert part.name == name
     assert [spy.count() for spy in spies] == [1, 1, 1, 1]
 

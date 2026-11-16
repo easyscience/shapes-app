@@ -330,7 +330,8 @@ class Equilibration(QObject):
         Run the stages from the first to the last in the background. A
         check that fails before the start raises, for the error dialog.
         """
-        self._equilibration().run(self._session.sample_model, background=True)
+        # On the model the analysis links
+        self._equilibration().run(background=True)
         self._watch.start()
         self.filesLockedChanged.emit()
         # The run emptied its log and writes it anew: shown from its

@@ -334,7 +334,8 @@ class SampleModel(QObject):
             fill_configuration(analysis)
             self._session.analysis = analysis
         else:
-            self._session.analysis.sample_model = sample_model
+            # Passed on to its equilibration, which runs on it
+            self._session.analysis.set_sample_model(sample_model)
         self._session.sample_model = sample_model
         if self._session.project is not None:
             self._session.project.sample_model = sample_model

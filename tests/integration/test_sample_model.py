@@ -73,6 +73,6 @@ def test_sample_model_saved_exported_loaded_and_imported_stays_one_model(
     assert saved is not loaded is not imported
     assert (loaded.name, imported.name) == ('TstModel', 'TstModel')
     # The saved project holds one model, the analysis's too
-    assert session.project.analysis.sample_model is session.project.sample_model
+    assert session.project.analysis.equilibration._sample_model is session.project.sample_model
     assert (part.name, part.shape) == ('TstModel', 'Rod')
     assert [Path(path).name for path in part.files.paths] == ['model.gro']
