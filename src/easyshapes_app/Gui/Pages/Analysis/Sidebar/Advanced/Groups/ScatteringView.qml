@@ -209,6 +209,8 @@ EaElements.GroupColumn {
     FileDialog {
         id: pngDialog
         title: qsTr("Save the chart as PNG")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         fileMode: FileDialog.SaveFile
         nameFilters: [qsTr("PNG images (*.png)")]
         defaultSuffix: "png"
@@ -220,6 +222,7 @@ EaElements.GroupColumn {
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
+        popupType: Popup.Item
         onAccepted: {
             const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
             if (Globals.BackendWrapper.scatteringExportTaken(folder)) {

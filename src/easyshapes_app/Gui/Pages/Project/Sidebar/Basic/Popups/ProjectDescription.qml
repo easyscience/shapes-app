@@ -118,6 +118,8 @@ EaElements.Dialog {
     FolderDialog {
         id: folderDialog
         title: qsTr('Choose project folder')
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         currentFolder: dialog.lastParentFolder
         // selectedFolder is a url object; urlToLocalFile needs a string
         onAccepted: locationField.text = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())

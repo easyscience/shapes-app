@@ -166,6 +166,8 @@ EaElements.GroupColumn {
     FolderDialog {
         id: importComponentFolderDialog
         title: qsTr("Import a component from a directory")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         onAccepted: Globals.BackendWrapper.componentsImportFrom(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))
     }
 }

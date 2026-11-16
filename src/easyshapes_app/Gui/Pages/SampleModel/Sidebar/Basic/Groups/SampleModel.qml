@@ -127,6 +127,8 @@ EaElements.GroupColumn {
     FolderDialog {
         id: importModelFolderDialog
         title: qsTr("Import a model from a directory")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         onAccepted: Globals.BackendWrapper.sampleModelImportFrom(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))
     }
 }

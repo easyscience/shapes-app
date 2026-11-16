@@ -3,9 +3,12 @@
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Dialogs
 
 
 FolderDialog {
+    // In the app window: WSLg leaves a dialog's own window open
+    popupType: Popup.Item
     title: qsTr("Select a directory to replace the structure with")
 }

@@ -19,6 +19,8 @@ FolderDialog {
     id: openProjectDialog
 
     title: qsTr('Open project folder')
+    // In the app window: WSLg leaves a dialog's own window open
+    popupType: Popup.Item
 
     // selectedFolder is a url object; urlToLocalFile needs a string
     onAccepted: Globals.BackendWrapper.projectLoad(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))

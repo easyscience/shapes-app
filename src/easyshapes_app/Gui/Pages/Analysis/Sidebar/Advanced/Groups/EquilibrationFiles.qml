@@ -189,6 +189,8 @@ EaElements.GroupColumn {
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         onAccepted: {
             const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
             if (Globals.BackendWrapper.equilibrationExportTaken(folder, root.selectedFileRow)) {
