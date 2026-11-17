@@ -215,8 +215,8 @@ def test_buffer_adapter_reads_the_sample_models_buffer(qcore_application):
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
 @pytest.mark.parametrize('adapter', list(SHAPE_ADAPTERS))
 def test_only_the_current_shape_and_its_lattice_are_adapted(qcore_application, adapter, lattice):
-    unit = SHAPE_ADAPTERS[adapter]()
-    sample_model = FakeSampleModel(Lattice(unit=unit) if lattice else unit)
+    motif = SHAPE_ADAPTERS[adapter]()
+    sample_model = FakeSampleModel(Lattice(motif=motif) if lattice else motif)
     backend = Backend(Session(sample_model=sample_model))
 
     backend.sampleModel.externalStructureChanged.emit()
@@ -228,7 +228,7 @@ def test_only_the_current_shape_and_its_lattice_are_adapted(qcore_application, a
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
 def test_ring_adapter_follows_the_current_structure(qcore_application, lattice):
     ring = Ring()
-    sample_model = FakeSampleModel(Lattice(unit=ring) if lattice else ring)
+    sample_model = FakeSampleModel(Lattice(motif=ring) if lattice else ring)
     backend = Backend(Session(sample_model=sample_model))
     swapped = QSignalSpy(backend.ringStructureChanged)
 

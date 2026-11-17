@@ -112,10 +112,10 @@ class SampleModel(QObject):
         sample_model = self._session.sample_model
         if sample_model is None:
             return ''
-        # The lattice's unit, or the structure itself
+        # The lattice's motif, or the structure itself
         current = sample_model.structure
-        unit = current.unit if isinstance(current, Lattice) else current
-        return next(name for name, cls in SHAPES.items() if type(unit) is cls)
+        motif = current.motif if isinstance(current, Lattice) else current
+        return next(name for name, cls in SHAPES.items() if type(motif) is cls)
 
     @shape.setter
     def shape(self, value):
@@ -123,7 +123,7 @@ class SampleModel(QObject):
         if sample_model is None or self.shape == value:
             return
         lattice = isinstance(sample_model.structure, Lattice)
-        old = sample_model.structure.unit if lattice else sample_model.structure
+        old = sample_model.structure.motif if lattice else sample_model.structure
         # The old compositions stop following the components
         if isinstance(old, Ball):
             for layer in old.layers:
@@ -138,7 +138,7 @@ class SampleModel(QObject):
             old.composition.detach()
         new = SHAPES[value](components=old.components)
         if lattice:
-            sample_model.structure.unit = new
+            sample_model.structure.motif = new
         else:
             sample_model.structure = new
         self.shapeChanged.emit()
@@ -156,7 +156,7 @@ class SampleModel(QObject):
             return
         structure = sample_model.structure
         # Unwrapping drops the lattice settings
-        sample_model.structure = Lattice(unit=structure) if value else structure.unit
+        sample_model.structure = Lattice(motif=structure) if value else structure.motif
         self.latticeChanged.emit()
         self.externalStructureChanged.emit()
 

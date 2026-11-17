@@ -36,7 +36,7 @@ ADAPTERS = [
     (MonolayerStructure, Monolayer, {'dmin': 0.7, 'zsep': 1.5, 'nside': 4}),
     (
         LatticeStructure,
-        lambda: Lattice(unit=Ring()),
+        lambda: Lattice(motif=Ring()),
         {
             'alpha': 30.0,
             'theta': 60.0,

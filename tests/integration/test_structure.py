@@ -57,7 +57,7 @@ def test_lattice_wraps_and_unwraps_the_discrete_structure(qcore_application):
 
     part.lattice = True
     assert isinstance(sample_model.structure, Lattice)
-    assert sample_model.structure.unit is ring
+    assert sample_model.structure.motif is ring
     assert part.shape == 'Ring'
 
     part.shape = 'Rod'

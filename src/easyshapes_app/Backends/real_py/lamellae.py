@@ -19,7 +19,7 @@ class LamellaeModel(QAbstractListModel):
     rmin, worked out from rmin, shell and the outer leaflet's longest
     molecule, is read-only.
 
-    The root builds it while the current structure, or the unit its
+    The root builds it while the current structure, or the motif its
     lattice repeats, is a vesicle, and drops it on the next structure
     change. An outer leaflet model is None while its lamella is
     symmetric: both leaflets then hold the inner composition. The page

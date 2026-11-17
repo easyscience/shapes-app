@@ -17,7 +17,7 @@ class LayersModel(QAbstractListModel):
     composition model per row, and the ball's full radius. A row's
     thickness, its longest molecule, is read-only.
 
-    The root builds it while the current structure, or the unit its
+    The root builds it while the current structure, or the motif its
     lattice repeats, is a ball, and drops it on the next structure
     change. The page has no scaling: a scaled dmin or rmin (None in the
     library) gets the library default when the model is built, and so

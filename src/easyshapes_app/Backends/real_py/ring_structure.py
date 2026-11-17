@@ -8,7 +8,7 @@ from PySide6.QtCore import Signal
 
 class RingStructure(QObject):
     """
-    One ring's fields for QML: the structure's, or the unit's its
+    One ring's fields for QML: the structure's, or the motif's its
     lattice repeats.
 
     The root builds it while the current structure is a ring and drops

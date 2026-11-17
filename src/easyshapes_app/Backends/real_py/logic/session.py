@@ -29,9 +29,9 @@ class Session:
     def components(self):
         """
         The components of the current structure, a lattice's from its
-        unit; empty before the first sample model.
+        motif; empty before the first sample model.
         """
         if self.sample_model is None:
             return ()
         structure = self.sample_model.structure
-        return (structure.unit if isinstance(structure, Lattice) else structure).components
+        return (structure.motif if isinstance(structure, Lattice) else structure).components

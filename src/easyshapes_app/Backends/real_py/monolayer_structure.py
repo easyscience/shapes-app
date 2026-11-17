@@ -8,7 +8,7 @@ from PySide6.QtCore import Signal
 
 class MonolayerStructure(QObject):
     """
-    One monolayer's fields for QML: the structure's, or the unit's its
+    One monolayer's fields for QML: the structure's, or the motif's its
     lattice repeats.
 
     The root builds it while the current structure is a monolayer and

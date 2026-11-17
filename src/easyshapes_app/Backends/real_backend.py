@@ -316,7 +316,7 @@ class Backend(QObject):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
         lattice = structure if isinstance(structure, Lattice) else None
-        unit = lattice.unit if lattice else structure
+        motif = lattice.motif if lattice else structure
         for adapter in (
             self._ring_structure,
             self._ball_structure,
@@ -333,23 +333,23 @@ class Backend(QObject):
             if adapter is not None:
                 # Deleted after QML has re-read the new one
                 adapter.deleteLater()
-        self._ring_structure = RingStructure(unit, self) if type(unit) is Ring else None
-        self._ball_structure = BallStructure(unit, self) if type(unit) is Ball else None
-        self._vesicle_structure = VesicleStructure(unit, self) if type(unit) is Vesicle else None
-        self._rod_structure = RodStructure(unit, self) if type(unit) is Rod else None
-        self._bilayer_structure = BilayerStructure(unit, self) if type(unit) is Bilayer else None
+        self._ring_structure = RingStructure(motif, self) if type(motif) is Ring else None
+        self._ball_structure = BallStructure(motif, self) if type(motif) is Ball else None
+        self._vesicle_structure = VesicleStructure(motif, self) if type(motif) is Vesicle else None
+        self._rod_structure = RodStructure(motif, self) if type(motif) is Rod else None
+        self._bilayer_structure = BilayerStructure(motif, self) if type(motif) is Bilayer else None
         self._monolayer_structure = (
-            MonolayerStructure(unit, self) if type(unit) is Monolayer else None
+            MonolayerStructure(motif, self) if type(motif) is Monolayer else None
         )
         self._lattice_structure = LatticeStructure(lattice, self) if lattice else None
         # A ball or a vesicle keeps its compositions in layers and
         # lamellae
-        composition = getattr(unit, 'composition', None)
+        composition = getattr(motif, 'composition', None)
         self._composition = (
             CompositionModel(composition, self) if composition is not None else None
         )
-        self._layers = LayersModel(unit, self) if type(unit) is Ball else None
-        self._lamellae = LamellaeModel(unit, self) if type(unit) is Vesicle else None
+        self._layers = LayersModel(motif, self) if type(motif) is Ball else None
+        self._lamellae = LamellaeModel(motif, self) if type(motif) is Vesicle else None
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too
         self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
@@ -362,7 +362,7 @@ class Backend(QObject):
                 self._components.loaded.rowsRemoved.connect(model.refresh)
                 self._components.loaded.dataChanged.connect(model.refresh)
         # A component's rows, files or bone atoms, and the fractions,
-        # change the bones a unit's sizes are worked out from. These
+        # change the bones a shape's sizes are worked out from. These
         # shapes all have a composition model
         for shape in (
             self._ring_structure,
