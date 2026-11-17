@@ -15,7 +15,7 @@ class LayersModel(QAbstractListModel):
     """
     The current ball's layers as rows of an editable ListView, with one
     composition model per row, and the ball's full radius. A row's
-    thickness, its longest bone, is read-only.
+    thickness, its longest molecule, is read-only.
 
     The root builds it while the current structure, or the unit its
     lattice repeats, is a ball, and drops it on the next structure
@@ -48,7 +48,7 @@ class LayersModel(QAbstractListModel):
         # One per row, in row order
         self._compositions = [CompositionModel(layer.composition, self) for layer in layers]
         # A component ticked or given another ratio may change the
-        # longest bone
+        # longest molecule
         for composition in self._compositions:
             composition.dataChanged.connect(self._thickness_changed)
 
@@ -76,7 +76,8 @@ class LayersModel(QAbstractListModel):
             case self.RminRole:
                 return layer.rmin
             case self.ThicknessRole:
-                # None while no component the layer places has a bone length
+                # None while no component the layer places has a
+                # molecule length
                 return layer.thickness
             case _:
                 return None
@@ -95,7 +96,8 @@ class LayersModel(QAbstractListModel):
                 if layer.rmin != value:
                     layer.rmin = value
                     self.dataChanged.emit(index, index, [role])
-                    # Only the last layer's counts, but a re-read is cheap
+                    # Only the last layer's counts, but a re-read is
+                    # cheap
                     self.fullRadiusChanged.emit()
                 return True
             case _:
@@ -147,8 +149,8 @@ class LayersModel(QAbstractListModel):
         self.beginInsertRows(QModelIndex(), row, row)
         self._layers.add()
         # The library stacks a later layer on the one before, but leaves
-        # its rmin unset when that layer has no bone length; the page
-        # has no scaling to show that
+        # its rmin unset when that layer has no molecule length; the
+        # page has no scaling to show that
         layer = self._layers[row]
         if layer.rmin is None:
             layer.rmin = self._layers.DEFAULT_RMIN
@@ -188,13 +190,12 @@ class LayersModel(QAbstractListModel):
         """
         for composition in self._compositions:
             composition.refresh()
-        # A component's files or bone atoms may give it another bone
-        # length
+        # A component's files may give it another molecule length
         self._thickness_changed()
 
     def _thickness_changed(self):
-        # A bone length may have changed: any row's thickness, and so
-        # the full radius
+        # A molecule length may have changed: any row's thickness, and
+        # so the full radius
         if self.rowCount():
             last = self.index(self.rowCount() - 1)
             self.dataChanged.emit(self.index(0), last, [self.ThicknessRole])

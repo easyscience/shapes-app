@@ -70,8 +70,8 @@ EaElements.GroupColumn {
             required property double rmin
             required property double innerLeafletDmin
             required property double outerLeafletDmin
-            // Set, or worked out from the leaflets' bones; null while unknown
-            required property var shellThickness
+            // Worked out when the lamella is added, then as set
+            required property double shellThickness
             required property bool symmetric
 
             EaComponents.TableViewLabel {
@@ -96,18 +96,17 @@ EaElements.GroupColumn {
                 onEditingFinished: outerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
-            // Empty while unknown, which is not a wrong input: red only for
-            // typed text. Cleared text sends nothing, as editingFinished
-            // waits for the validator, so the library's value comes back
+            // 0 or less is red and not sent. A thin shell is taken: the
+            // leaflets crowd, as the Shape view shows
             EaComponents.ListViewTextInput {
-                text: typeof shellThickness === 'number' ? shellThickness : ""
-                placeholderText: qsTr("unknown")
-                warned: text !== "" && !acceptableInput
+                text: shellThickness
+                warned: !acceptableInput
                 onEditingFinished: shellThickness = parseFloat(text)
-                validator: DoubleValidator { bottom: 0 }
+                validator: DoubleValidator { bottom: 0.01 }
 
                 EaElements.ToolTip {
-                    text: qsTr("Set or worked out from the leaflets' bones; 0 works it out")
+                    text: qsTr("From rmin to the outer leaflet's end. Worked out from the leaflets' "
+                               + "molecules when the lamella is added; then it stays as set")
                     visible: parent.hovered && EaGlobals.Vars.showToolTips
                 }
             }

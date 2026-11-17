@@ -49,7 +49,7 @@ def test_layer_edits_survive_save_and_load_and_follow_removals(qcore_application
     first, second = layers.compositions
 
     assert [layers.get(row) for row in range(layers.count)] == [
-        # DPPC and CHOL have no structure files: no bone to measure
+        # DPPC and CHOL have no structure files: no molecule to measure
         {'dmin': 0.5, 'rmin': 1.2, 'thickness': None},
         {'dmin': 0.5, 'rmin': 1.5, 'thickness': None},
     ]
@@ -64,20 +64,20 @@ def test_layer_edits_survive_save_and_load_and_follow_removals(qcore_application
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
-def test_thickness_and_full_radius_follow_bones_and_compositions(qcore_application, tmp_path):
+def test_thickness_and_full_radius_follow_molecules_and_compositions(qcore_application, tmp_path):
     backend = shaped_backend('Ball', tmp_path / 'ball')
     layers = backend.layers
     sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
     radius = QSignalSpy(layers.fullRadiusChanged)
 
-    # SDS joins the layer: its bone is the only one measured
+    # SDS joins the layer: its molecule is the only one measured
     backend.components.loaded.append(sds)
 
-    assert layers.get(0)['thickness'] == pytest.approx(sds.bone_length)
-    assert layers.fullRadius == pytest.approx(layers.get(0)['rmin'] + sds.bone_length)
+    assert layers.get(0)['thickness'] == pytest.approx(sds.molecule_length)
+    assert layers.fullRadius == pytest.approx(layers.get(0)['rmin'] + sds.molecule_length)
     assert radius.count() > 0
 
-    # Unticked, SDS is not placed; DPPC and CHOL have no bones
+    # Unticked, SDS is not placed; DPPC and CHOL have no molecules
     composition = layers.compositions[0]
     names = [composition.get(row)['name'] for row in range(composition.count)]
     sds_row = composition.index(names.index('SDS'))
@@ -87,7 +87,7 @@ def test_thickness_and_full_radius_follow_bones_and_compositions(qcore_applicati
     assert (layers.get(0)['thickness'], layers.fullRadius) == (None, None)
     assert radius.count() > 0
 
-    # Ticked again, then its structure file goes: no bone to measure
+    # Ticked again, then its structure file goes: no molecule to measure
     assert composition.setData(sds_row, True, CompositionModel.PresentRole)
     files = backend.componentsFiles
     files.selectComponent('SDS')
@@ -100,19 +100,19 @@ def test_thickness_and_full_radius_follow_bones_and_compositions(qcore_applicati
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
-def test_ring_outer_radius_follows_bones_and_compositions(qcore_application, tmp_path):
+def test_ring_outer_radius_follows_molecules_and_compositions(qcore_application, tmp_path):
     backend = shaped_backend('Ring', tmp_path / 'ring')
     ring = backend.ringStructure
     sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
     sizes = QSignalSpy(ring.sizesChanged)
 
-    # SDS joins the ring: its bone is the only one measured
+    # SDS joins the ring: its molecule is the only one measured
     backend.components.loaded.append(sds)
 
-    assert ring.outerRadius == pytest.approx(ring.rmin + sds.bone_length)
+    assert ring.outerRadius == pytest.approx(ring.rmin + sds.molecule_length)
     assert sizes.count() > 0
 
-    # Unticked, SDS is not placed; DPPC and CHOL have no bones
+    # Unticked, SDS is not placed; DPPC and CHOL have no molecules
     composition = backend.composition
     names = [composition.get(row)['name'] for row in range(composition.count)]
     sizes = QSignalSpy(ring.sizesChanged)
@@ -125,20 +125,29 @@ def test_ring_outer_radius_follows_bones_and_compositions(qcore_application, tmp
 
 @pytest.mark.fast
 @pytest.mark.usefixtures('fresh_file_manager')
-def test_vesicle_shell_and_full_radius_follow_bones(qcore_application, tmp_path):
+def test_vesicle_shell_stays_and_an_added_lamella_works_out_its_own(qcore_application, tmp_path):
     backend = shaped_backend('Vesicle', tmp_path / 'vesicle')
     lamellae = backend.lamellae
     sds = Surfactant.from_smiles('SDS', 'CCCCCCCCCCCCOS(=O)(=O)[O-]', (3.0, 3.0, 3.0))
-    radius = QSignalSpy(lamellae.fullRadiusChanged)
+    data = QSignalSpy(lamellae.dataChanged)
 
-    # SDS joins both leaflets: the shell is worked out from its bone
+    # SDS joins both leaflets: the shell made without molecules stays,
+    # and the outer leaflet moves to end at rmin + shell
     backend.components.loaded.append(sds)
 
     first = lamellae.get(0)
-    shell = 2 * sds.bone_length + first['outerLeafletDmin']
-    assert first['shellThickness'] == pytest.approx(shell)
-    assert lamellae.fullRadius == pytest.approx(first['rmin'] + shell)
-    assert radius.count() > 0
+    assert first['shellThickness'] == 2.4
+    assert first['outerLeafletRmin'] == pytest.approx(1.2 + 2.4 - sds.molecule_length)
+    assert data.count() > 0
+
+    # Added now, a lamella starts past the first shell and works out its
+    # own from SDS: inner molecule + outer dmin + outer molecule
+    lamellae.add()
+
+    second = lamellae.get(1)
+    assert second['rmin'] == 4.1
+    assert second['shellThickness'] == round(2 * sds.molecule_length + 0.5, 2)
+    assert lamellae.fullRadius == pytest.approx(second['rmin'] + second['shellThickness'])
 
 
 @pytest.mark.fast
@@ -158,12 +167,15 @@ def test_split_lamella_survives_save_and_load_and_follows_removals(qcore_applica
     inner = lamellae.innerLeafletCompositions[1]
     outer = lamellae.outerLeafletCompositions[1]
 
+    # Added past the first, default shell: 1.2 + 2.4 + 0.5; no
+    # molecules, so the outer leaflet starts half the shell out
     assert lamellae.get(1) == {
-        'rmin': 1.2,
+        'rmin': 4.1,
         'shellThickness': 2.0,
         'innerLeafletDmin': 0.5,
         'outerLeafletDmin': 0.5,
         'symmetric': False,
+        'outerLeafletRmin': 5.1,
     }
     assert lamellae.outerLeafletCompositions[0] is None
     # The split outer model reads the copy, not the inner composition

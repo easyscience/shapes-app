@@ -32,12 +32,14 @@ ListModel {
 
     Component.onCompleted: add()
 
-    // A first lamella's defaults on every row: the mock has no bone
+    // A first lamella's defaults on every row: the mock has no molecule
     // lengths to stack them as the library does. The shell is one worked
-    // out from 2 nm bones, as Layers' thickness: inner bone 2.0 + outer
-    // leaflet dmin 0.5 + outer bone 2.0
+    // out from 2 nm molecules, as Layers' thickness: inner 2.0 + outer
+    // leaflet dmin 0.5 + outer 2.0; the outer leaflet starts at
+    // rmin + shell - outer 2.0
     function add() {
-        append({ rmin: 1.2, shellThickness: 4.5, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5, symmetric: true })
+        append({ rmin: 1.2, shellThickness: 4.5, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5,
+                 symmetric: true, outerLeafletRmin: 3.7 })
     }
 
     // The compositions follow the rows, however they were added or removed
@@ -86,5 +88,12 @@ ListModel {
         __outer = outer
         // An rmin or shell edit
         fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
+        // The outer leaflet follows rmin and shell. Last, as each set
+        // comes back here, and only on a change, which ends that
+        for (let row = topLeft.row; row <= bottomRight.row; ++row) {
+            const outerLeafletRmin = get(row).rmin + get(row).shellThickness - 2.0
+            if (get(row).outerLeafletRmin !== outerLeafletRmin)
+                setProperty(row, "outerLeafletRmin", outerLeafletRmin)
+        }
     }
 }

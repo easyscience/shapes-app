@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 from PySide6.QtTest import QSignalSpy

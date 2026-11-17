@@ -93,12 +93,6 @@ EaElements.GroupColumn {
         }
     }
 
-    // The last layer's rmin plus its thickness
-    EaElements.Label {
-        readonly property var fullRadius: Globals.BackendWrapper.layersFullRadius
-        text: qsTr("Full radius, nm: %1").arg(typeof fullRadius === 'number' ? fullRadius.toFixed(2) : "—")
-    }
-
     Grid {
         columns: 1
 

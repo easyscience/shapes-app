@@ -17,13 +17,15 @@ def test_rows_read_the_lamellae():
     model = Model(Vesicle())
 
     assert model.count == 1
-    # No bone lengths to work the shell out from
+    # No molecule lengths: the default shell, the outer leaflet half
+    # of it out
     assert model.get(0) == {
         'rmin': 1.2,
-        'shellThickness': None,
+        'shellThickness': 2.4,
         'innerLeafletDmin': 0.5,
         'outerLeafletDmin': 0.5,
         'symmetric': True,
+        'outerLeafletRmin': 2.4,
     }
     assert len(model.innerLeafletCompositions) == 1
     assert model.outerLeafletCompositions == [None]
@@ -96,11 +98,13 @@ def test_add_appends_a_symmetric_lamella_keeping_the_library_dmins():
 
     model.add()
 
-    # The library copies the dmins before; with no bone lengths it can't
-    # stack the rmin
-    assert model.get(1) == {
-        'rmin': 1.2,
-        'shellThickness': None,
+    # The library copies the dmins before and starts past its shell:
+    # 1.2 + 2.4 + 0.6; with no molecule lengths, the default shell
+    row = model.get(1)
+    assert row.pop('outerLeafletRmin') == pytest.approx(4.2 + 1.2)
+    assert row == {
+        'rmin': 4.2,
+        'shellThickness': 2.4,
         'innerLeafletDmin': 0.7,
         'outerLeafletDmin': 0.6,
         'symmetric': True,
@@ -168,44 +172,57 @@ def test_refresh_resets_every_leaflet_composition():
     assert [reset.count() for reset in resets] == [1, 1, 1]
 
 
-def test_edits_add_and_remove_announce_the_full_radius():
+def test_rmin_and_shell_edits_add_and_remove_announce_the_full_radius():
     model = Model(Vesicle())
     radius = QSignalSpy(model.fullRadiusChanged)
 
-    # The full radius doesn't depend on the inner leaflet's dmin
+    # The last rmin plus its shell: dmins and sharing leave it
     model.setData(model.index(0), 0.7, Model.InnerLeafletDminRole)
+    model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
+    model.setData(model.index(0), False, Model.SymmetricRole)
     assert radius.count() == 0
     model.setData(model.index(0), 1.5, Model.RminRole)
     model.setData(model.index(0), 2.0, Model.ShellThicknessRole)
-    model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
-    model.setData(model.index(0), False, Model.SymmetricRole)
     model.add()
     model.remove(1)
-    assert radius.count() == 6
+    assert radius.count() == 4
+    assert model.fullRadius == pytest.approx(1.5 + 2.0)
 
 
-def test_outer_dmin_announces_the_shell_with_it():
+def test_rmin_shell_and_sharing_announce_the_outer_leaflet_rmin():
     model = Model(Vesicle())
     data = QSignalSpy(model.dataChanged)
 
+    model.setData(model.index(0), 1.5, Model.RminRole)
+    model.setData(model.index(0), 3.0, Model.ShellThicknessRole)
+    model.setData(model.index(0), False, Model.SymmetricRole)
     model.setData(model.index(0), 0.6, Model.OuterLeafletDminRole)
 
-    # A worked-out shell holds the outer dmin
-    assert data.count() == 1
-    assert data.at(0)[2] == [Model.OuterLeafletDminRole, Model.ShellThicknessRole]
+    assert [data.at(i)[2] for i in range(data.count())] == [
+        [Model.RminRole, Model.OuterLeafletRminRole],
+        [Model.ShellThicknessRole, Model.OuterLeafletRminRole],
+        [Model.SymmetricRole, Model.OuterLeafletRminRole],
+        [Model.OuterLeafletDminRole],
+    ]
+    # No molecule lengths: half the shell past rmin
+    assert model.get(0)['outerLeafletRmin'] == pytest.approx(1.5 + 1.5)
 
 
-def test_a_set_shell_gives_a_full_radius():
-    model = Model(Vesicle())
-    assert model.fullRadius is None
+def test_the_shell_shows_rounded_and_an_unchanged_cell_writes_nothing():
+    vesicle = Vesicle()
+    vesicle.lamellae[0].shell_thickness = 2.3456
+    model = Model(vesicle)
+    data = QSignalSpy(model.dataChanged)
 
-    model.setData(model.index(0), 2.0, Model.ShellThicknessRole)
+    shown = model.get(0)['shellThickness']
+    model.setData(model.index(0), shown, Model.ShellThicknessRole)
 
-    # Known without bones: rmin plus the shell set
-    assert model.fullRadius == pytest.approx(1.2 + 2.0)
+    assert shown == 2.35
+    assert vesicle.lamellae[0].shell_thickness == 2.3456
+    assert data.count() == 0
 
 
-def test_refresh_announces_the_shell_and_the_full_radius():
+def test_refresh_announces_every_outer_leaflet_rmin():
     model = Model(Vesicle())
     model.add()
     data = QSignalSpy(model.dataChanged)
@@ -213,7 +230,8 @@ def test_refresh_announces_the_shell_and_the_full_radius():
 
     model.refresh()
 
+    # The shells, and so the full radius, stay
     top_left, bottom_right, roles = data.at(0)
     assert data.count() == 1
-    assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.ShellThicknessRole])
-    assert radius.count() == 1
+    assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.OuterLeafletRminRole])
+    assert radius.count() == 0

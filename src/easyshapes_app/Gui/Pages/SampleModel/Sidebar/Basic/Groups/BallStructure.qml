@@ -12,18 +12,39 @@ import Gui.Globals as Globals
 
 EaElements.GroupColumn {
 
-    Column {
-        width: EaStyle.Sizes.sideBarContentWidth * 0.2
+    Row {
+        spacing: EaStyle.Sizes.fontPixelSize
 
-        EaElements.Label {
-            enabled: false
-            text: qsTr("Fill")
+        Column {
+            width: EaStyle.Sizes.sideBarContentWidth * 0.2
+
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Fill")
+            }
+            EaElements.ComboBox {
+                width: parent.width
+                model: ["FIBO", "RINGS", "RINGS0"]
+                currentIndex: model.indexOf(Globals.BackendWrapper.ballStructureFill)
+                onActivated: (i) => Globals.BackendWrapper.ballStructureSetFill(model[i])
+            }
         }
-        EaElements.ComboBox {
-            width: parent.width
-            model: ["FIBO", "RINGS", "RINGS0"]
-            currentIndex: model.indexOf(Globals.BackendWrapper.ballStructureFill)
-            onActivated: (i) => Globals.BackendWrapper.ballStructureSetFill(model[i])
+
+        // The last layer's rmin plus its thickness, worked out, not for editing
+        Column {
+            width: EaStyle.Sizes.sideBarContentWidth * 0.25
+
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Full radius, nm")
+            }
+            EaElements.TextField {
+                readonly property var fullRadius: Globals.BackendWrapper.layersFullRadius
+                width: parent.width
+                enabled: false
+                text: typeof fullRadius === 'number' ? fullRadius.toFixed(2) : ""
+                placeholderText: qsTr("unknown")
+            }
         }
     }
 
