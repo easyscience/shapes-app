@@ -3,7 +3,6 @@
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
 import QtQuick
-import QtQuick.Controls
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements

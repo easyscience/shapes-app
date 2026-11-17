@@ -66,6 +66,7 @@ EaElements.GroupColumn {
         delegateModelAccess: DelegateModel.ReadWrite
 
         delegate: EaComponents.ListViewDelegate {
+            id: lamellaRow
             required property int index
             required property double rmin
             required property double innerLeafletDmin
@@ -82,52 +83,54 @@ EaElements.GroupColumn {
                                                  && outerLeafletRmin < 1.6 * outerLeafletDmin
 
             EaComponents.TableViewLabel {
-                text: index + 1
+                text: lamellaRow.index + 1
                 enabled: false
             }
             // Rmin and inner dmin red too while rmin is under 1.6 inner dmin
             EaComponents.ListViewTextInput {
-                text: rmin
-                warned: !acceptableInput || innerCrowded
-                onEditingFinished: rmin = parseFloat(text)
+                text: lamellaRow.rmin
+                warned: !acceptableInput || lamellaRow.innerCrowded
+                onEditingFinished: lamellaRow.rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: innerLeafletDmin
-                warned: !acceptableInput || innerCrowded
-                onEditingFinished: innerLeafletDmin = parseFloat(text)
+                text: lamellaRow.innerLeafletDmin
+                warned: !acceptableInput || lamellaRow.innerCrowded
+                onEditingFinished: lamellaRow.innerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             // Outer dmin and shell red too while the outer leaflet starts
             // under 1.6 outer dmin
             EaComponents.ListViewTextInput {
-                text: outerLeafletDmin
-                warned: !acceptableInput || outerCrowded
-                onEditingFinished: outerLeafletDmin = parseFloat(text)
+                text: lamellaRow.outerLeafletDmin
+                warned: !acceptableInput || lamellaRow.outerCrowded
+                onEditingFinished: lamellaRow.outerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             // 0 or less is red and not sent. A thin shell is taken: the
             // leaflets crowd, as the Shape view shows
             EaComponents.ListViewTextInput {
-                text: shellThickness
-                warned: !acceptableInput || outerCrowded
-                onEditingFinished: shellThickness = parseFloat(text)
+                id: shellInput
+                text: lamellaRow.shellThickness
+                warned: !acceptableInput || lamellaRow.outerCrowded
+                onEditingFinished: lamellaRow.shellThickness = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.01 }
 
                 EaElements.ToolTip {
                     text: qsTr("From rmin to the outer leaflet's end. Worked out from the leaflets' "
                                + "molecules when the lamella is added; then it stays as set")
-                    visible: parent.hovered && EaGlobals.Vars.showToolTips
+                    // By id: qmllint types a popup's parent as a plain Item
+                    visible: shellInput.hovered && EaGlobals.Vars.showToolTips
                 }
             }
             EaComponents.TableViewCheckBox {
-                checked: symmetric
-                onToggled: symmetric = checked
+                checked: lamellaRow.symmetric
+                onToggled: lamellaRow.symmetric = checked
             }
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this lamella")
-                onClicked: Globals.BackendWrapper.lamellaeRemove(index)
+                onClicked: Globals.BackendWrapper.lamellaeRemove(lamellaRow.index)
             }
         }
     }

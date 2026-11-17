@@ -57,6 +57,7 @@ EaElements.GroupColumn {
         delegateModelAccess: DelegateModel.ReadWrite
 
         delegate: EaComponents.ListViewDelegate {
+            id: layerRow
             required property int index
             required property double dmin
             required property double rmin
@@ -67,32 +68,32 @@ EaElements.GroupColumn {
             readonly property bool crowded: rmin < 1.6 * dmin
 
             EaComponents.TableViewLabel {
-                text: index + 1
+                text: layerRow.index + 1
                 enabled: false
             }
             EaComponents.TableViewLabel {}
             // Red too while rmin is under 1.6 dmin
             EaComponents.ListViewTextInput {
-                text: dmin
-                warned: !acceptableInput || crowded
-                onEditingFinished: dmin = parseFloat(text)
+                text: layerRow.dmin
+                warned: !acceptableInput || layerRow.crowded
+                onEditingFinished: layerRow.dmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
-                text: rmin
-                warned: !acceptableInput || crowded
-                onEditingFinished: rmin = parseFloat(text)
+                text: layerRow.rmin
+                warned: !acceptableInput || layerRow.crowded
+                onEditingFinished: layerRow.rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             // Greyed: the longest bone, worked out, not for editing
             EaComponents.TableViewLabel {
-                text: typeof thickness === 'number' ? thickness.toFixed(2) : "—"
+                text: typeof layerRow.thickness === 'number' ? layerRow.thickness.toFixed(2) : "—"
                 enabled: false
             }
             EaComponents.TableViewButton {
                 fontIcon: "minus-circle"
                 ToolTip.text: qsTr("Remove this layer")
-                onClicked: Globals.BackendWrapper.layersRemove(index)
+                onClicked: Globals.BackendWrapper.layersRemove(layerRow.index)
             }
         }
     }
