@@ -32,7 +32,7 @@ EaElements.GroupColumn {
 
         // The last layer's rmin plus its thickness, worked out, not for editing
         Column {
-            width: EaStyle.Sizes.sideBarContentWidth * 0.25
+            width: EaStyle.Sizes.sideBarContentWidth * 0.2
 
             EaElements.Label {
                 enabled: false

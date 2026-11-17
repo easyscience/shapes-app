@@ -60,23 +60,27 @@ EaElements.GroupColumn {
             required property int index
             required property double dmin
             required property double rmin
-            // null while no component the layer places has a bone length
+            // null while no component the layer places has a molecule length
             required property var thickness
+            // shortcut: 1.6 copies shapespyer's _RMIN_PER_DMIN (structure.py),
+            // under which it refuses to build; read it from the backend if it changes
+            readonly property bool crowded: rmin < 1.6 * dmin
 
             EaComponents.TableViewLabel {
                 text: index + 1
                 enabled: false
             }
             EaComponents.TableViewLabel {}
+            // Red too while rmin is under 1.6 dmin
             EaComponents.ListViewTextInput {
                 text: dmin
-                warned: !acceptableInput
+                warned: !acceptableInput || crowded
                 onEditingFinished: dmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
                 text: rmin
-                warned: !acceptableInput
+                warned: !acceptableInput || crowded
                 onEditingFinished: rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }

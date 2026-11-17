@@ -73,26 +73,36 @@ EaElements.GroupColumn {
             // Worked out when the lamella is added, then as set
             required property double shellThickness
             required property bool symmetric
+            // Worked out from rmin, shell and the outer leaflet's molecules
+            required property var outerLeafletRmin
+            // shortcut: 1.6 copies shapespyer's _RMIN_PER_DMIN (structure.py),
+            // under which it refuses to build; read it from the backend if it changes
+            readonly property bool innerCrowded: rmin < 1.6 * innerLeafletDmin
+            readonly property bool outerCrowded: typeof outerLeafletRmin === 'number'
+                                                 && outerLeafletRmin < 1.6 * outerLeafletDmin
 
             EaComponents.TableViewLabel {
                 text: index + 1
                 enabled: false
             }
+            // Rmin and inner dmin red too while rmin is under 1.6 inner dmin
             EaComponents.ListViewTextInput {
                 text: rmin
-                warned: !acceptableInput
+                warned: !acceptableInput || innerCrowded
                 onEditingFinished: rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
             EaComponents.ListViewTextInput {
                 text: innerLeafletDmin
-                warned: !acceptableInput
+                warned: !acceptableInput || innerCrowded
                 onEditingFinished: innerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
+            // Outer dmin and shell red too while the outer leaflet starts
+            // under 1.6 outer dmin
             EaComponents.ListViewTextInput {
                 text: outerLeafletDmin
-                warned: !acceptableInput
+                warned: !acceptableInput || outerCrowded
                 onEditingFinished: outerLeafletDmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
@@ -100,7 +110,7 @@ EaElements.GroupColumn {
             // leaflets crowd, as the Shape view shows
             EaComponents.ListViewTextInput {
                 text: shellThickness
-                warned: !acceptableInput
+                warned: !acceptableInput || outerCrowded
                 onEditingFinished: shellThickness = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.01 }
 

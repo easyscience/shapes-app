@@ -123,8 +123,8 @@ Item {
     //   - Vesicle (lamellae set): two leaflet rings per lamella.
     //   - Ball (layers set): one ring per layer.
     //   - Ring: a single ring from the plain properties.
-    // `comps` is the list of present component indices for that ring (empty rings
-    // are dropped). `showRmin` controls the rmin dimension; `shell` (> 0) requests
+    // `comps` is the list of present component indices for that ring (an empty
+    // ring keeps its arcs). `showRmin` controls the rmin dimension; `shell` (> 0) requests
     // the outer-shell arc + shell-thickness dimension.
     function _ringDefs() {
         if (lamellae && lamellae.count !== undefined) {
@@ -301,12 +301,12 @@ Item {
                 const reversed = !!defs[g].reversed
                 const showRmin = defs[g].showRmin !== false
                 const shell = defs[g].shell > 0 ? defs[g].shell : 0
-                // Present components for this ring; drop the ring if none.
+                // Present components for this ring. With none it keeps its
+                // arcs, as long as all components would make them, and no
+                // vectors
                 const comps = defs[g].comps || []
                 const m = comps.length
-                if (m === 0)
-                    continue
-                const Lfull = (m + 1) * d
+                const Lfull = ((m || N) + 1) * d
                 // Cap the baseline at 0.7 of the full circle it lies on; any
                 // vector whose anchor falls past the cut-off is not drawn.
                 const maxLen = 0.7 * 2 * Math.PI * r
@@ -326,15 +326,16 @@ Item {
                 // dmin dimension measures the first two
                 const bases = []
                 const vecs = []
-                for (let k = 0; k <= m; ++k) {
+                for (let k = 0; k <= (m || N); ++k) {
                     const s = 0.5 * d + k * d
                     if (s > L)   // anchor past the cut-off baseline: not shown
                         continue
                     const o = outward(a0 + s / r)
                     bases.push(Qt.point(r * o.x, r * o.y))
                     const compIndex = comps[k % m]
-                    const bone = bones[compIndex]
-                    if (bone <= 1e-3)   // no bone: the slot stays empty
+                    // No present component, or no bone: the slot stays empty
+                    const bone = m > 0 ? bones[compIndex] : 0
+                    if (bone <= 1e-3)
                         continue
                     const rInt = reversed ? r + bone : rExt - bone
                     const from = Qt.point(rInt * o.x, rInt * o.y)    // mint

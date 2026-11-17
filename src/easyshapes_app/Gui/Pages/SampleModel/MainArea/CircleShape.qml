@@ -38,11 +38,13 @@ Canvas {
         ctx.reset()
         ctx.clearRect(0, 0, width, height)
 
-        // Left-aligned with padding, as the rod, a fifth smaller than it
-        const leftPad = 18
+        // A fifth smaller than the rod, in the lower left corner: the same
+        // gap below and to the left, 0.6 of what a centre at 60% height
+        // leaves below
         const r = 0.8 * Math.min(height * 0.3, width * 0.25)
-        const cx = leftPad + r
-        const cy = height * 0.6
+        const gap = 0.6 * (height * 0.4 - r)
+        const cx = gap + r
+        const cy = height - gap - r
 
         ctx.strokeStyle = circle.strokeColor
         function drawCircle(radius, lineWidth) {
