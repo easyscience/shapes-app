@@ -4,6 +4,7 @@
 import os
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 from PySide6.QtTest import QSignalSpy
 from shapes.project.analysis import SansCurve
@@ -20,17 +21,22 @@ from tests.unit.factories import FakeStage
 class FakeCurve(FakeAsset):
     """
     Stands in for a SansCurve: calculate starts a FakeJob, or raises its
-    refusal, as a check before the start does.
+    refusal, as a check before the start does; data is what a test sets.
     """
 
     def __init__(self, name, *paths):
         super().__init__(name, *paths)
         self.job = None
         self.refusal = None
+        self.data = None
 
     @property
     def files_locked(self):
         return self.job is not None and self.job.running
+
+    def check_files_unlocked(self):
+        if self.files_locked:
+            raise RuntimeError(f'Files of {self.name} are being written by a run')
 
     def calculate(self, sample_model, *, background=False):
         if self.refusal:
@@ -311,3 +317,68 @@ def test_a_check_failing_before_the_start_starts_no_run(qcore_application, tmp_p
         scattering.calculate()
 
     assert (scattering.filesLocked, scattering.runningCurve, locked.count()) == (False, '', 0)
+
+
+def test_points_and_ranges_are_log10_over_the_shown_curves(tmp_path):
+    eq0 = stage(tmp_path, 0, 100)
+    # An I of 0 has no log: its point is left out
+    first = curve(
+        'first',
+        eq0,
+        touched(tmp_path / 'first.dat', 200),
+        data=SimpleNamespace(x=np.array([0.01, 0.1, 1.0]), y=np.array([100.0, 1.0, 0.0])),
+    )
+    second = curve(
+        'second',
+        eq0,
+        touched(tmp_path / 'second.dat', 200),
+        data=SimpleNamespace(x=np.array([0.001, 10.0]), y=np.array([1000.0, 0.001])),
+    )
+    scattering = Scattering(
+        Session(sample_model=FakeSampleModel(), analysis=analysis_of(first, second))
+    )
+    scattering.refresh()
+
+    points = [value for point in scattering.curvePoints(0) for value in (point.x(), point.y())]
+    both = scattering.ranges
+    scattering.setCurveShown(1, False)
+
+    assert points == pytest.approx([-2, 2, -1, 0])
+    assert both == pytest.approx({'xmin': -3, 'xmax': 1, 'ymin': -3, 'ymax': 3})
+    assert scattering.ranges == pytest.approx({'xmin': -2, 'xmax': -1, 'ymin': 0, 'ymax': 2})
+
+
+def test_export_copies_the_shown_curves_and_asks_before_replacing(tmp_path):
+    eq0 = stage(tmp_path, 0, 100)
+    analysis = analysis_of(
+        curve('shown', eq0, touched(tmp_path / 'curves' / 'shown.dat', 200)),
+        curve('hidden', eq0, touched(tmp_path / 'curves' / 'hidden.dat', 200)),
+    )
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering.refresh()
+    scattering.setCurveShown(1, False)
+    export = tmp_path / 'export'
+    export.mkdir()
+
+    free = scattering.exportTaken(str(export))
+    scattering.exportTo(str(export), False)
+    taken = scattering.exportTaken(str(export))
+    with pytest.raises(FileExistsError, match='already holds'):
+        scattering.exportTo(str(export), False)
+    scattering.exportTo(str(export), True)
+
+    assert (free, taken) == (False, True)
+    assert [path.name for path in export.iterdir()] == ['shown.dat']
+
+
+def test_a_curve_being_written_is_not_removed(tmp_path):
+    busy = curve('busy', stage(tmp_path, 0, 100), touched(tmp_path / 'busy.dat', 200))
+    busy.job = FakeJob()
+    analysis = analysis_of(busy)
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering.refresh()
+
+    with pytest.raises(RuntimeError, match='being written'):
+        scattering.removeCurve(0)
+
+    assert (scattering.curves.count, analysis.sans) == (1, [busy])
