@@ -144,10 +144,11 @@ class Backend(QObject):
         self._project.externalReplacing.connect(self._replace_when_idle)
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # An assembly or an equilibration ended: its error goes to the
-        # dialog
+        # An assembly, an equilibration or a calculation ended: its
+        # error goes to the dialog
         self._sample_model.externalAssembled.connect(self._assembled)
         self._equilibration.externalEquilibrated.connect(self._equilibrated)
+        self._scattering.externalCalculated.connect(self._calculated)
 
         # A new analysis, a run's start (its copies) or a finished
         # stage: the stage viewer lists them again
@@ -321,6 +322,10 @@ class Backend(QObject):
     def _equilibrated(self, error):
         if error:
             self._error.message = f'Equilibration failed: {error}'
+
+    def _calculated(self, error):
+        if error:
+            self._error.message = f'Calculation failed: {error}'
 
     def _replace_when_idle(self, replace):
         self._sample_model.after_assembly(lambda: self._equilibration.after_equilibration(replace))

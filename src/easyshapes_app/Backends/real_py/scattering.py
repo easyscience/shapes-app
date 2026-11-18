@@ -4,10 +4,12 @@
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
 from PySide6.QtCore import Qt
+from PySide6.QtCore import QTimer
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project.analysis import SansCurve
 from shapes.project.analysis import Stage
+from shapes.project.files import AppFileManager
 
 from .equilibration import FINISHED
 from .equilibration import EntriesModel
@@ -81,6 +83,15 @@ class Scattering(QObject):
     kernelChanged = Signal()
     componentsChanged = Signal()
     selectedStructureChanged = Signal()
+    filesLockedChanged = Signal()
+    runningCurveChanged = Signal()
+
+    # A calculation ended, with its error ('' after success or a
+    # cancel): the root shows the error
+    externalCalculated = Signal(str)
+
+    # How often a running calculation is checked, ms
+    _watch_interval = 500
 
     def __init__(self, session: Session, parent=None):
         super().__init__(parent)
@@ -100,6 +111,12 @@ class Scattering(QObject):
         # out: page state, kept by name, so a new curve shows
         self._curves = CurvesModel(self)
         self._hidden = set()
+        # The curve being calculated, None without a run
+        self._running = None
+        # Reads files_locked while a run goes on
+        self._watch = QTimer(self)
+        self._watch.setInterval(self._watch_interval)
+        self._watch.timeout.connect(self._check)
         # The next curve's settings, under SansCurve's parameter names,
         # and the analysis they were filled from
         self._settings = {}
@@ -178,6 +195,15 @@ class Scattering(QObject):
     def curves(self):
         return self._curves
 
+    @Property(bool, notify=filesLockedChanged)
+    def filesLocked(self):
+        # True until the check takes the ended run in
+        return self._watch.isActive()
+
+    @Property(str, notify=runningCurveChanged)
+    def runningCurve(self):
+        return self._running.name if self._running else ''
+
     ##########################
     # GUI accessible functions
     ##########################
@@ -214,6 +240,27 @@ class Scattering(QObject):
         else:
             self._hidden.add(name)
         self._show_curves()
+
+    @Slot()
+    def calculate(self):
+        """
+        Calculate a curve of the picked structure with the settings, in
+        the background: the curve with these settings again, or a new
+        one, which joins the list once its run succeeds. A check that
+        fails before the start raises, for the error dialog.
+        """
+        if self._selected_structure < 0:
+            raise ValueError('No structure to calculate from: assemble the sample model first')
+        self._start(self._curve())
+
+    @Slot()
+    def cancel(self):
+        """
+        Stop the running calculation; it ends at once. A new curve is
+        dropped, and a curve calculated again keeps its old data.
+        """
+        self._running.job.cancel()
+        self._check()
 
     #########
     # Helpers
@@ -354,3 +401,69 @@ class Scattering(QObject):
                 'shown': curve.name not in self._hidden,
             })
         self._curves.update(rows)
+
+    def _curve(self):
+        """
+        The curve to calculate from the picked structure: the one with
+        these settings, to run again, or a new one, not in the list yet.
+        A new one is named after the model, the stage, the SLD, the
+        deuterated components and the size spread, with -2, -3 when a
+        curve with other settings holds the name.
+        """
+        source = self._sources[self._selected_structure]
+        settings = self._settings
+        curves = self._session.analysis.sans
+        for curve in curves:
+            same = all(getattr(curve, key) == value for key, value in settings.items())
+            if curve.source is source and same:
+                return curve
+        model = self._session.sample_model
+        base = ''.join([
+            model.name,
+            '' if source is model else f'-{source.name}',
+            f'-sld{settings["solvent_sld"]:g}',
+            *(f'-d{name}' for name in settings['deuterated']),
+            f'-pd{settings["size_spread"]:g}',
+        ])
+        taken = {curve.name for curve in curves}
+        name, k = base, 2
+        while name in taken:
+            name, k = f'{base}-{k}', k + 1
+        return SansCurve(source, name=name, **settings)
+
+    def _start(self, curve):
+        """
+        Calculate a curve in the background, on the session's sample
+        model, and watch the run.
+        """
+        curve.calculate(self._session.sample_model, background=True)
+        self._running = curve
+        self._watch.start()
+        self.filesLockedChanged.emit()
+        self.runningCurveChanged.emit()
+
+    def _check(self):
+        """
+        Once the run has stopped: end the watch, keep a new curve that
+        succeeded, drop one that failed or was cancelled, with its
+        files, and report the error. A curve calculated again holds its
+        new files, or keeps its old ones.
+        """
+        curve = self._running
+        # The read takes an ended run's outputs in
+        if curve.files_locked:
+            return
+        self._watch.stop()
+        self._running = None
+        error = curve.job.error
+        sans = self._session.analysis.sans
+        if curve not in sans:
+            if error is None:
+                sans.append(curve)
+            else:
+                AppFileManager().discard_asset_paths(curve, curve.paths)
+        self.filesLockedChanged.emit()
+        self.runningCurveChanged.emit()
+        self._show_curves()
+        # A cancel was the user's own: no dialog
+        self.externalCalculated.emit('' if error in (None, 'Cancelled') else error)

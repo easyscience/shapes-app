@@ -4,14 +4,38 @@
 import os
 from types import SimpleNamespace
 
+import pytest
+from PySide6.QtTest import QSignalSpy
 from shapes.project.analysis import SansCurve
 
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.scattering import Scattering
 from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
+from tests.unit.factories import FakeJob
 from tests.unit.factories import FakeSampleModel
 from tests.unit.factories import FakeStage
+
+
+class FakeCurve(FakeAsset):
+    """
+    Stands in for a SansCurve: calculate starts a FakeJob, or raises its
+    refusal, as a check before the start does.
+    """
+
+    def __init__(self, name, *paths):
+        super().__init__(name, *paths)
+        self.job = None
+        self.refusal = None
+
+    @property
+    def files_locked(self):
+        return self.job is not None and self.job.running
+
+    def calculate(self, sample_model, *, background=False):
+        if self.refusal:
+            raise ValueError(self.refusal)
+        self.job = FakeJob()
 
 
 def touched(path, time):
@@ -36,7 +60,7 @@ def curve(name, source, dat=None, **settings):
     A SansCurve of a source with SansCurve's default settings but the
     given ones, holding a .dat or none yet.
     """
-    fake = FakeAsset(name, *([dat] if dat else []))
+    fake = FakeCurve(name, *([dat] if dat else []))
     fake.source = source
     fake.rg = 24.1
     fake.q_min = SansCurve.DEFAULT_Q_MIN
@@ -63,6 +87,24 @@ def analysis_of(*curves, equilibration=None):
 
 def rows(model):
     return [model.get(row) for row in range(model.count)]
+
+
+def on_cta60(tmp_path):
+    """
+    The model CTA60, assembled, of the component CTA, and its finished
+    stage eq5, the newest row and so the pick, with a Scattering on
+    them, its lists read.
+    """
+    model = FakeSampleModel(SimpleNamespace(components=[SimpleNamespace(name='CTA')]))
+    model.name = 'CTA60'
+    model.add_new_files([touched(tmp_path / 'CTA60.gro', 50)])
+    equilibration = FakeEquilibration('equil0.mdp')
+    eq5 = stage(tmp_path, 5, 100)
+    equilibration.stages = [eq5]
+    analysis = analysis_of(equilibration=equilibration)
+    scattering = Scattering(Session(sample_model=model, analysis=analysis))
+    scattering.refresh()
+    return SimpleNamespace(model=model, eq5=eq5, analysis=analysis, scattering=scattering)
 
 
 def test_settings_come_from_the_newest_curve_once_per_analysis():
@@ -174,3 +216,98 @@ def test_ticks_keep_the_components_order_and_leave_with_their_component():
         ['CHL'],
         ['SDS', 'CHL'],
     )
+
+
+def test_a_new_curve_is_named_after_its_structure_and_settings(tmp_path):
+    cta60 = on_cta60(tmp_path)
+    scattering = cta60.scattering
+    scattering.solventSld = 6.36
+    scattering.setDeuterated('CTA', True)
+
+    of_stage = scattering._curve().name
+    scattering.selectStructure(0)
+    of_model = scattering._curve().name
+    # A curve with another q range holds the model's name
+    cta60.analysis.sans.append(
+        curve(of_model, cta60.model, q_points=100, solvent_sld=6.36, deuterated=('CTA',))
+    )
+    taken = scattering._curve().name
+
+    assert (of_stage, of_model, taken) == (
+        'CTA60-eq5-sld6.36-dCTA-pd0.25',
+        'CTA60-sld6.36-dCTA-pd0.25',
+        'CTA60-sld6.36-dCTA-pd0.25-2',
+    )
+
+
+@pytest.mark.parametrize(
+    ('error', 'shown'), [(None, ''), ('SincCity failed', 'SincCity failed'), ('Cancelled', '')]
+)
+def test_the_curve_with_these_settings_runs_again(qcore_application, tmp_path, error, shown):
+    cta60 = on_cta60(tmp_path)
+    again = curve('eq5 curve', cta60.eq5)
+    cta60.analysis.sans.append(again)
+    scattering = cta60.scattering
+    ended = QSignalSpy(scattering.externalCalculated)
+
+    scattering.calculate()
+    running = (scattering.runningCurve, scattering.filesLocked)
+    again.job.end(error)
+    ended.wait(1000)
+
+    assert running == ('eq5 curve', True)
+    assert (scattering.runningCurve, scattering.filesLocked) == ('', False)
+    assert cta60.analysis.sans == [again]
+    assert ended.at(0) == [shown]
+
+
+def test_a_new_curve_that_succeeds_joins_the_list_shown(qcore_application, tmp_path):
+    cta60 = on_cta60(tmp_path)
+    new = curve('new', cta60.eq5, touched(tmp_path / 'new.dat', 200))
+    scattering = cta60.scattering
+    ended = QSignalSpy(scattering.externalCalculated)
+
+    scattering._start(new)
+    listed = scattering.curves.count
+    new.job.end()
+    ended.wait(1000)
+
+    assert (listed, cta60.analysis.sans) == (0, [new])
+    assert [(row['name'], row['shown']) for row in rows(scattering.curves)] == [('new', True)]
+
+
+def test_cancel_ends_the_run_at_once(qcore_application, tmp_path):
+    cta60 = on_cta60(tmp_path)
+    again = curve('eq5 curve', cta60.eq5)
+    cta60.analysis.sans.append(again)
+    scattering = cta60.scattering
+    ended = QSignalSpy(scattering.externalCalculated)
+
+    scattering.calculate()
+    scattering.cancel()
+
+    assert again.job.error == 'Cancelled'
+    assert not scattering.filesLocked
+    assert ended.at(0) == ['']
+
+
+def test_calculate_without_a_structure_is_refused(qcore_application):
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis_of()))
+    scattering.refresh()
+
+    with pytest.raises(ValueError, match='assemble the sample model first'):
+        scattering.calculate()
+
+    assert not scattering.filesLocked
+
+
+def test_a_check_failing_before_the_start_starts_no_run(qcore_application, tmp_path):
+    cta60 = on_cta60(tmp_path)
+    cta60.analysis.sans.append(curve('eq5 curve', cta60.eq5, refusal='eq5 holds no .gro'))
+    scattering = cta60.scattering
+    locked = QSignalSpy(scattering.filesLockedChanged)
+
+    with pytest.raises(ValueError, match='holds no .gro'):
+        scattering.calculate()
+
+    assert (scattering.filesLocked, scattering.runningCurve, locked.count()) == (False, '', 0)
