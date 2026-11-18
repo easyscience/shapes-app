@@ -30,27 +30,18 @@ EaElements.GroupColumn {
         }
 
         // The last lamella's rmin plus its shell, worked out, not for editing
-        Column {
+        EaElements.Parameter {
+            readonly property var fullRadius: Globals.BackendWrapper.lamellaeFullRadius
             width: EaStyle.Sizes.sideBarContentWidth * 0.2
-
-            EaElements.Label {
-                enabled: false
-                text: qsTr("Full radius, nm")
-            }
-            EaElements.TextField {
-                readonly property var fullRadius: Globals.BackendWrapper.lamellaeFullRadius
-                width: parent.width
-                enabled: false
-                text: typeof fullRadius === 'number' ? fullRadius.toFixed(2) : ""
-                placeholderText: qsTr("unknown")
-            }
+            enabled: false
+            title: qsTr("Full radius")
+            units: "nm"
+            text: typeof fullRadius === 'number' ? fullRadius.toFixed(2) : "—"
         }
-    }
 
-    Row {
-        spacing: EaStyle.Sizes.fontPixelSize
-
+        // Level with the fields' boxes, below their titles
         EaElements.CheckBox {
+            anchors.bottom: parent.bottom
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Fxz")
@@ -58,6 +49,7 @@ EaElements.GroupColumn {
             onToggled: Globals.BackendWrapper.vesicleStructureSetFxz(checked)
         }
         EaElements.CheckBox {
+            anchors.bottom: parent.bottom
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Rev")

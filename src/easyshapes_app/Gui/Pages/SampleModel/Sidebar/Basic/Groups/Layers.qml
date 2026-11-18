@@ -8,6 +8,7 @@ import QtQuick.Controls
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
+import EasyApplication.Gui.Globals as EaGlobals
 
 import Gui.Globals as Globals
 
@@ -45,9 +46,17 @@ EaElements.GroupColumn {
                 text: qsTr("Rmin, nm")
                 color: EaStyle.Colors.themeForegroundMinor
             }
+            // The tooltip sits here: the greyed cells get no hover
             EaComponents.TableViewLabel {
+                id: thicknessTitle
                 text: qsTr("Thickness, nm")
                 color: EaStyle.Colors.themeForegroundMinor
+
+                EaElements.ToolTip {
+                    text: qsTr("Longest ticked molecule, first atom to last")
+                    // By id: qmllint types a popup's parent as a plain Item
+                    visible: thicknessTitle.hovered && EaGlobals.Vars.showToolTips
+                }
             }
             EaComponents.TableViewLabel {}
         }
@@ -85,7 +94,7 @@ EaElements.GroupColumn {
                 onEditingFinished: layerRow.rmin = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.25 }
             }
-            // Greyed: the longest bone, worked out, not for editing
+            // Greyed: the longest ticked molecule, first atom to last, not for editing
             EaComponents.TableViewLabel {
                 text: typeof layerRow.thickness === 'number' ? layerRow.thickness.toFixed(2) : "—"
                 enabled: false

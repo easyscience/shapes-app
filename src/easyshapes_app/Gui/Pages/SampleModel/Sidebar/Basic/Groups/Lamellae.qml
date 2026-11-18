@@ -117,8 +117,7 @@ EaElements.GroupColumn {
                 validator: DoubleValidator { bottom: 0.01 }
 
                 EaElements.ToolTip {
-                    text: qsTr("From rmin to the outer leaflet's end. Worked out from the leaflets' "
-                               + "molecules when the lamella is added; then it stays as set")
+                    text: qsTr("From rmin to the outer leaflet's end")
                     // By id: qmllint types a popup's parent as a plain Item
                     visible: shellInput.hovered && EaGlobals.Vars.showToolTips
                 }

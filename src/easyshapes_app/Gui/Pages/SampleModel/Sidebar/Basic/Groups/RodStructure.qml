@@ -15,6 +15,10 @@ import "../Components" as Local
 EaElements.GroupColumn {
     id: root
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
+    // shortcut: 1.6 copies Ball's _RMIN_PER_DMIN (structure.py); below about 1.5 dmin
+    // Rod.make packs the caps (protoshape.py). Read it from shapespyer once it has limits
+    readonly property bool crowded: Globals.BackendWrapper.rodStructureRmin
+                                    < 1.6 * Globals.BackendWrapper.rodStructureDmin
 
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
@@ -24,6 +28,8 @@ EaElements.GroupColumn {
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
+            // Red too while rmin is under 1.6 dmin
+            warned: !acceptableInput || root.crowded
             text: Globals.BackendWrapper.rodStructureDmin
             onEditingFinished: Globals.BackendWrapper.rodStructureSetDmin(parseFloat(text))
         }
@@ -32,6 +38,7 @@ EaElements.GroupColumn {
             title: qsTr("Rmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
+            warned: !acceptableInput || root.crowded
             text: Globals.BackendWrapper.rodStructureRmin
             onEditingFinished: Globals.BackendWrapper.rodStructureSetRmin(parseFloat(text))
         }
@@ -39,6 +46,7 @@ EaElements.GroupColumn {
             width: root.thirdWidth
             title: qsTr("Turns")
             validator: IntValidator { bottom: 1 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.rodStructureTurns
             onEditingFinished: Globals.BackendWrapper.rodStructureSetTurns(parseInt(text))
         }

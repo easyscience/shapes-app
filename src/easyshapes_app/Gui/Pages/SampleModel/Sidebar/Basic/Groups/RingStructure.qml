@@ -15,6 +15,10 @@ import "../Components" as Local
 EaElements.GroupColumn {
     id: root
     property double quarterWidth: (EaStyle.Sizes.sideBarContentWidth - 3 * EaStyle.Sizes.fontPixelSize) / 4
+    // shortcut: 0.5 copies shapespyer's silent rmin floor for ring fills (options.py),
+    // read it from shapespyer once it has proper limits
+    readonly property bool crowded: Globals.BackendWrapper.ringStructureRmin
+                                    < 0.5 * Globals.BackendWrapper.ringStructureDmin
 
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
@@ -24,6 +28,8 @@ EaElements.GroupColumn {
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
+            // Red too while rmin is under 0.5 dmin
+            warned: !acceptableInput || root.crowded
             text: Globals.BackendWrapper.ringStructureDmin
             onEditingFinished: Globals.BackendWrapper.ringStructureSetDmin(parseFloat(text))
         }
@@ -32,6 +38,7 @@ EaElements.GroupColumn {
             title: qsTr("Rmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.25 }
+            warned: !acceptableInput || root.crowded
             text: Globals.BackendWrapper.ringStructureRmin
             onEditingFinished: Globals.BackendWrapper.ringStructureSetRmin(parseFloat(text))
         }
@@ -40,6 +47,7 @@ EaElements.GroupColumn {
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.ringStructureAlpha
             onEditingFinished: Globals.BackendWrapper.ringStructureSetAlpha(parseFloat(text))
         }
@@ -48,6 +56,7 @@ EaElements.GroupColumn {
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.ringStructureTheta
             onEditingFinished: Globals.BackendWrapper.ringStructureSetTheta(parseFloat(text))
         }

@@ -68,7 +68,10 @@ Canvas {
             }
         }
 
-        const cy = height * 0.62                 // sit lower in the view; leave room for the dimension below
+        // The bottom edge stays where the largest capsule's is (caps at most
+        // 0.22 of the height), so a long, thin rod doesn't float up; the
+        // dimension below keeps its room
+        const cy = height * 0.84 - capR
         const startX = leftPad
         const bodyL = startX + capR
         const bodyR = bodyL + bodyW
