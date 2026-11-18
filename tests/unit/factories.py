@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 import time
@@ -111,6 +111,13 @@ class FakeAsset:
     @property
     def paths(self):
         return tuple(sorted(self._paths))
+
+    def file_with_suffix(self, suffix):
+        # As BaseAsset's: the one file of a suffix, None without one
+        found = [path for path in self.paths if path.suffix == suffix]
+        if len(found) > 1:
+            raise ValueError(f'{self.name} holds several {suffix} files: {found}')
+        return found[0] if found else None
 
     def add_new_files(self, paths):
         self._paths.update(Path(path) for path in paths)

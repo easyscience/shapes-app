@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from types import SimpleNamespace
@@ -135,7 +135,7 @@ def test_equilibration_end_shows_its_error(qcore_application, error, message):
 
 
 def test_project_replacement_cancels_a_running_equilibration_first(qcore_application):
-    analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'))
+    analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'), sans=[])
     backend = Backend(Session(sample_model=FakeSampleModel(), analysis=analysis))
     replaced = []
 

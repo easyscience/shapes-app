@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -36,6 +36,7 @@ from .real_py.report import Report
 from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
+from .real_py.scattering import Scattering
 from .real_py.smiles_generator import SmilesGenerator
 from .real_py.stage_view import StageView
 from .real_py.structure_view import StructureView
@@ -108,6 +109,9 @@ class Backend(QObject):
         # The Analysis page's structure viewer: the initial or a
         # finished stage's structure
         self._stage_view = StageView(self._session)
+        # The Analysis page's SANS curves: the next one's settings, what
+        # it can be calculated from, and the list
+        self._scattering = Scattering(self._session)
         # The Summary page's text
         self._report = Report(self._session)
 
@@ -189,6 +193,18 @@ class Backend(QObject):
         loaded.rowsRemoved.connect(self._smiles_generator.refresh)
         loaded.dataChanged.connect(self._smiles_generator.refresh)
         loaded.modelReset.connect(self._smiles_generator.refresh)
+
+        # The SANS lists follow the stages (a new analysis comes this
+        # way too), the model's .gro, which an assembly writes, another
+        # model, the model's name, and its components
+        self._equilibration.stagesChanged.connect(self._scattering.refresh)
+        self._sample_model.filesLockedChanged.connect(self._scattering.refresh)
+        self._sample_model.externalStructureChanged.connect(self._scattering.refresh)
+        self._sample_model.nameChanged.connect(self._scattering.refresh)
+        loaded.rowsInserted.connect(self._scattering.refresh)
+        loaded.rowsRemoved.connect(self._scattering.refresh)
+        loaded.dataChanged.connect(self._scattering.refresh)
+        loaded.modelReset.connect(self._scattering.refresh)
 
     @Property('QVariant', constant=True)
     def project(self):
@@ -289,6 +305,10 @@ class Backend(QObject):
     @Property('QVariant', constant=True)
     def stageView(self):
         return self._stage_view
+
+    @Property('QVariant', constant=True)
+    def scattering(self):
+        return self._scattering
 
     @Property('QVariant', constant=True)
     def report(self):

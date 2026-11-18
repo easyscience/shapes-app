@@ -34,10 +34,12 @@ QtObject {
     // The sample model's components: the ones that can be deuterated
     property var components: []
 
-    // The curves with data. Roles: name, settings (the hover text),
-    // status ('done' or 'outdated'), rg (Å), shown. Mock only, to match
-    // settings and to draw: structure, stage ('' for the model), sld,
-    // deuteratedKey, qMin, qMax, qPoints, sizeSpread, kernel
+    // The curves with data. Roles as the proxy's: name, source (its
+    // structure's name), qMin, qMax, qPoints, solventSld, sizeSpread,
+    // kernel, rg (Å), status ('done' or 'outdated'), shown. Not
+    // deuterated: a ListModel holds no list of strings, and no QML reads
+    // it. Mock only, to match settings, name and draw: stage ('' for the
+    // model) and deuteratedKey, the ticked names joined by commas
     readonly property var curves: ListModel { id: curvesModel }
 
     // The run, and its curve's name; '' without one
@@ -85,13 +87,11 @@ QtObject {
             const running = root._running
             if (root._finishedRuns % 3 === 0) {
                 root.error.message = `ValueError: Residue ${root.components[0] ?? 'SDS'} has 42 atoms in `
-                                     + `${running.structure}, but its masses list 41`
+                                     + `${running.source}, but its masses list 41`
             } else {
                 const stage = running.stage ? parseInt(running.stage.slice(2)) : -1
                 const curve = Object.assign({}, running, {
                     name: root.runningCurve,
-                    settings: `q ${running.qMin} to ${running.qMax} Å⁻¹, ${running.qPoints} points, `
-                              + `polydispersity ${running.sizeSpread}, ${running.kernel === 'auto' ? 'exact' : 'fast'}`,
                     status: [4, 5, 6].includes(stage) ? 'outdated' : 'done',
                     rg: Math.round((24.1 + 0.5 * (stage + 1)) * 10) / 10
                 })
@@ -153,10 +153,10 @@ QtObject {
         if (selectedStructure < 0) return
         const picked = structuresModel.get(selectedStructure)
         const settings = {
-            structure: picked.name,
+            source: picked.name,
             // The model's row is the one without a status
             stage: picked.status ? picked.name : '',
-            sld: solventSld,
+            solventSld,
             deuteratedKey: deuterated.join(','),
             qMin, qMax, qPoints, sizeSpread, kernel
         }
@@ -211,7 +211,7 @@ QtObject {
         const curve = curvesModel.get(row)
         const radius = curve.rg * Math.sqrt(5 / 3)
         const deuteratedCount = curve.deuteratedKey ? curve.deuteratedKey.split(',').length : 0
-        const contrast = 0.3 + 2 * deuteratedCount - curve.sld
+        const contrast = 0.3 + 2 * deuteratedCount - curve.solventSld
         const points = []
         for (let i = 0; i < curve.qPoints; ++i) {
             const q = curve.qMin * Math.pow(curve.qMax / curve.qMin, i / (curve.qPoints - 1))

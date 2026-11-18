@@ -89,7 +89,11 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string name
-            required property string settings
+            required property real qMin
+            required property real qMax
+            required property int qPoints
+            required property real sizeSpread
+            required property string kernel
             required property string status
             required property real rg
             required property bool shown
@@ -117,7 +121,9 @@ EaElements.GroupColumn {
                 text: name
 
                 EaElements.ToolTip {
-                    text: settings
+                    text: qsTr("q %1 to %2 Å⁻¹, %3 points, polydispersity %4, %5")
+                          .arg(qMin).arg(qMax).arg(qPoints).arg(sizeSpread)
+                          .arg(kernel === 'auto' ? qsTr("exact") : qsTr("fast"))
                     visible: parent.hovered && EaGlobals.Vars.showToolTips
                 }
             }

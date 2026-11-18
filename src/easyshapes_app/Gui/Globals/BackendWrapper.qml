@@ -566,8 +566,9 @@ QtObject {
     readonly property int scatteringQPoints: activeBackend.scattering?.qPoints ?? 0
     readonly property real scatteringSizeSpread: activeBackend.scattering?.sizeSpread ?? 0
     readonly property string scatteringKernel: activeBackend.scattering?.kernel ?? ''
-    // The curves with data (roles: name, settings, status, rg, shown):
-    // settings is the hover text
+    // The curves with data. Roles: name, source (its structure's name),
+    // SansCurve's settings (qMin, qMax, qPoints, solventSld, deuterated,
+    // sizeSpread, kernel), rg (Å), status, shown
     readonly property var scatteringCurves: activeBackend.scattering?.curves ?? null
     // A calculation runs; Cancel may stop it at any time. The running
     // curve's name, '' without a run: a new curve joins curves only once
