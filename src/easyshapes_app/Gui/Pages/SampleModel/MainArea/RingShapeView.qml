@@ -599,4 +599,15 @@ Item {
         color: EaStyle.Colors.themeForegroundMinor
         text: qsTr("No components yet — load or create one in the sidebar.")
     }
+
+    // Components, but no layer (Ball) or lamella (Vesicle) to draw
+    EaElements.Label {
+        readonly property var rows: root.lamellae ?? root.layers
+        anchors.centerIn: parent
+        visible: !!root.components && root.components.count > 0 && !!rows && rows.count === 0
+        color: EaStyle.Colors.themeForegroundMinor
+        text: root.lamellae
+              ? qsTr("No lamellae yet — add one in the sidebar.")
+              : qsTr("No layers yet — add one in the sidebar.")
+    }
 }
