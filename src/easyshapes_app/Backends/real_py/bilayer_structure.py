@@ -25,8 +25,8 @@ class BilayerStructure(QObject):
     def __init__(self, bilayer, parent=None):
         super().__init__(parent)
         self._bilayer = bilayer
-        # The width is nside sites dmin apart; the thickness is zsep, or
-        # grows with dmin
+        # The width is nside sites dmin apart; the thickness follows
+        # zsep, or dmin while zsep is 0
         self.dminChanged.connect(self.sizesChanged)
         self.zsepChanged.connect(self.sizesChanged)
         self.nsideChanged.connect(self.sizesChanged)
@@ -75,6 +75,6 @@ class BilayerStructure(QObject):
 
     @Property('QVariant', notify=sizesChanged)
     def thickness(self):
-        # zsep when set, else dmin plus a bone on each side; None while
-        # neither is known
+        # The span of the molecules, from zsep or from dmin; None while
+        # no molecule is read
         return self._bilayer.thickness

@@ -81,7 +81,7 @@ SIZE_FIELDS = [
     (BilayerStructure, Bilayer, 'nside', 4, True),
     (MonolayerStructure, Monolayer, 'dmin', 0.7, True),
     (MonolayerStructure, Monolayer, 'nside', 4, True),
-    (MonolayerStructure, Monolayer, 'zsep', 1.5, False),
+    (MonolayerStructure, Monolayer, 'zsep', 1.5, True),
 ]
 
 
@@ -105,11 +105,11 @@ def test_sizes_read_the_library():
     monolayer = Monolayer()
     rod = RodStructure(Rod())
 
-    # No components, so no bone to measure
+    # No components, so no bone to measure, even with a zsep set
     assert RingStructure(Ring()).outerRadius is None
     assert (rod.outerRadius, rod.length) == (None, None)
     assert MonolayerStructure(monolayer).thickness is None
-    # The width needs no bone, nor does a set zsep
+    assert BilayerStructure(bilayer).thickness is None
+    # The width needs no bone
     assert BilayerStructure(bilayer).width == pytest.approx(bilayer.nside * bilayer.dmin)
-    assert BilayerStructure(bilayer).thickness == 1.5
     assert MonolayerStructure(monolayer).width == pytest.approx(monolayer.nside * monolayer.dmin)

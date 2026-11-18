@@ -51,8 +51,15 @@ EaElements.GroupColumn {
                 color: EaStyle.Colors.themeForegroundMinor
             }
             EaComponents.TableViewLabel {
+                id: shellTitle
                 text: qsTr("Shell thickness, nm")
                 color: EaStyle.Colors.themeForegroundMinor
+
+                EaElements.ToolTip {
+                    text: qsTr("From rmin to the outer leaflet's end")
+                    // By id: qmllint types a popup's parent as a plain Item
+                    visible: shellTitle.hovered && EaGlobals.Vars.showToolTips
+                }
             }
             EaComponents.TableViewLabel {
                 text: qsTr("Symmetric")
@@ -110,17 +117,10 @@ EaElements.GroupColumn {
             // 0 or less is red and not sent. A thin shell is taken: the
             // leaflets crowd, as the Shape view shows
             EaComponents.ListViewTextInput {
-                id: shellInput
                 text: lamellaRow.shellThickness
                 warned: !acceptableInput || lamellaRow.outerCrowded
                 onEditingFinished: lamellaRow.shellThickness = parseFloat(text)
                 validator: DoubleValidator { bottom: 0.01 }
-
-                EaElements.ToolTip {
-                    text: qsTr("From rmin to the outer leaflet's end")
-                    // By id: qmllint types a popup's parent as a plain Item
-                    visible: shellInput.hovered && EaGlobals.Vars.showToolTips
-                }
             }
             EaComponents.TableViewCheckBox {
                 checked: lamellaRow.symmetric

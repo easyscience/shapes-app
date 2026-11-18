@@ -25,8 +25,10 @@ class MonolayerStructure(QObject):
     def __init__(self, monolayer, parent=None):
         super().__init__(parent)
         self._monolayer = monolayer
-        # The width is nside sites dmin apart; zsep changes no size
+        # The width is nside sites dmin apart; the thickness is zsep, or
+        # dmin, plus a bone on each side
         self.dminChanged.connect(self.sizesChanged)
+        self.zsepChanged.connect(self.sizesChanged)
         self.nsideChanged.connect(self.sizesChanged)
 
     ##########################
@@ -73,5 +75,6 @@ class MonolayerStructure(QObject):
 
     @Property('QVariant', notify=sizesChanged)
     def thickness(self):
-        # The longest bone; None while no component has one
+        # zsep, or dmin, plus the longest bone on each side; None while
+        # no component has one
         return self._monolayer.thickness

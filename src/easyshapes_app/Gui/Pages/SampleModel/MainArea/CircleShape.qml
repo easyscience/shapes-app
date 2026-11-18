@@ -59,10 +59,9 @@ Canvas {
         const known = typeof circle.outerRadius === 'number'
         const radii = [].concat(...(circle.rings || [])).filter(v => typeof v === 'number' && v > 0)
         const reference = known ? circle.outerRadius : Math.max(0, ...radii)
-        if (reference <= 0) {
-            drawCircle(r, 2)
+        // No radius known, as with no layers: nothing to draw
+        if (reference <= 0)
             return
-        }
         const scale = r / reference
         // rmin circles thin, outer edges as the rod's outline
         for (const [inner, outer] of circle.rings || []) {
