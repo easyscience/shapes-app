@@ -24,6 +24,7 @@ EaElements.GroupColumn {
             title: qsTr("Zsep")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.bilayerStructureZsep
             onEditingFinished: Globals.BackendWrapper.bilayerStructureSetZsep(parseFloat(text))
         }
@@ -31,6 +32,7 @@ EaElements.GroupColumn {
             width: root.thirdWidth
             title: qsTr("Nside")
             validator: IntValidator { bottom: 1 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.bilayerStructureNside
             onEditingFinished: Globals.BackendWrapper.bilayerStructureSetNside(parseInt(text))
         }
@@ -39,6 +41,7 @@ EaElements.GroupColumn {
             title: qsTr("Dmin")
             units: "nm"
             validator: DoubleValidator { bottom: 0.5 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.bilayerStructureDmin
             onEditingFinished: Globals.BackendWrapper.bilayerStructureSetDmin(parseFloat(text))
         }

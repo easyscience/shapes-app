@@ -54,12 +54,12 @@ Item {
     property var layers: null
 
     // Optional lamellae model (Vesicle). Rows: rmin, innerLeafletDmin,
-    // outerLeafletDmin, shellThickness, symmetric. Each lamella becomes two
-    // leaflet rings (a bilayer) with opposite vector orientation: inner at
-    // `rmin`, outer at the library's outer leaflet radius
-    // (_outerLeafletRmin). The shell thickness spans from the inner
-    // baseline (rmin) out to the outer shell (rmin + shellThickness). Takes
-    // precedence over `layers` when set.
+    // outerLeafletDmin, shellThickness, symmetric, outerLeafletRmin. Each
+    // lamella becomes two leaflet rings (a bilayer) with opposite vector
+    // orientation: inner at `rmin`, outer at `outerLeafletRmin`, the
+    // library's. The shell thickness spans from the inner baseline (rmin)
+    // out to the outer shell (rmin + shellThickness). Takes precedence over
+    // `layers` when set.
     property var lamellae: null
 
     // Rotate the whole schematic about its centre, degrees clockwise on screen.
@@ -123,11 +123,10 @@ Item {
     //   - Vesicle (lamellae set): two leaflet rings per lamella.
     //   - Ball (layers set): one ring per layer.
     //   - Ring: a single ring from the plain properties.
-    // `comps` is the list of present component indices for that ring (empty rings
-    // are dropped). `showRmin` controls the rmin dimension; `shell` (> 0) requests
-    // the outer-shell arc + shell-thickness dimension. `bones` holds every
-    // loaded component's bone length (_boneLengths).
-    function _ringDefs(bones) {
+    // `comps` is the list of present component indices for that ring (an empty
+    // ring keeps its arcs). `showRmin` controls the rmin dimension; `shell` (> 0) requests
+    // the outer-shell arc + shell-thickness dimension.
+    function _ringDefs() {
         if (lamellae && lamellae.count !== undefined) {
             const out = []
             for (let i = 0; i < lamellae.count; ++i) {
@@ -148,8 +147,7 @@ Item {
                 // rmin + shell annotations.
                 out.push({ dmin: row.innerLeafletDmin, rmin: R, reversed: !root.rev,
                            showRmin: true, shell: T, comps: innerComps })
-                out.push({ dmin: row.outerLeafletDmin,
-                           rmin: _outerLeafletRmin(row, outerComps, bones),
+                out.push({ dmin: row.outerLeafletDmin, rmin: row.outerLeafletRmin,
                            reversed: root.rev, showRmin: false, comps: outerComps })
             }
             return out
@@ -193,19 +191,6 @@ Item {
         for (let i = 0; i < components.count; ++i)
             out.push(Globals.BackendWrapper.componentBoneLength(i))
         return out
-    }
-
-    // The library's outer leaflet radius for a lamella row. With a shell:
-    // rmin + shell - the longest bone among the outer leaflet's components
-    // (half the shell when none has one). Without: rmin + the longest bone
-    // of all components + the inner leaflet dmin.
-    function _outerLeafletRmin(row, comps, bones) {
-        const T = row.shellThickness
-        if (T > 0) {
-            const outerMax = Math.max(0, ...comps.map(i => bones[i]))
-            return outerMax > 0 ? row.rmin + T - outerMax : row.rmin + T / 2
-        }
-        return row.rmin + Math.max(0, ...bones) + row.innerLeafletDmin
     }
 
     function _compName(compIndex) {
@@ -274,7 +259,7 @@ Item {
                 return
 
             const bones = root._boneLengths()
-            const defs = root._ringDefs(bones)
+            const defs = root._ringDefs()
             if (defs.length === 0)
                 return
             // Shown molecules reach past their vectors: the fit makes room
@@ -316,12 +301,12 @@ Item {
                 const reversed = !!defs[g].reversed
                 const showRmin = defs[g].showRmin !== false
                 const shell = defs[g].shell > 0 ? defs[g].shell : 0
-                // Present components for this ring; drop the ring if none.
+                // Present components for this ring. With none it keeps its
+                // arcs, as long as all components would make them, and no
+                // vectors
                 const comps = defs[g].comps || []
                 const m = comps.length
-                if (m === 0)
-                    continue
-                const Lfull = (m + 1) * d
+                const Lfull = ((m || N) + 1) * d
                 // Cap the baseline at 0.7 of the full circle it lies on; any
                 // vector whose anchor falls past the cut-off is not drawn.
                 const maxLen = 0.7 * 2 * Math.PI * r
@@ -341,15 +326,16 @@ Item {
                 // dmin dimension measures the first two
                 const bases = []
                 const vecs = []
-                for (let k = 0; k <= m; ++k) {
+                for (let k = 0; k <= (m || N); ++k) {
                     const s = 0.5 * d + k * d
                     if (s > L)   // anchor past the cut-off baseline: not shown
                         continue
                     const o = outward(a0 + s / r)
                     bases.push(Qt.point(r * o.x, r * o.y))
                     const compIndex = comps[k % m]
-                    const bone = bones[compIndex]
-                    if (bone <= 1e-3)   // no bone: the slot stays empty
+                    // No present component, or no bone: the slot stays empty
+                    const bone = m > 0 ? bones[compIndex] : 0
+                    if (bone <= 1e-3)
                         continue
                     const rInt = reversed ? r + bone : rExt - bone
                     const from = Qt.point(rInt * o.x, rInt * o.y)    // mint
@@ -389,14 +375,17 @@ Item {
             }
 
             // ---- World -> screen mapping (fit with margin, flip Y) ----
+            // Centred a tenth of the width right, off the hint in the lower
+            // left; the fit narrows by twice that to keep the right margin
             const margin = 0.82
+            const shift = 0.1 * width
             const spanX = Math.max(maxX - minX, 1e-3)
             const spanY = Math.max(maxY - minY, 1e-3)
-            const scale = Math.min((width * margin) / spanX, (height * margin) / spanY)
+            const scale = Math.min((width * margin - 2 * shift) / spanX, (height * margin) / spanY)
             const cx = (minX + maxX) / 2
             const cy = (minY + maxY) / 2
             function S(p) {
-                return Qt.point((p.x - cx) * scale + width / 2,
+                return Qt.point((p.x - cx) * scale + width / 2 + shift,
                                 height / 2 - (p.y - cy) * scale)
             }
             const centerS = S(Qt.point(0, 0))
@@ -609,5 +598,16 @@ Item {
         visible: !root.components || root.components.count === 0
         color: EaStyle.Colors.themeForegroundMinor
         text: qsTr("No components yet — load or create one in the sidebar.")
+    }
+
+    // Components, but no layer (Ball) or lamella (Vesicle) to draw
+    EaElements.Label {
+        readonly property var rows: root.lamellae ?? root.layers
+        anchors.centerIn: parent
+        visible: !!root.components && root.components.count > 0 && !!rows && rows.count === 0
+        color: EaStyle.Colors.themeForegroundMinor
+        text: root.lamellae
+              ? qsTr("No lamellae yet — add one in the sidebar.")
+              : qsTr("No layers yet — add one in the sidebar.")
     }
 }

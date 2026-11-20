@@ -24,12 +24,12 @@ EaElements.GroupColumn {
     property double thirdWidth: (EaStyle.Sizes.sideBarContentWidth - 2 * EaStyle.Sizes.fontPixelSize) / 3
     property double quarterWidth: (EaStyle.Sizes.sideBarContentWidth - 3 * EaStyle.Sizes.fontPixelSize) / 4
 
-    // Both q fields are red while q min is not below q max; an empty or
-    // unfinished field is red by itself
-    readonly property bool qMisordered: parseFloat(qMinField.text) >= parseFloat(qMaxField.text)
+    // Both q fields are red while q min is not below q max, each checked
+    // in its own warned: one shared property read by both made a binding
+    // loop. An empty or unfinished field is red by itself
     readonly property bool fieldsValid: sldField.acceptableInput
                                         && qMinField.acceptableInput && qMaxField.acceptableInput
-                                        && !qMisordered
+                                        && parseFloat(qMinField.text) < parseFloat(qMaxField.text)
                                         && pointsField.acceptableInput && spreadField.acceptableInput
 
     enabled: !Globals.BackendWrapper.scatteringFilesLocked
@@ -107,7 +107,7 @@ EaElements.GroupColumn {
                 width: root.quarterWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: DoubleValidator { bottom: 1e-6 }
-                warned: !acceptableInput || root.qMisordered
+                warned: !acceptableInput || parseFloat(text) >= parseFloat(qMaxField.text)
                 text: Globals.BackendWrapper.scatteringQMin
                 onEditingFinished: Globals.BackendWrapper.scatteringSetQMin(parseFloat(text))
             }
@@ -123,7 +123,7 @@ EaElements.GroupColumn {
                 width: root.quarterWidth
                 horizontalAlignment: TextInput.AlignLeft
                 validator: DoubleValidator { bottom: 1e-6 }
-                warned: !acceptableInput || root.qMisordered
+                warned: !acceptableInput || parseFloat(qMinField.text) >= parseFloat(text)
                 text: Globals.BackendWrapper.scatteringQMax
                 onEditingFinished: Globals.BackendWrapper.scatteringSetQMax(parseFloat(text))
             }

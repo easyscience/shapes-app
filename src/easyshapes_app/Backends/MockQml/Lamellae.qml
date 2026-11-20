@@ -21,15 +21,25 @@ ListModel {
     readonly property var innerLeafletCompositions: __inner.map(fractions => fractions.model)
     readonly property var outerLeafletCompositions: __outer.map(fractions => fractions ? fractions.model : null)
 
+    // The last row's rmin plus its shell, as VesicleStructure.outer_radius;
+    // null without rows. Set where the rows change: a binding doesn't
+    // follow setProperty
+    property var fullRadius: null
+
     property var __inner: []
     property var __outer: []
     property var __fractionsComponent: Qt.createComponent(Qt.resolvedUrl("Fractions.qml"))
 
     Component.onCompleted: add()
 
-    // The library defaults for every lamella: the page has no scaling
+    // A first lamella's defaults on every row: the mock has no molecule
+    // lengths to stack them as the library does. The shell is one worked
+    // out from 2 nm molecules, as Layers' thickness: inner 2.0 + outer
+    // leaflet dmin 0.5 + outer 2.0; the outer leaflet starts at
+    // rmin + shell - outer 2.0
     function add() {
-        append({ rmin: 0.25, shellThickness: 0.0, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5, symmetric: true })
+        append({ rmin: 1.2, shellThickness: 4.5, innerLeafletDmin: 0.5, outerLeafletDmin: 0.5,
+                 symmetric: true, outerLeafletRmin: 3.7 })
     }
 
     // The compositions follow the rows, however they were added or removed
@@ -46,6 +56,7 @@ ListModel {
         }
         __inner = inner
         __outer = outer
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
     }
     onRowsRemoved: (parent, first, last) => {
         const inner = __inner.slice()
@@ -56,6 +67,7 @@ ListModel {
                 fractions.destroy()
         __inner = inner
         __outer = outer
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
     }
 
     // Splitting gives the outer leaflet its own composition, sharing
@@ -74,5 +86,14 @@ ListModel {
             }
         }
         __outer = outer
+        // An rmin or shell edit
+        fullRadius = count ? get(count - 1).rmin + get(count - 1).shellThickness : null
+        // The outer leaflet follows rmin and shell. Last, as each set
+        // comes back here, and only on a change, which ends that
+        for (let row = topLeft.row; row <= bottomRight.row; ++row) {
+            const outerLeafletRmin = get(row).rmin + get(row).shellThickness - 2.0
+            if (get(row).outerLeafletRmin !== outerLeafletRmin)
+                setProperty(row, "outerLeafletRmin", outerLeafletRmin)
+        }
     }
 }

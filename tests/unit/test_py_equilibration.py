@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 import os
@@ -11,8 +11,8 @@ from PySide6.QtTest import QSignalSpy
 from easyshapes_app.Backends.real_py.equilibration import Equilibration
 from easyshapes_app.Backends.real_py.logic.session import Session
 from tests.unit.factories import REFUSED
-from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
+from tests.unit.factories import FakeStage
 from tests.unit.factories import refusals
 
 pytestmark = pytest.mark.usefixtures('qcore_application')
@@ -20,12 +20,10 @@ pytestmark = pytest.mark.usefixtures('qcore_application')
 
 class QuickEquilibration(Equilibration):
     """
-    Checks a running equilibration every 10 ms and lets Cancel in after
-    50 ms.
+    Checks a running equilibration every 10 ms.
     """
 
     _watch_interval = 10
-    _cancel_delay = 50
 
 
 class Unrunnable(FakeEquilibration):
@@ -33,7 +31,7 @@ class Unrunnable(FakeEquilibration):
     Fails the checks run makes before it starts.
     """
 
-    def run(self, sample_model, *, background=False):
+    def run(self, *, background=False):
         raise ValueError('model holds no assembled .gro and .top; assemble it with a buffer first')
 
 
@@ -49,7 +47,7 @@ def stage(folder, k, time):
     os.utime(gro, (time, time))
     log = folder / f'model-eq{k}.log'
     log.write_text(f'eq{k} mdrun log\n')
-    return FakeAsset(f'eq{k}', gro, log, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
+    return FakeStage(f'eq{k}', gro, log, folder / f'model-eq{k}.mdp', folder / f'model-eq{k}.tpr')
 
 
 def part_on(equilibration):
@@ -313,7 +311,7 @@ def test_a_run_shows_its_stage_and_log_until_its_job_ends(tmp_path, error, shown
     ended = QSignalSpy(part.externalEquilibrated)
 
     # As the library does at the start: the stage joins, and runs
-    equilibration.stages = [FakeAsset('eq0')]
+    equilibration.stages = [FakeStage('eq0')]
     equilibration.stage = 0
     part.run()
     running = (part.filesLocked, part.stage, part.entries.get(1)['status'], part.log)
@@ -322,7 +320,7 @@ def test_a_run_shows_its_stage_and_log_until_its_job_ends(tmp_path, error, shown
     ended.wait(1000)
 
     assert running == (True, 0, 'running', '$ gmx grompp\n')
-    assert [background for _, background in equilibration.runs] == [True]
+    assert equilibration.runs == [True]
     assert (part.filesLocked, part.stage) == (False, -1)
     assert locked.count() == 2
     assert ended.at(0) == [shown]
@@ -339,49 +337,26 @@ def test_a_check_failing_before_the_start_starts_no_run():
     assert locked.count() == 0
 
 
-def test_cancel_comes_in_after_the_delay_and_ends_the_run_at_once():
+def test_cancel_ends_the_run_at_once():
     equilibration = FakeEquilibration('equil0.mdp')
     part = part_on(equilibration)
-    cancelable = QSignalSpy(part.cancelableChanged)
     ended = QSignalSpy(part.externalEquilibrated)
 
     part.run()
-    early = part.cancelable
-    cancelable.wait(1000)
-    late = part.cancelable
     part.cancel()
 
-    assert (early, late) == (False, True)
     assert equilibration.job.error == 'Cancelled'
-    assert (part.filesLocked, part.cancelable) == (False, False)
+    assert not part.filesLocked
     assert ended.at(0) == ['']
 
 
-def test_a_replacement_once_cancel_may_cancels_the_run_at_once():
-    equilibration = FakeEquilibration('equil0.mdp')
-    part = part_on(equilibration)
-    cancelable = QSignalSpy(part.cancelableChanged)
-    replaced = []
-
-    part.run()
-    cancelable.wait(1000)
-    part.after_equilibration(lambda: replaced.append('replaced'))
-
-    assert replaced == ['replaced']
-    assert equilibration.job.error == 'Cancelled'
-
-
-def test_a_replacement_waits_for_the_run_then_cancels_it():
+def test_a_replacement_cancels_the_run_at_once():
     equilibration = FakeEquilibration('equil0.mdp')
     part = part_on(equilibration)
     replaced = []
-    ended = QSignalSpy(part.externalEquilibrated)
 
     part.run()
     part.after_equilibration(lambda: replaced.append('replaced'))
-    held = list(replaced)
-    ended.wait(1000)
 
-    assert held == []
     assert replaced == ['replaced']
     assert equilibration.job.error == 'Cancelled'

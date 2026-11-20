@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from types import SimpleNamespace
@@ -99,15 +99,17 @@ def test_another_analysis_refreshes_configuration_and_force_field(qcore_applicat
     assert [spy.count() for spy in named] == [1, 1]
 
 
-def test_project_replacement_waits_for_a_running_assembly(qcore_application):
-    backend = Backend(Session(sample_model=FakeSampleModel()))
+def test_project_replacement_cancels_a_running_assembly_first(qcore_application):
+    sample_model = FakeSampleModel()
+    backend = Backend(Session(sample_model=sample_model))
     replaced = []
 
     backend.project.externalReplacing.emit(lambda: replaced.append('idle'))
     backend.sampleModel.assemble()
     backend.project.externalReplacing.emit(lambda: replaced.append('running'))
 
-    assert replaced == ['idle']
+    assert replaced == ['idle', 'running']
+    assert sample_model.job.error == 'Cancelled'
 
 
 @pytest.mark.parametrize(
@@ -132,15 +134,27 @@ def test_equilibration_end_shows_its_error(qcore_application, error, message):
     assert backend.error.message == message
 
 
-def test_project_replacement_waits_for_a_running_equilibration(qcore_application):
-    analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'))
+@pytest.mark.parametrize(
+    ('error', 'message'), [('SincCity failed', 'Calculation failed: SincCity failed'), ('', '')]
+)
+def test_calculation_end_shows_its_error(qcore_application, error, message):
+    backend = Backend(Session())
+
+    backend.scattering.externalCalculated.emit(error)
+
+    assert backend.error.message == message
+
+
+def test_project_replacement_cancels_a_running_equilibration_first(qcore_application):
+    analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'), sans=[])
     backend = Backend(Session(sample_model=FakeSampleModel(), analysis=analysis))
     replaced = []
 
     backend.equilibration.run()
     backend.project.externalReplacing.emit(lambda: replaced.append('running'))
 
-    assert replaced == []
+    assert replaced == ['running']
+    assert analysis.equilibration.job.error == 'Cancelled'
 
 
 def test_stage_changes_refresh_the_stage_viewer(qcore_application):
@@ -212,8 +226,8 @@ def test_buffer_adapter_reads_the_sample_models_buffer(qcore_application):
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
 @pytest.mark.parametrize('adapter', list(SHAPE_ADAPTERS))
 def test_only_the_current_shape_and_its_lattice_are_adapted(qcore_application, adapter, lattice):
-    unit = SHAPE_ADAPTERS[adapter]()
-    sample_model = FakeSampleModel(Lattice(unit=unit) if lattice else unit)
+    motif = SHAPE_ADAPTERS[adapter]()
+    sample_model = FakeSampleModel(Lattice(motif=motif) if lattice else motif)
     backend = Backend(Session(sample_model=sample_model))
 
     backend.sampleModel.externalStructureChanged.emit()
@@ -225,7 +239,7 @@ def test_only_the_current_shape_and_its_lattice_are_adapted(qcore_application, a
 @pytest.mark.parametrize('lattice', [False, True], ids=['plain', 'lattice'])
 def test_ring_adapter_follows_the_current_structure(qcore_application, lattice):
     ring = Ring()
-    sample_model = FakeSampleModel(Lattice(unit=ring) if lattice else ring)
+    sample_model = FakeSampleModel(Lattice(motif=ring) if lattice else ring)
     backend = Backend(Session(sample_model=sample_model))
     swapped = QSignalSpy(backend.ringStructureChanged)
 

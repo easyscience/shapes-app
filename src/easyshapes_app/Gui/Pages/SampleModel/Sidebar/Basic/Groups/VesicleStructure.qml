@@ -3,7 +3,6 @@
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
 import QtQuick
-import QtQuick.Controls
 
 import EasyApplication.Gui.Style as EaStyle
 import EasyApplication.Gui.Elements as EaElements
@@ -12,25 +11,37 @@ import Gui.Globals as Globals
 
 EaElements.GroupColumn {
 
-    Column {
-        width: EaStyle.Sizes.sideBarContentWidth * 0.2
-
-        EaElements.Label {
-            enabled: false
-            text: qsTr("Fill")
-        }
-        EaElements.ComboBox {
-            width: parent.width
-            model: ["FIBO", "RINGS", "RINGS0"]
-            currentIndex: model.indexOf(Globals.BackendWrapper.vesicleStructureFill)
-            onActivated: (i) => Globals.BackendWrapper.vesicleStructureSetFill(model[i])
-        }
-    }
-
     Row {
         spacing: EaStyle.Sizes.fontPixelSize
 
+        Column {
+            width: EaStyle.Sizes.sideBarContentWidth * 0.2
+
+            EaElements.Label {
+                enabled: false
+                text: qsTr("Fill")
+            }
+            EaElements.ComboBox {
+                width: parent.width
+                model: ["FIBO", "RINGS", "RINGS0"]
+                currentIndex: model.indexOf(Globals.BackendWrapper.vesicleStructureFill)
+                onActivated: (i) => Globals.BackendWrapper.vesicleStructureSetFill(model[i])
+            }
+        }
+
+        // The last lamella's rmin plus its shell, worked out, not for editing
+        EaElements.Parameter {
+            readonly property var fullRadius: Globals.BackendWrapper.lamellaeFullRadius
+            width: EaStyle.Sizes.sideBarContentWidth * 0.2
+            enabled: false
+            title: qsTr("Full radius")
+            units: "nm"
+            text: typeof fullRadius === 'number' ? fullRadius.toFixed(2) : "—"
+        }
+
+        // Level with the fields' boxes, below their titles
         EaElements.CheckBox {
+            anchors.bottom: parent.bottom
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Fxz")
@@ -38,6 +49,7 @@ EaElements.GroupColumn {
             onToggled: Globals.BackendWrapper.vesicleStructureSetFxz(checked)
         }
         EaElements.CheckBox {
+            anchors.bottom: parent.bottom
             width: EaStyle.Sizes.sideBarContentWidth * 0.15
             height: EaStyle.Sizes.fontPixelSize * 3
             text: qsTr("Rev")

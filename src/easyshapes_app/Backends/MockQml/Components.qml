@@ -39,7 +39,9 @@ QtObject {
             name: name,
             componentType: type,
             counterIon: '',
-            mint: 0,
+            // The bone Python shows for an unset component: the
+            // template's last atom to its first
+            mint: structureAtoms(0).length - 1,
             mext: 0,
             nameError: ''
         })

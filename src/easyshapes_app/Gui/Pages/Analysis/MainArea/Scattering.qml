@@ -70,15 +70,13 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             color: EaStyle.Colors.chartLabels
             textFormat: Text.RichText
-            text: root.tickLabel(parent.text)
+            text: {
+                const value = parseFloat(parent.text)
+                if (isNaN(value))
+                    return parent.text
+                return Number.isInteger(value) ? `10<sup>${value}</sup>` : `${Number(Math.pow(10, value).toPrecision(2))}`
+            }
         }
-    }
-
-    function tickLabel(text) {
-        const value = parseFloat(text)
-        if (isNaN(value))
-            return text
-        return Number.isInteger(value) ? `10<sup>${value}</sup>` : `${Number(Math.pow(10, value).toPrecision(2))}`
     }
 
     // Fills each shown curve's line, lowered by its place among the shown
@@ -95,25 +93,6 @@ Rectangle {
             rows.push(row)
         }
         root.shownRows = rows
-    }
-
-    // The values at the mouse as they are: back from log10, with the
-    // curve's staggered shift added back
-    function hoverLabel(curveName, value) {
-        const k = root.shownRows.findIndex(row => root.curves.get(row).name === curveName)
-        const shift = Math.max(k, 0) * root.stagger
-        return qsTr("%1: q = %2 Å⁻¹, I = %3 cm⁻¹")
-               .arg(curveName)
-               .arg(Math.pow(10, value.x).toPrecision(3))
-               .arg(Math.pow(10, value.y + shift).toPrecision(3))
-    }
-
-    // Undoes a zoom or a pan: the axes show the ranges again
-    function resetView() {
-        for (const axis of [chart.axisX, chart.axisY]) {
-            axis.zoom = 1
-            axis.pan = 0
-        }
     }
 
     onStaggerChanged: redraw()
@@ -149,7 +128,7 @@ Rectangle {
             required property var model
             name: model.name
             width: 2
-            color: Globals.Vars.scatteringColor(index)
+            color: Globals.Vars.scatteringColors[index] ?? '#898781'
             visible: model.shown
             hoverable: root.hoverShown
         }
@@ -275,7 +254,13 @@ Rectangle {
                 borderColor: EaStyle.Colors.chartAxis
                 fontIcon: "home"
                 ToolTip.text: qsTr("Reset axes; a right-click on the chart does too")
-                onClicked: root.resetView()
+                // Undoes a zoom or a pan: the axes show the ranges again
+                onClicked: {
+                    for (const axis of [chart.axisX, chart.axisY]) {
+                        axis.zoom = 1
+                        axis.pan = 0
+                    }
+                }
             }
         }
     }
@@ -302,15 +287,28 @@ Rectangle {
             zoomAreaEnabled: root.boxZoom
             panStyle: root.boxZoom ? GraphsView.PanStyle.None : GraphsView.PanStyle.Drag
 
+            // The values at the mouse as they are: back from log10, with the
+            // curve's staggered shift added back
             onHover: (seriesName, position, value) => {
+                const k = root.shownRows.findIndex(row => root.curves.get(row).name === seriesName)
+                const shift = Math.max(k, 0) * root.stagger
                 root.hoverPoint = position
-                root.hoverText = root.hoverLabel(seriesName, value)
+                root.hoverText = qsTr("%1: q = %2 Å⁻¹, I = %3 cm⁻¹")
+                                 .arg(seriesName)
+                                 .arg(Math.pow(10, value.x).toPrecision(3))
+                                 .arg(Math.pow(10, value.y + shift).toPrecision(3))
             }
             onHoverExit: root.hoverText = ""
 
+            // As the reset button
             TapHandler {
                 acceptedButtons: Qt.RightButton
-                onTapped: root.resetView()
+                onTapped: {
+                    for (const axis of [chart.axisX, chart.axisY]) {
+                        axis.zoom = 1
+                        axis.pan = 0
+                    }
+                }
             }
 
             // The values at the mouse, as EasyReflectometry's hover tooltip
@@ -411,7 +409,7 @@ Rectangle {
                             width: EaStyle.Sizes.fontPixelSize * 1.5
                             height: 3
                             radius: 1.5
-                            color: Globals.Vars.scatteringColor(modelData)
+                            color: Globals.Vars.scatteringColors[modelData] ?? '#898781'
                         }
                         EaElements.Label {
                             textFormat: Text.RichText

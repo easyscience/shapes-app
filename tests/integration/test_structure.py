@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 import pytest
@@ -57,7 +57,7 @@ def test_lattice_wraps_and_unwraps_the_discrete_structure(qcore_application):
 
     part.lattice = True
     assert isinstance(sample_model.structure, Lattice)
-    assert sample_model.structure.unit is ring
+    assert sample_model.structure.motif is ring
     assert part.shape == 'Ring'
 
     part.shape = 'Rod'

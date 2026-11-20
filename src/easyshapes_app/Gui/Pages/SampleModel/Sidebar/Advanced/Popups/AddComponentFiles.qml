@@ -3,6 +3,7 @@
 // © 2024 Contributors to the EasyApp project <https://github.com/easyscience/EasyApp>
 
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Dialogs
 
 import EasyApplication.Gui.Logic as EaLogic
@@ -11,6 +12,8 @@ import Gui.Globals as Globals
 
 
 FileDialog {
+    // In the app window: WSLg leaves a dialog's own window open
+    popupType: Popup.Item
     fileMode: FileDialog.OpenFiles
     nameFilters: [
         "Any (*)",

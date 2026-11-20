@@ -11,4 +11,8 @@ QtObject {
     property double zsep: 0.0
     property int nside: 1
     property double dmin: 0.5
+    // As the library's, with the mock's 2 nm bone, as Layers' thickness:
+    // all bone, no overhang
+    readonly property real width: nside * dmin
+    readonly property real thickness: zsep > 0 ? Math.max(zsep, 2 * 2.0 - zsep) : dmin + 2 * 2.0
 }

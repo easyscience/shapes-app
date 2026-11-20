@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 import time
@@ -11,6 +11,7 @@ from PySide6.QtCore import QCoreApplication
 from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import Qt
 from shapes.project import Ring
+from shapes.project.analysis import Stage
 
 # Long enough for a thread to read a three-atom file
 WAIT_S = 5
@@ -112,6 +113,13 @@ class FakeAsset:
     def paths(self):
         return tuple(sorted(self._paths))
 
+    def file_with_suffix(self, suffix):
+        # As BaseAsset's: the one file of a suffix, None without one
+        found = [path for path in self.paths if path.suffix == suffix]
+        if len(found) > 1:
+            raise ValueError(f'{self.name} holds several {suffix} files: {found}')
+        return found[0] if found else None
+
     def add_new_files(self, paths):
         self._paths.update(Path(path) for path in paths)
 
@@ -123,6 +131,18 @@ class FakeAsset:
 
     def export_to(self, folder, *, overwrite=False):
         self.calls.append(('export_to', folder, overwrite))
+
+
+class FakeStage(FakeAsset, Stage):
+    """
+    A finished or unfinished equilibration stage: a real Stage, so the
+    app's Stage checks hold, on FakeAsset's files. Its final .gro is
+    Stage's own: the file ending in -<name>.gro.
+    """
+
+    # A plain attribute, which FakeAsset sets: Stage's name lives in the
+    # file manager, which unit tests don't have
+    name = None
 
 
 class FakeEquilibration(FakeAsset):
@@ -146,29 +166,33 @@ class FakeEquilibration(FakeAsset):
         self.stage = None
         self.job = None
         self.log = log
-        # Each run's sample model and background flag
+        # Each run's background flag
         self.runs = []
 
     @property
     def files_locked(self):
         return self.job is not None and self.job.running
 
-    def run(self, sample_model, *, background=False):
-        self.runs.append((sample_model, background))
+    def run(self, *, background=False):
+        self.runs.append(background)
         self.job = FakeJob()
         self.add_new_files([self.log])
 
 
 class FakeAnalysis:
     """
-    Stands in for shapes.project.analysis.Analysis: a sample model, and
-    a FakeEquilibration whose configuration holds equil0.mdp, or nothing
+    Stands in for shapes.project.analysis.Analysis: a linked sample
+    model, as in shapespyer only set by set_sample_model, and a
+    FakeEquilibration whose configuration holds equil0.mdp, or nothing
     when empty.
     """
 
     def __init__(self, sample_model=None, *, empty=False):
-        self.sample_model = sample_model
+        self._sample_model = sample_model
         self.equilibration = FakeEquilibration(*(() if empty else ('equil0.mdp',)))
+
+    def set_sample_model(self, sample_model):
+        self._sample_model = sample_model
 
 
 class FakeJob:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -7,7 +7,6 @@ from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import Qt
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
-from shapes.basics.defaults import Defaults
 
 from .composition import CompositionModel
 
@@ -15,14 +14,17 @@ from .composition import CompositionModel
 class LamellaeModel(QAbstractListModel):
     """
     The current vesicle's lamellae as rows of an editable ListView, with
-    one composition model per row and leaflet.
+    one composition model per row and leaflet, and the vesicle's full
+    radius. A row's shell shows rounded to 2 decimals; its outer leaflet
+    rmin, worked out from rmin, shell and the outer leaflet's longest
+    molecule, is read-only.
 
-    The root builds it while the current structure, or the unit its
+    The root builds it while the current structure, or the motif its
     lattice repeats, is a vesicle, and drops it on the next structure
     change. An outer leaflet model is None while its lamella is
     symmetric: both leaflets then hold the inner composition. The page
     has no scaling: a scaled rmin or dmin (None in the library) gets the
-    library default when the model is built and on add.
+    library default when the model is built.
     """
 
     RminRole = Qt.UserRole + 1
@@ -30,23 +32,28 @@ class LamellaeModel(QAbstractListModel):
     InnerLeafletDminRole = Qt.UserRole + 3
     OuterLeafletDminRole = Qt.UserRole + 4
     SymmetricRole = Qt.UserRole + 5
+    OuterLeafletRminRole = Qt.UserRole + 6
 
     countChanged = Signal()
     innerLeafletCompositionsChanged = Signal()
     outerLeafletCompositionsChanged = Signal()
+    fullRadiusChanged = Signal()
 
-    def __init__(self, lamellae, parent=None):
+    def __init__(self, vesicle, parent=None):
         super().__init__(parent)
+        # The vesicle for its full radius, its lamellae for the rows
+        self._vesicle = vesicle
+        lamellae = vesicle.lamellae
         self._lamellae = lamellae
         # ponytail: the page has no scaling, so a scaled value becomes
         # the library default; keep it once the page can show scaling
         for lamella in lamellae:
             if lamella.rmin is None:
-                lamella.rmin = Defaults.Shape.RMIN
+                lamella.rmin = lamellae.DEFAULT_RMIN
             if lamella.inner_leaflet_dmin is None:
-                lamella.inner_leaflet_dmin = Defaults.Shape.DMIN
+                lamella.inner_leaflet_dmin = lamellae.DEFAULT_DMIN
             if lamella.outer_leaflet_dmin is None:
-                lamella.outer_leaflet_dmin = Defaults.Shape.DMIN
+                lamella.outer_leaflet_dmin = lamellae.DEFAULT_DMIN
         # One per row, in row order; an outer one is None while the
         # lamella is symmetric, its outer leaflet holding the inner
         # composition
@@ -59,6 +66,11 @@ class LamellaeModel(QAbstractListModel):
             else CompositionModel(lamella.outer_leaflet_composition, self)
             for lamella in lamellae
         ]
+        # A component ticked in a leaflet may change the outer leaflet's
+        # longest molecule, and so where that leaflet starts
+        for composition in self._inner_compositions + self._outer_compositions:
+            if composition is not None:
+                composition.dataChanged.connect(self._outer_rmin_changed)
 
     ####################
     # Qt model overrides
@@ -71,6 +83,7 @@ class LamellaeModel(QAbstractListModel):
             self.InnerLeafletDminRole: b'innerLeafletDmin',
             self.OuterLeafletDminRole: b'outerLeafletDmin',
             self.SymmetricRole: b'symmetric',
+            self.OuterLeafletRminRole: b'outerLeafletRmin',
         }
 
     def rowCount(self, parent=QModelIndex()):
@@ -84,13 +97,15 @@ class LamellaeModel(QAbstractListModel):
             case self.RminRole:
                 return lamella.rmin
             case self.ShellThicknessRole:
-                return lamella.shell_thickness
+                return round(lamella.shell_thickness, 2)
             case self.InnerLeafletDminRole:
                 return lamella.inner_leaflet_dmin
             case self.OuterLeafletDminRole:
                 return lamella.outer_leaflet_dmin
             case self.SymmetricRole:
                 return lamella.symmetric
+            case self.OuterLeafletRminRole:
+                return lamella.outer_leaflet_rmin
             case _:
                 return None
 
@@ -102,13 +117,20 @@ class LamellaeModel(QAbstractListModel):
         match role:
             case self.RminRole:
                 if lamella.rmin != value:
+                    # The outer leaflet moves with it, the shell stays
                     lamella.rmin = value
-                    self.dataChanged.emit(index, index, [role])
+                    self.dataChanged.emit(index, index, [role, self.OuterLeafletRminRole])
+                    # Only the last lamella's counts, but a re-read is
+                    # cheap
+                    self.fullRadiusChanged.emit()
                 return True
             case self.ShellThicknessRole:
-                if lamella.shell_thickness != value:
+                # Compared as shown: a cell left unchanged writes
+                # nothing
+                if round(lamella.shell_thickness, 2) != value:
                     lamella.shell_thickness = value
-                    self.dataChanged.emit(index, index, [role])
+                    self.dataChanged.emit(index, index, [role, self.OuterLeafletRminRole])
+                    self.fullRadiusChanged.emit()
                 return True
             case self.InnerLeafletDminRole:
                 if lamella.inner_leaflet_dmin != value:
@@ -130,8 +152,12 @@ class LamellaeModel(QAbstractListModel):
                         self._outer_compositions[row] = None
                     else:
                         outer = lamella.outer_leaflet_composition
-                        self._outer_compositions[row] = CompositionModel(outer, self)
-                    self.dataChanged.emit(index, index, [role])
+                        composition = CompositionModel(outer, self)
+                        composition.dataChanged.connect(self._outer_rmin_changed)
+                        self._outer_compositions[row] = composition
+                    # Shared, the outer leaflet takes the inner
+                    # molecules
+                    self.dataChanged.emit(index, index, [role, self.OuterLeafletRminRole])
                     self.outerLeafletCompositionsChanged.emit()
                 return True
             case _:
@@ -160,6 +186,14 @@ class LamellaeModel(QAbstractListModel):
         """
         return self._outer_compositions
 
+    @Property('QVariant', notify=fullRadiusChanged)
+    def fullRadius(self):
+        """
+        The vesicle's full radius in nm: the last lamella's rmin plus
+        its shell; None without a lamella.
+        """
+        return self._vesicle.outer_radius
+
     @Slot(int, result='QVariant')
     def get(self, row):
         """
@@ -175,25 +209,26 @@ class LamellaeModel(QAbstractListModel):
     @Slot()
     def add(self):
         """
-        Add a symmetric lamella over the structure components, with the
-        default rmin and dmins and its inner composition model.
+        Add a symmetric lamella over the structure components, and its
+        inner composition model. The library stacks it on the lamella
+        before and works out its shell; a first lamella gets the
+        defaults.
         """
         row = len(self._lamellae)
         self.beginInsertRows(QModelIndex(), row, row)
         self._lamellae.add()
-        # The library scales a later lamella; the page has no scaling,
-        # so every lamella gets the defaults a first one gets
         lamella = self._lamellae[row]
-        lamella.rmin = Defaults.Shape.RMIN
-        lamella.inner_leaflet_dmin = Defaults.Shape.DMIN
-        lamella.outer_leaflet_dmin = Defaults.Shape.DMIN
         self.endInsertRows()
-        self._inner_compositions.append(CompositionModel(lamella.inner_leaflet_composition, self))
+        composition = CompositionModel(lamella.inner_leaflet_composition, self)
+        composition.dataChanged.connect(self._outer_rmin_changed)
+        self._inner_compositions.append(composition)
         # A new lamella is symmetric
         self._outer_compositions.append(None)
         self.countChanged.emit()
         self.innerLeafletCompositionsChanged.emit()
         self.outerLeafletCompositionsChanged.emit()
+        # The new lamella is the last one now
+        self.fullRadiusChanged.emit()
 
     @Slot(int)
     def remove(self, row):
@@ -217,12 +252,24 @@ class LamellaeModel(QAbstractListModel):
         self.countChanged.emit()
         self.innerLeafletCompositionsChanged.emit()
         self.outerLeafletCompositionsChanged.emit()
+        # The last lamella may be another one now, or none
+        self.fullRadiusChanged.emit()
 
     def refresh(self):
         """
-        Show every leaflet's composition after the components changed:
-        the compositions follow them themselves, the views need telling.
+        Show every leaflet's composition and outer rmin after the
+        components changed: the compositions follow them themselves, the
+        views need telling.
         """
         for composition in self._inner_compositions + self._outer_compositions:
             if composition is not None:
                 composition.refresh()
+        # A component's files may give it another molecule length
+        self._outer_rmin_changed()
+
+    def _outer_rmin_changed(self):
+        # An outer leaflet's longest molecule may have changed: the
+        # shell stays, so that leaflet starts elsewhere in any row
+        if self.rowCount():
+            last = self.index(self.rowCount() - 1)
+            self.dataChanged.emit(self.index(0), last, [self.OuterLeafletRminRole])

@@ -20,10 +20,14 @@ import Gui.Globals as Globals
 //   - Ring: a single ring (dmin / rmin / rev).
 //   - Ball: one concentric ring per layer, alternating orientation.
 //   - Vesicle: one bilayer (two leaflet rings) per lamella, plus outer shell.
-//   - Rod: a single ring (like Ring) plus a rod-body capsule in the lower left.
+//   - Rod: a single ring (like Ring).
 //   - Bilayer / Monolayer: two flat (uncurved) leaflets, zsep (or dmin) apart,
 //     drawn by FlatShapeView. Monolayer reverses the mint->mext direction.
-// Other types fall back to a placeholder.
+// Each also has the whole unit sketched in the lower left once it has
+// components, with its sizes under Dimensions: circles at each rmin and
+// outer edge for Ring, Ball and Vesicle (outer radius), a capsule for Rod
+// (length, outer radius), a slab for Bilayer and Monolayer (width,
+// thickness). Other types fall back to a placeholder.
 Rectangle {
     id: root
 
@@ -35,6 +39,8 @@ Rectangle {
                                      || structureType === "Vesicle"
                                      || isRod
     readonly property bool supported: isRadial || isFlat
+    // The hints show sizes the molecules give, so none without components
+    readonly property bool hasComponents: Globals.BackendWrapper.componentsLoaded.count > 0
 
     color: EaStyle.Colors.mainContentBackground
 
@@ -104,8 +110,61 @@ Rectangle {
         anchors.bottom: parent.bottom
         width: parent.width * 0.45
         height: parent.height * 0.45
-        visible: root.isRod
+        visible: root.isRod && root.hasComponents
         turns: Globals.BackendWrapper.rodStructureTurns
+        outerRadius: Globals.BackendWrapper.rodStructureOuterRadius
+        length: Globals.BackendWrapper.rodStructureLength
+        showDimensions: dimsCheck.checked
+    }
+
+    // Ring, Ball, Vesicle: the unit's circles, in the rod's place
+    CircleShape {
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        width: parent.width * 0.45
+        height: parent.height * 0.45
+        visible: root.isRadial && !root.isRod && root.hasComponents
+        outerRadius: root.structureType === "Ball"
+                     ? Globals.BackendWrapper.layersFullRadius
+                     : root.structureType === "Vesicle"
+                       ? Globals.BackendWrapper.lamellaeFullRadius
+                       : Globals.BackendWrapper.ringStructureOuterRadius
+        // Each layer from rmin to rmin + thickness, each lamella to rmin + shell
+        rings: {
+            const ball = root.structureType === "Ball"
+            if (!ball && root.structureType !== "Vesicle")
+                return [[Globals.BackendWrapper.ringStructureRmin,
+                         Globals.BackendWrapper.ringStructureOuterRadius]]
+            const model = ball ? Globals.BackendWrapper.layersItems : Globals.BackendWrapper.lamellaeItems
+            if (!model)
+                return []
+            // Read for its change signal only: every rmin, thickness, shell or
+            // row change sends it, and the rows read through get() send nothing
+            void (ball ? Globals.BackendWrapper.layersFullRadius : Globals.BackendWrapper.lamellaeFullRadius)
+            const out = []
+            for (let i = 0; i < model.count; ++i) {
+                const row = model.get(i)
+                const extent = ball ? row.thickness : row.shellThickness
+                out.push([row.rmin, typeof extent === 'number' ? row.rmin + extent : null])
+            }
+            return out
+        }
+        showDimensions: dimsCheck.checked
+    }
+
+    // Bilayer, Monolayer: the unit's slab, in the rod's place
+    SlabShape {
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        width: parent.width * 0.45
+        height: parent.height * 0.45
+        visible: root.isFlat && root.hasComponents
+        slabWidth: root.structureType === "Monolayer"
+                   ? Globals.BackendWrapper.monolayerStructureWidth
+                   : Globals.BackendWrapper.bilayerStructureWidth
+        slabThickness: root.structureType === "Monolayer"
+                       ? Globals.BackendWrapper.monolayerStructureThickness
+                       : Globals.BackendWrapper.bilayerStructureThickness
         showDimensions: dimsCheck.checked
     }
 

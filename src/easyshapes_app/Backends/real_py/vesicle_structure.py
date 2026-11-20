@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -8,7 +8,7 @@ from PySide6.QtCore import Signal
 
 class VesicleStructure(QObject):
     """
-    One vesicle's fields for QML: the structure's, or the unit's its
+    One vesicle's fields for QML: the structure's, or the motif's its
     lattice repeats. Its lamellae are the root's lamellae model.
 
     The root builds it while the current structure is a vesicle and

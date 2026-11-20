@@ -89,7 +89,11 @@ EaElements.GroupColumn {
         delegate: EaComponents.ListViewDelegate {
             required property int index
             required property string name
-            required property string settings
+            required property real qMin
+            required property real qMax
+            required property int qPoints
+            required property real sizeSpread
+            required property string kernel
             required property string status
             required property real rg
             required property bool shown
@@ -108,7 +112,7 @@ EaElements.GroupColumn {
                     width: parent.width
                     height: 3
                     radius: 1.5
-                    color: Globals.Vars.scatteringColor(index)
+                    color: Globals.Vars.scatteringColors[index] ?? '#898781'
                 }
             }
             // Hovering shows how the curve was calculated
@@ -117,7 +121,9 @@ EaElements.GroupColumn {
                 text: name
 
                 EaElements.ToolTip {
-                    text: settings
+                    text: qsTr("q %1 to %2 Å⁻¹, %3 points, polydispersity %4, %5")
+                          .arg(qMin).arg(qMax).arg(qPoints).arg(sizeSpread)
+                          .arg(kernel === 'auto' ? qsTr("exact") : qsTr("fast"))
                     visible: parent.hovered && EaGlobals.Vars.showToolTips
                 }
             }
@@ -209,6 +215,8 @@ EaElements.GroupColumn {
     FileDialog {
         id: pngDialog
         title: qsTr("Save the chart as PNG")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         fileMode: FileDialog.SaveFile
         nameFilters: [qsTr("PNG images (*.png)")]
         defaultSuffix: "png"
@@ -220,6 +228,7 @@ EaElements.GroupColumn {
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
+        popupType: Popup.Item
         onAccepted: {
             const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
             if (Globals.BackendWrapper.scatteringExportTaken(folder)) {

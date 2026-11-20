@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025-2026 EasyShapes contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from pathlib import Path
@@ -27,6 +27,17 @@ class FakeComponent:
         self.bone_length = None
         self.structure_file_path = None
         self.topology_file_path = None
+        # Atoms of one molecule in its structure file; None without one
+        self.number_of_atoms = None
+
+    @property
+    def bone(self):
+        # As shapespyer's Species.bone
+        if self.mint != self.mext:
+            return self.mint, self.mext
+        if self.number_of_atoms is None or self.number_of_atoms < 2:
+            return None
+        return self.number_of_atoms - 1, 0
 
     @classmethod
     def load(cls, name):
@@ -168,7 +179,41 @@ def test_mint_and_mext_write_the_component_and_emit_only_on_change(built, role, 
     assert write(model, 0, 5, role)
 
     assert getattr(components[0], field) == 5
-    assert emitted == [[role]]
+    # The other end may change too: both are announced
+    assert emitted == [[Model.MintRole, Model.MextRole]]
+
+
+@pytest.mark.parametrize('number_of_atoms', [42, None], ids=['structure file', 'none'])
+def test_an_unset_bone_shows_what_shapespyer_works_out(built, number_of_atoms):
+    model, components = built
+    components[0].mint = components[0].mext = 3
+    components[0].number_of_atoms = number_of_atoms
+
+    shown = (model.get(0)['mint'], model.get(0)['mext'])
+
+    # The last atom to the first; the stored ends while it can't
+    assert shown == ((41, 0) if number_of_atoms else (3, 3))
+
+
+def test_an_edit_of_an_unset_bone_keeps_the_other_end_as_shown(built):
+    model, components = built
+    components[0].mint = components[0].mext = 3
+    components[0].number_of_atoms = 42
+
+    assert write(model, 0, 5, Model.MintRole)
+
+    assert (components[0].mint, components[0].mext) == (5, 0)
+
+
+@pytest.mark.parametrize(('role', 'value'), [(Model.MintRole, 1), (Model.MextRole, 0)])
+def test_equal_ends_are_refused(built, role, value):
+    model, components = built
+    emitted = emitted_roles(model)
+
+    assert not write(model, 0, value, role)
+
+    assert (components[0].mint, components[0].mext) == (0, 1)
+    assert emitted == []
 
 
 @pytest.mark.parametrize(

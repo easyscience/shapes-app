@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -77,7 +77,7 @@ class StageView(StructureView):
         """
         The rows, (name, status), and each row's file: Initial when the
         equilibration's own files hold a .gro, then each finished stage
-        with its final -eq<k>.gro.
+        with its final .gro.
         """
         analysis = self._session.analysis
         equilibration = analysis.equilibration if analysis else None
@@ -92,13 +92,12 @@ class StageView(StructureView):
             rows.append(('Initial', ''))
             files.append(initial)
         stages = equilibration.stages
-        statuses = stage_statuses([stage.paths for stage in stages], equilibration.stage)
+        finals = [stage.final_structure for stage in stages]
+        statuses = stage_statuses(finals, equilibration.stage)
         # A stage running again is left out: its file is about to be
         # replaced
-        for k, (stage, status) in enumerate(zip(stages, statuses, strict=True)):
+        for stage, final, status in zip(stages, finals, statuses, strict=True):
             if status in FINISHED:
                 rows.append((stage.name, status))
-                files.append(
-                    next(path for path in stage.paths if path.name.endswith(f'-eq{k}.gro'))
-                )
+                files.append(final)
         return rows, files

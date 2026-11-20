@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -36,6 +36,7 @@ from .real_py.report import Report
 from .real_py.ring_structure import RingStructure
 from .real_py.rod_structure import RodStructure
 from .real_py.sample_model import SampleModel
+from .real_py.scattering import Scattering
 from .real_py.smiles_generator import SmilesGenerator
 from .real_py.stage_view import StageView
 from .real_py.structure_view import StructureView
@@ -108,6 +109,9 @@ class Backend(QObject):
         # The Analysis page's structure viewer: the initial or a
         # finished stage's structure
         self._stage_view = StageView(self._session)
+        # The Analysis page's SANS curves: the next one's settings, what
+        # it can be calculated from, and the list
+        self._scattering = Scattering(self._session)
         # The Summary page's text
         self._report = Report(self._session)
 
@@ -140,10 +144,11 @@ class Backend(QObject):
         self._project.externalReplacing.connect(self._replace_when_idle)
         self._project.externalProjectChanged.connect(self._sample_model.refresh)
 
-        # An assembly or an equilibration ended: its error goes to the
-        # dialog
+        # An assembly, an equilibration or a calculation ended: its
+        # error goes to the dialog
         self._sample_model.externalAssembled.connect(self._assembled)
         self._equilibration.externalEquilibrated.connect(self._equilibrated)
+        self._scattering.externalCalculated.connect(self._calculated)
 
         # A new analysis, a run's start (its copies) or a finished
         # stage: the stage viewer lists them again
@@ -189,6 +194,18 @@ class Backend(QObject):
         loaded.rowsRemoved.connect(self._smiles_generator.refresh)
         loaded.dataChanged.connect(self._smiles_generator.refresh)
         loaded.modelReset.connect(self._smiles_generator.refresh)
+
+        # The SANS lists follow the stages (a new analysis comes this
+        # way too), the model's .gro, which an assembly writes, another
+        # model, the model's name, and its components
+        self._equilibration.stagesChanged.connect(self._scattering.refresh)
+        self._sample_model.filesLockedChanged.connect(self._scattering.refresh)
+        self._sample_model.externalStructureChanged.connect(self._scattering.refresh)
+        self._sample_model.nameChanged.connect(self._scattering.refresh)
+        loaded.rowsInserted.connect(self._scattering.refresh)
+        loaded.rowsRemoved.connect(self._scattering.refresh)
+        loaded.dataChanged.connect(self._scattering.refresh)
+        loaded.modelReset.connect(self._scattering.refresh)
 
     @Property('QVariant', constant=True)
     def project(self):
@@ -291,6 +308,10 @@ class Backend(QObject):
         return self._stage_view
 
     @Property('QVariant', constant=True)
+    def scattering(self):
+        return self._scattering
+
+    @Property('QVariant', constant=True)
     def report(self):
         return self._report
 
@@ -301,6 +322,10 @@ class Backend(QObject):
     def _equilibrated(self, error):
         if error:
             self._error.message = f'Equilibration failed: {error}'
+
+    def _calculated(self, error):
+        if error:
+            self._error.message = f'Calculation failed: {error}'
 
     def _replace_when_idle(self, replace):
         self._sample_model.after_assembly(lambda: self._equilibration.after_equilibration(replace))
@@ -316,7 +341,7 @@ class Backend(QObject):
         sample_model = self._session.sample_model
         structure = sample_model.structure if sample_model else None
         lattice = structure if isinstance(structure, Lattice) else None
-        unit = lattice.unit if lattice else structure
+        motif = lattice.motif if lattice else structure
         for adapter in (
             self._ring_structure,
             self._ball_structure,
@@ -333,23 +358,23 @@ class Backend(QObject):
             if adapter is not None:
                 # Deleted after QML has re-read the new one
                 adapter.deleteLater()
-        self._ring_structure = RingStructure(unit, self) if type(unit) is Ring else None
-        self._ball_structure = BallStructure(unit, self) if type(unit) is Ball else None
-        self._vesicle_structure = VesicleStructure(unit, self) if type(unit) is Vesicle else None
-        self._rod_structure = RodStructure(unit, self) if type(unit) is Rod else None
-        self._bilayer_structure = BilayerStructure(unit, self) if type(unit) is Bilayer else None
+        self._ring_structure = RingStructure(motif, self) if type(motif) is Ring else None
+        self._ball_structure = BallStructure(motif, self) if type(motif) is Ball else None
+        self._vesicle_structure = VesicleStructure(motif, self) if type(motif) is Vesicle else None
+        self._rod_structure = RodStructure(motif, self) if type(motif) is Rod else None
+        self._bilayer_structure = BilayerStructure(motif, self) if type(motif) is Bilayer else None
         self._monolayer_structure = (
-            MonolayerStructure(unit, self) if type(unit) is Monolayer else None
+            MonolayerStructure(motif, self) if type(motif) is Monolayer else None
         )
         self._lattice_structure = LatticeStructure(lattice, self) if lattice else None
         # A ball or a vesicle keeps its compositions in layers and
         # lamellae
-        composition = getattr(unit, 'composition', None)
+        composition = getattr(motif, 'composition', None)
         self._composition = (
             CompositionModel(composition, self) if composition is not None else None
         )
-        self._layers = LayersModel(unit.layers, self) if type(unit) is Ball else None
-        self._lamellae = LamellaeModel(unit.lamellae, self) if type(unit) is Vesicle else None
+        self._layers = LayersModel(motif, self) if type(motif) is Ball else None
+        self._lamellae = LamellaeModel(motif, self) if type(motif) is Vesicle else None
         # The sample model's, not the structure's: built here because a
         # new sample model comes with this signal too
         self._buffer = Buffer(sample_model.buffer, self) if sample_model else None
@@ -361,6 +386,20 @@ class Backend(QObject):
                 self._components.loaded.rowsInserted.connect(model.refresh)
                 self._components.loaded.rowsRemoved.connect(model.refresh)
                 self._components.loaded.dataChanged.connect(model.refresh)
+        # A component's rows, files or bone atoms, and the fractions,
+        # change the bones a shape's sizes are worked out from. These
+        # shapes all have a composition model
+        for shape in (
+            self._ring_structure,
+            self._rod_structure,
+            self._bilayer_structure,
+            self._monolayer_structure,
+        ):
+            if shape is not None:
+                self._components.loaded.rowsInserted.connect(shape.sizesChanged)
+                self._components.loaded.rowsRemoved.connect(shape.sizesChanged)
+                self._components.loaded.dataChanged.connect(shape.sizesChanged)
+                self._composition.dataChanged.connect(shape.sizesChanged)
         self.ringStructureChanged.emit()
         self.ballStructureChanged.emit()
         self.vesicleStructureChanged.emit()

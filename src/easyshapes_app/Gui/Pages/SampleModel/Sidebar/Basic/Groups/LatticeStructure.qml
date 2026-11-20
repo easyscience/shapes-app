@@ -23,6 +23,7 @@ EaElements.GroupColumn {
             title: qsTr("Alpha")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 360 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureAlpha
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetAlpha(parseFloat(text))
         }
@@ -31,6 +32,7 @@ EaElements.GroupColumn {
             title: qsTr("Theta")
             units: "⚬"
             validator: DoubleValidator { bottom: 0; top: 180 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureTheta
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetTheta(parseFloat(text))
         }
@@ -39,6 +41,7 @@ EaElements.GroupColumn {
             title: qsTr("Sbuff")
             units: "nm"
             validator: DoubleValidator { bottom: 0 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureSbuff
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetSbuff(parseFloat(text))
         }
@@ -65,6 +68,7 @@ EaElements.GroupColumn {
             width: root.quarterWidth
             title: qsTr("Nlatx")
             validator: IntValidator { bottom: 1 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureNlatx
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlatx(parseInt(text))
         }
@@ -72,6 +76,7 @@ EaElements.GroupColumn {
             width: root.quarterWidth
             title: qsTr("Nlaty")
             validator: IntValidator { bottom: 1 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureNlaty
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlaty(parseInt(text))
         }
@@ -79,6 +84,7 @@ EaElements.GroupColumn {
             width: root.quarterWidth
             title: qsTr("Nlatz")
             validator: IntValidator { bottom: 1 }
+            warned: !acceptableInput
             text: Globals.BackendWrapper.latticeStructureNlatz
             onEditingFinished: Globals.BackendWrapper.latticeStructureSetNlatz(parseInt(text))
         }

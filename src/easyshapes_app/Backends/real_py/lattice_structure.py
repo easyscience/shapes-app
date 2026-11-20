@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from PySide6.QtCore import Property
@@ -8,7 +8,7 @@ from PySide6.QtCore import Signal
 
 class LatticeStructure(QObject):
     """
-    One lattice's fields for QML. The unit's fields are on its shape's
+    One lattice's fields for QML. The motif's fields are on its shape's
     adapter.
 
     The root builds it while a lattice repeats the structure and drops

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2026 EasyPeasy contributors <https://github.com/easyscience>
+# SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
 from pathlib import Path
@@ -8,6 +8,7 @@ from PySide6.QtCore import QObject
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Slot
 from shapes.project import Project as ProjectLib
+from shapes.project.files import AppFileManager
 
 from .logic.analysis import fill_configuration
 from .logic.session import Session
@@ -128,9 +129,9 @@ class Project(QObject):
         """
         if not path:
             return False
-        location = Path(path)
         try:
-            return location.is_file() or (location.is_dir() and any(location.iterdir()))
+            # The rule Project(path=...) refuses by
+            return AppFileManager.is_location_taken(Path(path))
         except OSError:
             # An unreadable folder cannot take the project either
             return True

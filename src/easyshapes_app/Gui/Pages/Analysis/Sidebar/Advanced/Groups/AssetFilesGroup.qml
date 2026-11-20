@@ -165,6 +165,8 @@ EaElements.GroupColumn {
 
     FileDialog {
         id: addFilesDialog
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         fileMode: FileDialog.OpenFiles
         nameFilters: root.nameFilters
         onAccepted: {
@@ -177,6 +179,7 @@ EaElements.GroupColumn {
     FolderDialog {
         id: exportDestinationDialog
         title: qsTr("Choose a destination directory")
+        popupType: Popup.Item
         onAccepted: {
             const folder = EaLogic.Utils.urlToLocalFile(selectedFolder.toString())
             if (root.exportTaken(folder)) {

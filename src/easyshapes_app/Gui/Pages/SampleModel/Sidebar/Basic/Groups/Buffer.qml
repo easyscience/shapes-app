@@ -136,6 +136,8 @@ EaElements.GroupColumn {
     FolderDialog {
         id: importBufferFolderDialog
         title: qsTr("Import buffer components from a directory")
+        // In the app window: WSLg leaves a dialog's own window open
+        popupType: Popup.Item
         onAccepted: Globals.BackendWrapper.bufferImportFrom(EaLogic.Utils.urlToLocalFile(selectedFolder.toString()))
     }
 }
