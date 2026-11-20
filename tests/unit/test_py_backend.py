@@ -134,6 +134,17 @@ def test_equilibration_end_shows_its_error(qcore_application, error, message):
     assert backend.error.message == message
 
 
+@pytest.mark.parametrize(
+    ('error', 'message'), [('SincCity failed', 'Calculation failed: SincCity failed'), ('', '')]
+)
+def test_calculation_end_shows_its_error(qcore_application, error, message):
+    backend = Backend(Session())
+
+    backend.scattering.externalCalculated.emit(error)
+
+    assert backend.error.message == message
+
+
 def test_project_replacement_cancels_a_running_equilibration_first(qcore_application):
     analysis = SimpleNamespace(equilibration=FakeEquilibration('equil0.mdp'), sans=[])
     backend = Backend(Session(sample_model=FakeSampleModel(), analysis=analysis))

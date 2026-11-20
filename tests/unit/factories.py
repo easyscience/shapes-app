@@ -11,6 +11,7 @@ from PySide6.QtCore import QCoreApplication
 from PySide6.QtCore import QModelIndex
 from PySide6.QtCore import Qt
 from shapes.project import Ring
+from shapes.project.analysis import Stage
 
 # Long enough for a thread to read a three-atom file
 WAIT_S = 5
@@ -132,15 +133,16 @@ class FakeAsset:
         self.calls.append(('export_to', folder, overwrite))
 
 
-class FakeStage(FakeAsset):
+class FakeStage(FakeAsset, Stage):
     """
-    A finished or unfinished equilibration stage: its final .gro is the
-    file ending in -<name>.gro, as in shapespyer's Stage.
+    A finished or unfinished equilibration stage: a real Stage, so the
+    app's Stage checks hold, on FakeAsset's files. Its final .gro is
+    Stage's own: the file ending in -<name>.gro.
     """
 
-    @property
-    def final_structure(self):
-        return next((path for path in self.paths if path.name.endswith(f'-{self.name}.gro')), None)
+    # A plain attribute, which FakeAsset sets: Stage's name lives in the
+    # file manager, which unit tests don't have
+    name = None
 
 
 class FakeEquilibration(FakeAsset):

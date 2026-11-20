@@ -19,6 +19,7 @@ def test_rows_read_the_layers():
     assert model.count == 1
     # No components, so no bone to measure
     assert model.get(0) == {'dmin': 0.5, 'rmin': 1.2, 'thickness': None}
+    assert model.fullRadius is None
     assert len(model.compositions) == 1
 
 
@@ -58,6 +59,16 @@ def test_add_keeps_the_library_dmin_and_fills_an_unknown_rmin():
     assert model.get(1) == {'dmin': 0.7, 'rmin': 1.2, 'thickness': None}
     assert len(model.compositions) == 2
     assert (inserted.count(), count.count(), compositions.count()) == (1, 1, 1)
+
+
+def test_a_first_layer_gets_the_defaults():
+    model = Model(Ball())
+    model.remove(0)
+
+    model.add()
+
+    # Nothing to stack on: the library sets the rmin itself
+    assert model.get(0) == {'dmin': 0.5, 'rmin': 1.2, 'thickness': None}
 
 
 def test_scaled_values_become_the_defaults():
@@ -131,3 +142,14 @@ def test_refresh_announces_the_thickness_and_the_full_radius():
     assert data.count() == 1
     assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.ThicknessRole])
     assert radius.count() == 1
+
+
+def test_refresh_without_layers_announces_only_the_full_radius():
+    model = Model(Ball())
+    model.remove(0)
+    data = QSignalSpy(model.dataChanged)
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    model.refresh()
+
+    assert (data.count(), radius.count()) == (0, 1)

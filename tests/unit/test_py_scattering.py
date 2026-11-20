@@ -11,11 +11,13 @@ from shapes.project.analysis import SansCurve
 
 from easyshapes_app.Backends.real_py.logic.session import Session
 from easyshapes_app.Backends.real_py.scattering import Scattering
+from tests.unit.factories import REFUSED
 from tests.unit.factories import FakeAsset
 from tests.unit.factories import FakeEquilibration
 from tests.unit.factories import FakeJob
 from tests.unit.factories import FakeSampleModel
 from tests.unit.factories import FakeStage
+from tests.unit.factories import refusals
 
 
 class FakeCurve(FakeAsset):
@@ -136,6 +138,21 @@ def test_settings_come_from_the_newest_curve_once_per_analysis():
     )
 
 
+@pytest.mark.parametrize(
+    ('name', 'value'),
+    [('qMin', 0.005), ('qMax', 0.5), ('qPoints', 128), ('sizeSpread', 0.1), ('kernel', 'average')],
+)
+def test_each_setting_reaches_the_next_curve(qcore_application, name, value):
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis_of()))
+    changed = QSignalSpy(getattr(scattering, f'{name}Changed'))
+
+    setattr(scattering, name, value)
+    setattr(scattering, name, value)
+
+    assert getattr(scattering, name) == value
+    assert changed.count() == 1
+
+
 def test_structures_are_the_model_then_the_finished_stages(tmp_path):
     model = FakeSampleModel()
     model.add_new_files([touched(tmp_path / 'model.gro', 50)])
@@ -175,13 +192,17 @@ def test_a_pick_stays_until_a_stage_finishes(tmp_path):
 
 def test_a_curve_is_outdated_once_its_structure_is_newer_or_gone(tmp_path):
     eq0 = stage(tmp_path, 0, 100)
+    model = FakeSampleModel()
+    model.add_new_files([touched(tmp_path / 'model.gro', 100)])
     analysis = analysis_of(
         curve('newer', eq0, touched(tmp_path / 'newer.dat', 200)),
         curve('older', eq0, touched(tmp_path / 'older.dat', 50)),
         curve('gone', FakeStage('eq1'), touched(tmp_path / 'gone.dat', 200)),
         curve('no data', eq0),
+        # Read from the model's own .gro
+        curve('of model', model, touched(tmp_path / 'of model.dat', 200)),
     )
-    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering = Scattering(Session(sample_model=model, analysis=analysis))
 
     scattering.refresh()
 
@@ -189,6 +210,7 @@ def test_a_curve_is_outdated_once_its_structure_is_newer_or_gone(tmp_path):
         ('newer', 'eq0', 'done'),
         ('older', 'eq0', 'outdated'),
         ('gone', 'eq1', 'outdated'),
+        ('of model', model.name, 'done'),
     ]
 
 
@@ -203,6 +225,35 @@ def test_a_hidden_curve_stays_hidden_and_a_new_one_shows(tmp_path):
     scattering.refresh()
 
     assert [row['shown'] for row in rows(scattering.curves)] == [False, True]
+
+
+def test_a_hidden_curve_shows_again(tmp_path):
+    eq0 = stage(tmp_path, 0, 100)
+    analysis = analysis_of(curve('first', eq0, touched(tmp_path / 'first.dat', 200)))
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering.refresh()
+    scattering.setCurveShown(0, False)
+
+    scattering.setCurveShown(0, True)
+
+    assert scattering.curves.get(0)['shown']
+
+
+def test_curve_rows_by_role_match_get(qcore_application, tmp_path):
+    eq0 = stage(tmp_path, 0, 100)
+    analysis = analysis_of(curve('first', eq0, touched(tmp_path / 'first.dat', 200)))
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering.refresh()
+    curves = scattering.curves
+
+    # As QML reads a row: each role through data
+    by_role = {
+        name.decode(): curves.data(curves.index(0), role)
+        for role, name in curves.roleNames().items()
+    }
+
+    assert by_role == curves.get(0)
+    assert refusals(curves) == REFUSED
 
 
 def test_ticks_keep_the_components_order_and_leave_with_their_component():
@@ -222,6 +273,19 @@ def test_ticks_keep_the_components_order_and_leave_with_their_component():
         ['CHL'],
         ['SDS', 'CHL'],
     )
+
+
+def test_an_untick_drops_the_component():
+    components = [SimpleNamespace(name=name) for name in ('CTA', 'SDS')]
+    model = FakeSampleModel(SimpleNamespace(components=components))
+    scattering = Scattering(Session(sample_model=model, analysis=analysis_of()))
+    scattering.refresh()
+    scattering.setDeuterated('CTA', True)
+    scattering.setDeuterated('SDS', True)
+
+    scattering.setDeuterated('CTA', False)
+
+    assert scattering.deuterated == ['SDS']
 
 
 def test_a_new_curve_is_named_after_its_structure_and_settings(tmp_path):
@@ -297,6 +361,21 @@ def test_cancel_ends_the_run_at_once(qcore_application, tmp_path):
     assert ended.at(0) == ['']
 
 
+def test_a_check_during_the_run_keeps_watching(qcore_application, tmp_path):
+    cta60 = on_cta60(tmp_path)
+    again = curve('eq5 curve', cta60.eq5)
+    cta60.analysis.sans.append(again)
+    scattering = cta60.scattering
+    ended = QSignalSpy(scattering.externalCalculated)
+    scattering.calculate()
+
+    # As the watch's timer does while the run goes on
+    scattering._check()
+
+    assert (scattering.runningCurve, scattering.filesLocked) == ('eq5 curve', True)
+    assert ended.count() == 0
+
+
 def test_calculate_without_a_structure_is_refused(qcore_application):
     scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis_of()))
     scattering.refresh()
@@ -346,6 +425,17 @@ def test_points_and_ranges_are_log10_over_the_shown_curves(tmp_path):
     assert points == pytest.approx([-2, 2, -1, 0])
     assert both == pytest.approx({'xmin': -3, 'xmax': 1, 'ymin': -3, 'ymax': 3})
     assert scattering.ranges == pytest.approx({'xmin': -2, 'xmax': -1, 'ymin': 0, 'ymax': 2})
+
+
+def test_ranges_without_a_shown_curve_are_0_to_1(tmp_path):
+    eq0 = stage(tmp_path, 0, 100)
+    analysis = analysis_of(curve('hidden', eq0, touched(tmp_path / 'hidden.dat', 200)))
+    scattering = Scattering(Session(sample_model=FakeSampleModel(), analysis=analysis))
+    scattering.refresh()
+
+    scattering.setCurveShown(0, False)
+
+    assert scattering.ranges == {'xmin': 0, 'xmax': 1, 'ymin': 0, 'ymax': 1}
 
 
 def test_export_copies_the_shown_curves_and_asks_before_replacing(tmp_path):

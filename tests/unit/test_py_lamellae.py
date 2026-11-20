@@ -235,3 +235,14 @@ def test_refresh_announces_every_outer_leaflet_rmin():
     assert data.count() == 1
     assert (top_left.row(), bottom_right.row(), roles) == (0, 1, [Model.OuterLeafletRminRole])
     assert radius.count() == 0
+
+
+def test_refresh_without_lamellae_announces_nothing():
+    model = Model(Vesicle())
+    model.remove(0)
+    data = QSignalSpy(model.dataChanged)
+    radius = QSignalSpy(model.fullRadiusChanged)
+
+    model.refresh()
+
+    assert (data.count(), radius.count()) == (0, 0)
