@@ -26,8 +26,8 @@ class CurvesModel(EntriesModel):
     """
     The analysis's SANS curves that hold data, as Scattering view lists
     them and the chart draws them. A row is a dict of the roles: the
-    curve's name, its source's name and its settings, as SansCurve
-    holds them; its Rg in Å; its status, 'done' or 'outdated' once its
+    curve's name, its source's name and its settings, as SansCurve holds
+    them; its Rg in Å; its status, 'done' or 'outdated' once its
     structure changed after it; and shown, whether the chart draws it.
     """
 
@@ -70,8 +70,8 @@ class CurvesModel(EntriesModel):
 class Scattering(QObject):
     """
     The analysis's SANS curves for QML: the settings of the next one,
-    the structures it can be calculated from, the components that can
-    be deuterated, and the curves the analysis holds.
+    the structures it can be calculated from, the components that can be
+    deuterated, and the curves the analysis holds.
 
     The settings are a SansCurve's, under its parameter names. They are
     filled from the analysis's newest curve, or SansCurve's defaults
