@@ -150,6 +150,7 @@ verbose = 1
 [tool.coverage.run]
 branch = true  # Measure branch coverage as well
 source = ['src']  # Limit coverage to the source code directory
+omit = ['src/easyshapes_app/main.py']  # Entry script: run the app
 
 [tool.coverage.report]
 show_missing = true  # Show missing lines

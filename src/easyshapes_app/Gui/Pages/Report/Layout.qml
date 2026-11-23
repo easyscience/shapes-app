@@ -27,13 +27,11 @@ EaComponents.ContentPage {
 
     sideBar: EaComponents.SideBar {
         tabs: [
-            EaElements.TabButton { text: qsTr('Basic controls') },
-            EaElements.TabButton { text: qsTr('Extra controls') }
+            EaElements.TabButton { text: qsTr('Basic controls') }
         ]
 
         items: [
-            Loader { source: 'Sidebar/Basic/Layout.qml' },
-            Loader { source: 'Sidebar/Extra/Layout.qml' }
+            Loader { source: 'Sidebar/Basic/Layout.qml' }
         ]
 
         continueButton.visible: false
