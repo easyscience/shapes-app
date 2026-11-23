@@ -11,8 +11,8 @@ import QtQuick.VectorImage
 Window {
     x: Screen.virtualX + (Screen.width - width) / 2
     y: Screen.virtualY + (Screen.height - height) / 2
-    width: 200
-    height: 200
+    width: 128
+    height: 128
     visible: true
     flags: Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
     color: "transparent"
