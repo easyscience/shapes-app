@@ -35,15 +35,16 @@ the
 
 ## Citation
 
-If you use **EasyShapes** application in your work, please cite the
-specific version you used.
-
-All official releases of the **EasyShapes** application are archived on
-Zenodo, each with a version-specific Digital Object Identifier (DOI).
+If you use **EasyShapes** application in your work, please cite
+Shapespyer, which builds its structures. Its Digital Object Identifier
+(DOI), for all versions, is
+[10.5281/zenodo.19074587](https://doi.org/10.5281/zenodo.19074587).
 
 Citation details in various styles (e.g., APA, MLA) and formats (e.g.,
-BibTeX, JSON) are available on the
-[Zenodo archive page](https://doi.org/10.5281/zenodo.18163581).
+BibTeX, JSON) are available on that Zenodo page.
+
+The **EasyShapes** application will get its own DOI on Zenodo with its
+first release.
 
 ## Contributing
 
@@ -61,10 +62,10 @@ the
 (A free GitHub account is required.)
 
 To contribute code, documentation, or tests, please see our
-[:material-account-plus: Contributing Guidelines](https://github.com/easyscience/shapes-app/blob/master/CONTRIBUTING.md)
+[:material-account-plus: Contributing Guidelines](https://github.com/easyscience/shapes-app/blob/develop/CONTRIBUTING.md)
 for detailed development instructions.
 
-## Get in Touch
+## Questions and Feedback
 
-For general questions or feedback, please contact us at
-[support@easyshapes.org](mailto:support@easyshapes.org).
+Ask questions or send feedback by opening an issue on the
+[GitHub Issue Tracker](https://github.com/easyscience/shapes-app/issues).

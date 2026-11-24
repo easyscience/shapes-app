@@ -32,7 +32,7 @@ License:
 - 🧪
   [Tutorials](https://easyscience.github.io/shapes-app/latest/tutorials)
 - 💬
-  [Get in Touch](https://easyscience.github.io/shapes-app/latest/introduction/#get-in-touch)
+  [Questions and Feedback](https://easyscience.github.io/shapes-app/latest/introduction/#questions-and-feedback)
 - 🧾
   [Citation](https://easyscience.github.io/shapes-app/latest/introduction/#citation)
 
