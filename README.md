@@ -41,7 +41,7 @@ License:
 - 🧑‍💻 [Source Code](https://github.com/easyscience/shapes-app)
 - 🐞 [Issue Tracker](https://github.com/easyscience/shapes-app/issues)
 - 💡
-  [Discussions](https://github.com/easyscience/shapes-app/discussions)
+  [Discussions](https://github.com/easyscience/shapes/discussions)
 - 🤝
   [Contributing Guide](https://github.com/easyscience/shapes-app/blob/master/CONTRIBUTING.md)
 - 🛡

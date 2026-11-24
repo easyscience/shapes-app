@@ -16,6 +16,3 @@ Here is a brief overview of the main documentation sections:
 - [:material-school: Tutorials](tutorials/index.md) – Offers practical,
   step-by-step examples demonstrating common workflows and data analysis
   tasks.
-- [:material-code-braces-box: API Reference](api-reference/index.md) –
-  An auto-generated reference detailing the available functions and
-  modules in EasyShapes.

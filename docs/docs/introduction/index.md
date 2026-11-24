@@ -67,5 +67,8 @@ for detailed development instructions.
 
 ## Questions and Feedback
 
-Ask questions or send feedback by opening an issue on the
+Ask questions or share feedback in
+[GitHub Discussions](https://github.com/easyscience/shapes/discussions),
+the discussion forum for the whole EasyShapes project.
+To report a bug, use the
 [GitHub Issue Tracker](https://github.com/easyscience/shapes-app/issues).

@@ -62,8 +62,8 @@ extra:
       link: https://easyscience.org
       name: EasyScience Framework Webpage
     - icon: easyshapes # File: overrides/.icons/easyshapes.svg
-      link: https://easyscience.github.io/shapes
-      name: EasyShapes Main Webpage
+      link: https://github.com/easyscience/shapes
+      name: EasyShapes Project Home on GitHub
     - icon: fontawesome/brands/github # Name as in Font Awesome
       link: https://github.com/easyscience/shapes-app
       name: EasyShapes Application Source Code on GitHub
@@ -194,5 +194,3 @@ nav:
       - User Guide: user-guide/index.md
   - Tutorials:
       - Tutorials: tutorials/index.md
-  - API Reference:
-      - API Reference: api-reference/index.md
