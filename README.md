@@ -32,7 +32,7 @@ License:
 - 🧪
   [Tutorials](https://easyscience.github.io/shapes-app/latest/tutorials)
 - 💬
-  [Get in Touch](https://easyscience.github.io/shapes-app/latest/introduction/#get-in-touch)
+  [Questions and Feedback](https://easyscience.github.io/shapes-app/latest/introduction/#questions-and-feedback)
 - 🧾
   [Citation](https://easyscience.github.io/shapes-app/latest/introduction/#citation)
 
@@ -40,8 +40,7 @@ License:
 
 - 🧑‍💻 [Source Code](https://github.com/easyscience/shapes-app)
 - 🐞 [Issue Tracker](https://github.com/easyscience/shapes-app/issues)
-- 💡
-  [Discussions](https://github.com/easyscience/shapes-app/discussions)
+- 💡 [Discussions](https://github.com/easyscience/shapes/discussions)
 - 🤝
   [Contributing Guide](https://github.com/easyscience/shapes-app/blob/master/CONTRIBUTING.md)
 - 🛡
