@@ -131,6 +131,8 @@ Rectangle {
         // lights the atoms itself; the scene's lights only cast shadows.
         Node {
             id: originNode
+            // tools/docs_capture.py tilts the view through this name
+            objectName: 'structureOrigin'
             PerspectiveCamera {
                 id: camera
                 // Fits the farthest atom in the 60° view, with room to spare

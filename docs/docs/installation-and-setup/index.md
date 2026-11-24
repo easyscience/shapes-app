@@ -98,11 +98,11 @@ This section describes the simplest way to set up EasyShapes using
 
 #### Uninstalling EasyShapes and Pixi
 
-- To remove EasyShapes, delete the `shapes-app` directory. Its environment
-  is inside it, in `.pixi/`.
-- By default, your projects and the Shapespyer settings are saved outside
-  that directory: in `%APPDATA%\SimNavi\Shapespyer\` on Windows, in
-  `~/Library/Application Support/Shapespyer/` on macOS, and in
+- To remove EasyShapes, delete the `shapes-app` directory. Its
+  environment is inside it, in `.pixi/`.
+- By default, your projects and the Shapespyer settings are saved
+  outside that directory: in `%APPDATA%\SimNavi\Shapespyer\` on Windows,
+  in `~/Library/Application Support/Shapespyer/` on macOS, and in
   `~/.local/share/Shapespyer/` (projects) and `~/.config/Shapespyer/`
   (settings) on Linux. Delete them only if you no longer need your
   projects.
