@@ -495,6 +495,10 @@
           
         
       
+        
+      
+        
+      
     
     
     
@@ -526,6 +530,11 @@
 
             </a>
             
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
           </div>
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
@@ -541,48 +550,21 @@
             
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../api-reference/" class="md-nav__link ">
               
+                
   
   
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-8 5H9v2c0 1.1-.9 2-2 2 1.1 0 2 .9 2 2v2h2v2H9c-1.1 0-2-.9-2-2v-1c0-1.1-.9-2-2-2v-2c1.1 0 2-.9 2-2V8c0-1.1.9-2 2-2h2zm8 5c-1.1 0-2 .9-2 2v1c0 1.1-.9 2-2 2h-2v-2h2v-2c0-1.1.9-2 2-2-1.1 0-2-.9-2-2V8h-2V6h2c1.1 0 2 .9 2 2v1c0 1.1.9 2 2 2z"/></svg>
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/mlv/" class="md-nav__link">
+        
+  
   
   <span class="md-ellipsis">
     
   
-    API Reference
+    Multilamellar Vesicle
   
 
     
@@ -590,21 +572,38 @@
   
   
 
-            </a>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    API Reference
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/sds-ball/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SDS Ball
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
               
             
           </ul>
@@ -634,6 +633,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tutorials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tutorials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interface
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -657,23 +697,43 @@
 
 
 <h1 id="user-guide"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.5c-1.35-.85-3.8-1.5-5.5-1.5-1.65 0-3.35.3-4.75 1.05-.1.05-.15.05-.25.05-.25 0-.5-.25-.5-.5V6c.6-.45 1.25-.75 2-1 1.11-.35 2.33-.5 3.5-.5 1.95 0 4.05.4 5.5 1.5 1.45-1.1 3.55-1.5 5.5-1.5 1.17 0 2.39.15 3.5.5.75.25 1.4.55 2 1v14.6c0 .25-.25.5-.5.5-.1 0-.15 0-.25-.05-1.4-.75-3.1-1.05-4.75-1.05-1.7 0-4.15.65-5.5 1.5M12 8v11.5c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5V7c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5m1 3.5c1.11-.68 2.6-1 4.5-1 .91 0 1.76.09 2.5.28V9.23c-.87-.15-1.71-.23-2.5-.23q-2.655 0-4.5.84zm4.5.17c-1.71 0-3.21.26-4.5.79v1.69c1.11-.65 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24v-1.5c-.87-.16-1.71-.23-2.5-.23m2.5 2.9c-.87-.16-1.71-.24-2.5-.24-1.83 0-3.33.27-4.5.8v1.69c1.11-.66 2.6-.99 4.5-.99 1.04 0 1.88.08 2.5.24z"/></svg></span> User Guide</h1>
-<p>This section provides an overview of the <strong>core concepts</strong>, <strong>key
-parameters</strong> and <strong>workflow steps</strong> required for using EasyShapes
-effectively.</p>
-<p>Here is a brief overview of the User Guide sections:</p>
+<p><strong>EasyShapes</strong> builds ordered molecular aggregates, such as vesicles,
+bilayers and micelles, as starting structures for molecular dynamics
+(MD) simulations. It can then equilibrate them with GROMACS and
+calculate their small-angle neutron scattering (SANS).</p>
+<h2 id="workflow">Workflow</h2>
+<p>The tabs at the top of the window lead through the work, from left to
+right:</p>
+<ol>
+<li><strong>Home</strong> – click <strong>Start</strong> to open the Project page.</li>
+<li><strong>Project</strong> – create a new project, open an existing one, or start
+   from an example or a recent project.</li>
+<li><strong>Sample Model</strong> – choose the structure type, add the components
+   (molecules) and their fractions, set the structure's layers or
+   lamellae and the buffer, then click <strong>Assemble</strong>. <strong>Continue</strong> opens
+   the Analysis page.</li>
+<li><strong>Analysis</strong> – equilibrate the structure with GROMACS
+   (<strong>Equilibrate</strong>) and calculate its scattering curves
+   (<strong>Calculate</strong>). <strong>Continue</strong> opens the Summary page.</li>
+<li><strong>Summary</strong> – read an outline of the project and its results.</li>
+</ol>
+<h2 id="tutorials">Tutorials</h2>
+<p>Each tutorial starts from a goal: the system to build and the result to
+aim for. Then it goes through only the controls needed to get there.</p>
 <ul>
-<li><a href="#">Glossary</a> – Defines common terms and labels used throughout the
-  documentation.</li>
-<li><a href="#">Concept</a> – Introduces the overall idea behind data analysis in
-  EasyShapes.</li>
-<li><a href="#">Data Format</a> – Explains the data structures and file formats used
-  by EasyShapes.</li>
-<li><a href="#">Parameters</a> – Describes how parameters are structured, named, and
-  accessed within the EasyShapes.</li>
-<li><a href="#">First Steps</a> – Shows how to begin using EasyShapes in Python or
-  Jupyter notebooks.</li>
-<li><a href="#">Analysis Workflow</a> – Breaks down the data analysis pipeline into
-  practical, sequential steps.</li>
+<li><a href="../tutorials/mlv/">Multilamellar vesicle</a> – build a vesicle
+  of concentric lipid lamellae. No GROMACS needed.</li>
+<li><a href="../tutorials/sds-ball/">SDS ball (micelle)</a> – build a ball of
+  SDS molecules, equilibrate it with GROMACS and calculate its
+  scattering curve, following the Shapespyer example.</li>
+</ul>
+<h2 id="interface">Interface</h2>
+<p>One page per tab, describing each group and control:</p>
+<ul>
+<li>Project</li>
+<li>Sample Model</li>
+<li>Analysis</li>
+<li>Summary</li>
 </ul>
 <!-- prettier-ignore-start -->
 
@@ -797,7 +857,7 @@ effectively.</p>
     
     
     
-    <a href="https://easyscience.github.io/shapes" target="_blank" rel="noopener" title="EasyShapes Main Webpage" class="md-social__link">
+    <a href="https://github.com/easyscience/shapes" target="_blank" rel="noopener" title="EasyShapes Project Home on GitHub" class="md-social__link">
       <svg viewBox="0 0 660 660" xmlns="http://www.w3.org/2000/svg">
   <path d="M660 330c0 182.25-147.75 330-330 330S0 512.25 0 330 147.75 0 330 0s330 147.75 330 330zm-329.4-84.48a85 85 0 100 170 85 85 0 000-170zm-39.27-181.1a67.5 67.5 0 100 135 67.5 67.5 0 000-135zm76.44 396.16a67.5 67.5 0 100 135 67.5 67.5 0 000-135zM139.5 211.34a52.5 52.5 0 100 105 52.5 52.5 0 000-105zm342.33-66.49a52.5 52.5 0 100 105 52.5 52.5 0 000-105zm38.67 198.41a52.5 52.5 0 100 105 52.5 52.5 0 000-105zm-342.64 66.55a52.5 52.5 0 100 105 52.5 52.5 0 000-105z"/>
 </svg>
