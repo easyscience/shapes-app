@@ -42,6 +42,6 @@ aim for. Then it goes through only the controls needed to get there.
 One page per tab, describing each group and control:
 
 - Project
-- Sample Model
+- [Sample Model](sample-model.md)
 - Analysis
 - Summary
