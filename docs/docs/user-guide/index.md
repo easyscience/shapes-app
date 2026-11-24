@@ -4,21 +4,44 @@ icon: material/book-open-variant
 
 # :material-book-open-variant: User Guide
 
-This section provides an overview of the **core concepts**, **key
-parameters** and **workflow steps** required for using EasyShapes
-effectively.
+**EasyShapes** builds ordered molecular aggregates, such as vesicles,
+bilayers and micelles, as starting structures for molecular dynamics
+(MD) simulations. It can then equilibrate them with GROMACS and
+calculate their small-angle neutron scattering (SANS).
 
-Here is a brief overview of the User Guide sections:
+## Workflow
 
-- [Glossary](#) – Defines common terms and labels used throughout the
-  documentation.
-- [Concept](#) – Introduces the overall idea behind data analysis in
-  EasyShapes.
-- [Data Format](#) – Explains the data structures and file formats used
-  by EasyShapes.
-- [Parameters](#) – Describes how parameters are structured, named, and
-  accessed within the EasyShapes.
-- [First Steps](#) – Shows how to begin using EasyShapes in Python or
-  Jupyter notebooks.
-- [Analysis Workflow](#) – Breaks down the data analysis pipeline into
-  practical, sequential steps.
+The tabs at the top of the window lead through the work, from left to
+right:
+
+1. **Home** – click **Start** to open the Project page.
+2. **Project** – create a new project, open an existing one, or start
+   from an example or a recent project.
+3. **Sample Model** – choose the structure type, add the components
+   (molecules) and their fractions, set the structure's layers or
+   lamellae and the buffer, then click **Assemble**. **Continue** opens
+   the Analysis page.
+4. **Analysis** – equilibrate the structure with GROMACS
+   (**Equilibrate**) and calculate its scattering curves
+   (**Calculate**). **Continue** opens the Summary page.
+5. **Summary** – read an outline of the project and its results.
+
+## Tutorials
+
+Each tutorial starts from a goal: the system to build and the result to
+aim for. Then it goes through only the controls needed to get there.
+
+- [Multilamellar vesicle](../tutorials/mlv/index.md) – build a vesicle
+  of concentric lipid lamellae. No GROMACS needed.
+- [SDS ball (micelle)](../tutorials/sds-ball/index.md) – build a ball of
+  SDS molecules, equilibrate it with GROMACS and calculate its
+  scattering curve, following the Shapespyer example.
+
+## Interface
+
+One page per tab, describing each group and control:
+
+- Project
+- Sample Model
+- Analysis
+- Summary

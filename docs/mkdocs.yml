@@ -194,3 +194,5 @@ nav:
       - User Guide: user-guide/index.md
   - Tutorials:
       - Tutorials: tutorials/index.md
+      - Multilamellar Vesicle: tutorials/mlv/index.md
+      - SDS Ball: tutorials/sds-ball/index.md
