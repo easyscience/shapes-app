@@ -10,6 +10,10 @@ the light and once in the dark theme. Its settings and projects go to a
 scrap folder that is deleted at the end, as is what its assemblies leave
 in shapespyer's Temp. Close EasyShapes first: Temp folders it makes during
 the run would be deleted too.
+
+The assembled vesicle is made once, before any app window opens, and
+kept in CACHE_DIR (easyshapes-docs-cache in the system's temp folder)
+between runs; delete it after changing build_mlv.
 """
 
 import shutil
@@ -28,22 +32,33 @@ EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent
 WIDTH, HEIGHT = 1280, 800
 # EaStyle.Colors.Themes: LightTheme = 0, DarkTheme = 1
 THEMES = {'light': 0, 'dark': 1}
+# Assembled examples, kept between runs: assembling takes minutes.
+# shortcut: changes to an example don't reach its copy here, delete it
+# by hand then; key the copies by a hash of the examples if that bites
+CACHE_DIR = Path(tempfile.gettempdir()) / 'easyshapes-docs-cache'
+# The Project scene's folder: never created, as the project is never
+# saved, and with no user name in it, unlike a Temp path
+PROJECT_LOCATION = str(Path(Path.home().anchor, 'Projects', 'POPC-vesicle'))
+
+# main.py's own imports: Backends and Gui sit in the app folder
+sys.path.insert(0, str(APP_DIR))
 
 # Drives the app through the calls its own buttons make
 DRIVER_QML = b"""
 import QtQuick
+import EasyApplication.Gui.Globals as EaGlobals
 import Gui.Globals as Globals
 
 QtObject {
     readonly property var tabs: Globals.References.applicationWindow.appBarCentralTabs
-    // True while an assembly runs; the message of the last failure
-    readonly property bool busy: Globals.BackendWrapper.sampleModelFilesLocked
-    readonly property string error: Globals.BackendWrapper.errorMessage
+    // True while the Structure tab reads its atoms; why the read failed
+    readonly property bool busy: Globals.BackendWrapper.structureViewLoading
+    readonly property string error: Globals.BackendWrapper.structureViewError
 
     // A new project with its tabs enabled, as Home's Start and the
     // Project page's Continue leave them
-    function createProject(path) {
-        Globals.BackendWrapper.projectCreate('', '', path)
+    function createProject(name, description, path) {
+        Globals.BackendWrapper.projectCreate(name, description, path)
         tabs.projectButton.opened = true
         tabs.sampleModelButton.enabled = true
     }
@@ -54,7 +69,8 @@ QtObject {
     }
     // toggle() would close a tab that is already open
     function openTab(name) { if (!tabs[name].checked) tabs[name].toggle() }
-    function assemble() { Globals.BackendWrapper.sampleModelAssemble() }
+    // The Create project dialog, as Get started's first button opens it
+    function showCreateDialog(shown) { EaGlobals.Vars.showProjectDescriptionDialog = shown }
 }
 """
 
@@ -75,10 +91,11 @@ def wait(ms):
     loop.exec()
 
 
-def wait_until_idle(driver, limit_s=1800):
+def wait_until_idle(driver, limit_s=120):
     """
-    Let the app run until its assembly ends. Raises the app's error
-    message if it failed, and TimeoutError after limit_s seconds.
+    Let the app run until the Structure tab has read its atoms. Raises
+    the tab's error message if the read failed, and TimeoutError after
+    limit_s seconds.
     """
     for _ in range(limit_s * 2):
         wait(500)
@@ -86,7 +103,7 @@ def wait_until_idle(driver, limit_s=1800):
             if driver.property('error'):
                 raise RuntimeError(driver.property('error'))
             return
-    raise TimeoutError(f'The assembly took longer than {limit_s} s')
+    raise TimeoutError(f'Reading the structure took longer than {limit_s} s')
 
 
 def build_lattice_ring(path):
@@ -176,7 +193,7 @@ def set_checked(window, text, checked):
 
 def tilt_structure(window):
     """
-    Turn the visible structure viewer 45° down from above and 45° about
+    Turn the visible structure viewer 45° up from below and 45° about
     the vertical axis, as a drag on it would.
     """
     view = find_item(
@@ -186,7 +203,7 @@ def tilt_structure(window):
         'structure viewer',
     )
     origin = view.findChild(QObject, 'structureOrigin')
-    origin.setProperty('eulerRotation', QVector3D(-45, 45, 0))
+    origin.setProperty('eulerRotation', QVector3D(45, 45, 0))
 
 
 def temp_entries():
@@ -205,8 +222,6 @@ def main(output_dir, theme):
     scrap = Path(tempfile.mkdtemp(prefix='easyshapes-docs-'))
     temp_before = temp_entries()
     try:
-        # main.py's own imports: Backends and Gui sit in the app folder
-        sys.path.insert(0, str(APP_DIR))
         from Backends.real_backend import Backend
         from Backends.real_py.logic.examples import build_mlv, build_sds_ball
 
@@ -237,19 +252,35 @@ def main(output_dir, theme):
             raise RuntimeError(component.errorString())
 
         basic, advanced = 'Basic controls', 'Advanced controls'
-        # Each scene: how it is built (None: a new project in the app),
-        # whether it is assembled, and its shots: name, sidebar tab, group
-        # to open (None: as the page shows it) and main-area tab. The dry
-        # vesicle assembles without GROMACS: nothing is added to it
+        # Each page's tab in the app bar, by its name in the file names
+        page_tabs = {'project': 'projectButton', 'sample-model': 'sampleModelButton'}
+        # Each scene: how it is made, the page it shows, and its shots:
+        # name, sidebar tab, group to open (None: as the page shows it)
+        # and main-area tab. A builder saves a scene, which is then
+        # loaded; a name, a description and a folder create one in the
+        # app. The Project scene comes first, while the page still shows
+        # only Get started: Recent projects lists your own
         scenes = {
-            'empty': (None, False, [
+            'project': (
+                ('POPC-vesicle', 'Dry POPC and cholesterol, two lamellae.', PROJECT_LOCATION),
+                'project',
+                [
+                    ('description', basic, None, 'Description'),
+                    ('create-dialog', basic, None, 'Description'),
+                ],
+            ),
+            'empty': (('', '', str(scrap / 'empty')), 'sample-model', [
                 ('basic-model-definition', basic, None, 'Shape'),
             ]),
-            'mlv-assembled': (build_mlv, True, [
-                ('main-structure', advanced, 'Structure viewer', 'Structure'),
-                ('advanced-sample-model-files', advanced, 'Sample Model Files', 'Structure'),
-            ]),
-            'mlv': (build_mlv, False, [
+            'mlv-assembled': (
+                lambda path: shutil.copytree(CACHE_DIR / 'MLV', path),
+                'sample-model',
+                [
+                    ('main-structure', advanced, 'Structure viewer', 'Structure'),
+                    ('advanced-sample-model-files', advanced, 'Sample Model Files', 'Structure'),
+                ],
+            ),
+            'mlv': (build_mlv, 'sample-model', [
                 ('basic-components', basic, 'Components', 'Shape'),
                 ('basic-vesicle-structure', basic, 'Vesicle Structure Definition', 'Shape'),
                 ('basic-lamellae', basic, 'Lamellae', 'Shape'),
@@ -258,28 +289,25 @@ def main(output_dir, theme):
                 ('advanced-smiles-generator', advanced, 'SMILES generator', 'Shape'),
                 ('main-components', basic, 'Components', 'Components'),
             ]),
-            'sds-ball': (build_sds_ball, False, [
+            'sds-ball': (build_sds_ball, 'sample-model', [
                 ('basic-layers', basic, 'Layers', 'Shape'),
                 ('basic-buffer', basic, 'Buffer', 'Shape'),
             ]),
-            'lattice-ring': (build_lattice_ring, False, [
+            'lattice-ring': (build_lattice_ring, 'sample-model', [
                 ('basic-ring-structure', basic, 'Ring Structure Definition', 'Shape'),
                 ('basic-lattice-parameters', basic, 'Lattice Parameters', 'Shape'),
                 ('main-lattice', basic, 'Lattice Parameters', 'Lattice'),
             ]),
         }
-        for scene, (build, assemble, shots) in scenes.items():
-            path = str(scrap / scene)
-            if build is None:
-                call(driver, 'createProject', path)
-            else:
+        for scene, (build, page, shots) in scenes.items():
+            if callable(build):
+                path = str(scrap / scene)
                 build(path)
                 call(driver, 'loadProject', path)
-            call(driver, 'openTab', 'sampleModelButton')
+            else:
+                call(driver, 'createProject', *build)
+            call(driver, 'openTab', page_tabs[page])
             wait(1000)
-            if assemble:
-                call(driver, 'assemble')
-                wait_until_idle(driver)
             for name, sidebar, group, main_tab in shots:
                 # Every shot the same size, even if the window was resized
                 window.setWidth(WIDTH)
@@ -294,8 +322,15 @@ def main(output_dir, theme):
                     set_checked(window, 'Molecules', name == 'basic-components')
                 if main_tab == 'Structure':
                     tilt_structure(window)
+                    # The tab reads its atoms when it opens
+                    wait_until_idle(driver)
+                if name == 'create-dialog':
+                    call(driver, 'showCreateDialog', True)
                 wait(2500)
-                window.grabWindow().save(str(output_dir / f'sample-model-{name}-{theme}.png'))
+                window.grabWindow().save(str(output_dir / f'{page}-{name}-{theme}.png'))
+                # Closed again, or it would cover every later shot
+                if name == 'create-dialog':
+                    call(driver, 'showCreateDialog', False)
 
         # The window goes before the backend singleton, as in main.py
         del driver, component, engine
@@ -314,6 +349,11 @@ if __name__ == '__main__':
     if theme:
         main(output_dir, theme[0])
     else:
+        from Backends.real_py.logic.examples import make_examples
+
+        # Here, with no window: assembling takes minutes, and a window
+        # kept busy that long stops answering
+        make_examples(CACHE_DIR, ['MLV'], assemble=True)
         # One app per theme: a status bar value keeps the colour of the
         # theme it last changed in (EasyApp StatusBarItem.qml:81-84)
         for name in THEMES:
