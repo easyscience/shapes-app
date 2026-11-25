@@ -21,8 +21,7 @@ scattering results. Each project is a folder on disk.
 - **Open an existing project** – opens a project folder.
 
 Creating or opening a project replaces the open one without asking, so
-save your work first. The whole Project tab is off while an assembly,
-equilibration or scattering calculation runs.
+save your work first.
 
 The **Create project** dialog has three fields. All are optional:
 
@@ -30,9 +29,8 @@ The **Create project** dialog has three fields. All are optional:
   or `.`. Empty gives a random name.
 - **Description** – a short note about the project.
 - **Location** – the folder to save the project in.
-  :material-folder-open: picks one. It must be new or empty: otherwise
-  it turns red and **OK** stays off. Empty saves to
-  `Projects/<name>-<ID>` in Shapespyer's data folder (see
+  :material-folder-open: picks one. It must be new or empty. Empty saves
+  to `Projects/<name>-<ID>` in Shapespyer's data folder (see
   [Installation & Setup](../installation-and-setup/index.md) for where
   it is).
 
@@ -48,9 +46,7 @@ a copy in the default projects folder, and the example stays as it is.
 
 ### Recent projects
 
-The projects you have saved, newest first, each with the time of its
-last save. Hover over one to see its folder; click it to open it.
-Examples don't appear here.
+The projects you have saved, newest first. Click one to open it.
 
 ## Description tab
 
@@ -59,24 +55,19 @@ The open project:
 - **Name** – the large title. Click it to change it, with the same rule
   as in the Create project dialog.
 - **Description** – click it to change it.
-- **Location** – the project's folder. A long path loses its start;
-  hover over it to see all of it.
-- **Last saved** – empty until the first save.
-
-Without a project, the page shows "No project defined".
+- **Location** – the project's folder.
 
 ## Saving
 
 :material-content-save: at the top left of the window, or Ctrl+S, saves
-the project into its folder. The first save creates the folder and adds
-the project to Recent projects. Saving is off while an assembly,
-equilibration or scattering calculation runs.
+the project into its folder. The first save creates the folder, copies
+the files of the sample model and the analysis into it, and adds the
+project to Recent projects.
 
 ## Continue
 
-**Continue** opens the Sample Model page. An opened project also unlocks
-the Analysis page at once.
+**Continue** opens the Sample Model page.
 
 Without a project, the button reads **Continue without project**. You
-can build a sample model then, but not save it. The first project you
-create afterwards takes it in.
+can build a sample model then, but not save it. A project you create
+afterwards keeps that sample model.

@@ -106,23 +106,24 @@ def wait_until_idle(driver, limit_s=120):
     raise TimeoutError(f'Reading the structure took longer than {limit_s} s')
 
 
-def build_lattice_ring(path):
+def build_lattice_ball(path):
     """
-    Save the interface page's lattice scene to a folder: a ring of SDS
-    in a lattice with its default settings, as the Type switch makes it.
+    Save the interface page's lattice scene to a folder: a ball of SDS
+    on a body-centred cubic lattice of 3 x 2 x 4 cells.
     """
-    from shapes.project import Ion, Lattice, Project, Ring, SampleModel, Surfactant
+    from shapes.project import Ball, Ion, Lattice, Project, SampleModel, Surfactant
     from shapes.project.species import Buffer, Components, Solvent
 
     sds = Surfactant.load('SDS')
     sds.counter_ion = Ion.load('NAT')
-    ring = Ring(name='SDSRing', components=Components(items=[sds]))
+    ball = Ball(name='SDSBall', components=Components(items=[sds]))
+    lattice = Lattice(motif=ball, lattice_type='LBCC', nlatx=3, nlaty=2, nlatz=4)
     project = Project(
         path=path,
-        title='Lattice ring',
+        title='Lattice ball',
         sample_model=SampleModel(
-            name='SDSRing',
-            structure=Lattice(motif=ring),
+            name='SDSBall',
+            structure=lattice,
             buffer=Buffer(name='Water', solvent=Solvent.load('TIP3')),
         ),
         is_example=True,
@@ -303,8 +304,8 @@ def main(output_dir, theme):
                 ('basic-layers', basic, 'Layers', 'Shape'),
                 ('basic-buffer', basic, 'Buffer', 'Shape'),
             ]),
-            'lattice-ring': (build_lattice_ring, 'sample-model', [
-                ('basic-ring-structure', basic, 'Ring Structure Definition', 'Shape'),
+            'lattice-ball': (build_lattice_ball, 'sample-model', [
+                ('basic-ball-structure', basic, 'Ball Structure Definition', 'Shape'),
                 ('basic-lattice-parameters', basic, 'Lattice Parameters', 'Shape'),
                 ('main-lattice', basic, 'Lattice Parameters', 'Lattice'),
             ]),
