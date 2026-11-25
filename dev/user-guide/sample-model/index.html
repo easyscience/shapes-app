@@ -14,7 +14,7 @@
         <link rel="prev" href="../project/">
       
       
-        <link rel="next" href="../../tutorials/">
+        <link rel="next" href="../summary/">
       
       
         
@@ -433,6 +433,8 @@
       
         
       
+        
+      
     
     
     
@@ -837,6 +839,36 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../summary/" class="md-nav__link">
+        
+  
+  
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2M7 8h2v4H8V9H7zm3 9v1H7v-.92L9 15H7v-1h2.25c.41 0 .75.34.75.75 0 .2-.08.39-.21.52L8.12 17zm1-13c0-.55.45-1 1-1s1 .45 1 1-.45 1-1 1-1-.45-1-1m6 13h-5v-2h5zm0-6h-5V9h5z"/></svg>
+  
+  <span class="md-ellipsis">
+    
+  
+    Summary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1301,9 +1333,8 @@ assembled atoms). A lattice model adds a <strong>Lattice</strong> tab.</p>
 <h3 id="model-definition">Model Definition</h3>
 <p>One row for the project's sample model:</p>
 <ul>
-<li><strong>Name</strong> – the model's name. A new model gets a random one. The name
-  matters when you save the model to the asset library or load it from
-  there. It can't be changed while an assembly runs.</li>
+<li><strong>Name</strong> – the model's name. The name matters when you save the model
+  to the asset library or load it from there.</li>
 <li><strong>Type</strong> – <strong>Discrete</strong> builds one structure. <strong>Lattice</strong> repeats it
   on a lattice and shows the <a href="#lattice-parameters">Lattice Parameters</a>
   group. Switching back to Discrete drops the lattice settings.</li>
@@ -1319,22 +1350,19 @@ assembled atoms). A lattice model adds a <strong>Lattice</strong> tab.</p>
   example one a colleague exported with
   <a href="#sample-model-files">Sample Model Files</a> › <strong>Export</strong>.</li>
 </ul>
-<p>Both buttons are off while an assembly, equilibration or scattering
-calculation runs.</p>
 <h3 id="components">Components</h3>
 <p>The molecules the structure is made of. One row per component:</p>
 <ul>
 <li><strong>Name</strong> – a unique name, the residue name in the component's
-  structure file. A name that is refused turns red, and the reason shows
-  below the table.</li>
+  structure file.</li>
 <li><strong>Type</strong> – Lipid, Surfactant or Component. Set in the asset library.</li>
 <li><strong>C-ion</strong> – the counter-ion that goes with each molecule, from the
   ions in the asset library. Empty for none.</li>
-<li><strong>Mint</strong> and <strong>Mext</strong> – the indices of two atoms of the molecule. The
-  line from Mint to Mext, its "bone", sets how the molecule is placed:
-  Mint points into the structure, Mext out of it. Hover over an atom in
-  the main area's <a href="#components_1">Components</a> tab to see its index. Mint
-  and Mext can't be the same atom.</li>
+<li><strong>Mint</strong> and <strong>Mext</strong> – the indices of two atoms of the molecule,
+  counted from 0. The line from Mint to Mext, its "bone", sets how the
+  molecule is placed: Mint points into the structure, Mext out of it.
+  Hover over an atom in the main area's <a href="#components_1">Components</a> tab
+  to see its index.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> – removes the component from the project. The
   asset library and the files on disk keep it.</li>
 </ul>
@@ -1353,11 +1381,10 @@ of the structure. Ring, Rod, Bilayer and Monolayer have one, in their
 structure group. A ball has one per layer, and a vesicle one per lamella
 or leaflet. One row per component:</p>
 <ul>
-<li><strong>Present</strong> – tick to place the component here. Unticking keeps its
-  mole ratio, and ticking it again brings the ratio back.</li>
+<li><strong>Present</strong> – tick to place the component here.</li>
 <li><strong>Component name</strong> – the name from the Components group.</li>
 <li><strong>Mole ratio</strong> – 0 or more. Ratios are relative: 70 and 30 give the
-  same mix as 7 and 3. A ratio of 0 also unticks Present.</li>
+  same mix as 7 and 3.</li>
 </ul>
 <h3 id="structure-definition">Structure definition</h3>
 <p>Each shape has its own <strong>… Structure Definition</strong> group. Distances are
@@ -1370,10 +1397,10 @@ in nm, angles in degrees. A value that can't be built turns red.</p>
 <li><strong>Fxz</strong> – first flattens each molecule into the XZ plane, so it
   spreads less along Y.</li>
 <li><strong>Rev</strong> – swaps Mint and Mext, so the molecules point the other way.</li>
-<li><strong>Fill</strong> (Ball and Vesicle) – how the molecules cover the sphere:
-  <strong>FIBO</strong> spreads them evenly along a Fibonacci spiral; <strong>RINGS0</strong>
+<li><strong>Fill</strong> (Ball and Vesicle) – how the molecules cover the sphere.
+  <strong>FIBO</strong> spreads them evenly along a Fibonacci spiral. <strong>RINGS0</strong>
   places them on rings of latitude, the same above and below the
-  equator; <strong>RINGS</strong> also uses rings of latitude, often denser, but not
+  equator. <strong>RINGS</strong> also uses rings of latitude, often denser, but not
   always the same above and below.</li>
 </ul>
 <h4 id="ring">Ring</h4>
@@ -1384,17 +1411,15 @@ in nm, angles in degrees. A value that can't be built turns red.</p>
 <li><strong>Theta</strong> – their tilt from the Z axis, 0–180°.</li>
 <li><strong>Ring Fractions</strong>.</li>
 </ul>
-<p>Rmin turns red under half of Dmin.</p>
-<p><img alt="Ring Structure Definition of a lattice ring" src="../img/sample-model-basic-ring-structure-light.png#only-light" />
-<img alt="Ring Structure Definition of a lattice ring" src="../img/sample-model-basic-ring-structure-dark.png#only-dark" /></p>
+<p>Rmin must be at least half of Dmin, or it turns red.</p>
 <h4 id="ball">Ball</h4>
 <p>A sphere of one or more <a href="#layers">layers</a>. Fill, Fxz and Rev, plus
-<strong>Full radius</strong>: the last layer's Rmin plus its thickness, worked out,
-not for editing.</p>
+<strong>Full radius</strong>, the radius of the whole ball.</p>
+<p><img alt="Ball Structure Definition of a lattice of balls" src="../img/sample-model-basic-ball-structure-light.png#only-light" />
+<img alt="Ball Structure Definition of a lattice of balls" src="../img/sample-model-basic-ball-structure-dark.png#only-dark" /></p>
 <h4 id="vesicle">Vesicle</h4>
 <p>A sphere of one or more <a href="#lamellae">lamellae</a>, each a bilayer. Fill, Fxz
-and Rev, plus <strong>Full radius</strong>: the last lamella's Rmin plus its shell,
-worked out, not for editing.</p>
+and Rev, plus <strong>Full radius</strong>, the radius of the whole vesicle.</p>
 <p><img alt="Vesicle Structure Definition of a vesicle with two lamellae" src="../img/sample-model-basic-vesicle-structure-light.png#only-light" />
 <img alt="Vesicle Structure Definition of a vesicle with two lamellae" src="../img/sample-model-basic-vesicle-structure-dark.png#only-dark" /></p>
 <h4 id="rod">Rod</h4>
@@ -1404,7 +1429,7 @@ Rev, plus:</p>
 <li><strong>Turns</strong> – how many rings are stacked, Dmin apart.</li>
 <li><strong>Rod Fractions</strong>.</li>
 </ul>
-<p>Rmin turns red under 1.6 times Dmin.</p>
+<p>Rmin must be at least 1.6 times Dmin, or it turns red.</p>
 <h4 id="bilayer">Bilayer</h4>
 <p>A flat, square patch of two leaflets:</p>
 <ul>
@@ -1424,13 +1449,12 @@ at 0).</p>
 <ul>
 <li><strong>Dmin, nm</strong> – the smallest distance between molecules in the layer.</li>
 <li><strong>Rmin, nm</strong> – the layer's inner radius.</li>
-<li><strong>Thickness, nm</strong> – the longest ticked molecule, first atom to last.
-  Worked out, not for editing.</li>
+<li><strong>Thickness, nm</strong> – the length of the longest molecule in the layer.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> – removes the layer.</li>
 </ul>
-<p>Dmin and Rmin turn red when Rmin is under 1.6 times Dmin: Shapespyer
-can't build that. <strong>Add layer</strong> adds one. Select a row to set its
-fractions below the table.</p>
+<p>Rmin must be at least 1.6 times Dmin, or both turn red: Shapespyer can't
+build that. <strong>Add layer</strong> adds one. Select a row to set its fractions
+below the table.</p>
 <p><img alt="Layers of an SDS ball" src="../img/sample-model-basic-layers-light.png#only-light" />
 <img alt="Layers of an SDS ball" src="../img/sample-model-basic-layers-dark.png#only-dark" /></p>
 <h3 id="lamellae">Lamellae</h3>
@@ -1440,16 +1464,15 @@ fractions below the table.</p>
 <li><strong>Inner dmin, nm</strong> and <strong>Outer dmin, nm</strong> – the smallest distance
   between molecules in the inner and in the outer leaflet.</li>
 <li><strong>Shell thickness, nm</strong> – from Rmin to the end of the outer leaflet.
-  It is worked out from the molecules when the lamella is added, and you
-  can change it. A thin shell crowds the leaflets.</li>
+  It is set from the molecules when you add the lamella, and you can
+  change it. A thin shell crowds the leaflets.</li>
 <li><strong>Symmetric</strong> – both leaflets have the same fractions. Untick it to
   set the outer leaflet's fractions on their own.</li>
 <li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> – removes the lamella.</li>
 </ul>
-<p>A leaflet's cells turn red when its radius is under 1.6 times its dmin:
-Shapespyer can't build that. <strong>Add lamella</strong> adds one. Select a row to
-set its fractions below the table: one table for a symmetric lamella,
-two otherwise.</p>
+<p>Each leaflet's radius must be at least 1.6 times its dmin, or its cells
+turn red. <strong>Add lamella</strong> adds one. Select a row to set its fractions
+below the table.</p>
 <p><img alt="Lamellae of a vesicle with two lamellae" src="../img/sample-model-basic-lamellae-light.png#only-light" />
 <img alt="Lamellae of a vesicle with two lamellae" src="../img/sample-model-basic-lamellae-dark.png#only-dark" /></p>
 <h3 id="lattice-parameters">Lattice Parameters</h3>
@@ -1457,15 +1480,14 @@ two otherwise.</p>
 the lattice repeats it:</p>
 <ul>
 <li><strong>Alpha</strong> and <strong>Theta</strong> – turn every unit: Alpha about the Z axis
-  (0–360°), Theta up from the XY plane (0–180°). Both 0 leave the units
-  as built.</li>
+  (0–360°), Theta up from the XY plane (0–180°).</li>
 <li><strong>Sbuff</strong> – the space between neighbouring units, in nm.</li>
 <li><strong>Type</strong> – <strong>LCUB</strong> simple cubic, <strong>LBCC</strong> body-centred cubic,
   <strong>LFCC</strong> face-centred cubic, or <strong>LHCP</strong> hexagonal close packing.</li>
 <li><strong>Nlatx</strong>, <strong>Nlaty</strong>, <strong>Nlatz</strong> – how many cells along X, Y and Z.</li>
 </ul>
-<p><img alt="Lattice Parameters of a lattice ring" src="../img/sample-model-basic-lattice-parameters-light.png#only-light" />
-<img alt="Lattice Parameters of a lattice ring" src="../img/sample-model-basic-lattice-parameters-dark.png#only-dark" /></p>
+<p><img alt="Lattice Parameters of a lattice of balls" src="../img/sample-model-basic-lattice-parameters-light.png#only-light" />
+<img alt="Lattice Parameters of a lattice of balls" src="../img/sample-model-basic-lattice-parameters-dark.png#only-dark" /></p>
 <h3 id="buffer">Buffer</h3>
 <p>What surrounds the structure:</p>
 <ul>
@@ -1484,11 +1506,10 @@ from the ions NAT and CLA, use <a href="#library-assets">Library assets</a> ›
 <h3 id="assemble">Assemble</h3>
 <p><strong>Assemble</strong>, below the groups, builds the structure with Shapespyer. It
 runs in the background, and the main area switches to the
-<a href="#structure">Structure</a> tab. <strong>Cancel assembly</strong> takes the button's
-place until the assembly ends. If it fails, a dialog shows why.</p>
+<a href="#structure">Structure</a> tab. <strong>Cancel assembly</strong> stops it.</p>
 <p>Adding a solvent, salts or counter-ions needs GROMACS. The status bar
-shows whether the app has found it; see
-<a href="../../installation-and-setup/">Installation &amp; Setup</a>. A dry
+shows whether the app has found it (see
+<a href="../../installation-and-setup/">Installation &amp; Setup</a>). A dry
 structure assembles without it.</p>
 <p>Big structures take time: a vesicle of about 1.8 million atoms takes a
 few minutes on a laptop.</p>
@@ -1497,10 +1518,8 @@ few minutes on a laptop.</p>
 <p>The asset library holds what the <strong>Load</strong> buttons in Basic controls
 offer. This group creates and changes its entries:</p>
 <ul>
-<li><strong>Create new</strong> – starts a new asset, with empty fields and a free
-  Type.</li>
-<li><strong>Load from lib</strong> – opens an asset from the library to change it. Its
-  Type stays fixed.</li>
+<li><strong>Create new</strong> – starts a new asset.</li>
+<li><strong>Load from lib</strong> – opens an asset from the library to change it.</li>
 <li><strong>Type</strong> – Lipid, Surfactant, Component, Ion, Solvent or Salt.</li>
 <li><strong>Name</strong> – the asset's name in the library.</li>
 <li><strong>C-ion</strong>, <strong>Mint</strong>, <strong>Mext</strong> – for Lipid, Surfactant and Component,
@@ -1514,13 +1533,10 @@ offer. This group creates and changes its entries:</p>
   type. <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> removes it from the asset.</li>
 <li><strong>Add new file</strong> – adds files from disk: structure files (.gro, .pdb,
   .xyz), topology files (.itp, .top) or SMILES files (.sml).</li>
-<li><strong>Save to lib</strong> – saves the asset to the library. It asks before
-  replacing an asset of the same name. Components already in the project
-  don't change; load them again to use the new version.</li>
+<li><strong>Save to lib</strong> – saves the asset to the library. Components already
+  in the project don't change. Load them again to use the new version.</li>
 <li><strong>Export</strong> – copies the selected file to a folder, or the whole asset
-  when no file is selected. Use it to look at the files in another
-  program, such as VMD, or to share them. It asks before replacing
-  files.</li>
+  when no file is selected.</li>
 </ul>
 <p><img alt="Library assets group" src="../img/sample-model-advanced-library-assets-light.png#only-light" />
 <img alt="Library assets group" src="../img/sample-model-advanced-library-assets-dark.png#only-dark" /></p>
@@ -1529,35 +1545,37 @@ offer. This group creates and changes its entries:</p>
 <ul>
 <li><strong>Select component</strong> – one of the components in Basic controls.</li>
 <li><strong>Name</strong> – renames it, with the same checks as the Components table.</li>
-<li><strong>Add new component</strong> – adds an empty component, named by its ID.
-  Rename it, then add its files.</li>
+<li><strong>Add new component</strong> – adds an empty component. Rename it, then add
+  its files.</li>
 <li>The component's files, with <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></span> and
   <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> as in Library assets.</li>
 <li><strong>Add new file(s)</strong>, <strong>Save to lib</strong> and <strong>Export</strong> – as in Library
   assets, for the selected component.</li>
 </ul>
+<p>Until the project's first save, a component loaded from the asset
+library still uses the library's files. <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></span> would then
+change the library's own copy, which every new project uses. Save the
+project before you edit a file.</p>
 <p><img alt="Components Files group" src="../img/sample-model-advanced-components-files-light.png#only-light" />
 <img alt="Components Files group" src="../img/sample-model-advanced-components-files-dark.png#only-dark" /></p>
 <h3 id="sample-model-files">Sample Model Files</h3>
 <p>The sample model's own files, such as the assembled structure, with
 their sizes:</p>
 <ul>
-<li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></span> opens a file in your system's default app;
+<li><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg></span> opens a file in your system's default app.
   <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13H7v-2h10m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2"/></svg></span> removes it from the model.</li>
 <li><strong>Add new file(s)</strong> – adds files from disk.</li>
 <li><strong>Save to lib</strong> – saves the model, with its components and buffer, to
-  the asset library. It asks before replacing a model of the same name.</li>
+  the asset library.</li>
 <li><strong>Export</strong> – copies the model, with its components and buffer, to a
   folder. <strong>Import model</strong> in Basic controls reads such a folder.</li>
 </ul>
-<p>Save to lib and Export are off while an assembly runs.</p>
 <p><img alt="Sample Model Files of an assembled vesicle" src="../img/sample-model-advanced-sample-model-files-light.png#only-light" />
 <img alt="Sample Model Files of an assembled vesicle" src="../img/sample-model-advanced-sample-model-files-dark.png#only-dark" /></p>
 <h3 id="smiles-generator">SMILES generator</h3>
 <p>Builds a component from a SMILES string:</p>
 <ul>
-<li><strong>Name</strong> – the residue name, up to 5 letters or digits. It turns red
-  if the project already has a component of this name.</li>
+<li><strong>Name</strong> – the residue name, up to 5 letters or digits.</li>
 <li><strong>Formula</strong> – optional.</li>
 <li><strong>SMILES</strong> – the molecule, for example <code>CCCCCCCCCCCCOS(=O)(=O)[O-]</code>
   for the dodecyl sulfate ion of SDS.</li>
@@ -1571,9 +1589,8 @@ their sizes:</p>
 <li><strong>Type</strong> – Lipid, Surfactant or Component.</li>
 <li><strong>Format</strong> – the structure file's format, .gro or .pdb.</li>
 <li><strong>Generate</strong> – builds the structure file and adds the new component to
-  the project. The main area's <a href="#components_1">Components</a> tab shows it
-  at once. Then set its Mint and Mext in the Components group. To save
-  or share it, use <a href="#components-files">Components Files</a>.</li>
+  the project. Then set its Mint and Mext in the Components group. To
+  save or share it, use <a href="#components-files">Components Files</a>.</li>
 </ul>
 <p><img alt="SMILES generator group" src="../img/sample-model-advanced-smiles-generator-light.png#only-light" />
 <img alt="SMILES generator group" src="../img/sample-model-advanced-smiles-generator-dark.png#only-dark" /></p>
@@ -1582,22 +1599,18 @@ their sizes:</p>
 <ul>
 <li><strong>Background</strong> – Theme, Black, White or Grey 50%.</li>
 <li><strong>Slab plane</strong> – the plane the slab lies in: YZ, XZ or XY.</li>
-<li><strong>Lighting</strong> – Default, Volumetric, Vol-tint, Hygge or Outline. Hygge
-  also turns the background black.</li>
+<li><strong>Lighting</strong> – Default, Volumetric, Vol-tint, Hygge or Outline.</li>
 <li><strong>Slab thickness</strong> – how much of the structure is shown, as a share of
   its size across the slab plane.</li>
-<li><strong>Continuous update</strong> – cuts the slab while the slider moves, not when
-  you let go. This is slow for millions of atoms.</li>
+<li><strong>Continuous update</strong> – cuts the slab while the slider moves. This is
+  slow for millions of atoms.</li>
 <li><strong>Keep structure loaded</strong> – when off, the structure is read again each
   time the Structure tab opens, and the slab starts at 5 %.</li>
 <li><strong>Show bonds</strong> – draws the bonds between atoms, from the components'
   .itp files. This takes about three times the graphics memory of the
   atoms alone.</li>
-<li><strong>Residue</strong> list – untick a residue to hide its atoms. The box in the
-  header shows or hides all of them. <strong>Atoms</strong> gives each residue's
-  number of atoms.</li>
+<li><strong>Residue</strong> list – untick a residue to hide its atoms.</li>
 </ul>
-<p>Background, Lighting and the three tick boxes are kept between launches.</p>
 <h2 id="main-area">Main area</h2>
 <p>The 3D views (Components, Structure and Lattice) take the same mouse
 controls: drag with the left button to turn, drag with the right button
@@ -1614,31 +1627,28 @@ spaced Dmin apart along the structure:</p>
 </ul>
 <p>The lower left shows the whole unit with its sizes. The tick boxes at
 the top add <strong>Component names</strong>, <strong>Dimensions</strong> (the distances and
-radii), and <strong>Molecules</strong> (each molecule drawn along its bone). They are
-kept between launches. The pictures in Basic controls above show this
-tab next to each group.</p>
+radii), and <strong>Molecules</strong> (each molecule drawn along its bone). The
+pictures in Basic controls above show this tab next to each group.</p>
 <h3 id="components_1">Components</h3>
 <p>One component in 3D, picked in the <strong>Component</strong> list at the top right.
 A gold arrow goes from its Mint atom to its Mext atom, both labelled.
-Hover over an atom to see its index and element; click it to keep the
-label. A component picked in Components Files, or just generated, shows
-here too.</p>
-<p><img alt="Components tab showing POPC" src="../img/sample-model-main-components-light.png#only-light" />
-<img alt="Components tab showing POPC" src="../img/sample-model-main-components-dark.png#only-dark" /></p>
+Hover over an atom to see its index and element. Click it to keep the
+label. The index counts from 0, as Mint and Mext do. A topology (<code>.itp</code>)
+file counts atoms from 1.</p>
+<p><img alt="Components tab showing POPC, with its phosphorus labelled" src="../img/sample-model-main-components-light.png#only-light" />
+<img alt="Components tab showing POPC, with its phosphorus labelled" src="../img/sample-model-main-components-dark.png#only-dark" /></p>
 <h3 id="structure">Structure</h3>
 <p>The assembled structure, atom by atom, cut to a slab. The
 <a href="#structure-viewer">Structure viewer</a> group sets the slab and the look.
-The lower left shows how many of the atoms are shown. While an assembly
-runs, this tab shows its progress.</p>
+While an assembly runs, this tab shows its progress.</p>
 <p><img alt="Structure tab with an assembled vesicle" src="../img/sample-model-main-structure-light.png#only-light" />
 <img alt="Structure tab with an assembled vesicle" src="../img/sample-model-main-structure-dark.png#only-dark" /></p>
 <h3 id="lattice">Lattice</h3>
 <p>Shown when the model's Type is Lattice. Each unit of the lattice is a
 simple shape: a disc for a ring, a sphere for a ball or a vesicle, a
-pill for a rod, and a box for a bilayer or a monolayer. The lower left
-gives the lattice type, the number of cells and the number of units.</p>
-<p><img alt="Lattice tab with a lattice of rings" src="../img/sample-model-main-lattice-light.png#only-light" />
-<img alt="Lattice tab with a lattice of rings" src="../img/sample-model-main-lattice-dark.png#only-dark" /></p>
+pill for a rod, and a box for a bilayer or a monolayer.</p>
+<p><img alt="Lattice tab with a lattice of balls" src="../img/sample-model-main-lattice-light.png#only-light" />
+<img alt="Lattice tab with a lattice of balls" src="../img/sample-model-main-lattice-dark.png#only-dark" /></p>
 <!-- prettier-ignore-start -->
 
 <!-- prettier-ignore-end -->
@@ -1698,13 +1708,13 @@ gives the lattice type, the number of cells and the number of units.</p>
         
         
           
-          <a href="../../tutorials/" class="md-footer__link md-footer__link--next" aria-label="Next: Tutorials">
+          <a href="../summary/" class="md-footer__link md-footer__link--next" aria-label="Next: Summary">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Tutorials
+                Summary
               </div>
             </div>
             <div class="md-footer__button md-icon">
