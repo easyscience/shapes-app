@@ -23,8 +23,8 @@ import tempfile
 from pathlib import Path
 
 import EasyApplication
-from PySide6.QtCore import Q_ARG, QEventLoop, QMetaObject, QObject, QPointF, QTimer, QUrl
-from PySide6.QtGui import QGuiApplication, QVector3D
+from PySide6.QtCore import Q_ARG, QEventLoop, QMetaObject, QObject, QPointF, QRectF, QTimer, QUrl
+from PySide6.QtGui import QColor, QGuiApplication, QPainter, QPen, QVector3D
 from PySide6.QtQml import QQmlApplicationEngine, QQmlComponent, qmlRegisterSingletonType
 
 APP_DIR = Path(__file__).resolve().parents[1] / 'src' / 'easyshapes_app'
@@ -32,6 +32,8 @@ EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent
 WIDTH, HEIGHT = 1280, 800
 # EaStyle.Colors.Themes: LightTheme = 0, DarkTheme = 1
 THEMES = {'light': 0, 'dark': 1}
+# The docs site's orange, for the boxes in tutorial shots
+BOX_COLOR = '#FF9800'
 # Assembled examples, kept between runs: assembling takes minutes.
 # shortcut: changes to an example don't reach its copy here, delete it
 # by hand then; key the copies by a hash of the examples if that bites
@@ -207,6 +209,28 @@ def tilt_structure(window):
     origin.setProperty('eulerRotation', QVector3D(45, 45, 0))
 
 
+def draw_boxes(image, window, labels):
+    """
+    Draw an orange box on a grab of the window around the visible
+    control with each of these labels, its text or its title.
+    """
+    # The grab keeps the screen's scale, so the painter takes window
+    # coordinates
+    painter = QPainter(image)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setPen(QPen(QColor(BOX_COLOR), 3))
+    for label in labels:
+        # The outermost match: a button, not the text inside it
+        item = find_item(
+            window,
+            lambda item, label=label: label in (item.property('text'), item.property('title')),
+            f'control labelled {label!r}',
+        )
+        box = item.mapRectToScene(QRectF(0, 0, item.width(), item.height()))
+        painter.drawRoundedRect(box.adjusted(-4, -4, 4, 4), 4, 4)
+    painter.end()
+
+
 def temp_entries():
     """
     The folders in shapespyer's Temp, where assemblies and calculations
@@ -260,11 +284,13 @@ def main(output_dir, theme):
             'analysis': 'analysisButton',
         }
         # Each scene: how it is made, the page it shows, and its shots:
-        # name, sidebar tab, group to open (None: as the page shows it)
-        # and main-area tab. A builder saves a scene, which is then
-        # loaded; a name, a description and a folder create one in the
-        # app. The Project scene comes first, while the page still shows
-        # only Get started: Recent projects lists your own
+        # name, sidebar tab, group to open (None: as the page shows it),
+        # main-area tab, and for a tutorial a copy with boxes: its name
+        # and the labels of the controls to box. A builder saves a
+        # scene, which is then loaded; a name, a description and a
+        # folder create one in the app. The Project scene comes first,
+        # while the page still shows only Get started: Recent projects
+        # lists your own
         scenes = {
             'project': (
                 ('POPC-vesicle', 'Dry POPC and cholesterol, two lamellae.', PROJECT_LOCATION),
@@ -281,23 +307,29 @@ def main(output_dir, theme):
                 lambda path: shutil.copytree(CACHE_DIR / 'MLV', path),
                 'sample-model',
                 [
-                    ('main-structure', advanced, 'Structure viewer', 'Structure'),
+                    ('main-structure', advanced, 'Structure viewer', 'Structure',
+                     ('tutorial-mlv-structure', ['Structure'])),
                     ('advanced-sample-model-files', advanced, 'Sample Model Files', 'Structure'),
                 ],
             ),
             'mlv': (build_mlv, 'sample-model', [
-                ('basic-components', basic, 'Components', 'Shape'),
+                ('basic-components', basic, 'Components', 'Shape',
+                 ('tutorial-mlv-components', ['Load component(s)'])),
                 ('basic-vesicle-structure', basic, 'Vesicle Structure Definition', 'Shape'),
-                ('basic-lamellae', basic, 'Lamellae', 'Shape'),
+                ('basic-lamellae', basic, 'Lamellae', 'Shape',
+                 ('tutorial-mlv-lamellae', ['Add lamella'])),
                 ('advanced-library-assets', advanced, 'Library assets', 'Shape'),
-                ('advanced-components-files', advanced, 'Components Files', 'Shape'),
+                ('advanced-components-files', advanced, 'Components Files', 'Shape',
+                 ('tutorial-mlv-components-files', ['Select component'])),
                 ('advanced-smiles-generator', advanced, 'SMILES generator', 'Shape'),
-                ('main-components', basic, 'Components', 'Components'),
+                ('main-components', basic, 'Components', 'Components',
+                 ('tutorial-mlv-atoms', ['19 (P)'])),
             ]),
             # Engine output: a tab named Structure would be tilted and
             # waited on, and Scattering has nothing to show before a run
             'mlv-analysis': (build_mlv, 'analysis', [
-                ('basic-equilibration', basic, 'Equilibration', 'Engine output'),
+                ('basic-equilibration', basic, 'Equilibration', 'Engine output',
+                 ('tutorial-mlv-equilibration', ['Restrain to box centre'])),
                 ('advanced-configuration-files', advanced, 'Configuration Files', 'Engine output'),
             ]),
             'sds-ball': (build_sds_ball, 'sample-model', [
@@ -319,7 +351,7 @@ def main(output_dir, theme):
                 call(driver, 'createProject', *build)
             call(driver, 'openTab', page_tabs[page])
             wait(1000)
-            for name, sidebar, group, main_tab in shots:
+            for name, sidebar, group, main_tab, *boxed in shots:
                 # Every shot the same size, even if the window was resized
                 window.setWidth(WIDTH)
                 window.setHeight(HEIGHT)
@@ -347,7 +379,12 @@ def main(output_dir, theme):
                 if name == 'create-dialog':
                     call(driver, 'showCreateDialog', True)
                 wait(2500)
-                window.grabWindow().save(str(output_dir / f'{page}-{name}-{theme}.png'))
+                image = window.grabWindow()
+                image.save(str(output_dir / f'{page}-{name}-{theme}.png'))
+                # A tutorial's copy of the shot, with its controls boxed
+                for boxed_name, labels in boxed:
+                    draw_boxes(image, window, labels)
+                    image.save(str(output_dir / f'{boxed_name}-{theme}.png'))
                 # Closed again, or it would cover every later shot
                 if name == 'create-dialog':
                     call(driver, 'showCreateDialog', False)
