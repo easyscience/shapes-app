@@ -16,11 +16,17 @@ from shapes.project.species import Buffer
 from shapes.project.species import Components
 from shapes.project.species import Solvent
 
-# T1's lamellae start 6.6 nm apart: the repeat distance of POPC
-# multilamellar vesicles, 6.4 nm (Holme et al. 2018), plus 0.23 nm
-# for 30 mol% cholesterol (Utterström et al. 2022). The first one at
-# 3 nm keeps the vesicle smaller
+# The lamellae repeat every 6.6 nm, as in POPC multilamellar vesicles:
+# 6.4 nm (Holme et al. 2018), plus 0.23 nm for 30 mol% cholesterol
+# (Utterström et al. 2022). That is a bilayer of about 4 nm and 2.6 nm
+# of water. The first lamella at 3 nm keeps the vesicle small
 MLV_RMINS = (3.0, 9.6)
+# The bilayer after equilibration. The straight library molecules
+# don't fit in it, so the two leaflets start overlapping
+MLV_SHELL = 4.0
+# Inner and outer leaflet dmin, from the vesicle in the Shapespyer
+# workshop. Two-tail lipids need more room than the default 0.5 nm
+MLV_DMINS = (0.65, 0.85)
 
 
 def build_mlv(path):
@@ -29,13 +35,13 @@ def build_mlv(path):
     and cholesterol (70 : 30) with two lamellae. It is never solvated,
     so it assembles without GROMACS. Not assembled.
     """
-    # Components first: a lamella works out its shell from the
-    # molecules it holds when it is made
     components = Components(items=[Lipid.load('POPC'), Lipid.load('CHL')])
     vesicle = Vesicle(name='MLV', components=components)
     vesicle.lamellae.add()
     for lamella, rmin in zip(vesicle.lamellae, MLV_RMINS, strict=True):
         lamella.rmin = rmin
+        lamella.shell_thickness = MLV_SHELL
+        lamella.inner_leaflet_dmin, lamella.outer_leaflet_dmin = MLV_DMINS
         lamella.inner_leaflet_composition.set_mol_ratio('POPC', 70)
         lamella.inner_leaflet_composition.set_mol_ratio('CHL', 30)
     project = Project(
@@ -61,7 +67,7 @@ def build_sds_ball(path):
     sds.counter_ion = Ion.load('NAT')
     ball = Ball(name='SDSBall', components=Components(items=[sds]))
     ball.layers[0].dmin = 0.4
-    ball.layers[0].rmin = 16 * 0.4 / (2 * math.pi)
+    ball.layers[0].rmin = round(16 * 0.4 / (2 * math.pi), 2)
     project = Project(
         name='SDSBall',
         path=path,
