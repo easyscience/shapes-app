@@ -3,7 +3,10 @@
 """
 Screenshots of the app for the docs. Run from the shapes-app folder:
 
-    pixi run python tools/docs_capture.py OUTPUT_DIR
+    pixi run python tools/docs_capture.py OUTPUT_DIR [SHOT ...]
+
+A SHOT is a file name without its theme and .png, such as
+sample-model-basic-buffer; without any, every shot is taken.
 
 The app runs with the Python backend, in a 1280 x 800 window, once in
 the light and once in the dark theme. Its settings and projects go to a
@@ -16,6 +19,7 @@ kept in CACHE_DIR (easyshapes-docs-cache in the system's temp folder)
 between runs; delete it after changing build_mlv.
 """
 
+import re
 import shutil
 import subprocess
 import sys
@@ -73,6 +77,8 @@ QtObject {
     function openTab(name) { if (!tabs[name].checked) tabs[name].toggle() }
     // The Create project dialog, as Get started's first button opens it
     function showCreateDialog(shown) { EaGlobals.Vars.showProjectDescriptionDialog = shown }
+    // A component's files in Components Files, as its dropdown picks it
+    function pickComponentFiles(name) { Globals.BackendWrapper.componentsFilesSelect(name) }
 }
 """
 
@@ -132,6 +138,67 @@ def build_lattice_ball(path):
     )
     project.save()
     return project
+
+
+# The tail restraints the SDS tutorial puts into SDS.itp: Shapespyer's
+# SDS ball example, C2 to C12 within 2 nm of the box centre
+SDS_RESTRAINTS = """#ifdef POSRES
+[ position_restraints ]
+;  ai  funct  g    r  k
+    9      2  1  2.0  POSRES_FC_LIP   ; C2
+   15      2  1  2.0  POSRES_FC_LIP   ; C4
+   21      2  1  2.0  POSRES_FC_LIP   ; C6
+   27      2  1  2.0  POSRES_FC_LIP   ; C8
+   33      2  1  2.0  POSRES_FC_LIP   ; C10
+   39      2  1  2.0  POSRES_FC_LIP   ; C12, the tail end
+#endif
+"""
+
+
+def make_sds_run(folder):
+    """
+    Save the SDS tutorial's project to folder/SDSBall-run as its steps
+    leave it: assembled, the tail restraints in SDS.itp, eq0 and eq1
+    run with the restraints at the box centre, and its two curves
+    calculated. Skipped when the folder exists. Needs GROMACS.
+    """
+    from Backends.real_py.logic.analysis import fill_configuration
+    from Backends.real_py.logic.examples import build_sds_ball
+    from shapes.project.analysis import SansCurve
+
+    path = Path(folder) / 'SDSBall-run'
+    if path.exists():
+        return
+    partial = path.with_name('SDSBall-run.partial')
+    shutil.rmtree(partial, ignore_errors=True)
+    project = build_sds_ball(partial)
+    fill_configuration(project.analysis)
+    project.sample_model.assemble()
+    # The first save copies the files in, so the edit below hits the
+    # project's SDS.itp, not the library's
+    project.save()
+    sds = next(c for c in project.sample_model.structure.components if c.name == 'SDS')
+    itp = next(p for p in sds.paths if p.suffix == '.itp')
+    text, found = re.subn(
+        r'#ifdef POSRES.*?#endif\n', SDS_RESTRAINTS, itp.read_text(), count=1, flags=re.S
+    )
+    if not found:
+        raise ValueError(f'No POSRES block in {itp}')
+    itp.write_text(text)
+    equilibration = project.analysis.equilibration
+    equilibration.last_stage = 1
+    equilibration.restrain_to_box_center = True
+    equilibration.run()
+    # Named as the app names them, so they read like the reader's own
+    for sld, deuterated in ((6.36, ()), (-0.56, ('SDS',))):
+        name = f'SDSBall-eq1-sld{sld:g}' + ''.join(f'-d{d}' for d in deuterated) + '-pd0.25'
+        curve = SansCurve(
+            equilibration.stages[1], name=name, solvent_sld=sld, deuterated=deuterated
+        )
+        curve.calculate(project.sample_model)
+        project.analysis.sans.append(curve)
+    project.save()
+    partial.rename(path)
 
 
 def find_item(window, accept, what):
@@ -241,7 +308,7 @@ def temp_entries():
     return set((AppFileManager().app_path / 'Temp').glob('*/*'))
 
 
-def main(output_dir, theme):
+def main(output_dir, theme, names=()):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     scrap = Path(tempfile.mkdtemp(prefix='easyshapes-docs-'))
@@ -291,6 +358,7 @@ def main(output_dir, theme):
         # folder create one in the app. The Project scene comes first,
         # while the page still shows only Get started: Recent projects
         # lists your own
+        sds_run = CACHE_DIR / 'SDSBall-run'
         scenes = {
             'project': (
                 ('POPC-vesicle', 'Dry POPC and cholesterol, two lamellae.', PROJECT_LOCATION),
@@ -333,8 +401,31 @@ def main(output_dir, theme):
                 ('advanced-configuration-files', advanced, 'Configuration Files', 'Engine output'),
             ]),
             'sds-ball': (build_sds_ball, 'sample-model', [
-                ('basic-layers', basic, 'Layers', 'Shape'),
-                ('basic-buffer', basic, 'Buffer', 'Shape'),
+                ('basic-layers', basic, 'Layers', 'Shape',
+                 ('tutorial-sds-layers', ['Dmin, nm', 'Rmin, nm'])),
+                ('basic-buffer', basic, 'Buffer', 'Shape',
+                 ('tutorial-sds-buffer', ['Solvent'])),
+                ('basic-sds-components', basic, 'Components', 'Shape',
+                 ('tutorial-sds-components', ['C-ion'])),
+            ]),
+            # The SDS tutorial as its steps leave it: assembled, eq0 and
+            # eq1 run, two curves (make_sds_run)
+            'sds-run': (lambda path: shutil.copytree(sds_run, path), 'sample-model', [
+                ('sds-main-structure', advanced, 'Structure viewer', 'Structure',
+                 ('tutorial-sds-structure', ['Structure'])),
+                ('sds-components-files', advanced, 'Components Files', 'Shape',
+                 ('tutorial-sds-components-files', ['Select component'])),
+            ]),
+            'sds-run-analysis': (lambda path: shutil.copytree(sds_run, path), 'analysis', [
+                ('sds-equilibration', basic, 'Equilibration', 'Engine output',
+                 ('tutorial-sds-equilibration', ['Last stage', 'Restrain to box centre'])),
+                ('main-structure', basic, 'Equilibration', 'Structure',
+                 ('tutorial-sds-stage', ['Stage'])),
+                ('main-engine-output', basic, 'Equilibration', 'Engine output'),
+                ('sds-scattering-setup', basic, 'Scattering', 'Scattering',
+                 ('tutorial-sds-scattering-setup', ['Solvent SLD, 10⁻⁶ Å⁻²', 'Deuterate'])),
+                ('main-scattering', advanced, 'Scattering view', 'Scattering',
+                 ('tutorial-sds-scattering', ['Rg, Å', 'Staggered view'])),
             ]),
             'lattice-ball': (build_lattice_ball, 'sample-model', [
                 ('basic-ball-structure', basic, 'Ball Structure Definition', 'Shape'),
@@ -342,7 +433,20 @@ def main(output_dir, theme):
                 ('main-lattice', basic, 'Lattice Parameters', 'Lattice'),
             ]),
         }
+        # A mistyped name would take no shot at all, without a word
+        known = {f'{page}-{shot[0]}' for _, page, shots in scenes.values() for shot in shots}
+        if unknown := set(names) - known:
+            raise ValueError(f'No shots named {", ".join(sorted(unknown))}')
         for scene, (build, page, shots) in scenes.items():
+            # The SDS run exists only where GROMACS made it (__main__)
+            if scene.startswith('sds-run') and not sds_run.exists():
+                print(f'{scene}: skipped, no SDS run in {sds_run}')
+                continue
+            # Only the shots asked for: a scene without any isn't made
+            if names:
+                shots = [shot for shot in shots if f'{page}-{shot[0]}' in names]
+                if not shots:
+                    continue
             if callable(build):
                 path = str(scrap / scene)
                 build(path)
@@ -380,6 +484,10 @@ def main(output_dir, theme):
                         'component viewer',
                     )
                     viewer.setProperty('_pinnedIndex', 19)
+                # Files to show: each tutorial opens its .itp here
+                picked = {'advanced-components-files': 'POPC', 'sds-components-files': 'SDS'}
+                if name in picked:
+                    call(driver, 'pickComponentFiles', picked[name])
                 if name == 'create-dialog':
                     call(driver, 'showCreateDialog', True)
                 wait(2500)
@@ -418,16 +526,23 @@ def main(output_dir, theme):
 
 
 if __name__ == '__main__':
-    output_dir, *theme = sys.argv[1:]
-    if theme:
-        main(output_dir, theme[0])
+    output_dir, *rest = sys.argv[1:]
+    # Each theme's run is this script again, with the theme first
+    if rest and rest[0] in THEMES:
+        main(output_dir, rest[0], rest[1:])
     else:
         from Backends.real_py.logic.examples import make_examples
 
         # Here, with no window: assembling takes minutes, and a window
         # kept busy that long stops answering
         make_examples(CACHE_DIR, ['MLV'], assemble=True)
+        # The SDS tutorial's run needs GROMACS: where there is none, its
+        # scenes are left out
+        from shapes.project.files import AppFileManager
+
+        if AppFileManager().config.gmx_problem is None:
+            make_sds_run(CACHE_DIR)
         # One app per theme: a status bar value keeps the colour of the
         # theme it last changed in (EasyApp StatusBarItem.qml:81-84)
         for name in THEMES:
-            subprocess.run([sys.executable, __file__, output_dir, name], check=True)
+            subprocess.run([sys.executable, __file__, output_dir, name, *rest], check=True)
