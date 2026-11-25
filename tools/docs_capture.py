@@ -158,7 +158,7 @@ def find_item(window, accept, what):
 def expand_group(window, title):
     """
     Open the sidebar group with this title, as a click on its header
-    does: the other groups of its page close.
+    does: the other groups of its page close. Returns the group.
     """
     group = find_item(
         window,
@@ -166,11 +166,13 @@ def expand_group(window, title):
         f'sidebar group titled {title!r}',
     )
     group.setProperty('collapsed', False)
+    return group
 
 
 def click_tab(window, text):
     """
     Open the visible tab with this label, as a click on it does.
+    Returns the tab.
     """
     tab = find_item(
         window,
@@ -180,6 +182,7 @@ def click_tab(window, text):
     # toggle() would close a tab that is already open
     if not tab.property('checked'):
         QMetaObject.invokeMethod(tab, 'toggle')
+    return tab
 
 
 def set_checked(window, text, checked):
@@ -209,25 +212,22 @@ def tilt_structure(window):
     origin.setProperty('eulerRotation', QVector3D(45, 45, 0))
 
 
-def draw_boxes(image, window, labels):
+def draw_boxes(image, items):
     """
-    Draw an orange box on a grab of the window around the visible
-    control with each of these labels, its text or its title.
+    Draw an orange box around each of these items on a grab of the
+    window.
     """
     # The grab keeps the screen's scale, so the painter takes window
     # coordinates
     painter = QPainter(image)
     painter.setRenderHint(QPainter.Antialiasing)
     painter.setPen(QPen(QColor(BOX_COLOR), 3))
-    for label in labels:
-        # The outermost match: a button, not the text inside it
-        item = find_item(
-            window,
-            lambda item, label=label: label in (item.property('text'), item.property('title')),
-            f'control labelled {label!r}',
-        )
+    # A full-width group's margin would run past the window's edge
+    inside = QRectF(2, 2, image.width() / image.devicePixelRatio() - 4,
+                    image.height() / image.devicePixelRatio() - 4)
+    for item in items:
         box = item.mapRectToScene(QRectF(0, 0, item.width(), item.height()))
-        painter.drawRoundedRect(box.adjusted(-4, -4, 4, 4), 4, 4)
+        painter.drawRoundedRect(box.adjusted(-4, -4, 4, 4).intersected(inside), 4, 4)
     painter.end()
 
 
@@ -356,10 +356,14 @@ def main(output_dir, theme):
                 window.setWidth(WIDTH)
                 window.setHeight(HEIGHT)
                 click_tab(window, sidebar)
-                click_tab(window, main_tab)
+                tab = click_tab(window, main_tab)
                 wait(1000)
+                # The part the User Guide describes with this shot: the
+                # main-area tab, or else the sidebar group it opens
+                parts = [tab] if name.startswith('main-') else []
                 if group is not None:
-                    expand_group(window, group)
+                    opened = expand_group(window, group)
+                    parts = parts or [opened]
                 if main_tab == 'Shape':
                     # Mint and Mext are read against the molecules
                     set_checked(window, 'Molecules', name == 'basic-components')
@@ -380,11 +384,23 @@ def main(output_dir, theme):
                     call(driver, 'showCreateDialog', True)
                 wait(2500)
                 image = window.grabWindow()
+                # The tutorial's copy gets its own boxes, not the page's
+                plain = image.copy()
+                draw_boxes(image, parts)
                 image.save(str(output_dir / f'{page}-{name}-{theme}.png'))
-                # A tutorial's copy of the shot, with its controls boxed
                 for boxed_name, labels in boxed:
-                    draw_boxes(image, window, labels)
-                    image.save(str(output_dir / f'{boxed_name}-{theme}.png'))
+                    controls = [
+                        # The outermost match: a button, not its text
+                        find_item(
+                            window,
+                            lambda item, label=label: label
+                            in (item.property('text'), item.property('title')),
+                            f'control labelled {label!r}',
+                        )
+                        for label in labels
+                    ]
+                    draw_boxes(plain, controls)
+                    plain.save(str(output_dir / f'{boxed_name}-{theme}.png'))
                 # Closed again, or it would cover every later shot
                 if name == 'create-dialog':
                     call(driver, 'showCreateDialog', False)
