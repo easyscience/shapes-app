@@ -43,5 +43,5 @@ One page per tab, describing each group and control:
 
 - [Project](project.md)
 - [Sample Model](sample-model.md)
-- Analysis
+- [Analysis](analysis.md)
 - [Summary](summary.md)

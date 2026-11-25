@@ -194,6 +194,7 @@ nav:
       - User Guide: user-guide/index.md
       - Project: user-guide/project.md
       - Sample Model: user-guide/sample-model.md
+      - Analysis: user-guide/analysis.md
       - Summary: user-guide/summary.md
   - Tutorials:
       - Tutorials: tutorials/index.md
