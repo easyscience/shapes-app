@@ -1,9 +1,5 @@
 # Multilamellar Vesicle
 
-!!! note "Screenshots coming"
-
-    The screenshots for this tutorial are being made.
-
 ## The goal
 
 Build a dry multilamellar vesicle of POPC and cholesterol, 70 : 30, with
@@ -69,6 +65,9 @@ In **Basic controls** › **Components**:
 
 The table shows POPC and CHL.
 
+![Components group with POPC and CHL](../../user-guide/img/sample-model-basic-components-light.png#only-light)
+![Components group with POPC and CHL](../../user-guide/img/sample-model-basic-components-dark.png#only-dark)
+
 ## Set the lamellae
 
 In **Basic controls** › **Lamellae**:
@@ -84,7 +83,8 @@ In **Basic controls** › **Lamellae**:
 The main area's **Shape** tab shows both lamellae, each with "shell 4.00
 nm".
 
-<!-- Image: Lamellae group with the two rows, Shape tab beside it -->
+![Lamellae group with the two lamellae](../../user-guide/img/sample-model-basic-lamellae-light.png#only-light)
+![Lamellae group with the two lamellae](../../user-guide/img/sample-model-basic-lamellae-dark.png#only-dark)
 
 ## Assemble
 
@@ -104,7 +104,16 @@ Click **Assemble**, below the groups. The main area switches to the
     The 2.6 nm between the lamellae is where water goes when the vesicle
     is solvated.
 
-<!-- Image: Structure tab with the assembled vesicle -->
+![Structure tab with the assembled vesicle](../../user-guide/img/sample-model-main-structure-light.png#only-light)
+![Structure tab with the assembled vesicle](../../user-guide/img/sample-model-main-structure-dark.png#only-dark)
+
+## Save the project
+
+Press Ctrl+S, or click :material-content-save: at the top left. The
+first save creates the project folder and copies the files of the
+components and of the configuration into it. Save before you edit any
+file: until then, :material-pencil: opens the asset library's own file,
+and a change there reaches every new project.
 
 ## Restrain heads and tail ends
 
@@ -133,7 +142,8 @@ atom's name.
   ends in two carbons, C26 and C27. This tutorial uses C27, which shows
   `70 (C)`, so it is atom 71.
 
-<!-- Image: Components tab with POPC, labels on P and the tail end -->
+![Components tab with POPC and its phosphorus labelled](../../user-guide/img/sample-model-main-components-light.png#only-light)
+![Components tab with POPC and its phosphorus labelled](../../user-guide/img/sample-model-main-components-dark.png#only-dark)
 
 ### Check them in the topology file
 
@@ -142,8 +152,10 @@ component** to POPC. Click :material-pencil: next to `POPC_DLF.itp`. It
 opens in your system's default app for `.itp` files. If the system asks
 which app to use, pick a text editor such as Notepad.
 
-This is the project's copy of the file. The asset library keeps the
-original.
+You saved the project, so this is its own copy of the file.
+
+![Components Files group with POPC's files](../../user-guide/img/sample-model-advanced-components-files-light.png#only-light)
+![Components Files group with POPC's files](../../user-guide/img/sample-model-advanced-components-files-dark.png#only-dark)
 
 Near the top of the file, the `[ atoms ]` list has one line per atom of
 the molecule. It came with the component from the asset library:
@@ -252,6 +264,9 @@ fit two lamellae at different distances from the centre.
    measurements) and save the file.
 4. Do the same in `equil2.mdp` to `equil6.mdp`.
 
+![Configuration Files group with the .mdp files](../../user-guide/img/analysis-advanced-configuration-files-light.png#only-light)
+![Configuration Files group with the .mdp files](../../user-guide/img/analysis-advanced-configuration-files-dark.png#only-dark)
+
 `equil0.mdp` is the energy minimisation: it has no temperature.
 
 In `equil1.mdp` to `equil5.mdp`, the lines look like this:
@@ -298,14 +313,16 @@ already right.
 On the Analysis page, in **Basic controls** › **Equilibration**, leave
 **Restrain to box centre** unticked.
 
+![Equilibration group with Restrain to box centre unticked](../../user-guide/img/analysis-basic-equilibration-light.png#only-light)
+![Equilibration group with Restrain to box centre unticked](../../user-guide/img/analysis-basic-equilibration-dark.png#only-dark)
+
 Don't click **Equilibrate**: the vesicle has no water, and the run needs
 GROMACS.
 
-## Save
+## Save again
 
-Press Ctrl+S, or click :material-content-save: at the top left. The
-project folder now holds the vesicle, the restraints and the
-temperatures.
+Press Ctrl+S again. The project folder now holds the vesicle, the
+restraints and the temperatures.
 
 ## Next
 

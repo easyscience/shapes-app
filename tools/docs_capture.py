@@ -253,7 +253,11 @@ def main(output_dir, theme):
 
         basic, advanced = 'Basic controls', 'Advanced controls'
         # Each page's tab in the app bar, by its name in the file names
-        page_tabs = {'project': 'projectButton', 'sample-model': 'sampleModelButton'}
+        page_tabs = {
+            'project': 'projectButton',
+            'sample-model': 'sampleModelButton',
+            'analysis': 'analysisButton',
+        }
         # Each scene: how it is made, the page it shows, and its shots:
         # name, sidebar tab, group to open (None: as the page shows it)
         # and main-area tab. A builder saves a scene, which is then
@@ -288,6 +292,12 @@ def main(output_dir, theme):
                 ('advanced-components-files', advanced, 'Components Files', 'Shape'),
                 ('advanced-smiles-generator', advanced, 'SMILES generator', 'Shape'),
                 ('main-components', basic, 'Components', 'Components'),
+            ]),
+            # Engine output: a tab named Structure would be tilted and
+            # waited on, and Scattering has nothing to show before a run
+            'mlv-analysis': (build_mlv, 'analysis', [
+                ('basic-equilibration', basic, 'Equilibration', 'Engine output'),
+                ('advanced-configuration-files', advanced, 'Configuration Files', 'Engine output'),
             ]),
             'sds-ball': (build_sds_ball, 'sample-model', [
                 ('basic-layers', basic, 'Layers', 'Shape'),
@@ -324,6 +334,15 @@ def main(output_dir, theme):
                     tilt_structure(window)
                     # The tab reads its atoms when it opens
                     wait_until_idle(driver)
+                if name == 'main-components':
+                    # POPC's phosphorus labelled, as a click on it does:
+                    # the tutorial's "19 (P)"
+                    viewer = find_item(
+                        window,
+                        lambda item: item.property('_pinnedIndex') is not None,
+                        'component viewer',
+                    )
+                    viewer.setProperty('_pinnedIndex', 19)
                 if name == 'create-dialog':
                     call(driver, 'showCreateDialog', True)
                 wait(2500)
