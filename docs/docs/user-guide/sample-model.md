@@ -253,8 +253,8 @@ shows whether the app has found it; see
 [Installation & Setup](../installation-and-setup/index.md). A dry
 structure assembles without it.
 
-Big structures take time: a vesicle of about 1.8 million atoms takes 8–9
-minutes on a laptop.
+Big structures take time: a vesicle of about 1.8 million atoms takes a
+few minutes on a laptop.
 
 ## Advanced controls
 

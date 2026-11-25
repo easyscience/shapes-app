@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import math
+import shutil
+from pathlib import Path
 
 from shapes.project import Ball
 from shapes.project import Ion
@@ -37,6 +39,7 @@ def build_mlv(path):
         lamella.inner_leaflet_composition.set_mol_ratio('POPC', 70)
         lamella.inner_leaflet_composition.set_mol_ratio('CHL', 30)
     project = Project(
+        name='MLV',
         path=path,
         title='Multilamellar vesicle',
         description='Dry POPC and cholesterol (70 : 30), two lamellae 6.6 nm apart.',
@@ -60,6 +63,7 @@ def build_sds_ball(path):
     ball.layers[0].dmin = 0.4
     ball.layers[0].rmin = 16 * 0.4 / (2 * math.pi)
     project = Project(
+        name='SDSBall',
         path=path,
         title='SDS ball',
         description=(
@@ -75,3 +79,31 @@ def build_sds_ball(path):
     )
     project.save()
     return project
+
+
+# The examples, by the folder each is saved in: Project › Examples
+# lists those folders by name
+EXAMPLES = {'MLV': build_mlv, 'SDSBall': build_sds_ball}
+
+
+def make_examples(folder, names=tuple(EXAMPLES), *, assemble=False):
+    """
+    Save examples into a folder, such as the app's Examples folder, each
+    in a subfolder of its name; skip those the folder holds already.
+    assemble=True also assembles each one, which takes minutes, and
+    needs GROMACS for an example with a buffer.
+    """
+    for name in names:
+        path = Path(folder) / name
+        if path.exists():
+            continue
+        partial = path.with_name(f'{name}.partial')
+        # Left by a run that failed
+        shutil.rmtree(partial, ignore_errors=True)
+        project = EXAMPLES[name](partial)
+        if assemble:
+            project.sample_model.assemble()
+            # Keeps the assembled files in the folder, not in Temp
+            project.save()
+        # Renamed once complete: a failed run leaves no half example
+        partial.rename(path)
