@@ -47,6 +47,18 @@ if __name__ == '__main__':
     app_command = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, __file__]
     splash = subprocess.Popen([*app_command, '--splash'], stdin=subprocess.PIPE)  # noqa: S603
     from Backends.real_backend import Backend
+    from Backends.real_py.logic.examples import make_examples
+    from shapes.project.files import AppFileManager
+
+    # Fills Project › Examples, unassembled, while the splash shows.
+    # shortcut: an example already there is never rebuilt, so a changed
+    # builder reaches only new installs; key the folders by version then
+    try:
+        make_examples(AppFileManager().app_path / 'Examples')
+    # Offline, or the library lacks a component: the app starts anyway,
+    # and the next start tries again
+    except (OSError, ValueError, KeyError) as err:
+        console.error(f'The examples could not be made: {err}')
 
     qInstallMessageHandler(console.qmlMessageHandler)
     console.debug('Custom Qt message handler defined')
