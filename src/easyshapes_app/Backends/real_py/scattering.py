@@ -71,7 +71,7 @@ class CurvesModel(EntriesModel):
     @Slot(int, result='QVariant')
     def get(self, row):
         """
-        A row's roles.
+        Return a row's roles.
         """
         return self._rows[row]
 
@@ -339,9 +339,10 @@ class Scattering(QObject):
     @Slot(int, result='QVariant')
     def curvePoints(self, row):
         """
-        A curve as points, log10 of q and I, for the chart's
-        LineSeries.replace. A point whose q or I is not above 0 has no
-        log and is left out.
+        Return a curve as points, log10 of q and I.
+
+        They feed the chart's LineSeries.replace. A point whose q or I
+        is not above 0 has no log and is left out.
         """
         data = self._listed[row].data
         keep = (data.x > 0) & (data.y > 0)
@@ -533,11 +534,12 @@ class Scattering(QObject):
 
     def _curve(self):
         """
-        The curve to calculate from the picked structure: the one with
-        these settings, to run again, or a new one, not in the list yet.
-        A new one is named after the model, the stage, the SLD, the
-        deuterated components and the size spread, with -2, -3 when a
-        curve with other settings holds the name.
+        Return the curve to calculate from the picked structure.
+
+        It is the one with these settings, to run again, or a new one,
+        not in the list yet. A new one is named after the model, the
+        stage, the SLD, the deuterated components and the size spread,
+        with -2, -3 when a curve with other settings holds the name.
         """
         source = self._sources[self._selected_structure]
         settings = self._settings
