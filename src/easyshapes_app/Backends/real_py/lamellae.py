@@ -77,6 +77,9 @@ class LamellaeModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.RminRole: b'rmin',
             self.ShellThicknessRole: b'shellThickness',
@@ -87,9 +90,15 @@ class LamellaeModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per lamella.
+        """
         return 0 if parent.isValid() else len(self._lamellae)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return one of a row's sizes, or whether it is symmetric.
+        """
         if not index.isValid():
             return None
         lamella = self._lamellae[index.row()]
@@ -110,6 +119,9 @@ class LamellaeModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's rmin, shell, dmin or symmetry.
+        """
         if not index.isValid():
             return False
         row = index.row()
