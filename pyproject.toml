@@ -323,6 +323,8 @@ max-doc-length = 72
 
 [tool.ruff.lint.pydocstyle]
 convention = 'numpy'
+# Qt getters, like @property, may name their value instead of an action
+property-decorators = ['PySide6.QtCore.Property']
 
 [tool.ruff.lint.pylint]
 # Ruff counts `self`/`cls` in max-args; traditional pylint does not.
