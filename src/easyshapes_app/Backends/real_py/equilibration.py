@@ -52,12 +52,21 @@ class EntriesModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {self.NameRole: b'name', self.StatusRole: b'status'}
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: the equilibration, then each stage run.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name or status.
+        """
         if not index.isValid():
             return None
         name, status = self._rows[index.row()]
@@ -120,9 +129,15 @@ class EquilibrationFilesModel(FilesModel):
         self._text = frozenset()
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by, editable too.
+        """
         return {**super().roleNames(), self.EditableRole: b'editable'}
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a file role, or whether the pencil opens the row's file.
+        """
         if role == self.EditableRole and index.isValid():
             return self.paths[index.row()].suffix in self._text
         return super().data(index, role)
