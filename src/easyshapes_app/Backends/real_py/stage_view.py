@@ -84,9 +84,10 @@ class StageView(StructureView):
 
     def _rows(self):
         """
-        The rows, (name, status), and each row's file: Initial when the
-        equilibration's own files hold a .gro, then each finished stage
-        with its final .gro.
+        Return the rows, (name, status), and each row's file.
+
+        Initial comes first when the equilibration's own files hold a
+        .gro, then each finished stage with its final .gro.
         """
         analysis = self._session.analysis
         equilibration = analysis.equilibration if analysis else None
