@@ -1,8 +1,8 @@
 ---
-icon: material/microscope
+icon: fontawesome/solid/microscope
 ---
 
-# :material-microscope: Analysis
+# :fontawesome-solid-microscope: Analysis
 
 The Analysis page equilibrates the assembled structure with GROMACS and
 calculates its small-angle neutron scattering (SANS) curves.
@@ -142,6 +142,9 @@ A log, picked in **Log** at the top right. **Equilibration** shows each
 GROMACS command of the latest run and its output, while it grows. Each
 run starts it anew. A finished stage shows its mdrun log.
 
+![Engine output tab with the log of a run](img/analysis-main-engine-output-light.png#only-light)
+![Engine output tab with the log of a run](img/analysis-main-engine-output-dark.png#only-dark)
+
 ### Structure
 
 A structure, picked in **Stage** at the top right: the equilibration's
@@ -149,9 +152,15 @@ copy of the assembled model, or the final structure of a finished stage.
 The [Structure viewer](#structure-viewer) group sets the slab and the
 look. The mouse controls are those of the Sample Model page.
 
+![Structure tab with an SDS ball after eq1](img/analysis-main-structure-light.png#only-light)
+![Structure tab with an SDS ball after eq1](img/analysis-main-structure-dark.png#only-dark)
+
 ### Scattering
 
 The curves ticked **Show** in Scattering view: I(q) in cm⁻¹ against q in
 Å⁻¹, both on log scales. The buttons at the top right show or hide the
 legend, show the values under the cursor, switch on pan or box zoom, and
 reset the axes. A right-click on the chart also resets them.
+
+![Scattering tab with two curves](img/analysis-main-scattering-light.png#only-light)
+![Scattering tab with two curves](img/analysis-main-scattering-dark.png#only-dark)

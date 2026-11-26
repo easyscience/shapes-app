@@ -1,8 +1,8 @@
 ---
-icon: material/pencil-ruler
+icon: fontawesome/solid/vial
 ---
 
-# :material-pencil-ruler: Sample Model
+# :fontawesome-solid-vial: Sample Model
 
 The Sample Model page defines what to build: the structure's shape, its
 components (molecules), how they are arranged, and the buffer around

@@ -65,8 +65,8 @@ In **Basic controls** › **Components**:
 
 The table shows POPC and CHL.
 
-![Components group with POPC and CHL](../../user-guide/img/sample-model-basic-components-light.png#only-light)
-![Components group with POPC and CHL](../../user-guide/img/sample-model-basic-components-dark.png#only-dark)
+![Components group, Load component(s) boxed](img/tutorial-mlv-components-light.png#only-light)
+![Components group, Load component(s) boxed](img/tutorial-mlv-components-dark.png#only-dark)
 
 ## Set the lamellae
 
@@ -83,8 +83,8 @@ In **Basic controls** › **Lamellae**:
 The main area's **Shape** tab shows both lamellae, each with "shell 4.00
 nm".
 
-![Lamellae group with the two lamellae](../../user-guide/img/sample-model-basic-lamellae-light.png#only-light)
-![Lamellae group with the two lamellae](../../user-guide/img/sample-model-basic-lamellae-dark.png#only-dark)
+![Lamellae group, Add lamella boxed](img/tutorial-mlv-lamellae-light.png#only-light)
+![Lamellae group, Add lamella boxed](img/tutorial-mlv-lamellae-dark.png#only-dark)
 
 ## Assemble
 
@@ -104,8 +104,8 @@ Click **Assemble**, below the groups. The main area switches to the
     The 2.6 nm between the lamellae is where water goes when the vesicle
     is solvated.
 
-![Structure tab with the assembled vesicle](../../user-guide/img/sample-model-main-structure-light.png#only-light)
-![Structure tab with the assembled vesicle](../../user-guide/img/sample-model-main-structure-dark.png#only-dark)
+![Structure tab with the assembled vesicle](img/tutorial-mlv-structure-light.png#only-light)
+![Structure tab with the assembled vesicle](img/tutorial-mlv-structure-dark.png#only-dark)
 
 ## Save the project
 
@@ -142,8 +142,8 @@ atom's name.
   ends in two carbons, C26 and C27. This tutorial uses C27, which shows
   `70 (C)`, so it is atom 71.
 
-![Components tab with POPC and its phosphorus labelled](../../user-guide/img/sample-model-main-components-light.png#only-light)
-![Components tab with POPC and its phosphorus labelled](../../user-guide/img/sample-model-main-components-dark.png#only-dark)
+![Components tab with POPC, its phosphorus label boxed](img/tutorial-mlv-atoms-light.png#only-light)
+![Components tab with POPC, its phosphorus label boxed](img/tutorial-mlv-atoms-dark.png#only-dark)
 
 ### Check them in the topology file
 
@@ -154,8 +154,8 @@ which app to use, pick a text editor such as Notepad.
 
 You saved the project, so this is its own copy of the file.
 
-![Components Files group with POPC's files](../../user-guide/img/sample-model-advanced-components-files-light.png#only-light)
-![Components Files group with POPC's files](../../user-guide/img/sample-model-advanced-components-files-dark.png#only-dark)
+![Components Files group, Select component boxed](img/tutorial-mlv-components-files-light.png#only-light)
+![Components Files group, Select component boxed](img/tutorial-mlv-components-files-dark.png#only-dark)
 
 Near the top of the file, the `[ atoms ]` list has one line per atom of
 the molecule. It came with the component from the asset library:
@@ -313,8 +313,8 @@ already right.
 On the Analysis page, in **Basic controls** › **Equilibration**, leave
 **Restrain to box centre** unticked.
 
-![Equilibration group with Restrain to box centre unticked](../../user-guide/img/analysis-basic-equilibration-light.png#only-light)
-![Equilibration group with Restrain to box centre unticked](../../user-guide/img/analysis-basic-equilibration-dark.png#only-dark)
+![Equilibration group, Restrain to box centre boxed](img/tutorial-mlv-equilibration-light.png#only-light)
+![Equilibration group, Restrain to box centre boxed](img/tutorial-mlv-equilibration-dark.png#only-dark)
 
 Don't click **Equilibrate**: the vesicle has no water, and the run needs
 GROMACS.
