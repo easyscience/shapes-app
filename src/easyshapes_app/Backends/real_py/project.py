@@ -172,6 +172,9 @@ class Project(QObject):
 
     @Slot()
     def save(self):
+        """
+        Save the project in its folder.
+        """
         self._session.project.save()
         self.modifiedChanged.emit()
         self.externalProjectChanged.emit()
