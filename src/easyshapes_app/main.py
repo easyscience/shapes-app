@@ -9,6 +9,7 @@ from pathlib import Path
 
 import EasyApplication
 from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import QUrl
 from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
@@ -80,6 +81,12 @@ if __name__ == '__main__':
     engine.addImportPath(CURRENT_DIR)
     engine.addImportPath(EASYAPP_DIR)
     console.debug('Paths added where QML searches for components')
+
+    # EasyApp's Settings objects save to this file. Unset, they save
+    # into EasyApp's package folder, which an update replaces
+    settings_url = QUrl.fromLocalFile(str(AppFileManager().app_path / 'settings.ini')).toString()
+    engine.rootContext().setContextProperty('pySettingsPath', settings_url)
+    console.debug(f'Settings file set to {settings_url}')
 
     engine.load(CURRENT_DIR / 'main.qml')
     console.debug('Main QML component loaded')
