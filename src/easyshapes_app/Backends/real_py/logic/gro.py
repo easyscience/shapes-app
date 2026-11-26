@@ -15,8 +15,10 @@ _XYZ = (slice(20, 28), slice(28, 36), slice(36, 44))
 
 def read_gro_atoms(path):
     """
-    The atom names and positions of a GRO file, read as columns: no
-    object per atom, so millions of atoms read in seconds.
+    Read the atom names and positions of a GRO file.
+
+    It reads columns, with no object per atom, so millions of atoms
+    read in seconds.
 
     Every atom line must be as long as the first, line end included, as
     the library writes them; a file with lines of other lengths raises
@@ -45,7 +47,7 @@ def read_gro_atoms(path):
 
 def molecule_bonds(residues, bonds_by_name):
     """
-    The bonds of a structure's molecules: N x 2 atom indices.
+    Return the bonds of a structure's molecules: N x 2 atom indices.
 
     A molecule is a run of atoms of one residue, as read_gro_atoms gives
     them; it takes the pairs bonds_by_name holds for its residue name
