@@ -42,7 +42,7 @@ EaComponents.ApplicationWindow {
         EaElements.ToolButton {
             fontIcon: 'cog'
             ToolTip.text: qsTr('Application preferences')
-            onClicked: EaGlobals.Vars.showAppPreferencesDialog = true
+            onClicked: preferencesDialog.open()
         }
 
     ]
@@ -176,6 +176,20 @@ EaComponents.ApplicationWindow {
             text: qsTr("Wait for the run to end, or cancel it")
             visible: parent.containsMouse && EaGlobals.Vars.showToolTips
         }
+    }
+
+    // Preferences › Develop › Logging level reaches the Python logger.
+    // Python run only: the mock run has no handler (main.py passes it)
+    Binding {
+        target: typeof pyLoggerLevelHandler !== 'undefined' ? pyLoggerLevelHandler : null
+        property: 'level'
+        value: EaGlobals.Vars.loggingLevel
+    }
+
+    // Opened by the cog. EasyApp's own Preferences dialog stays shut:
+    // nothing sets Vars.showAppPreferencesDialog
+    Gui.PreferencesDialog {
+        id: preferencesDialog
     }
 
     // Any uncaught exception from Python (Backends/real_py/error.py)

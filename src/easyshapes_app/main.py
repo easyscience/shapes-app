@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+import logging
 import os
 import subprocess  # noqa: S404 - only runs this app itself
 import sys
@@ -8,7 +9,9 @@ import threading
 from pathlib import Path
 
 import EasyApplication
-from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import QMetaObject
+from PySide6.QtCore import Qt
+from PySide6.QtCore import QUrl
 from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
@@ -31,7 +34,9 @@ def show_splash():
 
     def exit_when_app_is_up():
         os.read(0, 1)  # Returns when the app closes the pipe, or ends
-        os._exit(0)
+        # Queued, so the GUI thread quits. A normal exit lets Qt clean
+        # up; os._exit skipped that, and Qt warned about it
+        QMetaObject.invokeMethod(app, 'quit', Qt.ConnectionType.QueuedConnection)
 
     threading.Thread(target=exit_when_app_is_up, daemon=True).start()
     sys.exit(app.exec())
@@ -46,8 +51,13 @@ if __name__ == '__main__':
     # executable is the app itself; else Python runs this file
     app_command = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, __file__]
     splash = subprocess.Popen([*app_command, '--splash'], stdin=subprocess.PIPE)  # noqa: S603
+    # Not at the top: shapespyer's job processes run this file's top
+    # again. EasyApp's logger there would print their messages here,
+    # instead of shapespyer sending them to the job's log file
     from Backends.real_backend import Backend
     from Backends.real_py.logic.examples import make_examples
+    from EasyApplication.Logic.Logging import LoggerLevelHandler
+    from EasyApplication.Logic.Logging import console
     from shapes.project.files import AppFileManager
 
     # Fills Project › Examples, unassembled, while the splash shows.
@@ -80,6 +90,25 @@ if __name__ == '__main__':
     engine.addImportPath(CURRENT_DIR)
     engine.addImportPath(EASYAPP_DIR)
     console.debug('Paths added where QML searches for components')
+
+    # EasyApp's Settings objects save to this file. Unset, they save
+    # into EasyApp's package folder, which an update replaces
+    settings_url = QUrl.fromLocalFile(str(AppFileManager().app_path / 'settings.ini')).toString()
+    engine.rootContext().setContextProperty('pySettingsPath', settings_url)
+    console.debug(f'Settings file set to {settings_url}')
+
+    # ApplicationWindow.qml binds its level to the Preferences
+    # logging level, so a change reaches the Python logger
+    logger_level_handler = LoggerLevelHandler()
+    engine.rootContext().setContextProperty('pyLoggerLevelHandler', logger_level_handler)
+    # shapespyer logs to the stdlib logger '__main__', which the
+    # handler doesn't reach; it gets the same level
+    stdlib_levels = {'debug': logging.DEBUG, 'info': logging.INFO, 'error': logging.ERROR}
+    logger_level_handler.levelChanged.connect(
+        lambda: logging.getLogger('__main__').setLevel(
+            stdlib_levels.get(logger_level_handler.level, logging.CRITICAL + 1)
+        )
+    )
 
     engine.load(CURRENT_DIR / 'main.qml')
     console.debug('Main QML component loaded')

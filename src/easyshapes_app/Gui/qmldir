@@ -1,4 +1,5 @@
 module Gui
 
 ApplicationWindow ApplicationWindow.qml
+PreferencesDialog PreferencesDialog.qml
 StatusBar StatusBar.qml
