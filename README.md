@@ -29,8 +29,7 @@ License:
 - 📖 [Documentation](https://easyscience.github.io/shapes-app/dev)
 - 🚀
   [Getting Started](https://easyscience.github.io/shapes-app/dev/introduction)
-- 🧪
-  [Tutorials](https://easyscience.github.io/shapes-app/dev/tutorials)
+- 🧪 [Tutorials](https://easyscience.github.io/shapes-app/dev/tutorials)
 - 💬
   [Questions and Feedback](https://easyscience.github.io/shapes-app/dev/introduction/#questions-and-feedback)
 - 🧾

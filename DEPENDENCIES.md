@@ -6,12 +6,12 @@ problem, please open an
 
 ## Libraries
 
-- [shapespyer](https://gitlab.com/simnavi/shapespyer): BSD-3-Clause.
-  Its own dependencies are listed in its `pyproject.toml`.
+- [shapespyer](https://gitlab.com/simnavi/shapespyer): BSD-3-Clause. Its
+  own dependencies are listed in its `pyproject.toml`.
 - [EasyApp](https://github.com/easyscience/EasyApp): BSD-3-Clause.
 - [Qt for Python (PySide6)](https://doc.qt.io/qtforpython-6/): LGPL-3.0.
-  The Qt Quick 3D and Qt Graphs modules, which draw the structure viewers
-  and the scattering chart, are GPL-3.0.
+  The Qt Quick 3D and Qt Graphs modules, which draw the structure
+  viewers and the scattering chart, are GPL-3.0.
 - [NumPy](https://numpy.org): BSD-3-Clause.
 
 ## Fonts
