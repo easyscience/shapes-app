@@ -513,7 +513,7 @@ class LibraryAssets(QObject):
 
     def _build(self):
         """
-        The typed asset the draft describes.
+        Build the typed asset the draft describes.
         """
         cls = self._types[self._asset_type]
         if self._asset_type == 'Salt':
