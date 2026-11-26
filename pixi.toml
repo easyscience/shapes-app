@@ -108,7 +108,6 @@ notebook-lint-check = 'nbqa ruff docs/docs/tutorials/'
 py-lint-check = 'ruff check src/ tests/ docs/docs/tutorials/'
 py-format-check = 'ruff format --check src/ tests/ docs/docs/tutorials/'
 nonpy-format-check = 'npx prettier --list-different --config=prettierrc.toml --ignore-unknown .'
-nonpy-format-check-modified = 'python tools/nonpy_prettier_modified.py'
 
 check = 'pre-commit run --hook-stage manual --all-files'
 
@@ -123,7 +122,6 @@ py-lint-fix = 'ruff check --fix src/ tests/ docs/docs/tutorials/'
 py-lint-fix-unsafe = 'ruff check --fix --unsafe-fixes src/ tests/ docs/docs/tutorials/'
 py-format-fix = 'ruff format src/ tests/ docs/docs/tutorials/'
 nonpy-format-fix = 'npx prettier --write --list-different --config=prettierrc.toml --ignore-unknown .'
-nonpy-format-fix-modified = 'python tools/nonpy_prettier_modified.py --write'
 success-message = 'echo "✅ All auto-formatting steps completed successfully!"'
 
 fix = { depends-on = [
