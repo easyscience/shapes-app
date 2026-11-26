@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
 
+import logging
 import os
 import subprocess  # noqa: S404 - only runs this app itself
 import sys
@@ -8,6 +9,7 @@ import threading
 from pathlib import Path
 
 import EasyApplication
+from EasyApplication.Logic.Logging import LoggerLevelHandler
 from EasyApplication.Logic.Logging import console
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import qInstallMessageHandler
@@ -87,6 +89,19 @@ if __name__ == '__main__':
     settings_url = QUrl.fromLocalFile(str(AppFileManager().app_path / 'settings.ini')).toString()
     engine.rootContext().setContextProperty('pySettingsPath', settings_url)
     console.debug(f'Settings file set to {settings_url}')
+
+    # ApplicationWindow.qml binds its level to the Preferences
+    # logging level, so a change reaches the Python logger
+    logger_level_handler = LoggerLevelHandler()
+    engine.rootContext().setContextProperty('pyLoggerLevelHandler', logger_level_handler)
+    # shapespyer logs to the stdlib logger '__main__', which the
+    # handler doesn't reach; it gets the same level
+    stdlib_levels = {'debug': logging.DEBUG, 'info': logging.INFO, 'error': logging.ERROR}
+    logger_level_handler.levelChanged.connect(
+        lambda: logging.getLogger('__main__').setLevel(
+            stdlib_levels.get(logger_level_handler.level, logging.CRITICAL + 1)
+        )
+    )
 
     engine.load(CURRENT_DIR / 'main.qml')
     console.debug('Main QML component loaded')
