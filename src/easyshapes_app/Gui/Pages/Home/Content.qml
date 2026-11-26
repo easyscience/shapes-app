@@ -103,11 +103,11 @@ Item {
                 }
                 EaElements.Button {
                     text: qsTr('Online documentation')
-                    onClicked: Qt.openUrlExternally('https://github.com/EasyScience/EasyApp')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.docsUrl)
                 }
                 EaElements.Button {
-                    text: qsTr('Get in touch online')
-                    onClicked: console.debug(`Button clicked: ${text}`)
+                    text: qsTr('Questions and feedback')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.discussionsUrl)
                 }
             }
             // Left links
@@ -117,16 +117,12 @@ Item {
                 spacing: EaStyle.Sizes.fontPixelSize
 
                 EaElements.Button {
-                    text: qsTr('Tutorial') + ' 1: ' + qsTr('App interface')
-                    onClicked: console.debug(`Button clicked: ${text}`)
+                    text: qsTr('Tutorial') + ' 1: ' + qsTr('Multilamellar vesicle')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.docsUrl + 'tutorials/mlv/')
                 }
                 EaElements.Button {
-                    text: qsTr('Tutorial') + ' 2: ' + qsTr('Basic usage')
-                    onClicked: console.debug(`Button clicked: ${text}`)
-                }
-                EaElements.Button {
-                    text: qsTr('Tutorial') + ' 3: ' + qsTr('Advanced usage')
-                    onClicked: console.debug(`Button clicked: ${text}`)
+                    text: qsTr('Tutorial') + ' 2: ' + qsTr('SDS ball')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.docsUrl + 'tutorials/sds-ball/')
                 }
             }
             // Right links

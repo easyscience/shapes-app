@@ -26,15 +26,14 @@ License:
 
 ### For Users
 
-- 📖 [Documentation](https://easyscience.github.io/shapes-app/latest)
+- 📖 [Documentation](https://easyscience.github.io/shapes-app/dev)
 - 🚀
-  [Getting Started](https://easyscience.github.io/shapes-app/latest/introduction)
-- 🧪
-  [Tutorials](https://easyscience.github.io/shapes-app/latest/tutorials)
+  [Getting Started](https://easyscience.github.io/shapes-app/dev/introduction)
+- 🧪 [Tutorials](https://easyscience.github.io/shapes-app/dev/tutorials)
 - 💬
-  [Questions and Feedback](https://easyscience.github.io/shapes-app/latest/introduction/#questions-and-feedback)
+  [Questions and Feedback](https://easyscience.github.io/shapes-app/dev/introduction/#questions-and-feedback)
 - 🧾
-  [Citation](https://easyscience.github.io/shapes-app/latest/introduction/#citation)
+  [Citation](https://easyscience.github.io/shapes-app/dev/introduction/#citation)
 
 ### For Contributors
 
@@ -42,6 +41,6 @@ License:
 - 🐞 [Issue Tracker](https://github.com/easyscience/shapes-app/issues)
 - 💡 [Discussions](https://github.com/easyscience/shapes/discussions)
 - 🤝
-  [Contributing Guide](https://github.com/easyscience/shapes-app/blob/master/CONTRIBUTING.md)
+  [Contributing Guide](https://github.com/easyscience/shapes-app/blob/develop/CONTRIBUTING.md)
 - 🛡
   [Code of Conduct](https://github.com/easyscience/.github/blob/master/CODE_OF_CONDUCT.md)
