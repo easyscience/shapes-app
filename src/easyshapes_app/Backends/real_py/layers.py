@@ -57,6 +57,9 @@ class LayersModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.DminRole: b'dmin',
             self.RminRole: b'rmin',
@@ -64,9 +67,15 @@ class LayersModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per layer.
+        """
         return 0 if parent.isValid() else len(self._layers)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's dmin, rmin or thickness.
+        """
         if not index.isValid():
             return None
         layer = self._layers[index.row()]
@@ -83,6 +92,9 @@ class LayersModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's dmin or rmin.
+        """
         if not index.isValid():
             return False
         layer = self._layers[index.row()]
