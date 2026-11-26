@@ -11,6 +11,8 @@ from pathlib import Path
 import EasyApplication
 from EasyApplication.Logic.Logging import LoggerLevelHandler
 from EasyApplication.Logic.Logging import console
+from PySide6.QtCore import QMetaObject
+from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
 from PySide6.QtCore import qInstallMessageHandler
 from PySide6.QtGui import QGuiApplication
@@ -34,7 +36,9 @@ def show_splash():
 
     def exit_when_app_is_up():
         os.read(0, 1)  # Returns when the app closes the pipe, or ends
-        os._exit(0)
+        # Queued, so the GUI thread quits. A normal exit lets Qt clean
+        # up; os._exit skipped that, and Qt warned about it
+        QMetaObject.invokeMethod(app, 'quit', Qt.ConnectionType.QueuedConnection)
 
     threading.Thread(target=exit_when_app_is_up, daemon=True).start()
     sys.exit(app.exec())
