@@ -36,15 +36,24 @@ class BufferComponentsModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.ConcentrationRole: b'concentration',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per buffer component.
+        """
         return 0 if parent.isValid() else len(self._components)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, or its concentration in mM.
+        """
         if not index.isValid():
             return None
         component = self._components[index.row()]
@@ -59,6 +68,9 @@ class BufferComponentsModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's concentration, given in mM.
+        """
         if not index.isValid():
             return False
         component = self._components[index.row()]
