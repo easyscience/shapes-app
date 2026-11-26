@@ -139,9 +139,15 @@ default-tag = 'v999.0.0'
 # https://interrogate.readthedocs.io/en/latest/
 
 [tool.interrogate]
-fail-under = 0  # Minimum docstring coverage percentage to pass
+fail-under = 0                  # Minimum docstring coverage percentage to pass
 verbose = 1
 # exclude = ['src/**/__init__.py']
+# Skip what ruff's numpy convention doesn't ask for either
+ignore-init-method = true
+ignore-magic = true
+ignore-nested-functions = true
+ignore-private = true
+ignore-semiprivate = true
 
 #######################################
 # Configuration for coverage/pytest-cov
@@ -203,6 +209,8 @@ select = [
   # Various rules
   # 'C90',  # https://docs.astral.sh/ruff/rules/#mccabe-c90
   # 'D',   # https://docs.astral.sh/ruff/rules/#pydocstyle-d
+  # The 'D' rules one at a time, until all of 'D' passes
+  'D102',   # https://docs.astral.sh/ruff/rules/undocumented-public-method/
   'F',      # https://docs.astral.sh/ruff/rules/#pyflakes-f
   # 'FLY',  # https://docs.astral.sh/ruff/rules/#flynt-fly
   # 'FURB', # https://docs.astral.sh/ruff/rules/#refurb-furb
@@ -312,6 +320,8 @@ max-doc-length = 72
 
 [tool.ruff.lint.pydocstyle]
 convention = 'numpy'
+# Qt Properties are the values QML reads; most only return a field
+ignore-decorators = ['PySide6.QtCore.Property']
 
 [tool.ruff.lint.pylint]
 # Ruff counts `self`/`cls` in max-args; traditional pylint does not.
