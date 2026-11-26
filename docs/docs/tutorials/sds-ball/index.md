@@ -12,6 +12,9 @@ The ball follows Shapespyer's SDS ball tutorial: one layer with 16
 molecules on its equator, 0.4 nm apart. So Rmin is 16 × 0.4 / 2π, about
 1.02 nm.
 
+The assembled ball holds 80 SDS molecules, 80 sodium ions and about
+4,900 water molecules: 18,212 atoms.
+
 The equilibration runs two stages: an energy minimisation (eq0) and 25
 ps of molecular dynamics with restraints (eq1). That takes minutes.
 
@@ -40,16 +43,19 @@ In **Basic controls** › **Components**:
 1. Click **Load component(s)**, click SDS in the list and click **OK**.
 2. In the SDS row, set **C-ion** to NAT. Each SDS gets one sodium ion.
 
-<!-- Image: tutorial-sds-components – Components group, C-ion boxed -->
+![Components group with SDS, C-ion boxed](img/tutorial-sds-components-light.png#only-light)
+![Components group with SDS, C-ion boxed](img/tutorial-sds-components-dark.png#only-dark)
 
 In **Basic controls** › **Layers**, set **Dmin, nm** to 0.4 and **Rmin,
 nm** to 1.02 in row 1.
 
-<!-- Image: tutorial-sds-layers – Layers group, Dmin, nm and Rmin, nm boxed -->
+![Layers group, Dmin and Rmin boxed](img/tutorial-sds-layers-light.png#only-light)
+![Layers group, Dmin and Rmin boxed](img/tutorial-sds-layers-dark.png#only-dark)
 
 In **Basic controls** › **Buffer**, set **Solvent** to TIP3.
 
-<!-- Image: tutorial-sds-buffer – Buffer group, Solvent boxed -->
+![Buffer group, Solvent boxed](img/tutorial-sds-buffer-light.png#only-light)
+![Buffer group, Solvent boxed](img/tutorial-sds-buffer-dark.png#only-dark)
 
 ## Save and assemble
 
@@ -59,7 +65,8 @@ before you edit any file.
 Click **Assemble**. Shapespyer places the molecules, and GROMACS adds
 the sodium ions and the water. The main area shows the Structure tab.
 
-<!-- Image: tutorial-sds-structure – Structure tab boxed -->
+![Structure tab with the assembled ball](img/tutorial-sds-structure-light.png#only-light)
+![Structure tab with the assembled ball](img/tutorial-sds-structure-dark.png#only-dark)
 
 ## Restrain the tails
 
@@ -95,7 +102,8 @@ example, and save the file:
 #endif
 ```
 
-<!-- Image: tutorial-sds-components-files – Components Files with SDS picked, Select component boxed -->
+![Components Files group with SDS's files, Select component boxed](img/tutorial-sds-components-files-light.png#only-light)
+![Components Files group with SDS's files, Select component boxed](img/tutorial-sds-components-files-dark.png#only-dark)
 
 What the new lines mean:
 
@@ -122,7 +130,8 @@ of the centre, and the core holds together.
 5. Click **Equilibrate**. The Engine output tab shows the GROMACS
    commands and their output while the run goes on.
 
-<!-- Image: tutorial-sds-equilibration – Equilibration group, Last stage and Restrain to box centre boxed -->
+![Equilibration group, Last stage and Restrain to box centre boxed](img/tutorial-sds-equilibration-light.png#only-light)
+![Equilibration group, Last stage and Restrain to box centre boxed](img/tutorial-sds-equilibration-dark.png#only-dark)
 
 !!! info "While it runs"
 
@@ -140,7 +149,8 @@ of the centre, and the core holds together.
 
 Open the main area's **Structure** tab and set **Stage** to eq1.
 
-<!-- Image: tutorial-sds-stage – Analysis Structure tab, Stage boxed -->
+![Analysis Structure tab with eq1, Stage boxed](img/tutorial-sds-stage-light.png#only-light)
+![Analysis Structure tab with eq1, Stage boxed](img/tutorial-sds-stage-dark.png#only-dark)
 
 ## Calculate the curves
 
@@ -154,7 +164,8 @@ In **Basic controls** › **Scattering**:
 
 Keep the other fields at their defaults.
 
-<!-- Image: tutorial-sds-scattering-setup – Scattering group, Solvent SLD and Deuterate boxed -->
+![Scattering group, Solvent SLD and Deuterate boxed](img/tutorial-sds-scattering-setup-light.png#only-light)
+![Scattering group, Solvent SLD and Deuterate boxed](img/tutorial-sds-scattering-setup-dark.png#only-dark)
 
 !!! info "Why these two curves"
 
@@ -174,7 +185,8 @@ The Scattering tab draws both curves. In **Advanced controls** ›
 gyration. Tick **Staggered view** to draw the second curve lower, so the
 two don't overlap.
 
-<!-- Image: tutorial-sds-scattering – Scattering tab with both curves -->
+![Scattering tab with both curves, Rg and Staggered view boxed](img/tutorial-sds-scattering-light.png#only-light)
+![Scattering tab with both curves, Rg and Staggered view boxed](img/tutorial-sds-scattering-dark.png#only-dark)
 
 ## Save
 

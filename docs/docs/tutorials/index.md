@@ -11,5 +11,5 @@ aim for. Then it goes through only the controls needed to get there.
   and cholesterol with two lamellae, and prepare it for equilibration.
   No GROMACS needed.
 - [SDS ball (micelle)](sds-ball/index.md) – build a ball of SDS
-  molecules, equilibrate it with GROMACS and calculate its scattering
-  curve. Being written.
+  molecules with their sodium ions in water, equilibrate it briefly with
+  GROMACS, and calculate its scattering curves.
