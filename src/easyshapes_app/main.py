@@ -9,8 +9,6 @@ import threading
 from pathlib import Path
 
 import EasyApplication
-from EasyApplication.Logic.Logging import LoggerLevelHandler
-from EasyApplication.Logic.Logging import console
 from PySide6.QtCore import QMetaObject
 from PySide6.QtCore import Qt
 from PySide6.QtCore import QUrl
@@ -53,8 +51,13 @@ if __name__ == '__main__':
     # executable is the app itself; else Python runs this file
     app_command = [sys.executable] if getattr(sys, 'frozen', False) else [sys.executable, __file__]
     splash = subprocess.Popen([*app_command, '--splash'], stdin=subprocess.PIPE)  # noqa: S603
+    # Not at the top: shapespyer's job processes run this file's top
+    # again. EasyApp's logger there would print their messages here,
+    # instead of shapespyer sending them to the job's log file
     from Backends.real_backend import Backend
     from Backends.real_py.logic.examples import make_examples
+    from EasyApplication.Logic.Logging import LoggerLevelHandler
+    from EasyApplication.Logic.Logging import console
     from shapes.project.files import AppFileManager
 
     # Fills Project › Examples, unassembled, while the splash shows.
