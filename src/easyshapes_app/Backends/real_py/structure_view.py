@@ -143,16 +143,20 @@ class StructureView(QObject):
 
     def _key(self):
         """
-        The sample model's .gro, its modification time and whether the
-        bonds are shown, or None.
+        Return the .gro, its modification time and the bonds flag.
+
+        The .gro is the one _gro picks, and the flag says whether bonds
+        are shown. None when _gro picks none.
         """
         path = self._gro()
         return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
 
     def _gro(self):
         """
-        The .gro to show, or None: the sample model's, none while an
-        assembly writes its files.
+        Return the sample model's .gro to show, or None.
+
+        None without a sample model or a .gro, or while an assembly
+        writes the model's files.
         """
         model = self._session.sample_model
         # None while an assembly writes the model's files
