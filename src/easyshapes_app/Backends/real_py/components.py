@@ -318,6 +318,9 @@ class Components(QObject):
 
     @Slot(int)
     def remove(self, row):
+        """
+        Remove the component in a row.
+        """
         self._model.remove(row)
 
     @Slot(int, result='QVariant')
