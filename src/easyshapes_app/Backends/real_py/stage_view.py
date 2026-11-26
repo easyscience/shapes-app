@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The Analysis page's structure viewer for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import Signal

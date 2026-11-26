@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The session's sample model for QML: its name, shape and files.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject

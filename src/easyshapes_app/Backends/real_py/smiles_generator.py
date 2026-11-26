@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The SMILES generator for QML: a new component from a SMILES string.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject

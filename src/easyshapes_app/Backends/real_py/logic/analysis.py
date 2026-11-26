@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+Analysis logic: the default configuration, stage statuses and logs.
+"""
 
 import codecs
 from pathlib import Path

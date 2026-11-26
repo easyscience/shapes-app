@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+One composition as an editable list model for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QAbstractListModel

@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+What the app works on, shared by the backend root and its parts.
+"""
 
 from dataclasses import dataclass
 

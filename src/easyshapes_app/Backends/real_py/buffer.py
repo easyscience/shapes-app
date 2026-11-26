@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The sample model's buffer for QML: its solvent and components.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QAbstractListModel

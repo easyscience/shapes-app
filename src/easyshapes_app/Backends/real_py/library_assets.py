@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The library asset editor for QML, with its file and salt models.
+"""
 
 import shutil
 from pathlib import Path
