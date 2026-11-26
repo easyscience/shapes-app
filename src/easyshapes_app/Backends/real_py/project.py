@@ -54,6 +54,9 @@ class Project(QObject):
 
     @Property(bool, notify=createdChanged)
     def created(self):
+        """
+        Whether a project exists.
+        """
         return self._session.project is not None
 
     @Property(bool, notify=createdChanged)
@@ -67,6 +70,9 @@ class Project(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The project's name, '' without a project.
+        """
         project = self._session.project
         return project.name if project else ''
 
@@ -80,6 +86,9 @@ class Project(QObject):
 
     @Property(str, notify=descriptionChanged)
     def description(self):
+        """
+        The project's description, '' without a project.
+        """
         project = self._session.project
         return project.description if project else ''
 
@@ -93,6 +102,9 @@ class Project(QObject):
 
     @Property(str, notify=pathChanged)
     def path(self):
+        """
+        The project's folder, '' without a project.
+        """
         project = self._session.project
         return str(project.path) if project else ''
 

@@ -30,6 +30,9 @@ class VesicleStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._vesicle.fxz
 
     @fxz.setter
@@ -41,6 +44,9 @@ class VesicleStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._vesicle.rev
 
     @rev.setter
@@ -52,6 +58,9 @@ class VesicleStructure(QObject):
 
     @Property(str, notify=fillChanged)
     def fill(self):
+        """
+        The fill type's name.
+        """
         return self._vesicle.fill.name
 
     @fill.setter

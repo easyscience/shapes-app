@@ -149,6 +149,9 @@ class ComponentsModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Property(str, notify=errorsChanged)
@@ -298,6 +301,9 @@ class Components(QObject):
 
     @Property('QVariant', constant=True)
     def loaded(self):
+        """
+        The components model.
+        """
         return self._model
 
     @Slot(str, str)

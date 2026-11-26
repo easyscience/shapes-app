@@ -29,6 +29,9 @@ class BallStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._ball.fxz
 
     @fxz.setter
@@ -40,6 +43,9 @@ class BallStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._ball.rev
 
     @rev.setter
@@ -51,6 +57,9 @@ class BallStructure(QObject):
 
     @Property(str, notify=fillChanged)
     def fill(self):
+        """
+        The fill type's name.
+        """
         return self._ball.fill.name
 
     @fill.setter

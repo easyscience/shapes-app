@@ -39,10 +39,16 @@ class StageView(StructureView):
 
     @Property('QVariant', constant=True)
     def stages(self):
+        """
+        The stages model.
+        """
         return self._stages
 
     @Property(int, notify=selectedStageChanged)
     def selectedStage(self):
+        """
+        The row picked in the stages.
+        """
         return self._selected_stage
 
     @Slot(int)

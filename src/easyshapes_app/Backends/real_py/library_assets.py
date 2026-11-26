@@ -98,6 +98,9 @@ class FilesModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     #########
@@ -286,6 +289,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=modeChanged)
     def mode(self):
+        """
+        The editor's mode: 'create' or 'edit'.
+        """
         return self._mode
 
     @Property('QVariant', constant=True)
@@ -297,6 +303,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=assetTypeChanged)
     def assetType(self):
+        """
+        The type of the asset in the editor.
+        """
         return self._asset_type
 
     @assetType.setter
@@ -308,6 +317,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=assetNameChanged)
     def assetName(self):
+        """
+        The name of the asset in the editor.
+        """
         return self._asset_name
 
     @assetName.setter
@@ -333,6 +345,9 @@ class LibraryAssets(QObject):
 
     @Property(int, notify=mintChanged)
     def mint(self):
+        """
+        The mint value.
+        """
         return self._mint
 
     @mint.setter
@@ -344,6 +359,9 @@ class LibraryAssets(QObject):
 
     @Property(int, notify=mextChanged)
     def mext(self):
+        """
+        The mext value.
+        """
         return self._mext
 
     @mext.setter
@@ -355,10 +373,16 @@ class LibraryAssets(QObject):
 
     @Property('QVariant', constant=True)
     def paths(self):
+        """
+        The asset's files model.
+        """
         return self._paths
 
     @Property('QVariant', constant=True)
     def saltComposition(self):
+        """
+        The salt's two ions model.
+        """
         return self._salt
 
     @Property(bool, notify=saltReadyChanged)

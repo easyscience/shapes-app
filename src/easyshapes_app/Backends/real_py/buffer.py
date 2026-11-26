@@ -89,6 +89,9 @@ class BufferComponentsModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Slot(int, result='QVariant')
@@ -169,6 +172,9 @@ class Buffer(QObject):
 
     @Property('QVariant', constant=True)
     def components(self):
+        """
+        The buffer components model.
+        """
         return self._components
 
     @Slot(str)

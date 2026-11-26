@@ -59,6 +59,9 @@ class StructureView(QObject):
 
     @Property('QVariant', constant=True)
     def instancing(self):
+        """
+        The atoms' instancing for the 3D view.
+        """
         return self._instancing
 
     @Property(bool, notify=hasStructureChanged)
@@ -103,10 +106,16 @@ class StructureView(QObject):
 
     @Property(bool, notify=loadingChanged)
     def loading(self):
+        """
+        True while a structure file is read.
+        """
         return self._loading
 
     @Property(str, notify=errorChanged)
     def error(self):
+        """
+        Why the structure file couldn't be read, '' if it could.
+        """
         return self._error
 
     @Slot(bool)

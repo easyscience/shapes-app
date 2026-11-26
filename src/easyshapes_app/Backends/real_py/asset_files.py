@@ -50,6 +50,9 @@ class AssetFiles(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The asset's name, '' without an asset.
+        """
         asset = self._asset()
         return asset.name if asset else ''
 
@@ -65,6 +68,9 @@ class AssetFiles(QObject):
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The asset's files model.
+        """
         return self._files
 
     ##########################

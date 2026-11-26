@@ -86,6 +86,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The new component's name.
+        """
         return self._name
 
     @name.setter
@@ -97,6 +100,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=formulaChanged)
     def formula(self):
+        """
+        The new component's formula.
+        """
         return self._formula
 
     @formula.setter
@@ -108,6 +114,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=smilesChanged)
     def smiles(self):
+        """
+        The SMILES string to build the molecule from.
+        """
         return self._smiles
 
     @smiles.setter
@@ -119,6 +128,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxXChanged)
     def boxX(self):
+        """
+        The box size along x.
+        """
         return self._box_x
 
     @boxX.setter
@@ -130,6 +142,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxYChanged)
     def boxY(self):
+        """
+        The box size along y.
+        """
         return self._box_y
 
     @boxY.setter
@@ -141,6 +156,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxZChanged)
     def boxZ(self):
+        """
+        The box size along z.
+        """
         return self._box_z
 
     @boxZ.setter
@@ -152,6 +170,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=extensionChanged)
     def extension(self):
+        """
+        The structure file format to write: '.gro' or '.pdb'.
+        """
         return self._extension
 
     @extension.setter
@@ -163,6 +184,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=componentTypeChanged)
     def componentType(self):
+        """
+        The library class the component is built as.
+        """
         return self._component_type
 
     @componentType.setter
@@ -174,6 +198,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=cisChanged)
     def cis(self):
+        """
+        The cis flag.
+        """
         return self._cis
 
     @cis.setter
@@ -185,6 +212,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=alignZChanged)
     def alignZ(self):
+        """
+        The align-with-z flag.
+        """
         return self._align_z
 
     @alignZ.setter
@@ -196,6 +226,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=flattenXzChanged)
     def flattenXz(self):
+        """
+        The flatten-onto-xz flag.
+        """
         return self._flatten_xz
 
     @flattenXz.setter

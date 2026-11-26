@@ -26,6 +26,9 @@ class Error(QObject):
 
     @Property(str, notify=messageChanged)
     def message(self):
+        """
+        The error message, '' for none.
+        """
         return self._message
 
     # The dialog clears it on close, so the same error next time opens

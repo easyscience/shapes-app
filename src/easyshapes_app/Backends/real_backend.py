@@ -209,110 +209,191 @@ class Backend(QObject):
 
     @Property('QVariant', constant=True)
     def project(self):
+        """
+        The project part.
+        """
         return self._project
 
     @Property('QVariant', constant=True)
     def library(self):
+        """
+        The library part.
+        """
         return self._library
 
     @Property('QVariant', constant=True)
     def libraryAssets(self):
+        """
+        The library asset editor part.
+        """
         return self._library_assets
 
     @Property('QVariant', constant=True)
     def config(self):
+        """
+        The app config part.
+        """
         return self._config
 
     @Property('QVariant', constant=True)
     def error(self):
+        """
+        The error dialog part.
+        """
         return self._error
 
     @Property('QVariant', constant=True)
     def sampleModel(self):
+        """
+        The sample model part.
+        """
         return self._sample_model
 
     @Property('QVariant', notify=ringStructureChanged)
     def ringStructure(self):
+        """
+        The ring's adapter, None while the shape is another.
+        """
         return self._ring_structure
 
     @Property('QVariant', notify=ballStructureChanged)
     def ballStructure(self):
+        """
+        The ball's adapter, None while the shape is another.
+        """
         return self._ball_structure
 
     @Property('QVariant', notify=vesicleStructureChanged)
     def vesicleStructure(self):
+        """
+        The vesicle's adapter, None while the shape is another.
+        """
         return self._vesicle_structure
 
     @Property('QVariant', notify=rodStructureChanged)
     def rodStructure(self):
+        """
+        The rod's adapter, None while the shape is another.
+        """
         return self._rod_structure
 
     @Property('QVariant', notify=bilayerStructureChanged)
     def bilayerStructure(self):
+        """
+        The bilayer's adapter, None while the shape is another.
+        """
         return self._bilayer_structure
 
     @Property('QVariant', notify=monolayerStructureChanged)
     def monolayerStructure(self):
+        """
+        The monolayer's adapter, None while the shape is another.
+        """
         return self._monolayer_structure
 
     @Property('QVariant', notify=latticeStructureChanged)
     def latticeStructure(self):
+        """
+        The lattice's adapter, None without a lattice.
+        """
         return self._lattice_structure
 
     @Property('QVariant', constant=True)
     def components(self):
+        """
+        The components list part.
+        """
         return self._components
 
     @Property('QVariant', constant=True)
     def componentsFiles(self):
+        """
+        The Components Files part.
+        """
         return self._components_files
 
     @Property('QVariant', notify=compositionChanged)
     def composition(self):
+        """
+        The shape's composition model, or None.
+        """
         return self._composition
 
     @Property('QVariant', notify=layersChanged)
     def layers(self):
+        """
+        The ball's layers model, None while the shape is another.
+        """
         return self._layers
 
     @Property('QVariant', notify=lamellaeChanged)
     def lamellae(self):
+        """
+        The vesicle's lamellae model, None while the shape is another.
+        """
         return self._lamellae
 
     @Property('QVariant', notify=bufferChanged)
     def buffer(self):
+        """
+        The buffer part, None without a sample model.
+        """
         return self._buffer
 
     @Property('QVariant', constant=True)
     def smilesGenerator(self):
+        """
+        The SMILES generator part.
+        """
         return self._smiles_generator
 
     @Property('QVariant', constant=True)
     def structureView(self):
+        """
+        The Structure viewer part.
+        """
         return self._structure_view
 
     @Property('QVariant', constant=True)
     def configuration(self):
+        """
+        The equilibration's configuration files part.
+        """
         return self._configuration
 
     @Property('QVariant', constant=True)
     def forceField(self):
+        """
+        The equilibration's force field files part.
+        """
         return self._force_field
 
     @Property('QVariant', constant=True)
     def equilibration(self):
+        """
+        The equilibration part.
+        """
         return self._equilibration
 
     @Property('QVariant', constant=True)
     def stageView(self):
+        """
+        The Analysis page's stage viewer part.
+        """
         return self._stage_view
 
     @Property('QVariant', constant=True)
     def scattering(self):
+        """
+        The SANS curves part.
+        """
         return self._scattering
 
     @Property('QVariant', constant=True)
     def report(self):
+        """
+        The Summary page part.
+        """
         return self._report
 
     def _assembled(self, error):

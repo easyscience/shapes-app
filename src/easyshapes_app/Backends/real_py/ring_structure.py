@@ -37,6 +37,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=alphaChanged)
     def alpha(self):
+        """
+        The alpha angle.
+        """
         return self._ring.alpha
 
     @alpha.setter
@@ -48,6 +51,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=thetaChanged)
     def theta(self):
+        """
+        The theta angle.
+        """
         return self._ring.theta
 
     @theta.setter
@@ -59,6 +65,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._ring.dmin
 
     @dmin.setter
@@ -70,6 +79,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=rminChanged)
     def rmin(self):
+        """
+        The rmin value.
+        """
         return self._ring.rmin
 
     @rmin.setter
@@ -81,6 +93,9 @@ class RingStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._ring.fxz
 
     @fxz.setter
@@ -92,6 +107,9 @@ class RingStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._ring.rev
 
     @rev.setter
@@ -103,6 +121,9 @@ class RingStructure(QObject):
 
     @Property('QVariant', notify=sizesChanged)
     def outerRadius(self):
+        """
+        The outer radius, None while no component has a bone length.
+        """
         # None while no component has a bone length; Alpha and Theta
         # don't tilt it
         return self._ring.outer_radius

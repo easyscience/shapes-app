@@ -37,6 +37,9 @@ class BilayerStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._bilayer.dmin
 
     @dmin.setter
@@ -48,6 +51,9 @@ class BilayerStructure(QObject):
 
     @Property(float, notify=zsepChanged)
     def zsep(self):
+        """
+        The zsep value.
+        """
         return self._bilayer.zsep
 
     @zsep.setter
@@ -59,6 +65,9 @@ class BilayerStructure(QObject):
 
     @Property(int, notify=nsideChanged)
     def nside(self):
+        """
+        The number of sites along a side.
+        """
         return self._bilayer.nside
 
     @nside.setter
@@ -70,11 +79,17 @@ class BilayerStructure(QObject):
 
     @Property(float, notify=sizesChanged)
     def width(self):
+        """
+        The width: nside sites, dmin apart.
+        """
         # nside sites dmin apart: always known
         return self._bilayer.width
 
     @Property('QVariant', notify=sizesChanged)
     def thickness(self):
+        """
+        The thickness, None while no molecule is read.
+        """
         # The span of the molecules, from zsep or from dmin; None while
         # no molecule is read
         return self._bilayer.thickness

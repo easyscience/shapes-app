@@ -143,6 +143,9 @@ class ResiduesModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Property(int, notify=shownCountChanged)
@@ -272,6 +275,9 @@ class StructureInstancing(QQuick3DInstancing):
 
     @Property(int, notify=atomsChanged)
     def atomCount(self):
+        """
+        The number of atoms read.
+        """
         return len(self._xyz)
 
     @Property(float, notify=atomsChanged)

@@ -121,6 +121,9 @@ class LayersModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Property('QVariantList', notify=compositionsChanged)

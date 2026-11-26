@@ -32,6 +32,9 @@ class Report(QObject):
 
     @Property(str, notify=textChanged)
     def text(self):
+        """
+        The summary text.
+        """
         return self._text
 
     @Property(str, notify=textChanged)

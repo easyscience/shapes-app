@@ -90,6 +90,9 @@ class SampleModel(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The sample model's name, '' without a sample model.
+        """
         sample_model = self._session.sample_model
         return sample_model.name if sample_model else ''
 
@@ -105,10 +108,16 @@ class SampleModel(QObject):
 
     @Property('QVariant', constant=True)
     def shapes(self):
+        """
+        The shape names to choose from.
+        """
         return list(SHAPES)
 
     @Property(str, notify=shapeChanged)
     def shape(self):
+        """
+        The shape's name, '' without a sample model.
+        """
         sample_model = self._session.sample_model
         if sample_model is None:
             return ''
@@ -146,6 +155,9 @@ class SampleModel(QObject):
 
     @Property(bool, notify=latticeChanged)
     def lattice(self):
+        """
+        Whether the structure is a lattice.
+        """
         sample_model = self._session.sample_model
         return isinstance(sample_model.structure, Lattice) if sample_model else False
 
@@ -162,10 +174,16 @@ class SampleModel(QObject):
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The structure's files model.
+        """
         return self._files
 
     @Property(bool, notify=filesLockedChanged)
     def filesLocked(self):
+        """
+        True while a run writes the files.
+        """
         # True until the check takes the ended run in
         return self._watch.isActive()
 

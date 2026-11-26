@@ -64,6 +64,9 @@ class ComponentsFiles(QObject):
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The picked component's files model.
+        """
         return self._files
 
     @Slot(str)

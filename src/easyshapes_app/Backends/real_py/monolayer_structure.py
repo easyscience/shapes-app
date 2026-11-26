@@ -37,6 +37,9 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._monolayer.dmin
 
     @dmin.setter
@@ -48,6 +51,9 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=zsepChanged)
     def zsep(self):
+        """
+        The zsep value.
+        """
         return self._monolayer.zsep
 
     @zsep.setter
@@ -59,6 +65,9 @@ class MonolayerStructure(QObject):
 
     @Property(int, notify=nsideChanged)
     def nside(self):
+        """
+        The number of sites along a side.
+        """
         return self._monolayer.nside
 
     @nside.setter
@@ -70,11 +79,17 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=sizesChanged)
     def width(self):
+        """
+        The width: nside sites, dmin apart.
+        """
         # nside sites dmin apart: always known
         return self._monolayer.width
 
     @Property('QVariant', notify=sizesChanged)
     def thickness(self):
+        """
+        The thickness, None while no component has a bone length.
+        """
         # zsep, or dmin, plus the longest bone on each side; None while
         # no component has one
         return self._monolayer.thickness

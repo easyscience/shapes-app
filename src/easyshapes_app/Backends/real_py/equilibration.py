@@ -84,6 +84,9 @@ class EntriesModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Slot(int, result='QVariant')
@@ -216,6 +219,9 @@ class Equilibration(QObject):
 
     @Property(int, notify=firstStageChanged)
     def firstStage(self):
+        """
+        The first stage to run, 0 without an equilibration.
+        """
         equilibration = self._equilibration()
         return equilibration.first_stage if equilibration else 0
 
@@ -232,6 +238,9 @@ class Equilibration(QObject):
 
     @Property(int, notify=lastStageChanged)
     def lastStage(self):
+        """
+        The last stage to run, 0 without an equilibration.
+        """
         equilibration = self._equilibration()
         if equilibration is None:
             return 0
@@ -250,6 +259,9 @@ class Equilibration(QObject):
 
     @Property(str, notify=threadsChanged)
     def threads(self):
+        """
+        The number of threads for mdrun, '' for Auto.
+        """
         equilibration = self._equilibration()
         if equilibration is None or equilibration.threads is None:
             return ''
@@ -266,6 +278,9 @@ class Equilibration(QObject):
 
     @Property(bool, notify=restrainToBoxCenterChanged)
     def restrainToBoxCenter(self):
+        """
+        Whether to restrain the structure to the box centre.
+        """
         equilibration = self._equilibration()
         return equilibration.restrain_to_box_center if equilibration else False
 
@@ -304,27 +319,45 @@ class Equilibration(QObject):
 
     @Property('QVariant', constant=True)
     def entries(self):
+        """
+        The entries model: the equilibration, then each stage run.
+        """
         return self._entries
 
     @Property(int, notify=selectedEntryChanged)
     def selectedEntry(self):
+        """
+        The entry whose files show, 0 for the equilibration.
+        """
         return self._selected_entry
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The picked entry's files model.
+        """
         return self._files
 
     @Property(bool, notify=filesLockedChanged)
     def filesLocked(self):
+        """
+        True while a run writes the files.
+        """
         # True until the check takes the ended run in
         return self._watch.isActive()
 
     @Property(int, notify=stageChanged)
     def stage(self):
+        """
+        The stage a run is on, -1 without a run.
+        """
         return self._stage
 
     @Property(int, notify=selectedLogChanged)
     def selectedLog(self):
+        """
+        The entry whose log shows, 0 for the run's.
+        """
         return self._selected_log
 
     @Property(str, notify=logChanged)

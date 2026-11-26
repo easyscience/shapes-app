@@ -143,14 +143,23 @@ class Scattering(QObject):
 
     @Property('QVariant', constant=True)
     def structures(self):
+        """
+        The structures a curve can be calculated from.
+        """
         return self._structures
 
     @Property(int, notify=selectedStructureChanged)
     def selectedStructure(self):
+        """
+        The row picked in the structures.
+        """
         return self._selected_structure
 
     @Property(float, notify=solventSldChanged)
     def solventSld(self):
+        """
+        The next curve's solvent SLD.
+        """
         return self._settings['solvent_sld']
 
     @solventSld.setter
@@ -159,10 +168,16 @@ class Scattering(QObject):
 
     @Property('QVariant', notify=deuteratedChanged)
     def deuterated(self):
+        """
+        The next curve's deuterated components.
+        """
         return list(self._settings['deuterated'])
 
     @Property(float, notify=qMinChanged)
     def qMin(self):
+        """
+        The next curve's lowest q.
+        """
         return self._settings['q_min']
 
     @qMin.setter
@@ -171,6 +186,9 @@ class Scattering(QObject):
 
     @Property(float, notify=qMaxChanged)
     def qMax(self):
+        """
+        The next curve's highest q.
+        """
         return self._settings['q_max']
 
     @qMax.setter
@@ -179,6 +197,9 @@ class Scattering(QObject):
 
     @Property(int, notify=qPointsChanged)
     def qPoints(self):
+        """
+        The next curve's number of q points.
+        """
         return self._settings['q_points']
 
     @qPoints.setter
@@ -187,6 +208,9 @@ class Scattering(QObject):
 
     @Property(float, notify=sizeSpreadChanged)
     def sizeSpread(self):
+        """
+        The next curve's size spread.
+        """
         return self._settings['size_spread']
 
     @sizeSpread.setter
@@ -195,6 +219,9 @@ class Scattering(QObject):
 
     @Property(str, notify=kernelChanged)
     def kernel(self):
+        """
+        The next curve's kernel.
+        """
         return self._settings['kernel']
 
     @kernel.setter
@@ -203,19 +230,31 @@ class Scattering(QObject):
 
     @Property('QVariant', notify=componentsChanged)
     def components(self):
+        """
+        The components that can be deuterated.
+        """
         return self._components
 
     @Property('QVariant', constant=True)
     def curves(self):
+        """
+        The curves model.
+        """
         return self._curves
 
     @Property(bool, notify=filesLockedChanged)
     def filesLocked(self):
+        """
+        True while a run writes the files.
+        """
         # True until the check takes the ended run in
         return self._watch.isActive()
 
     @Property(str, notify=runningCurveChanged)
     def runningCurve(self):
+        """
+        The name of the curve being calculated, '' for none.
+        """
         return self._running.name if self._running else ''
 
     @Property('QVariant', notify=rangesChanged)

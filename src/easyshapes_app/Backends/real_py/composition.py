@@ -101,6 +101,9 @@ class CompositionModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Slot(int, result='QVariant')
