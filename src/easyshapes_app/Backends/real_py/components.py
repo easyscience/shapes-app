@@ -347,9 +347,11 @@ class Components(QObject):
     @Slot(int, result='QVariant')
     def structureAtoms(self, row):
         """
-        The atoms of a row's molecule for the component viewer: element
-        and position in Å, centred on their mean, in atom order. Empty
-        when the component has no structure file or nothing is read.
+        Return the atoms of a row's molecule for the component viewer.
+
+        Each has its element and position in Å, centred on their mean,
+        in atom order. Empty when the component has no structure file
+        or nothing is read.
         """
         component = self._session.components[row]
         path = component.structure_file_path
@@ -381,18 +383,21 @@ class Components(QObject):
     @Slot(int, result=float)
     def boneLength(self, row):
         """
-        A row's Mint to Mext distance in nm, as the library measures it;
-        0 when Mint equals Mext or no molecule is read.
+        Return a row's Mint to Mext distance in nm.
+
+        The library measures it. It is 0 when Mint equals Mext or no
+        molecule is read.
         """
         return self._session.components[row].bone_length or 0.0
 
     @Slot(int, result='QVariant')
     def structureBonds(self, row):
         """
-        The bonds of a row's molecule from its topology file, as pairs
-        of 0-based atom indices in structureAtoms' order. Empty when the
-        component has no topology file, no molecule type in it matches,
-        or it lists no bonds.
+        Return the bonds of a row's molecule from its topology file.
+
+        They are pairs of 0-based atom indices in structureAtoms' order.
+        Empty when the component has no topology file, no molecule type
+        in it matches, or it lists no bonds.
         """
         component = self._session.components[row]
         path = component.topology_file_path
