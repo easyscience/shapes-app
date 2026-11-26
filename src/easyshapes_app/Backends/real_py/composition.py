@@ -37,6 +37,9 @@ class CompositionModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.PresentRole: b'present',
@@ -44,9 +47,15 @@ class CompositionModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per component, in component order.
+        """
         return 0 if parent.isValid() else len(self._composition)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, presence or mol ratio.
+        """
         if not index.isValid():
             return None
         component, present, ratio = self._composition.items[index.row()]
@@ -61,6 +70,9 @@ class CompositionModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's presence or mol ratio.
+        """
         if not index.isValid():
             return False
         component, present, ratio = self._composition.items[index.row()]
