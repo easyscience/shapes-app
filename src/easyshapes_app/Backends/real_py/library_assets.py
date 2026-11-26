@@ -56,15 +56,24 @@ class FilesModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.PathRole: b'path',
             self.SizeRole: b'size',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per file.
+        """
         return 0 if parent.isValid() else len(self._paths)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's path, or its file size such as '47.1 kB'.
+        """
         if not index.isValid():
             return None
         path = self._paths[index.row()]
@@ -154,15 +163,24 @@ class SaltCompositionModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.IonRole: b'ion',
             self.CountRole: b'count',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: the cation, then the anion.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's ion name, '' if unset, or its count.
+        """
         if not index.isValid():
             return None
         ion, count = self._rows[index.row()]
@@ -175,6 +193,9 @@ class SaltCompositionModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's ion name or count.
+        """
         if not index.isValid():
             return False
         ion, count = self._rows[index.row()]
