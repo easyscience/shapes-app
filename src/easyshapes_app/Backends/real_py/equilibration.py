@@ -95,7 +95,7 @@ class EntriesModel(QAbstractListModel):
     @Slot(int, result='QVariant')
     def get(self, row):
         """
-        A row's name and status.
+        Return a row's name and status.
         """
         name, status = self._rows[row]
         return {'name': name, 'status': status}
@@ -559,8 +559,9 @@ class Equilibration(QObject):
 
     def _picked(self, row):
         """
-        The equilibration (row 0) or stage row - 1 of entries; None
-        without analysis.
+        Return the equilibration (row 0) or stage row - 1 of entries.
+
+        None without an analysis.
         """
         equilibration = self._equilibration()
         if equilibration is None or row == 0:
