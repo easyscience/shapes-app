@@ -1,8 +1,8 @@
 ---
-icon: material/clipboard-list
+icon: fontawesome/solid/clipboard-list
 ---
 
-# :material-clipboard-list: Summary
+# :fontawesome-solid-clipboard-list: Summary
 
 The Summary page shows the open project as an indented list: its name
 and description, the sample model with its structure and components, and

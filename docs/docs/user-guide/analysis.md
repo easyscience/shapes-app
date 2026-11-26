@@ -1,8 +1,8 @@
 ---
-icon: material/microscope
+icon: fontawesome/solid/microscope
 ---
 
-# :material-microscope: Analysis
+# :fontawesome-solid-microscope: Analysis
 
 The Analysis page equilibrates the assembled structure with GROMACS and
 calculates its small-angle neutron scattering (SANS) curves.

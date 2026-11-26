@@ -1,8 +1,8 @@
 ---
-icon: material/archive
+icon: fontawesome/solid/box-archive
 ---
 
-# :material-archive: Project
+# :fontawesome-solid-box-archive: Project
 
 A project holds everything you make in EasyShapes: the sample model, its
 assembled structure, and the analysis with its equilibration and
