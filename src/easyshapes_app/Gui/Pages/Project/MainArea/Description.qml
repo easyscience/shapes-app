@@ -90,13 +90,6 @@ Rectangle {
         }
         // Project info
 
-        // Project image
-        Image {
-            width: EaStyle.Sizes.fontPixelSize * 25
-            fillMode: Image.PreserveAspectFit
-        }
-        // Project image
-
     }
 
 }
