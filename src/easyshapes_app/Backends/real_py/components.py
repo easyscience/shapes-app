@@ -62,6 +62,9 @@ class ComponentsModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.ComponentTypeRole: b'componentType',
@@ -72,9 +75,15 @@ class ComponentsModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per component of the structure.
+        """
         return 0 if parent.isValid() else len(self._session.components)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, type, counter ion, bone end or refusal.
+        """
         if not index.isValid():
             return None
         component = self._session.components[index.row()]
@@ -100,6 +109,9 @@ class ComponentsModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's name, counter ion or bone end.
+        """
         if not index.isValid():
             return False
         component = self._session.components[index.row()]
