@@ -172,7 +172,6 @@ label.md-nav__title[for="__drawer"] {
 /* Increase TOC (on the right) width */
 .md-nav--secondary {
   margin-left: -10px;
-  margin-right: -4px;
 }
 
 /* */
