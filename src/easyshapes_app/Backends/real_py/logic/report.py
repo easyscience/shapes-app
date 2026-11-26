@@ -7,7 +7,7 @@ Items as indented text trees, for the Summary page.
 
 def outline(serialized):
     """
-    An item as to_dict serializes it, as an indented text tree.
+    Return an item, as to_dict serializes it, as an indented text tree.
 
     An item is a line with its class, its attributes one level deeper,
     its name first; a list's members follow as '- ' lines, a dict's as
