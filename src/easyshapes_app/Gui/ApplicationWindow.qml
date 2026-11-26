@@ -42,7 +42,7 @@ EaComponents.ApplicationWindow {
         EaElements.ToolButton {
             fontIcon: 'cog'
             ToolTip.text: qsTr('Application preferences')
-            onClicked: EaGlobals.Vars.showAppPreferencesDialog = true
+            onClicked: preferencesDialog.open()
         }
 
     ]
@@ -184,6 +184,12 @@ EaComponents.ApplicationWindow {
         target: typeof pyLoggerLevelHandler !== 'undefined' ? pyLoggerLevelHandler : null
         property: 'level'
         value: EaGlobals.Vars.loggingLevel
+    }
+
+    // Opened by the cog. EasyApp's own Preferences dialog stays shut:
+    // nothing sets Vars.showAppPreferencesDialog
+    Gui.PreferencesDialog {
+        id: preferencesDialog
     }
 
     // Any uncaught exception from Python (Backends/real_py/error.py)
