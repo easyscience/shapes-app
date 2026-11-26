@@ -53,9 +53,15 @@ class CurvesModel(EntriesModel):
     )
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {role: key.encode() for role, key in self._ROLES.items()}
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's value for a role, or None for another role.
+        """
         key = self._ROLES.get(role)
         return self._rows[index.row()][key] if index.isValid() and key else None
 
