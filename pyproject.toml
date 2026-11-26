@@ -139,7 +139,7 @@ default-tag = 'v999.0.0'
 # https://interrogate.readthedocs.io/en/latest/
 
 [tool.interrogate]
-fail-under = 0                  # Minimum docstring coverage percentage to pass
+fail-under = 0                     # Minimum docstring coverage percentage to pass
 verbose = 1
 # exclude = ['src/**/__init__.py']
 # Skip what ruff's numpy convention doesn't ask for either
@@ -148,6 +148,8 @@ ignore-magic = true
 ignore-nested-functions = true
 ignore-private = true
 ignore-semiprivate = true
+# Property setters: Qt shows the getter's docstring
+ignore-property-decorators = true
 
 #######################################
 # Configuration for coverage/pytest-cov
@@ -320,8 +322,6 @@ max-doc-length = 72
 
 [tool.ruff.lint.pydocstyle]
 convention = 'numpy'
-# Qt Properties are the values QML reads; most only return a field
-ignore-decorators = ['PySide6.QtCore.Property']
 
 [tool.ruff.lint.pylint]
 # Ruff counts `self`/`cls` in max-args; traditional pylint does not.
