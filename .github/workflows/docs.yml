@@ -114,6 +114,11 @@ jobs:
           pixi run docs-build-local
           pixi run docs-inventory-check
 
+      # Replace setup with a hidden Colab installer after HTML rendering.
+      # Update both downloads and the executed copies used by Mike's rebuild.
+      - name: Prepare notebooks for download and Colab
+        run: pixi run notebook-prepare-colab
+
       # Upload the static files from the docs/site/ directory to be used for
       # local check
       - name: Upload built site as artifact
