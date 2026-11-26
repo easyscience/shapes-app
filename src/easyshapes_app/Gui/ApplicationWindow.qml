@@ -178,6 +178,14 @@ EaComponents.ApplicationWindow {
         }
     }
 
+    // Preferences › Develop › Logging level reaches the Python logger.
+    // Python run only: the mock run has no handler (main.py passes it)
+    Binding {
+        target: typeof pyLoggerLevelHandler !== 'undefined' ? pyLoggerLevelHandler : null
+        property: 'level'
+        value: EaGlobals.Vars.loggingLevel
+    }
+
     // Any uncaught exception from Python (Backends/real_py/error.py)
     EaElements.Dialog {
         id: errorDialog
