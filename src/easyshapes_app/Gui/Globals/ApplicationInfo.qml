@@ -24,7 +24,10 @@ QtObject {
         'date': new Date().toISOString().slice(0,10),
         'developerYearsFrom': '2025',
         'developerYearsTo': '2026',
-        'description': '**EasyShapes** is a scientific software for generation of ordered molecular aggregates and pre-assembled composite structures to seed molecular dynamics (MD) simulations aimed at studying equilibration (relaxation) processes in soft matter and biomolecular systems.',
+        'description': '<b>EasyShapes</b> is a scientific software for generation of ordered<br>'
+                       + 'molecular aggregates and pre-assembled composite structures to seed<br>'
+                       + 'molecular dynamics (MD) simulations aimed at studying equilibration<br>'
+                       + '(relaxation) processes in soft matter and biomolecular systems.',
         'developerIcons': [
             {
                 'url': 'https://ess.eu',
