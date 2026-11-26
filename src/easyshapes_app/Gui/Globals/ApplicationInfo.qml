@@ -10,10 +10,15 @@ QtObject {
         'nameSuffix': 'Shapes',
         'namePrefixForLogo': 'easy',
         'nameSuffixForLogo': 'shapes',
-        'homePageUrl': 'https://github.com/easyscience/shapes',
-        'issuesUrl': 'https://github.com/easyscience/shapes/issues',
-        'licenseUrl': 'https://github.com/easyscience/shapes/LICENCE',
-        'dependenciesUrl': 'https://github.com/easyscience/shapes/DEPENDENCIES.md',
+        'homePageUrl': 'https://easyscience.github.io/shapes-app/',
+        // Deep links need the version folder: dev/ until the first
+        // release, latest/ after it
+        'docsUrl': 'https://easyscience.github.io/shapes-app/dev/',
+        'discussionsUrl': 'https://github.com/easyscience/shapes/discussions',
+        'issuesUrl': 'https://github.com/easyscience/shapes-app/issues',
+        'licenseUrl': 'https://github.com/easyscience/shapes-app/blob/master/LICENSE',
+        // develop until the first release puts the file on master
+        'dependenciesUrl': 'https://github.com/easyscience/shapes-app/blob/develop/DEPENDENCIES.md',
         'version': '0.1.0',
         'icon': Qt.resolvedUrl('../Resources/Logos/App.png'),
         'date': new Date().toISOString().slice(0,10),
