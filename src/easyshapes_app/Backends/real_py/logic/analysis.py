@@ -73,8 +73,10 @@ class LogReader:
 
     def read(self):
         """
-        The log as shown now, with what was added since the last read. A
-        file not written yet reads as empty.
+        Return the log as shown now.
+
+        It includes what was added since the last read. A file not
+        written yet reads as empty.
         """
         try:
             with self._path.open('rb') as stream:
