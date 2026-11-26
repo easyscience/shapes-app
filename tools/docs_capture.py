@@ -189,6 +189,9 @@ def make_sds_run(folder):
     equilibration.last_stage = 1
     equilibration.restrain_to_box_center = True
     equilibration.run()
+    # Saved before the curves: a save copies the stages in, and a curve
+    # older than its stage's .gro shows as outdated
+    project.save()
     # Named as the app names them, so they read like the reader's own
     for sld, deuterated in ((6.36, ()), (-0.56, ('SDS',))):
         name = f'SDSBall-eq1-sld{sld:g}' + ''.join(f'-d{d}' for d in deuterated) + '-pd0.25'
