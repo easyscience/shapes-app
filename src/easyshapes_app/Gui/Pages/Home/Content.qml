@@ -103,11 +103,11 @@ Item {
                 }
                 EaElements.Button {
                     text: qsTr('Online documentation')
-                    onClicked: Qt.openUrlExternally('https://github.com/EasyScience/EasyApp')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.docsUrl)
                 }
                 EaElements.Button {
-                    text: qsTr('Get in touch online')
-                    onClicked: console.debug(`Button clicked: ${text}`)
+                    text: qsTr('Questions and feedback')
+                    onClicked: Qt.openUrlExternally(Globals.ApplicationInfo.about.discussionsUrl)
                 }
             }
             // Left links
