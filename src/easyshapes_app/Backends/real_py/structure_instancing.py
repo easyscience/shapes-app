@@ -42,7 +42,9 @@ _FRACTION = 0.05
 
 def _linear(colour):
     """
-    An sRGB hex colour as linear RGB, as Qt hands colours to shaders.
+    Convert an sRGB hex colour to linear RGB.
+
+    Qt hands colours to shaders as linear RGB.
     """
     rgb = np.array([int(colour[i : i + 2], 16) / 255 for i in (1, 3, 5)])
     return np.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
@@ -414,8 +416,10 @@ class StructureInstancing(QQuick3DInstancing):
 
     def _bond_rows(self, bonds):
         """
-        The table of bonds given as pairs of atom indices: two rows a
-        bond, one half from each atom to the middle, in its colour.
+        Return the table rows of bonds given as pairs of atom indices.
+
+        Two rows a bond: one half from each atom to the middle, in its
+        colour.
         """
         # Each bond's two atoms in turn
         ends = bonds.ravel()
