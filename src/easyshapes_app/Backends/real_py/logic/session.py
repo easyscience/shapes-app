@@ -31,8 +31,10 @@ class Session:
     @property
     def components(self):
         """
-        The components of the current structure, a lattice's from its
-        motif; empty before the first sample model.
+        The components of the current structure.
+
+        A lattice's come from its motif. The list is empty before the
+        first sample model.
         """
         if self.sample_model is None:
             return ()
