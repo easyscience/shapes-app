@@ -11,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class LatticeStructure(QObject):
     """
-    One lattice's fields for QML. The motif's fields are on its shape's
-    adapter.
+    One lattice's fields for QML.
+
+    The motif's fields are on its shape's adapter.
 
     The root builds it while a lattice repeats the structure and drops
     it on the next structure change; without a lattice QML finds none.
