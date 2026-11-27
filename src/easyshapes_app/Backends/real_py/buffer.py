@@ -17,8 +17,9 @@ from shapes.project.species import Solvent
 
 class BufferComponentsModel(QAbstractListModel):
     """
-    The buffer's components as rows of an editable ListView: a name and
-    a concentration each.
+    The buffer's components as rows of an editable ListView.
+
+    Each row has a name and a concentration.
 
     The page works in mM, as wet-lab protocols do; the library holds
     mol/L, so reads multiply by 1000 and writes divide. The Buffer part
@@ -136,8 +137,9 @@ class BufferComponentsModel(QAbstractListModel):
 
 class Buffer(QObject):
     """
-    One buffer's fields for QML: its solvent, by name, and its
-    components.
+    One buffer's fields for QML.
+
+    They are its solvent, by name, and its components.
 
     The root builds it over the current sample model's buffer and drops
     it on the next structure change; with no sample model QML finds
