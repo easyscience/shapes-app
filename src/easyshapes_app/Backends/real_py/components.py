@@ -210,9 +210,10 @@ class ComponentsModel(QAbstractListModel):
 
     def rename(self, name, new_name):
         """
-        Rename the component of a name with the name cell's checks, and
-        return why a name was refused, '' when renamed. The list keeps
-        no record of the refusal: the caller shows it.
+        Rename a component by name, with the name cell's checks.
+
+        Return why the new name was refused, or '' when renamed. The
+        list keeps no record of the refusal: the caller shows it.
         """
         # Another editor's rename: the name cell's checks and signals,
         # but the refusal is the caller's to show, not this list's
@@ -237,8 +238,9 @@ class ComponentsModel(QAbstractListModel):
 
     def refresh_files(self, component):
         """
-        Show a component's row anew after its files changed: its atoms
-        and bonds may differ.
+        Show a component's row anew after its files changed.
+
+        Its atoms and bonds may differ.
         """
         index = self.index(self._session.components.names.index(component.name))
         # No roles: every role may have changed
@@ -250,8 +252,9 @@ class ComponentsModel(QAbstractListModel):
 
     def _set_name(self, index, component, name):
         """
-        Rename a component, or keep the typed name and the reason why
-        not, until the next accepted name.
+        Rename a component, or keep the typed name and why it failed.
+
+        Both are kept until the next accepted name.
         """
         held = component.name
         error = self._rename(component, name)
@@ -270,8 +273,9 @@ class ComponentsModel(QAbstractListModel):
 
     def _rename(self, component, name):
         """
-        Rename a component through the library, or say why not; '' when
-        renamed or unchanged.
+        Rename a component through the library, or say why not.
+
+        Return '' when renamed or unchanged.
         """
         if name == component.name:
             return ''
@@ -289,8 +293,10 @@ class ComponentsModel(QAbstractListModel):
 
 class Components(QObject):
     """
-    The components list for QML: its rows, adding a component from the
-    library or from an export folder, renaming one and removing one.
+    The components list for QML.
+
+    It holds the rows. It adds a component from the library or from an
+    export folder, renames one and removes one.
     """
 
     # The library classes components load from, by class name; tests
@@ -312,16 +318,16 @@ class Components(QObject):
     @Slot(str, str)
     def append(self, component_type, name):
         """
-        Load a component from the library by type and name and add it as
-        a new row.
+        Load a library component by type and name into a new row.
         """
         self._model.append(self._types[component_type].load(name))
 
     @Slot(str)
     def importFrom(self, folder):
         """
-        Add the component an export folder holds, of the class its
-        record names.
+        Add the component an export folder holds.
+
+        It loads as the class its record names.
         """
         # The record names the class the folder was exported from
         component_type = read_ser_data(Path(folder))['dtype']
@@ -332,8 +338,9 @@ class Components(QObject):
     @Slot(str, str, result=str)
     def rename(self, name, new_name):
         """
-        Rename the component of a name with the name cell's checks, and
-        return why a name was refused, '' when renamed.
+        Rename a component by name, with the name cell's checks.
+
+        Return why the new name was refused, or '' when renamed.
         """
         return self._model.rename(name, new_name)
 
@@ -350,8 +357,8 @@ class Components(QObject):
         Return the atoms of a row's molecule for the component viewer.
 
         Each has its element and position in Å, centred on their mean,
-        in atom order. Empty when the component has no structure file
-        or nothing is read.
+        in atom order. Empty when the component has no structure file or
+        nothing is read.
         """
         component = self._session.components[row]
         path = component.structure_file_path
