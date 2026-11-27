@@ -19,8 +19,9 @@ from .logic.session import Session
 
 class Project(QObject):
     """
-    The session's shapespyer project for QML: its fields, and create,
-    load and save.
+    The session's shapespyer project for QML.
+
+    It holds the project's fields, and does create, load and save.
 
     Fields read '' while there is no project. Create and load put the
     new project into the session together with its sample model and
@@ -65,9 +66,7 @@ class Project(QObject):
     @Property(bool, notify=createdChanged)
     def loaded(self):
         """
-        Whether the session's project was loaded: its Sample Model and
-        Analysis tabs open at once; a created one unlocks them with
-        Continue.
+        True if the project was loaded, False if it was created.
         """
         return self._loaded
 
@@ -114,8 +113,9 @@ class Project(QObject):
     @Property(str, notify=pathChanged)
     def pathParentUrl(self):
         """
-        file:// URL of the folder holding the project, where the next
-        create dialog opens; '' without a project.
+        file:// URL of the folder holding the project.
+
+        The next create dialog opens there. It is '' without a project.
         """
         project = self._session.project
         return project.path.parent.as_uri() if project else ''
@@ -123,8 +123,9 @@ class Project(QObject):
     @Property(str, notify=modifiedChanged)
     def modified(self):
         """
-        Last save as local 'dd Mon YYYY HH:MM'; '' before the first save
-        or without a project.
+        Last save as local 'dd Mon YYYY HH:MM'.
+
+        It is '' before the first save or without a project.
         """
         project = self._session.project
         if project is None or project.modified is None:
@@ -138,9 +139,10 @@ class Project(QObject):
     @Slot(str, result=bool)
     def locationTaken(self, path):
         """
-        Whether a location typed for create already holds something: a
-        file, or a folder that is not empty. An empty path means the
-        library default, which its uid keeps new.
+        Whether a location typed for create already holds something.
+
+        That is a file, or a folder that is not empty. An empty path
+        means the library default, which its uid keeps new.
         """
         if not path:
             return False
@@ -154,8 +156,9 @@ class Project(QObject):
     @Slot(str, str, str)
     def create(self, name, description, path):
         """
-        Make a new project, once no assembly runs. The first one takes
-        in the session's sample model and analysis.
+        Make a new project, once no assembly runs.
+
+        The first one takes in the session's sample model and analysis.
 
         Empty name and path go to the library as None: it names the
         project by its uid and puts it in Projects/<full_name>.
@@ -200,9 +203,9 @@ class Project(QObject):
 
     def _set_session_project(self, project, *, loaded):
         """
-        Put a project into the session with its sample model and
-        analysis, and tell QML; loaded tells a loaded project from a
-        created one.
+        Put a project, its sample model and analysis into the session.
+
+        Then tell QML. loaded tells a loaded project from a created one.
         """
         # A later project builds its own analysis, with an empty
         # configuration; a loaded one may hold none either. First: a
