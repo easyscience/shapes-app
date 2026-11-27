@@ -11,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class BilayerStructure(QObject):
     """
-    One bilayer's fields for QML: the structure's, or the motif's its
-    lattice repeats.
+    One bilayer's fields for QML.
+
+    The bilayer is the structure, or the motif its lattice repeats.
 
     The root builds it while the current structure is a bilayer and
     drops it on the next structure change; for any other shape QML finds
