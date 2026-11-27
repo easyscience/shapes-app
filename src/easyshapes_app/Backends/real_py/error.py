@@ -43,8 +43,9 @@ class Error(QObject):
 
     def report(self, exc_type, exc_value, exc_traceback):
         """
-        Print the traceback as Python does, and show the exception in
-        the dialog.
+        Print the traceback and show the exception in the dialog.
+
+        The traceback looks as Python prints it.
         """
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         self.message = f'{exc_type.__name__}: {exc_value}'
