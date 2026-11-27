@@ -28,8 +28,9 @@ EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent
 
 def show_splash():
     """
-    Run as main.py --splash: show the logo until the app closes this
-    process's stdin, or ends.
+    Show the logo until the app closes this process's stdin, or ends.
+
+    This runs as main.py --splash.
     """
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()
