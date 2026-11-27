@@ -27,11 +27,13 @@ from .logic.session import Session
 
 class CurvesModel(EntriesModel):
     """
-    The analysis's SANS curves that hold data, as Scattering view lists
-    them and the chart draws them. A row is a dict of the roles: the
-    curve's name, its source's name and its settings, as SansCurve holds
-    them; its Rg in Å; its status, 'done' or 'outdated' once its
-    structure changed after it; and shown, whether the chart draws it.
+    The analysis's SANS curves that hold data.
+
+    Scattering view lists them and the chart draws them. A row is a dict
+    of the roles: the curve's name, its source's name and its settings,
+    as SansCurve holds them; its Rg in Å; its status, 'done' or
+    'outdated' once its structure changed after it; and shown, whether
+    the chart draws it.
     """
 
     # The role of each key of a row
@@ -78,9 +80,11 @@ class CurvesModel(EntriesModel):
 
 class Scattering(QObject):
     """
-    The analysis's SANS curves for QML: the settings of the next one,
-    the structures it can be calculated from, the components that can be
-    deuterated, and the curves the analysis holds.
+    The analysis's SANS curves for QML.
+
+    It holds the settings of the next curve, the structures it can be
+    calculated from, the components that can be deuterated, and the
+    curves the analysis holds.
 
     The settings are a SansCurve's, under its parameter names. They are
     filled from the analysis's newest curve, or SansCurve's defaults
@@ -263,8 +267,10 @@ class Scattering(QObject):
     @Property('QVariant', notify=rangesChanged)
     def ranges(self):
         """
-        Over the shown curves, the smallest and largest log10 of q and
-        I: xmin, xmax, ymin, ymax; 0 to 1 on both without one.
+        The axis ranges of the shown curves, in log10 of q and I.
+
+        They are xmin, xmax, ymin, ymax: the smallest and largest
+        values. Without a shown curve, both axes run from 0 to 1.
         """
         points = [
             point
@@ -294,8 +300,10 @@ class Scattering(QObject):
     @Slot(str, bool)
     def setDeuterated(self, name, on):
         """
-        Tick or untick a component. The ticked ones stay in the
-        components' order, so the same ticks give the same settings.
+        Tick or untick a component.
+
+        The ticked ones stay in the components' order, so the same ticks
+        give the same settings.
         """
         ticked = set(self._settings['deuterated']) - {name}
         if on:
@@ -318,10 +326,12 @@ class Scattering(QObject):
     @Slot()
     def calculate(self):
         """
-        Calculate a curve of the picked structure with the settings, in
-        the background: the curve with these settings again, or a new
-        one, which joins the list once its run succeeds. A check that
-        fails before the start raises, for the error dialog.
+        Calculate a curve of the picked structure in the background.
+
+        With the settings of an existing curve, that curve is calculated
+        again. Otherwise a new curve joins the list once its run
+        succeeds. A check that fails before the start raises, for the
+        error dialog.
         """
         if self._selected_structure < 0:
             raise ValueError('No structure to calculate from: assemble the sample model first')
@@ -330,8 +340,10 @@ class Scattering(QObject):
     @Slot()
     def cancel(self):
         """
-        Stop the running calculation; it ends at once. A new curve is
-        dropped, and a curve calculated again keeps its old data.
+        Stop the running calculation at once.
+
+        A new curve is dropped, and a curve calculated again keeps its
+        old data.
         """
         self._running.job.cancel()
         self._check()
@@ -352,8 +364,9 @@ class Scattering(QObject):
     @Slot(str, result=bool)
     def exportTaken(self, folder):
         """
-        Whether exporting the shown curves to a folder would replace a
-        file: a .dat of the same name there.
+        Whether exporting the shown curves would replace a file.
+
+        That is a .dat of the same name in the folder.
         """
         shown = (curve for curve in self._listed if curve.name not in self._hidden)
         return any(export_taken(folder, curve.file_with_suffix('.dat')) for curve in shown)
@@ -361,9 +374,10 @@ class Scattering(QObject):
     @Slot(str, bool)
     def exportTo(self, folder, overwrite):
         """
-        Copy the .dat of each shown curve into a folder, as SasView
-        reads it. Without overwrite, a folder holding one of them is
-        refused: the page asks first.
+        Copy the .dat of each shown curve into a folder.
+
+        SasView can read the files. Without overwrite, a folder holding
+        one of them is refused: the page asks first.
         """
         if not overwrite and self.exportTaken(folder):
             raise FileExistsError(f'{folder} already holds .dat files of these curves')
@@ -374,9 +388,10 @@ class Scattering(QObject):
     @Slot(int)
     def removeCurve(self, row):
         """
-        Remove a curve and its files, after the page's dialog. A file a
-        saved project lists goes at its next save, so a reload still
-        finds it.
+        Remove a curve and its files, after the page's dialog.
+
+        A file a saved project lists goes at its next save, so a reload
+        still finds it.
         """
         curve = self._listed[row]
         curve.check_files_unlocked()
@@ -392,10 +407,12 @@ class Scattering(QObject):
 
     def refresh(self):
         """
-        Read everything again: another analysis or sample model, an
-        assembly's start or end, a run's start or a finished stage, or a
-        component added, renamed or removed. Another analysis refills
-        the settings and forgets the pick and the hidden curves.
+        Read everything again.
+
+        Called on another analysis or sample model, an assembly's start
+        or end, a run's start or a finished stage, or a component added,
+        renamed or removed. Another analysis refills the settings and
+        forgets the pick and the hidden curves.
         """
         if self._session.analysis is not self._filled_from:
             self._fill()
@@ -423,9 +440,10 @@ class Scattering(QObject):
 
     def _fill(self):
         """
-        Take the settings of the analysis's newest curve, the last one
-        added, or SansCurve's defaults without one, and keep the
-        analysis they came from.
+        Take the settings of the analysis's newest curve.
+
+        The newest is the last one added. Without one, take SansCurve's
+        defaults. Keep the analysis they came from.
         """
         analysis = self._session.analysis
         defaults = {
@@ -453,10 +471,12 @@ class Scattering(QObject):
 
     def _show_structures(self):
         """
-        List the sample model, under its name, once its own .gro exists,
-        then the equilibration's finished stages. Show the pick while it
-        is listed, else the newest row; a stage listed for the first
-        time becomes the pick.
+        List the structures a curve can be calculated from.
+
+        The sample model comes first, under its name, once its own .gro
+        exists. Then come the equilibration's finished stages. Show the
+        pick while it is listed, else the newest row. A stage listed for
+        the first time becomes the pick.
         """
         sample_model = self._session.sample_model
         analysis = self._session.analysis
@@ -494,9 +514,10 @@ class Scattering(QObject):
 
     def _show_curves(self):
         """
-        List the analysis's curves that hold data, with their settings
-        as SansCurve keeps them. A curve is outdated once its
-        structure's .gro is newer than its .dat, or gone.
+        List the analysis's curves that hold data, with their settings.
+
+        The settings are as SansCurve keeps them. A curve is outdated
+        once its structure's .gro is newer than its .dat, or gone.
         """
         analysis = self._session.analysis
         rows = []
@@ -564,8 +585,9 @@ class Scattering(QObject):
 
     def _start(self, curve):
         """
-        Calculate a curve in the background, on the session's sample
-        model, and watch the run.
+        Calculate a curve in the background and watch the run.
+
+        The calculation runs on the session's sample model.
         """
         curve.calculate(self._session.sample_model, background=True)
         self._running = curve
@@ -575,10 +597,11 @@ class Scattering(QObject):
 
     def _check(self):
         """
-        Once the run has stopped: end the watch, keep a new curve that
-        succeeded, drop one that failed or was cancelled, with its
-        files, and report the error. A curve calculated again holds its
-        new files, or keeps its old ones.
+        End the watch once the run has stopped.
+
+        Keep a new curve that succeeded. Drop one that failed or was
+        cancelled, with its files, and report the error. A curve
+        calculated again holds its new files, or keeps its old ones.
         """
         curve = self._running
         # The read takes an ended run's outputs in
