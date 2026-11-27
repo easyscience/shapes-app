@@ -17,8 +17,8 @@ def read_gro_atoms(path):
     """
     Read the atom names and positions of a GRO file.
 
-    It reads columns, with no object per atom, so millions of atoms
-    read in seconds.
+    It reads columns, with no object per atom, so millions of atoms read
+    in seconds.
 
     Every atom line must be as long as the first, line end included, as
     the library writes them; a file with lines of other lengths raises
