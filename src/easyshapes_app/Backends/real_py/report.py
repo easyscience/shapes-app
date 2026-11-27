@@ -15,8 +15,10 @@ from .logic.session import Session
 
 class Report(QObject):
     """
-    The Summary page's text: the session's project as an outline of what
-    its save writes, until shapespyer's Project.summary is written.
+    The Summary page's text.
+
+    It shows the session's project as an outline of what its save
+    writes, until shapespyer's Project.summary is written.
 
     The page calls refresh each time it comes to the front, so the text
     holds the latest changes without a signal from every part. When the
