@@ -12,8 +12,9 @@ from shapes.project import Library as LibraryLib
 
 class Library(QObject):
     """
-    The shapespyer library's lists for QML: saved projects (Recent),
-    examples, and the asset catalogs.
+    The shapespyer library's lists for QML.
+
+    They are saved projects (Recent), examples, and the asset catalogs.
     """
 
     # Emitted by the root after a project is created, loaded or saved
@@ -24,8 +25,10 @@ class Library(QObject):
     @Property('QVariant', notify=availableProjectsChanged)
     def availableProjects(self):
         """
-        Saved projects, most recently saved first: {name, path,
-        modified} rows, modified as local 'dd Mon YYYY HH:MM'.
+        Saved projects, most recently saved first.
+
+        Each row is {name, path, modified}. Times are local, written as
+        'dd Mon YYYY HH:MM'.
         """
         return [
             {
@@ -46,48 +49,59 @@ class Library(QObject):
     @Property('QVariant', notify=availableAssetsChanged)
     def availableAssets(self):
         """
-        Names of every asset by type, local first, then remote ones not
-        held locally. The Load from lib popup lists the editor's types.
+        Names of every asset by type, local ones first.
+
+        Then come remote ones not held locally. The Load from lib popup
+        lists the editor's types.
         """
         return LibraryLib().available_assets
 
     @Property('QVariant', notify=availableAssetsChanged)
     def availableIons(self):
         """
-        Names of the library's ions, local first, then remote ones not
-        held locally. A counter-ion name the components list accepts.
+        Names of the library's ions, local ones first.
+
+        Then come remote ones not held locally. The components list
+        accepts each as a counter-ion name.
         """
         return LibraryLib().available_assets.get('Ion', [])
 
     @Property('QVariant', notify=availableAssetsChanged)
     def availableSolvents(self):
         """
-        Names of the library's solvents, local first, then remote ones
-        not held locally. A name the solvent picker offers.
+        Names of the library's solvents, local ones first.
+
+        Then come remote ones not held locally. The solvent picker
+        offers them.
         """
         return LibraryLib().available_assets.get('Solvent', [])
 
     @Property('QVariant', notify=availableAssetsChanged)
     def availableSalts(self):
         """
-        Names of the library's salts, local first, then remote ones not
-        held locally. A name the Load buffer components popup offers.
+        Names of the library's salts, local ones first.
+
+        Then come remote ones not held locally. The Load buffer
+        components popup offers them.
         """
         return LibraryLib().available_assets.get('Salt', [])
 
     @Property('QVariant', notify=availableAssetsChanged)
     def availableAnalysisConfigurations(self):
         """
-        Names of the library's equilibration configurations, local
-        first, then remote ones not held locally. A name the
-        Configuration picker offers.
+        Names of the library's equilibration configurations.
+
+        Local ones come first, then remote ones not held locally. The
+        Configuration picker offers them.
         """
         return LibraryLib().available_assets.get('AnalysisConfiguration', [])
 
     @Property('QVariant', notify=availableAssetsChanged)
     def availableForceFields(self):
         """
-        Names of the library's force fields, local first, then remote
-        ones not held locally. A name the Force field picker offers.
+        Names of the library's force fields, local ones first.
+
+        Then come remote ones not held locally. The Force field picker
+        offers them.
         """
         return LibraryLib().available_assets.get('ForceField', [])
