@@ -30,8 +30,9 @@ from .logic.files import export_taken
 
 def open_file(path):
     """
-    Open a file, or a folder, where it lies, in the system's default app
-    for its type. Every files group's pencil comes here.
+    Open a file or a folder in the system's default app for its type.
+
+    The file opens where it lies. Every files group's pencil comes here.
     """
     if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
         raise RuntimeError(f'No app on this system opens {path}')
@@ -148,8 +149,10 @@ class FilesModel(QAbstractListModel):
 
 class SaltCompositionModel(QAbstractListModel):
     """
-    A salt draft's two ions as rows of an editable ListView: row 0 the
-    cation, row 1 the anion, each with its count per formula unit.
+    A salt draft's two ions as rows of an editable ListView.
+
+    Row 0 is the cation and row 1 the anion, each with its count per
+    formula unit.
 
     The page writes both roles; Load and Create new replace the rows.
     """
@@ -239,8 +242,10 @@ class SaltCompositionModel(QAbstractListModel):
 
 class LibraryAssets(QObject):
     """
-    The Library assets editor for QML: one draft asset the user creates
-    or loads from the library, edits, saves back or exports.
+    The Library assets editor for QML.
+
+    It holds one draft asset that the user creates or loads from the
+    library, edits, saves back or exports.
 
     The draft keeps plain fields; the typed asset is built only on save
     and export, so changing the type never leaves a half-built one and
@@ -440,8 +445,9 @@ class LibraryAssets(QObject):
     @Slot(str, str)
     def load(self, asset_type, name):
         """
-        Take a library entry's fields into the draft. A remote-only
-        entry is downloaded first.
+        Take a library entry's fields into the draft.
+
+        A remote-only entry is downloaded first.
         """
         asset = self._types[asset_type].load(name)
         # A field the type lacks takes the empty draft's value
@@ -468,8 +474,10 @@ class LibraryAssets(QObject):
     @Slot(result=bool)
     def nameTaken(self):
         """
-        Whether saving would replace another library entry of the
-        draft's type and name; the loaded entry does not count.
+        Whether saving would replace another library entry.
+
+        That is an entry of the draft's type and name. The loaded entry
+        does not count.
         """
         entry = (self._asset_type, self._asset_name)
         return entry != self._loaded and self._library_class().has_entry(*entry)
@@ -477,8 +485,9 @@ class LibraryAssets(QObject):
     @Slot(bool)
     def save(self, overwrite):
         """
-        Save the draft to the library; overwrite replaces an entry of
-        the same name.
+        Save the draft to the library.
+
+        Overwrite replaces an entry of the same name.
         """
         # overwrite: the user confirmed the taken name, or the draft is
         # the loaded entry, saved back
@@ -493,16 +502,20 @@ class LibraryAssets(QObject):
     @Slot(str, int, result=bool)
     def exportTaken(self, folder, row):
         """
-        Whether an export to a folder would replace files: the row's
-        namesake, or for the whole asset (row -1) anything there.
+        Whether an export to a folder would replace files.
+
+        For a row, that is a file of the same name. For the whole asset
+        (row -1), it is anything in the folder.
         """
         return export_taken(folder, self._paths.paths[row] if row >= 0 else None)
 
     @Slot(str, int, bool)
     def exportTo(self, folder, row, overwrite):
         """
-        Copy a row's file into a folder, or export the whole asset (row
-        -1) there; overwrite replaces an earlier export.
+        Copy a row's file, or the whole asset, into a folder.
+
+        Row -1 exports the whole asset. Overwrite replaces an earlier
+        export.
         """
         if row >= 0:
             # One file, copied as it is; the page has asked before
