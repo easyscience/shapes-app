@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The sample model's structure viewer for QML.
+"""
 
 import threading
 
@@ -18,8 +21,10 @@ from .structure_instancing import StructureInstancing
 
 class StructureView(QObject):
     """
-    The structure viewer's atoms: the sample model's .gro, read in a
-    background thread while the Structure tab is shown.
+    The structure viewer's atoms, read from the sample model's .gro.
+
+    The file is read in a background thread while the Structure tab is
+    shown.
 
     A file is read again when its path or modification time changed, or
     after the tab was hidden with keepLoaded off: hiding then drops the
@@ -59,13 +64,17 @@ class StructureView(QObject):
 
     @Property('QVariant', constant=True)
     def instancing(self):
+        """
+        The atoms' instancing for the 3D view.
+        """
         return self._instancing
 
     @Property(bool, notify=hasStructureChanged)
     def hasStructure(self):
         """
-        Whether the sample model holds a .gro to show: none while an
-        assembly runs.
+        Whether the sample model holds a .gro to show.
+
+        False while an assembly runs.
         """
         return self._key() is not None
 
@@ -103,17 +112,25 @@ class StructureView(QObject):
 
     @Property(bool, notify=loadingChanged)
     def loading(self):
+        """
+        True while a structure file is read.
+        """
         return self._loading
 
     @Property(str, notify=errorChanged)
     def error(self):
+        """
+        Why the structure file couldn't be read, '' if it could.
+        """
         return self._error
 
     @Slot(bool)
     def setActive(self, active):
         """
-        Whether the Structure tab is shown; atoms are read only then,
-        and dropped on hiding unless kept.
+        Set whether the Structure tab is shown.
+
+        Atoms are read only while it is, and dropped on hiding unless
+        kept.
         """
         self._active = active
         if not (active or self._keep):
@@ -123,24 +140,29 @@ class StructureView(QObject):
 
     def refresh(self):
         """
-        Show the .gro of a new sample model or structure, if the tab is
-        shown.
+        Show the .gro of a new sample model or structure.
+
+        Nothing is read while the tab is hidden.
         """
         self.hasStructureChanged.emit()
         self._load()
 
     def _key(self):
         """
-        The sample model's .gro, its modification time and whether the
-        bonds are shown, or None.
+        Return the .gro, its modification time and the bonds flag.
+
+        The .gro is the one _gro picks, and the flag says whether bonds
+        are shown. None when _gro picks none.
         """
         path = self._gro()
         return (path, path.stat().st_mtime_ns, self._show_bonds) if path else None
 
     def _gro(self):
         """
-        The .gro to show, or None: the sample model's, none while an
-        assembly writes its files.
+        Return the sample model's .gro to show, or None.
+
+        None without a sample model or a .gro, or while an assembly
+        writes the model's files.
         """
         model = self._session.sample_model
         # None while an assembly writes the model's files
@@ -149,8 +171,10 @@ class StructureView(QObject):
 
     def _load(self):
         """
-        Read the sample model's .gro in a background thread, unless the
-        tab is hidden, a read runs, or the file is shown already.
+        Read the sample model's .gro in a background thread.
+
+        Nothing is read while the tab is hidden or a read runs, or when
+        the file is shown already.
         """
         key = self._key()
         if not self._active or self._loading or key == self._shown:

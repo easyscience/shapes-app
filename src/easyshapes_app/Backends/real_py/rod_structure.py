@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The rod shape's fields for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -8,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class RodStructure(QObject):
     """
-    One rod's fields for QML: the structure's, or the motif's its
-    lattice repeats.
+    One rod's fields for QML.
+
+    The rod is the structure, or the motif its lattice repeats.
 
     The root builds it while the current structure is a rod and drops it
     on the next structure change; for any other shape QML finds none.
@@ -39,6 +43,9 @@ class RodStructure(QObject):
 
     @Property(int, notify=turnsChanged)
     def turns(self):
+        """
+        The number of turns.
+        """
         return self._rod.turns
 
     @turns.setter
@@ -50,6 +57,9 @@ class RodStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._rod.dmin
 
     @dmin.setter
@@ -61,6 +71,9 @@ class RodStructure(QObject):
 
     @Property(float, notify=rminChanged)
     def rmin(self):
+        """
+        The rmin value.
+        """
         return self._rod.rmin
 
     @rmin.setter
@@ -72,6 +85,9 @@ class RodStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._rod.fxz
 
     @fxz.setter
@@ -83,6 +99,9 @@ class RodStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._rod.rev
 
     @rev.setter
@@ -94,10 +113,16 @@ class RodStructure(QObject):
 
     @Property('QVariant', notify=sizesChanged)
     def outerRadius(self):
+        """
+        The outer radius, None while no component has a bone length.
+        """
         # None while no component has a bone length
         return self._rod.outer_radius
 
     @Property('QVariant', notify=sizesChanged)
     def length(self):
+        """
+        The length, cap tip to cap tip, None while it is unknown.
+        """
         # Cap tip to cap tip; None while the outer radius is unknown
         return self._rod.length

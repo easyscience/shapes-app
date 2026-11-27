@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+An equilibration asset, configuration or force field, for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -15,9 +18,10 @@ from .logic.session import Session
 
 class AssetFiles(QObject):
     """
-    One library asset of the session's equilibration for QML: its
-    configuration (.mdp files) or its force field (.itp). The root
-    builds one of each.
+    One library asset of the session's equilibration for QML.
+
+    The asset is its configuration (.mdp files) or its force field
+    (.itp). The root builds one of each.
 
     Its name, its files, a load from the library, and Save to lib and
     Export, as the Sample Model Files group. Fields read '' and the
@@ -50,6 +54,9 @@ class AssetFiles(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The asset's name, '' without an asset.
+        """
         asset = self._asset()
         return asset.name if asset else ''
 
@@ -65,6 +72,9 @@ class AssetFiles(QObject):
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The asset's files model.
+        """
         return self._files
 
     ##########################
@@ -74,8 +84,7 @@ class AssetFiles(QObject):
     @Slot(str)
     def load(self, name):
         """
-        Replace the equilibration's asset with the library's of that
-        name.
+        Replace the equilibration's asset with a library one by name.
         """
         setattr(
             self._session.analysis.equilibration, self._attribute, self._asset_class.load(name)
@@ -118,8 +127,9 @@ class AssetFiles(QObject):
     @Slot(bool)
     def save(self, overwrite):
         """
-        Save the asset to the library; overwrite replaces an entry of
-        the same name.
+        Save the asset to the library.
+
+        Overwrite replaces an entry of the same name.
         """
         self._asset().save(overwrite=overwrite)
         self.externalAssetsChanged.emit()
@@ -127,16 +137,18 @@ class AssetFiles(QObject):
     @Slot(str, result=bool)
     def exportTaken(self, folder):
         """
-        Whether an export to a folder would replace files: anything
-        there.
+        Whether an export to a folder would replace files.
+
+        Anything in the folder counts.
         """
         return export_taken(folder)
 
     @Slot(str, bool)
     def exportTo(self, folder, overwrite):
         """
-        Export the asset to a folder; overwrite replaces an earlier
-        export.
+        Export the asset to a folder.
+
+        Overwrite replaces an earlier export.
         """
         self._asset().export_to(folder, overwrite=overwrite)
 
@@ -146,8 +158,9 @@ class AssetFiles(QObject):
 
     def refresh(self):
         """
-        Tell QML that the session holds another analysis, and show its
-        asset's files.
+        Tell QML that the session holds another analysis.
+
+        Also show the files of its asset.
         """
         asset = self._asset()
         self._files.reset(asset.paths if asset else ())

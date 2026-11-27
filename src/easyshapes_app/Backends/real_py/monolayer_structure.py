@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The monolayer shape's fields for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -8,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class MonolayerStructure(QObject):
     """
-    One monolayer's fields for QML: the structure's, or the motif's its
-    lattice repeats.
+    One monolayer's fields for QML.
+
+    The monolayer is the structure, or the motif its lattice repeats.
 
     The root builds it while the current structure is a monolayer and
     drops it on the next structure change; for any other shape QML finds
@@ -37,6 +41,9 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._monolayer.dmin
 
     @dmin.setter
@@ -48,6 +55,9 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=zsepChanged)
     def zsep(self):
+        """
+        The zsep value.
+        """
         return self._monolayer.zsep
 
     @zsep.setter
@@ -59,6 +69,9 @@ class MonolayerStructure(QObject):
 
     @Property(int, notify=nsideChanged)
     def nside(self):
+        """
+        The number of sites along a side.
+        """
         return self._monolayer.nside
 
     @nside.setter
@@ -70,11 +83,17 @@ class MonolayerStructure(QObject):
 
     @Property(float, notify=sizesChanged)
     def width(self):
+        """
+        The width: nside sites, dmin apart.
+        """
         # nside sites dmin apart: always known
         return self._monolayer.width
 
     @Property('QVariant', notify=sizesChanged)
     def thickness(self):
+        """
+        The thickness, None while no component has a bone length.
+        """
         # zsep, or dmin, plus the longest bone on each side; None while
         # no component has one
         return self._monolayer.thickness

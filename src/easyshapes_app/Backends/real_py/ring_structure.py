@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The ring shape's fields for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -8,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class RingStructure(QObject):
     """
-    One ring's fields for QML: the structure's, or the motif's its
-    lattice repeats.
+    One ring's fields for QML.
+
+    The ring is the structure, or the motif its lattice repeats.
 
     The root builds it while the current structure is a ring and drops
     it on the next structure change; for any other shape QML finds none.
@@ -37,6 +41,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=alphaChanged)
     def alpha(self):
+        """
+        The alpha angle.
+        """
         return self._ring.alpha
 
     @alpha.setter
@@ -48,6 +55,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=thetaChanged)
     def theta(self):
+        """
+        The theta angle.
+        """
         return self._ring.theta
 
     @theta.setter
@@ -59,6 +69,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=dminChanged)
     def dmin(self):
+        """
+        The dmin value.
+        """
         return self._ring.dmin
 
     @dmin.setter
@@ -70,6 +83,9 @@ class RingStructure(QObject):
 
     @Property(float, notify=rminChanged)
     def rmin(self):
+        """
+        The rmin value.
+        """
         return self._ring.rmin
 
     @rmin.setter
@@ -81,6 +97,9 @@ class RingStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._ring.fxz
 
     @fxz.setter
@@ -92,6 +111,9 @@ class RingStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._ring.rev
 
     @rev.setter
@@ -103,6 +125,9 @@ class RingStructure(QObject):
 
     @Property('QVariant', notify=sizesChanged)
     def outerRadius(self):
+        """
+        The outer radius, None while no component has a bone length.
+        """
         # None while no component has a bone length; Alpha and Theta
         # don't tilt it
         return self._ring.outer_radius

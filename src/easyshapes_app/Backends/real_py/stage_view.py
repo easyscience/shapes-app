@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The Analysis page's structure viewer for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import Signal
@@ -14,10 +17,12 @@ from .structure_view import StructureView
 
 class StageView(StructureView):
     """
-    The Analysis page's structure viewer: the equilibration's initial
-    structure, its copy of the model that stage 0 starts from, or a
-    finished stage's final .gro, read as the Structure viewer reads the
-    sample model's.
+    The Analysis page's structure viewer.
+
+    It shows the equilibration's initial structure, or a finished
+    stage's final .gro. The initial structure is the equilibration's
+    copy of the model, which stage 0 starts from. Files are read as the
+    Structure viewer reads the sample model's.
 
     The picker lists Initial, once the equilibration holds its copy, and
     the finished stages. Until a row is picked by hand, the newest
@@ -39,10 +44,16 @@ class StageView(StructureView):
 
     @Property('QVariant', constant=True)
     def stages(self):
+        """
+        The stages model.
+        """
         return self._stages
 
     @Property(int, notify=selectedStageChanged)
     def selectedStage(self):
+        """
+        The row picked in the stages.
+        """
         return self._selected_stage
 
     @Slot(int)
@@ -55,9 +66,10 @@ class StageView(StructureView):
 
     def refresh(self):
         """
-        List the rows again, after another analysis, a run's start or a
-        finished stage, and show the pick while it is listed, else the
-        newest row.
+        List the rows again, then show the pick or the newest row.
+
+        Called after another analysis, a run's start or a finished
+        stage. The pick shows while it is listed.
         """
         rows, self._files = self._rows()
         self._stages.update(rows)
@@ -75,9 +87,10 @@ class StageView(StructureView):
 
     def _rows(self):
         """
-        The rows, (name, status), and each row's file: Initial when the
-        equilibration's own files hold a .gro, then each finished stage
-        with its final .gro.
+        Return the rows, (name, status), and each row's file.
+
+        Initial comes first when the equilibration's own files hold a
+        .gro, then each finished stage with its final .gro.
         """
         analysis = self._session.analysis
         equilibration = analysis.equilibration if analysis else None

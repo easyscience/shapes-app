@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The Summary page's text for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -12,8 +15,10 @@ from .logic.session import Session
 
 class Report(QObject):
     """
-    The Summary page's text: the session's project as an outline of what
-    its save writes, until shapespyer's Project.summary is written.
+    The Summary page's text.
+
+    It shows the session's project as an outline of what its save
+    writes, until shapespyer's Project.summary is written.
 
     The page calls refresh each time it comes to the front, so the text
     holds the latest changes without a signal from every part. When the
@@ -32,6 +37,9 @@ class Report(QObject):
 
     @Property(str, notify=textChanged)
     def text(self):
+        """
+        The summary text.
+        """
         return self._text
 
     @Property(str, notify=textChanged)

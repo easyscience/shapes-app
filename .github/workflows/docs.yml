@@ -1,7 +1,6 @@
 # This workflow builds and deploys documentation for the project.
 #
 # Overview:
-#  - Converts tutorial Python scripts to Jupyter notebooks and executes them.
 #  - Builds the documentation site using MkDocs with the Material theme.
 #  - Uploads the built site as an artifact for local inspection.
 #  - Deploys versioned documentation to the gh-pages branch using Mike:
@@ -114,12 +113,17 @@ jobs:
           pixi run docs-build-local
           pixi run docs-inventory-check
 
+      # Replace setup with a hidden Colab installer after HTML rendering.
+      # Update both downloads and the executed copies used by Mike's rebuild.
+      - name: Prepare notebooks for download and Colab
+        run: pixi run notebook-prepare-colab
+
       # Upload the static files from the docs/site/ directory to be used for
       # local check
       - name: Upload built site as artifact
         uses: ./.github/actions/upload-artifact
         with:
-          name: site-local_easyshapes-lib-${{ env.RELEASE_VERSION }}
+          name: site-local_easyshapes-app-${{ env.RELEASE_VERSION }}
           path: docs/site/
 
       # Create GitHub App token for pushing to gh-pages as easyscience[bot].

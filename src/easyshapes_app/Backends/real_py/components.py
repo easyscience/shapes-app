@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The structure's components list for QML.
+"""
 
 from pathlib import Path
 
@@ -62,6 +65,9 @@ class ComponentsModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.ComponentTypeRole: b'componentType',
@@ -72,9 +78,15 @@ class ComponentsModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per component of the structure.
+        """
         return 0 if parent.isValid() else len(self._session.components)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, type, counter ion, bone end or refusal.
+        """
         if not index.isValid():
             return None
         component = self._session.components[index.row()]
@@ -100,6 +112,9 @@ class ComponentsModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's name, counter ion or bone end.
+        """
         if not index.isValid():
             return False
         component = self._session.components[index.row()]
@@ -137,6 +152,9 @@ class ComponentsModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Property(str, notify=errorsChanged)
@@ -192,9 +210,10 @@ class ComponentsModel(QAbstractListModel):
 
     def rename(self, name, new_name):
         """
-        Rename the component of a name with the name cell's checks, and
-        return why a name was refused, '' when renamed. The list keeps
-        no record of the refusal: the caller shows it.
+        Rename a component by name, with the name cell's checks.
+
+        Return why the new name was refused, or '' when renamed. The
+        list keeps no record of the refusal: the caller shows it.
         """
         # Another editor's rename: the name cell's checks and signals,
         # but the refusal is the caller's to show, not this list's
@@ -219,8 +238,9 @@ class ComponentsModel(QAbstractListModel):
 
     def refresh_files(self, component):
         """
-        Show a component's row anew after its files changed: its atoms
-        and bonds may differ.
+        Show a component's row anew after its files changed.
+
+        Its atoms and bonds may differ.
         """
         index = self.index(self._session.components.names.index(component.name))
         # No roles: every role may have changed
@@ -232,8 +252,9 @@ class ComponentsModel(QAbstractListModel):
 
     def _set_name(self, index, component, name):
         """
-        Rename a component, or keep the typed name and the reason why
-        not, until the next accepted name.
+        Rename a component, or keep the typed name and why it failed.
+
+        Both are kept until the next accepted name.
         """
         held = component.name
         error = self._rename(component, name)
@@ -252,8 +273,9 @@ class ComponentsModel(QAbstractListModel):
 
     def _rename(self, component, name):
         """
-        Rename a component through the library, or say why not; '' when
-        renamed or unchanged.
+        Rename a component through the library, or say why not.
+
+        Return '' when renamed or unchanged.
         """
         if name == component.name:
             return ''
@@ -271,8 +293,10 @@ class ComponentsModel(QAbstractListModel):
 
 class Components(QObject):
     """
-    The components list for QML: its rows, adding a component from the
-    library or from an export folder, renaming one and removing one.
+    The components list for QML.
+
+    It holds the rows. It adds a component from the library or from an
+    export folder, renames one and removes one.
     """
 
     # The library classes components load from, by class name; tests
@@ -286,21 +310,24 @@ class Components(QObject):
 
     @Property('QVariant', constant=True)
     def loaded(self):
+        """
+        The components model.
+        """
         return self._model
 
     @Slot(str, str)
     def append(self, component_type, name):
         """
-        Load a component from the library by type and name and add it as
-        a new row.
+        Load a library component by type and name into a new row.
         """
         self._model.append(self._types[component_type].load(name))
 
     @Slot(str)
     def importFrom(self, folder):
         """
-        Add the component an export folder holds, of the class its
-        record names.
+        Add the component an export folder holds.
+
+        It loads as the class its record names.
         """
         # The record names the class the folder was exported from
         component_type = read_ser_data(Path(folder))['dtype']
@@ -311,21 +338,27 @@ class Components(QObject):
     @Slot(str, str, result=str)
     def rename(self, name, new_name):
         """
-        Rename the component of a name with the name cell's checks, and
-        return why a name was refused, '' when renamed.
+        Rename a component by name, with the name cell's checks.
+
+        Return why the new name was refused, or '' when renamed.
         """
         return self._model.rename(name, new_name)
 
     @Slot(int)
     def remove(self, row):
+        """
+        Remove the component in a row.
+        """
         self._model.remove(row)
 
     @Slot(int, result='QVariant')
     def structureAtoms(self, row):
         """
-        The atoms of a row's molecule for the component viewer: element
-        and position in Å, centred on their mean, in atom order. Empty
-        when the component has no structure file or nothing is read.
+        Return the atoms of a row's molecule for the component viewer.
+
+        Each has its element and position in Å, centred on their mean,
+        in atom order. Empty when the component has no structure file or
+        nothing is read.
         """
         component = self._session.components[row]
         path = component.structure_file_path
@@ -357,18 +390,21 @@ class Components(QObject):
     @Slot(int, result=float)
     def boneLength(self, row):
         """
-        A row's Mint to Mext distance in nm, as the library measures it;
-        0 when Mint equals Mext or no molecule is read.
+        Return a row's Mint to Mext distance in nm.
+
+        The library measures it. It is 0 when Mint equals Mext or no
+        molecule is read.
         """
         return self._session.components[row].bone_length or 0.0
 
     @Slot(int, result='QVariant')
     def structureBonds(self, row):
         """
-        The bonds of a row's molecule from its topology file, as pairs
-        of 0-based atom indices in structureAtoms' order. Empty when the
-        component has no topology file, no molecule type in it matches,
-        or it lists no bonds.
+        Return the bonds of a row's molecule from its topology file.
+
+        They are pairs of 0-based atom indices in structureAtoms' order.
+        Empty when the component has no topology file, no molecule type
+        in it matches, or it lists no bonds.
         """
         component = self._session.components[row]
         path = component.topology_file_path

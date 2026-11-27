@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The app's entry point: the splash, the examples, then the window.
+"""
 
 import logging
 import os
@@ -25,8 +28,9 @@ EASYAPP_DIR = Path(EasyApplication.__path__[0]).resolve().parent
 
 def show_splash():
     """
-    Run as main.py --splash: show the logo until the app closes this
-    process's stdin, or ends.
+    Show the logo until the app closes this process's stdin, or ends.
+
+    This runs as main.py --splash.
     """
     app = QGuiApplication(sys.argv)
     engine = QQmlApplicationEngine()

@@ -4,21 +4,11 @@
 
 import QtQuick
 
-import EasyApplication.Gui.Elements as EaElements
 import EasyApplication.Gui.Components as EaComponents
 
 import Gui.Globals as Globals
 
 
+// Empty until the summary can be exported
 EaComponents.SideBarColumn {
-
-    EaElements.GroupBox {
-        enabled: false
-        title: qsTr('Export summary')
-        icon: 'download'
-        collapsed: false
-
-        Loader { source: 'Groups/Export.qml' }
-    }
-
 }

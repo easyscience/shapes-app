@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The error dialog's message for QML.
+"""
 
 import sys
 
@@ -26,6 +29,9 @@ class Error(QObject):
 
     @Property(str, notify=messageChanged)
     def message(self):
+        """
+        The error message, '' for none.
+        """
         return self._message
 
     # The dialog clears it on close, so the same error next time opens
@@ -37,8 +43,9 @@ class Error(QObject):
 
     def report(self, exc_type, exc_value, exc_traceback):
         """
-        Print the traceback as Python does, and show the exception in
-        the dialog.
+        Print the traceback and show the exception in the dialog.
+
+        The traceback looks as Python prints it.
         """
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         self.message = f'{exc_type.__name__}: {exc_value}'

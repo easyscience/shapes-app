@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The lattice's fields for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -8,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class LatticeStructure(QObject):
     """
-    One lattice's fields for QML. The motif's fields are on its shape's
-    adapter.
+    One lattice's fields for QML.
+
+    The motif's fields are on its shape's adapter.
 
     The root builds it while a lattice repeats the structure and drops
     it on the next structure change; without a lattice QML finds none.
@@ -33,6 +37,9 @@ class LatticeStructure(QObject):
 
     @Property(float, notify=alphaChanged)
     def alpha(self):
+        """
+        The alpha angle.
+        """
         return self._lattice.alpha
 
     @alpha.setter
@@ -44,6 +51,9 @@ class LatticeStructure(QObject):
 
     @Property(float, notify=thetaChanged)
     def theta(self):
+        """
+        The theta angle.
+        """
         return self._lattice.theta
 
     @theta.setter
@@ -55,6 +65,9 @@ class LatticeStructure(QObject):
 
     @Property(int, notify=nlatxChanged)
     def nlatx(self):
+        """
+        The number of cells along x.
+        """
         return self._lattice.nlatx
 
     @nlatx.setter
@@ -66,6 +79,9 @@ class LatticeStructure(QObject):
 
     @Property(int, notify=nlatyChanged)
     def nlaty(self):
+        """
+        The number of cells along y.
+        """
         return self._lattice.nlaty
 
     @nlaty.setter
@@ -77,6 +93,9 @@ class LatticeStructure(QObject):
 
     @Property(int, notify=nlatzChanged)
     def nlatz(self):
+        """
+        The number of cells along z.
+        """
         return self._lattice.nlatz
 
     @nlatz.setter
@@ -88,6 +107,9 @@ class LatticeStructure(QObject):
 
     @Property(float, notify=sbuffChanged)
     def sbuff(self):
+        """
+        The sbuff value.
+        """
         return self._lattice.sbuff
 
     @sbuff.setter
@@ -99,6 +121,9 @@ class LatticeStructure(QObject):
 
     @Property(str, notify=latticeTypeChanged)
     def latticeType(self):
+        """
+        The lattice type's name.
+        """
         return self._lattice.lattice_type.name
 
     @latticeType.setter

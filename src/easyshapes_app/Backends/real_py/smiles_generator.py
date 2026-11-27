@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The SMILES generator for QML: a new component from a SMILES string.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -14,9 +17,10 @@ from .logic.session import Session
 
 class SmilesGenerator(QObject):
     """
-    The SMILES generator for QML: a draft of from_smiles arguments, and
-    Generate, which builds a component of them for the root to add to
-    the sample.
+    The SMILES generator for QML.
+
+    It holds a draft of from_smiles arguments. Generate builds a
+    component of them for the root to add to the sample.
 
     The draft keeps plain fields; the component is built only on
     Generate. A name the sample holds shows in nameTaken but does not
@@ -86,6 +90,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The new component's name.
+        """
         return self._name
 
     @name.setter
@@ -97,6 +104,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=formulaChanged)
     def formula(self):
+        """
+        The new component's formula.
+        """
         return self._formula
 
     @formula.setter
@@ -108,6 +118,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=smilesChanged)
     def smiles(self):
+        """
+        The SMILES string to build the molecule from.
+        """
         return self._smiles
 
     @smiles.setter
@@ -119,6 +132,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxXChanged)
     def boxX(self):
+        """
+        The box size along x.
+        """
         return self._box_x
 
     @boxX.setter
@@ -130,6 +146,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxYChanged)
     def boxY(self):
+        """
+        The box size along y.
+        """
         return self._box_y
 
     @boxY.setter
@@ -141,6 +160,9 @@ class SmilesGenerator(QObject):
 
     @Property(float, notify=boxZChanged)
     def boxZ(self):
+        """
+        The box size along z.
+        """
         return self._box_z
 
     @boxZ.setter
@@ -152,6 +174,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=extensionChanged)
     def extension(self):
+        """
+        The structure file format to write: '.gro' or '.pdb'.
+        """
         return self._extension
 
     @extension.setter
@@ -163,6 +188,9 @@ class SmilesGenerator(QObject):
 
     @Property(str, notify=componentTypeChanged)
     def componentType(self):
+        """
+        The library class the component is built as.
+        """
         return self._component_type
 
     @componentType.setter
@@ -174,6 +202,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=cisChanged)
     def cis(self):
+        """
+        The cis flag.
+        """
         return self._cis
 
     @cis.setter
@@ -185,6 +216,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=alignZChanged)
     def alignZ(self):
+        """
+        The align-with-z flag.
+        """
         return self._align_z
 
     @alignZ.setter
@@ -196,6 +230,9 @@ class SmilesGenerator(QObject):
 
     @Property(bool, notify=flattenXzChanged)
     def flattenXz(self):
+        """
+        The flatten-onto-xz flag.
+        """
         return self._flatten_xz
 
     @flattenXz.setter
@@ -229,24 +266,25 @@ class SmilesGenerator(QObject):
     @Property(bool, notify=nameTakenChanged)
     def nameTaken(self):
         """
-        Whether the sample already holds a component of the draft's
-        name.
+        Whether the sample holds a component of the draft's name.
         """
         return self._name in self._session.components
 
     @Property(bool, notify=generatedChanged)
     def generated(self):
         """
-        Whether the root added the component of the last Generate, so
-        the name the sample holds is its own.
+        Whether the root added the component of the last Generate.
+
+        If so, the name the sample holds is its own.
         """
         return self._generated
 
     @Slot()
     def generate(self):
         """
-        Build a component of the draft and hand it to the root for the
-        sample.
+        Build a component of the draft and hand it to the root.
+
+        The root adds it to the sample.
         """
         # Generate again starts over: only an added component sets it
         self._forget_generated()
@@ -264,8 +302,10 @@ class SmilesGenerator(QObject):
 
     def refresh(self):
         """
-        Follow the components list: a component added, renamed or
-        removed may take or free the draft's name.
+        Follow the components list.
+
+        A component added, renamed or removed may take or free the
+        draft's name.
         """
         self.nameTakenChanged.emit()
 

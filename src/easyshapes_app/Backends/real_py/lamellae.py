@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The vesicle's lamellae as an editable list model for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QAbstractListModel
@@ -13,11 +16,12 @@ from .composition import CompositionModel
 
 class LamellaeModel(QAbstractListModel):
     """
-    The current vesicle's lamellae as rows of an editable ListView, with
-    one composition model per row and leaflet, and the vesicle's full
-    radius. A row's shell shows rounded to 2 decimals; its outer leaflet
-    rmin, worked out from rmin, shell and the outer leaflet's longest
-    molecule, is read-only.
+    The current vesicle's lamellae as rows of an editable ListView.
+
+    It holds one composition model per row and leaflet, and the
+    vesicle's full radius. A row's shell shows rounded to 2 decimals;
+    its outer leaflet rmin, worked out from rmin, shell and the outer
+    leaflet's longest molecule, is read-only.
 
     The root builds it while the current structure, or the motif its
     lattice repeats, is a vesicle, and drops it on the next structure
@@ -77,6 +81,9 @@ class LamellaeModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.RminRole: b'rmin',
             self.ShellThicknessRole: b'shellThickness',
@@ -87,9 +94,15 @@ class LamellaeModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per lamella.
+        """
         return 0 if parent.isValid() else len(self._lamellae)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return one of a row's sizes, or whether it is symmetric.
+        """
         if not index.isValid():
             return None
         lamella = self._lamellae[index.row()]
@@ -110,6 +123,9 @@ class LamellaeModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's rmin, shell, dmin or symmetry.
+        """
         if not index.isValid():
             return False
         row = index.row()
@@ -169,6 +185,9 @@ class LamellaeModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Property('QVariantList', notify=innerLeafletCompositionsChanged)
@@ -181,16 +200,18 @@ class LamellaeModel(QAbstractListModel):
     @Property('QVariantList', notify=outerLeafletCompositionsChanged)
     def outerLeafletCompositions(self):
         """
-        One outer leaflet composition model per row, in row order; None
-        while the lamella is symmetric.
+        One outer leaflet composition model per row, in row order.
+
+        A row's model is None while its lamella is symmetric.
         """
         return self._outer_compositions
 
     @Property('QVariant', notify=fullRadiusChanged)
     def fullRadius(self):
         """
-        The vesicle's full radius in nm: the last lamella's rmin plus
-        its shell; None without a lamella.
+        The vesicle's full radius in nm, None without a lamella.
+
+        It is the last lamella's rmin plus its shell.
         """
         return self._vesicle.outer_radius
 
@@ -209,10 +230,11 @@ class LamellaeModel(QAbstractListModel):
     @Slot()
     def add(self):
         """
-        Add a symmetric lamella over the structure components, and its
-        inner composition model. The library stacks it on the lamella
-        before and works out its shell; a first lamella gets the
-        defaults.
+        Add a symmetric lamella over the structure components.
+
+        Its inner composition model comes with it. The library stacks it
+        on the lamella before and works out its shell. A first lamella
+        gets the defaults.
         """
         row = len(self._lamellae)
         self.beginInsertRows(QModelIndex(), row, row)
@@ -233,8 +255,9 @@ class LamellaeModel(QAbstractListModel):
     @Slot(int)
     def remove(self, row):
         """
-        Remove the lamella in a row and its composition models. The
-        dropped compositions stop following the components.
+        Remove the lamella in a row and its composition models.
+
+        The dropped compositions stop following the components.
         """
         lamella = self._lamellae[row]
         self.beginRemoveRows(QModelIndex(), row, row)
@@ -257,9 +280,10 @@ class LamellaeModel(QAbstractListModel):
 
     def refresh(self):
         """
-        Show every leaflet's composition and outer rmin after the
-        components changed: the compositions follow them themselves, the
-        views need telling.
+        Show every leaflet's composition and outer rmin anew.
+
+        Called after the components changed. The compositions follow
+        them themselves, but the views need telling.
         """
         for composition in self._inner_compositions + self._outer_compositions:
             if composition is not None:

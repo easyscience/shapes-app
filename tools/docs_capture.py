@@ -101,9 +101,10 @@ def wait(ms):
 
 def wait_until_idle(driver, limit_s=120):
     """
-    Let the app run until the Structure tab has read its atoms. Raises
-    the tab's error message if the read failed, and TimeoutError after
-    limit_s seconds.
+    Let the app run until the Structure tab has read its atoms.
+
+    Raises the tab's error message if the read failed, and TimeoutError
+    after limit_s seconds.
     """
     for _ in range(limit_s * 2):
         wait(500)
@@ -116,8 +117,10 @@ def wait_until_idle(driver, limit_s=120):
 
 def build_lattice_ball(path):
     """
-    Save the interface page's lattice scene to a folder: a ball of SDS
-    on a body-centred cubic lattice of 3 x 2 x 4 cells.
+    Save the interface page's lattice scene to a folder.
+
+    The scene is a ball of SDS on a body-centred cubic lattice of
+    3 x 2 x 4 cells.
     """
     from shapes.project import Ball, Ion, Lattice, Project, SampleModel, Surfactant
     from shapes.project.species import Buffer, Components, Solvent
@@ -157,10 +160,12 @@ SDS_RESTRAINTS = """#ifdef POSRES
 
 def make_sds_run(folder):
     """
-    Save the SDS tutorial's project to folder/SDSBall-run as its steps
-    leave it: assembled, the tail restraints in SDS.itp, eq0 and eq1
-    run with the restraints at the box centre, and its two curves
-    calculated. Skipped when the folder exists. Needs GROMACS.
+    Save the SDS tutorial's project to folder/SDSBall-run.
+
+    The project is as the tutorial's steps leave it: assembled, the tail
+    restraints in SDS.itp, eq0 and eq1 run with the restraints at the
+    box centre, and its two curves calculated. Skipped when the folder
+    exists. Needs GROMACS.
     """
     from Backends.real_py.logic.analysis import fill_configuration
     from Backends.real_py.logic.examples import build_sds_ball
@@ -206,8 +211,9 @@ def make_sds_run(folder):
 
 def find_item(window, accept, what):
     """
-    The first item on screen that accept(item) takes. Hidden items are
-    skipped with everything in them. Pages slid aside, such as the other
+    Return the first item on screen that accept(item) takes.
+
+    Hidden items are skipped with everything in them. Pages slid aside, such as the other
     tabs' pages, stay visible but lie outside the window, so an item
     counts only when its centre is inside it. Raises LookupError naming
     what was looked for.
@@ -227,8 +233,10 @@ def find_item(window, accept, what):
 
 def expand_group(window, title):
     """
-    Open the sidebar group with this title, as a click on its header
-    does: the other groups of its page close. Returns the group.
+    Open the sidebar group with this title, and return it.
+
+    It opens as a click on its header does: the other groups of its
+    page close.
     """
     group = find_item(
         window,
@@ -241,8 +249,9 @@ def expand_group(window, title):
 
 def click_tab(window, text):
     """
-    Open the visible tab with this label, as a click on it does.
-    Returns the tab.
+    Open the visible tab with this label, and return it.
+
+    It opens as a click on it does.
     """
     tab = find_item(
         window,
@@ -269,8 +278,9 @@ def set_checked(window, text, checked):
 
 def tilt_structure(window):
     """
-    Turn the visible structure viewer 45° up from below and 45° about
-    the vertical axis, as a drag on it would.
+    Turn the visible structure viewer as a drag on it would.
+
+    It turns 45° up from below and 45° about the vertical axis.
     """
     view = find_item(
         window,
@@ -284,8 +294,7 @@ def tilt_structure(window):
 
 def draw_boxes(image, items):
     """
-    Draw an orange box around each of these items on a grab of the
-    window.
+    Draw an orange box around each item on a grab of the window.
     """
     # The grab keeps the screen's scale, so the painter takes window
     # coordinates
@@ -303,8 +312,9 @@ def draw_boxes(image, items):
 
 def temp_entries():
     """
-    The folders in shapespyer's Temp, where assemblies and calculations
-    work until a project is saved.
+    Return the folders in shapespyer's Temp.
+
+    Assemblies and calculations work there until a project is saved.
     """
     from shapes.project.files import AppFileManager
 

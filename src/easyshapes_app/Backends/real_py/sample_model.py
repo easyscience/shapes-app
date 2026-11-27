@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The session's sample model for QML: its name, shape and files.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -36,8 +39,10 @@ SHAPES = {
 
 class SampleModel(QObject):
     """
-    The session's sample model for QML: its name, the shape of its
-    structure, whether a lattice repeats it, and its own files.
+    The session's sample model for QML.
+
+    It holds the model's name, the shape of its structure, whether a
+    lattice repeats it, and its own files.
 
     Fields read '' or False while there is no sample model. Continue on
     the Project page creates one; a project create or load brings its
@@ -90,6 +95,9 @@ class SampleModel(QObject):
 
     @Property(str, notify=nameChanged)
     def name(self):
+        """
+        The sample model's name, '' without a sample model.
+        """
         sample_model = self._session.sample_model
         return sample_model.name if sample_model else ''
 
@@ -105,10 +113,16 @@ class SampleModel(QObject):
 
     @Property('QVariant', constant=True)
     def shapes(self):
+        """
+        The shape names to choose from.
+        """
         return list(SHAPES)
 
     @Property(str, notify=shapeChanged)
     def shape(self):
+        """
+        The shape's name, '' without a sample model.
+        """
         sample_model = self._session.sample_model
         if sample_model is None:
             return ''
@@ -146,6 +160,9 @@ class SampleModel(QObject):
 
     @Property(bool, notify=latticeChanged)
     def lattice(self):
+        """
+        Whether the structure is a lattice.
+        """
         sample_model = self._session.sample_model
         return isinstance(sample_model.structure, Lattice) if sample_model else False
 
@@ -162,10 +179,16 @@ class SampleModel(QObject):
 
     @Property('QVariant', constant=True)
     def files(self):
+        """
+        The structure's files model.
+        """
         return self._files
 
     @Property(bool, notify=filesLockedChanged)
     def filesLocked(self):
+        """
+        True while a run writes the files.
+        """
         # True until the check takes the ended run in
         return self._watch.isActive()
 
@@ -176,8 +199,10 @@ class SampleModel(QObject):
     @Slot()
     def assemble(self):
         """
-        Assemble the sample model in the background. A check that fails
-        before the start raises, for the error dialog.
+        Assemble the sample model in the background.
+
+        A check that fails before the start raises, for the error
+        dialog.
         """
         self._session.sample_model.assemble(background=True)
         self._watch.start()
@@ -203,16 +228,18 @@ class SampleModel(QObject):
     @Slot(str)
     def load(self, name):
         """
-        Replace the sample model with the library's model of that name,
-        once no assembly runs.
+        Replace the sample model with the library's model of that name.
+
+        The replacement waits until no assembly runs.
         """
         self.after_assembly(lambda: self._replace(self._sample_model_class.load(name)))
 
     @Slot(str)
     def importFrom(self, folder):
         """
-        Replace the sample model with the one an export folder holds,
-        once no assembly runs.
+        Replace the sample model with the one an export folder holds.
+
+        The replacement waits until no assembly runs.
         """
         self.after_assembly(lambda: self._replace(self._sample_model_class.import_from(folder)))
 
@@ -253,8 +280,9 @@ class SampleModel(QObject):
     @Slot(bool)
     def save(self, overwrite):
         """
-        Save the sample model, with its nested assets, to the library;
-        overwrite replaces an entry of the same name.
+        Save the sample model, with its nested assets, to the library.
+
+        Overwrite replaces an entry of the same name.
         """
         self._session.sample_model.save(overwrite=overwrite)
         self.externalAssetsChanged.emit()
@@ -262,16 +290,18 @@ class SampleModel(QObject):
     @Slot(str, result=bool)
     def exportTaken(self, folder):
         """
-        Whether an export to a folder would replace files: anything
-        there.
+        Whether an export to a folder would replace files.
+
+        Anything in the folder counts.
         """
         return export_taken(folder)
 
     @Slot(str, bool)
     def exportTo(self, folder, overwrite):
         """
-        Export the sample model, with its nested assets, to a folder;
-        overwrite replaces an earlier export.
+        Export the sample model, with its nested assets, to a folder.
+
+        Overwrite replaces an earlier export.
         """
         self._session.sample_model.export_to(folder, overwrite=overwrite)
 
@@ -281,8 +311,9 @@ class SampleModel(QObject):
 
     def refresh(self):
         """
-        Tell QML that the session holds another sample model, and show
-        its files.
+        Tell QML that the session holds another sample model.
+
+        Also show the new model's files.
         """
         sample_model = self._session.sample_model
         self._files.reset(sample_model.paths if sample_model else ())
@@ -293,8 +324,9 @@ class SampleModel(QObject):
 
     def after_assembly(self, then):
         """
-        Call then once no assembly runs: at once, or once the running
-        one is cancelled.
+        Call then once no assembly runs.
+
+        That is at once, or after the running one is cancelled.
         """
         if not self._watch.isActive():
             then()
@@ -305,8 +337,9 @@ class SampleModel(QObject):
 
     def _check(self):
         """
-        Once the assembly has stopped: end the watch, report its error,
-        and run what waited.
+        End the watch once the assembly has stopped.
+
+        Then report its error and run what waited.
         """
         sample_model = self._session.sample_model
         if sample_model.files_locked:

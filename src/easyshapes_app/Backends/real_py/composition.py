@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+One composition as an editable list model for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QAbstractListModel
@@ -11,8 +14,9 @@ from PySide6.QtCore import Slot
 
 class CompositionModel(QAbstractListModel):
     """
-    One composition as rows of an editable ListView: one per component,
-    in component order.
+    One composition as rows of an editable ListView.
+
+    There is one row per component, in component order.
 
     A ring, rod, bilayer or monolayer has one composition, a ball one
     per layer and a vesicle one per lamella leaflet. The root builds
@@ -37,6 +41,9 @@ class CompositionModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.PresentRole: b'present',
@@ -44,9 +51,15 @@ class CompositionModel(QAbstractListModel):
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per component, in component order.
+        """
         return 0 if parent.isValid() else len(self._composition)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, presence or mol ratio.
+        """
         if not index.isValid():
             return None
         component, present, ratio = self._composition.items[index.row()]
@@ -61,6 +74,9 @@ class CompositionModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's presence or mol ratio.
+        """
         if not index.isValid():
             return False
         component, present, ratio = self._composition.items[index.row()]
@@ -89,6 +105,9 @@ class CompositionModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Slot(int, result='QVariant')
@@ -105,8 +124,9 @@ class CompositionModel(QAbstractListModel):
 
     def refresh(self):
         """
-        Show the rows after the components changed: the composition
-        follows them itself, the view needs telling.
+        Show the rows anew after the components changed.
+
+        The composition follows them itself, but the view needs telling.
         """
         self.beginResetModel()
         self.endResetModel()

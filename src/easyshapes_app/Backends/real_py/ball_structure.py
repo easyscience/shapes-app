@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The ball shape's fields for QML.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QObject
@@ -8,8 +11,10 @@ from PySide6.QtCore import Signal
 
 class BallStructure(QObject):
     """
-    One ball's fields for QML: the structure's, or the motif's its
-    lattice repeats. Its layers are the root's layers model.
+    One ball's fields for QML.
+
+    The ball is the structure, or the motif its lattice repeats. Its
+    layers are the root's layers model.
 
     The root builds it while the current structure is a ball and drops
     it on the next structure change; for any other shape QML finds none.
@@ -29,6 +34,9 @@ class BallStructure(QObject):
 
     @Property(bool, notify=fxzChanged)
     def fxz(self):
+        """
+        The fxz flag.
+        """
         return self._ball.fxz
 
     @fxz.setter
@@ -40,6 +48,9 @@ class BallStructure(QObject):
 
     @Property(bool, notify=revChanged)
     def rev(self):
+        """
+        The rev flag.
+        """
         return self._ball.rev
 
     @rev.setter
@@ -51,6 +62,9 @@ class BallStructure(QObject):
 
     @Property(str, notify=fillChanged)
     def fill(self):
+        """
+        The fill type's name.
+        """
         return self._ball.fill.name
 
     @fill.setter

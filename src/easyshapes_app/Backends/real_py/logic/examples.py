@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+Builders for the example projects the Project page lists.
+"""
 
 import math
 import shutil
@@ -31,9 +34,10 @@ MLV_DMINS = (0.65, 0.85)
 
 def build_mlv(path):
     """
-    Save the example of tutorial 1 to a folder: a dry vesicle of POPC
-    and cholesterol (70 : 30) with two lamellae. It is never solvated,
-    so it assembles without GROMACS. Not assembled.
+    Save the example of tutorial 1 to a folder, not assembled.
+
+    It is a dry vesicle of POPC and cholesterol (70 : 30) with two
+    lamellae. It is never solvated, so it assembles without GROMACS.
     """
     components = Components(items=[Lipid.load('POPC'), Lipid.load('CHL')])
     vesicle = Vesicle(name='MLV', components=components)
@@ -58,10 +62,11 @@ def build_mlv(path):
 
 def build_sds_ball(path):
     """
-    Save the example of tutorial 2 to a folder: a ball of SDS with its
-    sodium counter ions, in water. Its first layer is the one of the
-    Shapespyer SDS ball tutorial: 16 molecules on the equator, 0.4 nm
-    apart. Not assembled.
+    Save the example of tutorial 2 to a folder, not assembled.
+
+    It is a ball of SDS with its sodium counter ions, in water. Its
+    first layer is the one of the Shapespyer SDS ball tutorial: 16
+    molecules on the equator, 0.4 nm apart.
     """
     sds = Surfactant.load('SDS')
     sds.counter_ion = Ion.load('NAT')
@@ -94,10 +99,11 @@ EXAMPLES = {'MLV': build_mlv, 'SDSBall': build_sds_ball}
 
 def make_examples(folder, names=tuple(EXAMPLES), *, assemble=False):
     """
-    Save examples into a folder, such as the app's Examples folder, each
-    in a subfolder of its name; skip those the folder holds already.
-    assemble=True also assembles each one, which takes minutes, and
-    needs GROMACS for an example with a buffer.
+    Save examples into a folder, each in a subfolder of its name.
+
+    The folder can be the app's Examples folder. Skip the examples the
+    folder holds already. assemble=True also assembles each one, which
+    takes minutes, and needs GROMACS for an example with a buffer.
     """
     for name in names:
         path = Path(folder) / name

@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The sample model's buffer for QML: its solvent and components.
+"""
 
 from PySide6.QtCore import Property
 from PySide6.QtCore import QAbstractListModel
@@ -14,8 +17,9 @@ from shapes.project.species import Solvent
 
 class BufferComponentsModel(QAbstractListModel):
     """
-    The buffer's components as rows of an editable ListView: a name and
-    a concentration each.
+    The buffer's components as rows of an editable ListView.
+
+    Each row has a name and a concentration.
 
     The page works in mM, as wet-lab protocols do; the library holds
     mol/L, so reads multiply by 1000 and writes divide. The Buffer part
@@ -36,15 +40,24 @@ class BufferComponentsModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.NameRole: b'name',
             self.ConcentrationRole: b'concentration',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per buffer component.
+        """
         return 0 if parent.isValid() else len(self._components)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's name, or its concentration in mM.
+        """
         if not index.isValid():
             return None
         component = self._components[index.row()]
@@ -59,6 +72,9 @@ class BufferComponentsModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's concentration, given in mM.
+        """
         if not index.isValid():
             return False
         component = self._components[index.row()]
@@ -77,6 +93,9 @@ class BufferComponentsModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     @Slot(int, result='QVariant')
@@ -118,8 +137,9 @@ class BufferComponentsModel(QAbstractListModel):
 
 class Buffer(QObject):
     """
-    One buffer's fields for QML: its solvent, by name, and its
-    components.
+    One buffer's fields for QML.
+
+    They are its solvent, by name, and its components.
 
     The root builds it over the current sample model's buffer and drops
     it on the next structure change; with no sample model QML finds
@@ -157,6 +177,9 @@ class Buffer(QObject):
 
     @Property('QVariant', constant=True)
     def components(self):
+        """
+        The buffer components model.
+        """
         return self._components
 
     @Slot(str)

@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+The library asset editor for QML, with its file and salt models.
+"""
 
 import shutil
 from pathlib import Path
@@ -27,8 +30,9 @@ from .logic.files import export_taken
 
 def open_file(path):
     """
-    Open a file, or a folder, where it lies, in the system's default app
-    for its type. Every files group's pencil comes here.
+    Open a file or a folder in the system's default app for its type.
+
+    The file opens where it lies. Every files group's pencil comes here.
     """
     if not QDesktopServices.openUrl(QUrl.fromLocalFile(str(path))):
         raise RuntimeError(f'No app on this system opens {path}')
@@ -56,15 +60,24 @@ class FilesModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.PathRole: b'path',
             self.SizeRole: b'size',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: one per file.
+        """
         return 0 if parent.isValid() else len(self._paths)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's path, or its file size such as '47.1 kB'.
+        """
         if not index.isValid():
             return None
         path = self._paths[index.row()]
@@ -89,6 +102,9 @@ class FilesModel(QAbstractListModel):
 
     @Property(int, notify=countChanged)
     def count(self):
+        """
+        The number of rows.
+        """
         return self.rowCount()
 
     #########
@@ -133,8 +149,10 @@ class FilesModel(QAbstractListModel):
 
 class SaltCompositionModel(QAbstractListModel):
     """
-    A salt draft's two ions as rows of an editable ListView: row 0 the
-    cation, row 1 the anion, each with its count per formula unit.
+    A salt draft's two ions as rows of an editable ListView.
+
+    Row 0 is the cation and row 1 the anion, each with its count per
+    formula unit.
 
     The page writes both roles; Load and Create new replace the rows.
     """
@@ -154,15 +172,24 @@ class SaltCompositionModel(QAbstractListModel):
     ####################
 
     def roleNames(self):
+        """
+        Map each role to the name QML reads it by.
+        """
         return {
             self.IonRole: b'ion',
             self.CountRole: b'count',
         }
 
     def rowCount(self, parent=QModelIndex()):
+        """
+        Count the rows: the cation, then the anion.
+        """
         return 0 if parent.isValid() else len(self._rows)
 
     def data(self, index, role=Qt.DisplayRole):
+        """
+        Return a row's ion name, '' if unset, or its count.
+        """
         if not index.isValid():
             return None
         ion, count = self._rows[index.row()]
@@ -175,6 +202,9 @@ class SaltCompositionModel(QAbstractListModel):
                 return None
 
     def setData(self, index, value, role=Qt.EditRole):
+        """
+        Write a row's ion name or count.
+        """
         if not index.isValid():
             return False
         ion, count = self._rows[index.row()]
@@ -212,8 +242,10 @@ class SaltCompositionModel(QAbstractListModel):
 
 class LibraryAssets(QObject):
     """
-    The Library assets editor for QML: one draft asset the user creates
-    or loads from the library, edits, saves back or exports.
+    The Library assets editor for QML.
+
+    It holds one draft asset that the user creates or loads from the
+    library, edits, saves back or exports.
 
     The draft keeps plain fields; the typed asset is built only on save
     and export, so changing the type never leaves a half-built one and
@@ -265,6 +297,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=modeChanged)
     def mode(self):
+        """
+        The editor's mode: 'create' or 'edit'.
+        """
         return self._mode
 
     @Property('QVariant', constant=True)
@@ -276,6 +311,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=assetTypeChanged)
     def assetType(self):
+        """
+        The type of the asset in the editor.
+        """
         return self._asset_type
 
     @assetType.setter
@@ -287,6 +325,9 @@ class LibraryAssets(QObject):
 
     @Property(str, notify=assetNameChanged)
     def assetName(self):
+        """
+        The name of the asset in the editor.
+        """
         return self._asset_name
 
     @assetName.setter
@@ -312,6 +353,9 @@ class LibraryAssets(QObject):
 
     @Property(int, notify=mintChanged)
     def mint(self):
+        """
+        The mint value.
+        """
         return self._mint
 
     @mint.setter
@@ -323,6 +367,9 @@ class LibraryAssets(QObject):
 
     @Property(int, notify=mextChanged)
     def mext(self):
+        """
+        The mext value.
+        """
         return self._mext
 
     @mext.setter
@@ -334,10 +381,16 @@ class LibraryAssets(QObject):
 
     @Property('QVariant', constant=True)
     def paths(self):
+        """
+        The asset's files model.
+        """
         return self._paths
 
     @Property('QVariant', constant=True)
     def saltComposition(self):
+        """
+        The salt's two ions model.
+        """
         return self._salt
 
     @Property(bool, notify=saltReadyChanged)
@@ -392,8 +445,9 @@ class LibraryAssets(QObject):
     @Slot(str, str)
     def load(self, asset_type, name):
         """
-        Take a library entry's fields into the draft. A remote-only
-        entry is downloaded first.
+        Take a library entry's fields into the draft.
+
+        A remote-only entry is downloaded first.
         """
         asset = self._types[asset_type].load(name)
         # A field the type lacks takes the empty draft's value
@@ -420,8 +474,10 @@ class LibraryAssets(QObject):
     @Slot(result=bool)
     def nameTaken(self):
         """
-        Whether saving would replace another library entry of the
-        draft's type and name; the loaded entry does not count.
+        Whether saving would replace another library entry.
+
+        That is an entry of the draft's type and name. The loaded entry
+        does not count.
         """
         entry = (self._asset_type, self._asset_name)
         return entry != self._loaded and self._library_class().has_entry(*entry)
@@ -429,8 +485,9 @@ class LibraryAssets(QObject):
     @Slot(bool)
     def save(self, overwrite):
         """
-        Save the draft to the library; overwrite replaces an entry of
-        the same name.
+        Save the draft to the library.
+
+        Overwrite replaces an entry of the same name.
         """
         # overwrite: the user confirmed the taken name, or the draft is
         # the loaded entry, saved back
@@ -445,16 +502,20 @@ class LibraryAssets(QObject):
     @Slot(str, int, result=bool)
     def exportTaken(self, folder, row):
         """
-        Whether an export to a folder would replace files: the row's
-        namesake, or for the whole asset (row -1) anything there.
+        Whether an export to a folder would replace files.
+
+        For a row, that is a file of the same name. For the whole asset
+        (row -1), it is anything in the folder.
         """
         return export_taken(folder, self._paths.paths[row] if row >= 0 else None)
 
     @Slot(str, int, bool)
     def exportTo(self, folder, row, overwrite):
         """
-        Copy a row's file into a folder, or export the whole asset (row
-        -1) there; overwrite replaces an earlier export.
+        Copy a row's file, or the whole asset, into a folder.
+
+        Row -1 exports the whole asset. Overwrite replaces an earlier
+        export.
         """
         if row >= 0:
             # One file, copied as it is; the page has asked before
@@ -465,7 +526,7 @@ class LibraryAssets(QObject):
 
     def _build(self):
         """
-        The typed asset the draft describes.
+        Build the typed asset the draft describes.
         """
         cls = self._types[self._asset_type]
         if self._asset_type == 'Salt':

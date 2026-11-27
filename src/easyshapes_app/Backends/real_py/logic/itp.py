@@ -1,12 +1,17 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+Reading bonds from GROMACS topology (.itp) files.
+"""
 
 
 def read_bonds(path, name):
     """
-    The bonds of a molecule type in a GROMACS topology file, as pairs of
-    0-based atom indices: the type of the name, or the only one. Empty
-    when no type matches or it lists no bonds.
+    Read the bonds of a molecule type from a GROMACS topology file.
+
+    They are pairs of 0-based atom indices. The type is the one of the
+    name, or the only one. Empty when no type matches or it lists no
+    bonds.
     """
     # Pairs by molecule type; a bond line's first two fields are
     # 1-based atom numbers, as gmx reads them

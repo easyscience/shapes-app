@@ -1,5 +1,8 @@
 # SPDX-FileCopyrightText: 2026 EasyScience contributors <https://github.com/easyscience>
 # SPDX-License-Identifier: BSD-3-Clause
+"""
+What the app works on, shared by the backend root and its parts.
+"""
 
 from dataclasses import dataclass
 
@@ -28,8 +31,10 @@ class Session:
     @property
     def components(self):
         """
-        The components of the current structure, a lattice's from its
-        motif; empty before the first sample model.
+        The components of the current structure.
+
+        A lattice's come from its motif. The list is empty before the
+        first sample model.
         """
         if self.sample_model is None:
             return ()
