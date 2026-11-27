@@ -210,11 +210,7 @@ quote-style = 'single'           # But double quotes in docstrings (PEP 8, PEP 2
 select = [
   # Various rules
   # 'C90',  # https://docs.astral.sh/ruff/rules/#mccabe-c90
-  # 'D',   # https://docs.astral.sh/ruff/rules/#pydocstyle-d
-  # The 'D' rules one at a time, until all of 'D' passes
-  'D100',   # https://docs.astral.sh/ruff/rules/undocumented-public-module/
-  'D102',   # https://docs.astral.sh/ruff/rules/undocumented-public-method/
-  'D401',   # https://docs.astral.sh/ruff/rules/non-imperative-mood/
+  'D',      # https://docs.astral.sh/ruff/rules/#pydocstyle-d
   'F',      # https://docs.astral.sh/ruff/rules/#pyflakes-f
   # 'FLY',  # https://docs.astral.sh/ruff/rules/#flynt-fly
   # 'FURB', # https://docs.astral.sh/ruff/rules/#refurb-furb
