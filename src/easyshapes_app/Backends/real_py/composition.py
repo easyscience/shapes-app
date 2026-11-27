@@ -14,8 +14,9 @@ from PySide6.QtCore import Slot
 
 class CompositionModel(QAbstractListModel):
     """
-    One composition as rows of an editable ListView: one per component,
-    in component order.
+    One composition as rows of an editable ListView.
+
+    There is one row per component, in component order.
 
     A ring, rod, bilayer or monolayer has one composition, a ball one
     per layer and a vesicle one per lamella leaflet. The root builds
@@ -123,8 +124,9 @@ class CompositionModel(QAbstractListModel):
 
     def refresh(self):
         """
-        Show the rows after the components changed: the composition
-        follows them itself, the view needs telling.
+        Show the rows anew after the components changed.
+
+        The composition follows them itself, but the view needs telling.
         """
         self.beginResetModel()
         self.endResetModel()
