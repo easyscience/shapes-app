@@ -35,10 +35,10 @@ FINISHED = ('done', 'outdated')
 
 class EntriesModel(QAbstractListModel):
     """
-    Whose files the Equilibration Files group shows, and whose log
-    Engine output shows, as rows of their pickers: the equilibration,
-    then each stage run so far, each with a name and a status ('' for
-    the equilibration).
+    The picker rows of Equilibration Files and Engine output.
+
+    The rows are the equilibration, then each stage run so far. Each has
+    a name and a status ('' for the equilibration).
     """
 
     NameRole = Qt.UserRole + 1
@@ -123,8 +123,9 @@ class EntriesModel(QAbstractListModel):
 
 class EquilibrationFilesModel(FilesModel):
     """
-    The files of the equilibration or of one stage: a path, a size, and
-    whether the pencil opens the file.
+    The files of the equilibration or of one stage.
+
+    Each row has a path, a size, and whether the pencil opens the file.
     """
 
     EditableRole = Qt.UserRole + 3
@@ -150,8 +151,9 @@ class EquilibrationFilesModel(FilesModel):
 
     def show(self, paths, text):
         """
-        Replace every row with these files, the pencil opening those
-        with a suffix in text.
+        Replace every row with these files.
+
+        The pencil opens the files with a suffix in text.
         """
         self._text = text
         self.reset(paths)
@@ -159,9 +161,11 @@ class EquilibrationFilesModel(FilesModel):
 
 class Equilibration(QObject):
     """
-    The session's equilibration for QML: its setup, the files of the
-    equilibration and of each stage run so far, and a log: the run's, or
-    a finished stage's mdrun log.
+    The session's equilibration for QML.
+
+    It holds the setup, the files of the equilibration and of each stage
+    run so far, and a log. The log is the run's, or a finished stage's
+    mdrun log.
 
     Stage k runs the configuration's equil<k>.mdp. Fields read their
     defaults and the lists are empty while the session holds no
@@ -298,8 +302,7 @@ class Equilibration(QObject):
     @Property('QVariant', notify=stagesChanged)
     def availableStages(self):
         """
-        The stages the configuration holds an equil<k>.mdp for, in
-        order.
+        The stages with an equil<k>.mdp in the configuration, in order.
         """
         equilibration = self._equilibration()
         if equilibration is None:
@@ -314,8 +317,10 @@ class Equilibration(QObject):
     @Property('QVariant', notify=stagesChanged)
     def startableStages(self):
         """
-        The stages a run can start from: eq0, and each stage after a
-        finished one, that the configuration holds.
+        The stages a run can start from.
+
+        These are eq0 and each stage after a finished one, among those
+        the configuration holds.
         """
         after = [k + 1 for k, status in enumerate(self._statuses()) if status in FINISHED]
         return [k for k in [0, *after] if k in self.availableStages]
@@ -366,8 +371,9 @@ class Equilibration(QObject):
     @Property(str, notify=logChanged)
     def log(self):
         """
-        The picked log as a terminal shows it; '' for a stage running or
-        not run.
+        The picked log as a terminal shows it.
+
+        It is '' for a stage that is running or has not run.
         """
         return self._log
 
@@ -378,8 +384,10 @@ class Equilibration(QObject):
     @Slot()
     def run(self):
         """
-        Run the stages from the first to the last in the background. A
-        check that fails before the start raises, for the error dialog.
+        Run the stages from the first to the last in the background.
+
+        A check that fails before the start raises, for the error
+        dialog.
         """
         # On the model the analysis links
         self._equilibration().run(background=True)
@@ -394,8 +402,9 @@ class Equilibration(QObject):
     @Slot()
     def cancel(self):
         """
-        Stop the running equilibration; it ends at once, and the stages
-        it finished keep their files.
+        Stop the running equilibration at once.
+
+        The stages it finished keep their files.
         """
         self._equilibration().job.cancel()
         self._check()
@@ -403,8 +412,9 @@ class Equilibration(QObject):
     @Slot(int)
     def selectEntry(self, index):
         """
-        Show the files of the entry in a row: 0 for the equilibration, k
-        + 1 for stage k.
+        Show the files of the entry in a row.
+
+        Row 0 is the equilibration, row k + 1 is stage k.
         """
         self._selected_entry = index
         self._show_files()
@@ -413,9 +423,11 @@ class Equilibration(QObject):
     @Slot(int)
     def selectLog(self, index):
         """
-        Show the log of the entry in a row: 0 for the run's, which grows
-        while a run goes on; k + 1 for stage k's mdrun log, once the
-        stage has finished.
+        Show the log of the entry in a row.
+
+        Row 0 shows the run's log, which grows while a run goes on.
+        Stage k's mdrun log is in row k + 1, once the stage has
+        finished.
         """
         self._selected_log = index
         self._open_log()
@@ -431,17 +443,20 @@ class Equilibration(QObject):
     @Slot(str, int, result=bool)
     def exportTaken(self, folder, row):
         """
-        Whether an export to a folder would replace files: the row's
-        namesake, or for the whole entry (row -1) anything there.
+        Whether an export to a folder would replace files.
+
+        For a row, that is a file of the same name. For the whole entry
+        (row -1), it is anything in the folder.
         """
         return export_taken(folder, self._files.paths[row] if row >= 0 else None)
 
     @Slot(str, int, bool)
     def exportTo(self, folder, row, overwrite):
         """
-        Copy a row's file into a folder, or export the whole entry (row
-        -1) there, the equilibration with its nested assets; overwrite
-        replaces an earlier export.
+        Copy a row's file, or the whole entry, into a folder.
+
+        Row -1 exports the whole entry. The equilibration goes with its
+        nested assets. Overwrite replaces an earlier export.
         """
         if row >= 0:
             # One file, copied as it is; the page has asked before
@@ -463,8 +478,10 @@ class Equilibration(QObject):
 
     def refresh(self):
         """
-        Read everything again: the session holds another analysis, or
-        the configuration's files changed.
+        Read everything again.
+
+        Called when the session holds another analysis, or the
+        configuration's files changed.
         """
         # _show_stages emits stagesChanged and reads the picked log: no
         # statuses are shown now
@@ -479,8 +496,9 @@ class Equilibration(QObject):
 
     def after_equilibration(self, then):
         """
-        Call then once no run goes on: at once, or once the running one
-        is cancelled.
+        Call then once no run goes on.
+
+        That is at once, or after the running one is cancelled.
         """
         if not self._watch.isActive():
             then()
@@ -491,8 +509,10 @@ class Equilibration(QObject):
 
     def _check(self):
         """
-        Show what the run has done; once it has stopped, end the watch,
-        report its error, and run what waited.
+        Show what the run has done.
+
+        Once it has stopped, end the watch, report its error, and run
+        what waited.
         """
         equilibration = self._equilibration()
         # The read registers the stages finished since, and takes an
@@ -575,9 +595,11 @@ class Equilibration(QObject):
 
     def _open_log(self):
         """
-        Read the picked log from its start: the run's equilibration.log,
-        or a finished stage's mdrun log. A stage running or not run
-        shows none: it holds an earlier run's files, or none.
+        Read the picked log from its start.
+
+        The log is the run's equilibration.log, or a finished stage's
+        mdrun log. A stage that is running or has not run shows none: it
+        holds an earlier run's files, or none.
         """
         k = self._selected_log - 1
         statuses = self._shown_statuses or []
