@@ -11,8 +11,9 @@ from PySide6.QtCore import Signal
 
 class MonolayerStructure(QObject):
     """
-    One monolayer's fields for QML: the structure's, or the motif's its
-    lattice repeats.
+    One monolayer's fields for QML.
+
+    The monolayer is the structure, or the motif its lattice repeats.
 
     The root builds it while the current structure is a monolayer and
     drops it on the next structure change; for any other shape QML finds
