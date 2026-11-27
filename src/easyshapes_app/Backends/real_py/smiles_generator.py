@@ -17,9 +17,10 @@ from .logic.session import Session
 
 class SmilesGenerator(QObject):
     """
-    The SMILES generator for QML: a draft of from_smiles arguments, and
-    Generate, which builds a component of them for the root to add to
-    the sample.
+    The SMILES generator for QML.
+
+    It holds a draft of from_smiles arguments. Generate builds a
+    component of them for the root to add to the sample.
 
     The draft keeps plain fields; the component is built only on
     Generate. A name the sample holds shows in nameTaken but does not
@@ -265,24 +266,25 @@ class SmilesGenerator(QObject):
     @Property(bool, notify=nameTakenChanged)
     def nameTaken(self):
         """
-        Whether the sample already holds a component of the draft's
-        name.
+        Whether the sample holds a component of the draft's name.
         """
         return self._name in self._session.components
 
     @Property(bool, notify=generatedChanged)
     def generated(self):
         """
-        Whether the root added the component of the last Generate, so
-        the name the sample holds is its own.
+        Whether the root added the component of the last Generate.
+
+        If so, the name the sample holds is its own.
         """
         return self._generated
 
     @Slot()
     def generate(self):
         """
-        Build a component of the draft and hand it to the root for the
-        sample.
+        Build a component of the draft and hand it to the root.
+
+        The root adds it to the sample.
         """
         # Generate again starts over: only an added component sets it
         self._forget_generated()
@@ -300,8 +302,10 @@ class SmilesGenerator(QObject):
 
     def refresh(self):
         """
-        Follow the components list: a component added, renamed or
-        removed may take or free the draft's name.
+        Follow the components list.
+
+        A component added, renamed or removed may take or free the
+        draft's name.
         """
         self.nameTakenChanged.emit()
 
