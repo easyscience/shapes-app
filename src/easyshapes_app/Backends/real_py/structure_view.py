@@ -21,8 +21,10 @@ from .structure_instancing import StructureInstancing
 
 class StructureView(QObject):
     """
-    The structure viewer's atoms: the sample model's .gro, read in a
-    background thread while the Structure tab is shown.
+    The structure viewer's atoms, read from the sample model's .gro.
+
+    The file is read in a background thread while the Structure tab is
+    shown.
 
     A file is read again when its path or modification time changed, or
     after the tab was hidden with keepLoaded off: hiding then drops the
@@ -70,8 +72,9 @@ class StructureView(QObject):
     @Property(bool, notify=hasStructureChanged)
     def hasStructure(self):
         """
-        Whether the sample model holds a .gro to show: none while an
-        assembly runs.
+        Whether the sample model holds a .gro to show.
+
+        False while an assembly runs.
         """
         return self._key() is not None
 
@@ -124,8 +127,10 @@ class StructureView(QObject):
     @Slot(bool)
     def setActive(self, active):
         """
-        Whether the Structure tab is shown; atoms are read only then,
-        and dropped on hiding unless kept.
+        Set whether the Structure tab is shown.
+
+        Atoms are read only while it is, and dropped on hiding unless
+        kept.
         """
         self._active = active
         if not (active or self._keep):
@@ -135,8 +140,9 @@ class StructureView(QObject):
 
     def refresh(self):
         """
-        Show the .gro of a new sample model or structure, if the tab is
-        shown.
+        Show the .gro of a new sample model or structure.
+
+        Nothing is read while the tab is hidden.
         """
         self.hasStructureChanged.emit()
         self._load()
@@ -165,8 +171,10 @@ class StructureView(QObject):
 
     def _load(self):
         """
-        Read the sample model's .gro in a background thread, unless the
-        tab is hidden, a read runs, or the file is shown already.
+        Read the sample model's .gro in a background thread.
+
+        Nothing is read while the tab is hidden or a read runs, or when
+        the file is shown already.
         """
         key = self._key()
         if not self._active or self._loading or key == self._shown:
