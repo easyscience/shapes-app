@@ -21,8 +21,10 @@ from .logic.session import Session
 
 class ComponentsFiles(QObject):
     """
-    The Components Files group for QML: the files of one component of
-    the sample, the live object, picked from the components list.
+    The Components Files group for QML.
+
+    It shows the files of one component of the sample, picked from the
+    components list. The component is the live object.
 
     create() makes an empty Component, named by its uid, that the root
     adds to the sample; renaming goes through the components list. Files
@@ -108,8 +110,9 @@ class ComponentsFiles(QObject):
     @Slot()
     def create(self):
         """
-        Make an empty component, named by its uid, hand it to the root
-        for the sample, and pick it.
+        Make an empty component, named by its uid, and pick it.
+
+        It goes to the root, which adds it to the sample.
         """
         # Unnamed: the library's uid stands in until a rename
         component = self._component_class()
@@ -119,8 +122,9 @@ class ComponentsFiles(QObject):
     @Slot(result=bool)
     def nameTaken(self):
         """
-        Whether the library holds an entry of the picked component's
-        class and name.
+        Whether the library holds the picked component's name.
+
+        Only entries of the component's class count.
         """
         return self._library_class().has_entry(
             type(self._component).__name__, self._component.name
@@ -129,8 +133,9 @@ class ComponentsFiles(QObject):
     @Slot(bool)
     def save(self, overwrite):
         """
-        Save the picked component to the library; overwrite replaces an
-        entry of the same name.
+        Save the picked component to the library.
+
+        Overwrite replaces an entry of the same name.
         """
         self._component.save(overwrite=overwrite)
         self.externalAssetsChanged.emit()
@@ -138,16 +143,20 @@ class ComponentsFiles(QObject):
     @Slot(str, int, result=bool)
     def exportTaken(self, folder, row):
         """
-        Whether an export to a folder would replace files: the row's
-        namesake, or for the whole component (row -1) anything there.
+        Whether an export to a folder would replace files.
+
+        For a row, that is a file of the same name. For the whole
+        component (row -1), it is anything in the folder.
         """
         return export_taken(folder, self._files.paths[row] if row >= 0 else None)
 
     @Slot(str, int, bool)
     def exportTo(self, folder, row, overwrite):
         """
-        Copy a row's file into a folder, or export the whole component
-        (row -1) there; overwrite replaces an earlier export.
+        Copy a row's file, or the whole component, into a folder.
+
+        Row -1 exports the whole component. Overwrite replaces an
+        earlier export.
         """
         if row >= 0:
             # One file, copied as it is; the page has asked before
@@ -158,8 +167,9 @@ class ComponentsFiles(QObject):
 
     def refresh(self):
         """
-        Follow the components list: keep a renamed pick, drop a removed
-        one.
+        Follow the components list.
+
+        Keep a renamed pick, and drop a removed one.
         """
         # The pick stays while the structure holds it, and a rename
         # shows its new name; a removal or a new sample model drops it
