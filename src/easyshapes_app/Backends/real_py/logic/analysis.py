@@ -15,9 +15,10 @@ DEFAULT_CONFIGURATION = 'CHARMM36'
 
 def fill_configuration(analysis):
     """
-    Give an analysis whose configuration holds no files the library's
-    CHARMM36: Equilibration() starts with an empty one, which run()
-    refuses. A configuration that holds files stays.
+    Fill an analysis's empty configuration with the library's CHARMM36.
+
+    Equilibration() starts with an empty one, which run() refuses. A
+    configuration that holds files stays.
     """
     equilibration = analysis.equilibration
     if not equilibration.configuration.paths:
@@ -26,10 +27,12 @@ def fill_configuration(analysis):
 
 def stage_statuses(finals, running=None):
     """
-    Each stage's status, from its final .gro: 'running' for the stage a
-    run is on, 'done' once it holds its final .gro, 'outdated' when done
-    but its stage before finished after it or is outdated itself (it
-    started from older files), else 'not run'.
+    Return each stage's status from its final .gro.
+
+    The status is 'running' for the stage a run is on, and 'done' once a
+    stage holds its final .gro. A done stage is 'outdated' when its
+    stage before finished after it or is outdated itself: it started
+    from older files. Any other stage is 'not run'.
 
     finals holds each stage's final .gro, None while it holds none, as
     Stage.final_structure gives it; running is the index of the stage a
@@ -55,11 +58,13 @@ def stage_statuses(finals, running=None):
 
 class LogReader:
     """
-    A growing log as a terminal shows it. Each read takes in only the
-    bytes added since the last one, and a line keeps only its text after
-    its last carriage return: mdrun -v rewrites its progress line that
-    way, which then updates in place. The line still being written shows
-    too. The file on disk stays as it is.
+    A growing log as a terminal shows it.
+
+    Each read takes in only the bytes added since the last one, and a
+    line keeps only its text after its last carriage return: mdrun -v
+    rewrites its progress line that way, which then updates in place.
+    The line still being written shows too. The file on disk stays as it
+    is.
     """
 
     def __init__(self, path):
