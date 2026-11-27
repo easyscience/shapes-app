@@ -16,9 +16,10 @@ from .composition import CompositionModel
 
 class LayersModel(QAbstractListModel):
     """
-    The current ball's layers as rows of an editable ListView, with one
-    composition model per row, and the ball's full radius. A row's
-    thickness, its longest molecule, is read-only.
+    The current ball's layers as rows of an editable ListView.
+
+    It holds one composition model per row, and the ball's full radius.
+    A row's thickness, its longest molecule, is read-only.
 
     The root builds it while the current structure, or the motif its
     lattice repeats, is a ball, and drops it on the next structure
@@ -139,8 +140,10 @@ class LayersModel(QAbstractListModel):
     @Property('QVariant', notify=fullRadiusChanged)
     def fullRadius(self):
         """
-        The ball's full radius in nm: the last layer's rmin plus its
-        thickness; None while that thickness is unknown.
+        The ball's full radius in nm.
+
+        It is the last layer's rmin plus its thickness, or None while
+        that thickness is unknown.
         """
         return self._ball.outer_radius
 
@@ -159,9 +162,10 @@ class LayersModel(QAbstractListModel):
     @Slot()
     def add(self):
         """
-        Add a layer over the structure components, and its composition
-        model. The library stacks it on the layer before; a first layer
-        gets the defaults.
+        Add a layer over the structure components.
+
+        Its composition model comes with it. The library stacks it on
+        the layer before. A first layer gets the defaults.
         """
         row = len(self._layers)
         self.beginInsertRows(QModelIndex(), row, row)
@@ -184,8 +188,9 @@ class LayersModel(QAbstractListModel):
     @Slot(int)
     def remove(self, row):
         """
-        Remove the layer in a row and its composition model. The dropped
-        composition stops following the components.
+        Remove the layer in a row and its composition model.
+
+        The dropped composition stops following the components.
         """
         layer = self._layers[row]
         self.beginRemoveRows(QModelIndex(), row, row)
@@ -202,9 +207,10 @@ class LayersModel(QAbstractListModel):
 
     def refresh(self):
         """
-        Show every row's composition and thickness after the components
-        changed: the compositions follow them themselves, the views need
-        telling.
+        Show every row's composition and thickness anew.
+
+        Called after the components changed. The compositions follow
+        them themselves, but the views need telling.
         """
         for composition in self._compositions:
             composition.refresh()
